@@ -1,0 +1,26 @@
+Component,Description,Quantity per Probe,Part Number,Supplier,Unit Cost,Total Cost (20 probes),Notes
+Rod sections,Fiberglass rod 1m Ø25mm,1-3,Custom/McMaster 8537K11,McMaster-Carr,$12-18,$240-1080,Depends on depth
+Threaded couplers,M/F couplers nylon,0-2,Custom,3D print/McMaster,$3-5,$0-200,For multi-section
+Nose capsule,3D-printed capsule,1,Custom,3D print,$5-8,$100-160,PETG or ABS
+Seals,O-rings AS568,2-4,AS568-XXX,McMaster-Carr,$0.50-1,$20-80,Various sizes
+Potting silicone,Neutral cure RTV 50ml,1,Dow Corning 3145,Digi-Key/Mouser,$8-12,$160-240,Per probe
+Cable glands,PG7 or M12 gland,1-2,Various,Digi-Key,$3-5,$60-200,Size varies
+Strain relief,Heat-shrink clamps,1,Various,Digi-Key,$2-4,$40-80,Per probe
+Ferrite rod cores,10mm x 100mm,2,FER-10-100/Fair-Rite 2643250002,Mouser/Digi-Key,$3-5,$120-200,TX and RX
+Magnet wire,34 AWG enameled 50m,1,Belden 8055 or equivalent,Digi-Key/Mouser,$8-12,$160-240,For coils
+DDS generator,AD9833 DDS,1,AD9833BRMZ-REEL7,Digi-Key,$8.50,$170,25 MHz DDS SPI
+TX driver,Op-amp OPA2277,1,OPA2277PA,Digi-Key,$4.50,$90,Precision op-amp
+RX preamp,Low-noise AD620,1,AD620ANZ,Digi-Key,$6.50,$130,Instrumentation amp
+Instrumentation amp,INA128,1,INA128PAG4,Digi-Key,$7.50,$150,Precision diff amp
+Lock-in Option A,24-bit ADC ADS1256,1,ADS1256IDBR,Digi-Key,$18.50,$370,Digital lock-in SPI
+Lock-in Option B,Analog multiplier AD630,1,AD630ANZ,Digi-Key,$12.00,$240,Analog lock-in
+ADC Option B,16-bit ADC ADS1115,1,ADS1115IDGST,Digi-Key,$6.00,$120,If Option B I2C
+MCU,ESP32 DevKit,1,ESP32-DEVKITC-32E,Adafruit/SparkFun,$10.00,$200,WiFi/Bluetooth
+Voltage regulator,3.3V LDO AMS1117,1,AMS1117-3.3,Digi-Key,$0.50,$10,3.3V regulator
+Voltage regulator,5V LDO AMS1117,1,AMS1117-5.0,Digi-Key,$0.50,$10,5V regulator
+PCB,Perfboard or custom,1,Custom,Custom,$3-8,$60-160,50x50mm perfboard
+Connectors,Headers sockets 2.54mm,1,Various,Digi-Key,$3-5,$60-100,Various
+Ring electrodes,Stainless steel 12mm,2-3,Custom,Local/McMaster,$2-3,$80-180,304SS 0.5mm thick
+Electrode wire,Shielded twisted pair 3m,1,Belden 8723 or equivalent,Digi-Key/Mouser,$3-5,$60-100,24 AWG shielded
+Multiplexer,CD4051 analog mux,1,CD4051BE,Digi-Key,$1.50,$30,8-channel mux
+Diff amp ERT,INA128 shared,1,INA128PAG4,Digi-Key,$7.50,$150,Can share with MIT

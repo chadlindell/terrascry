@@ -1,0 +1,28 @@
+Component,Description,Quantity,Part Number,Supplier,Unit Cost,Total Cost,Notes
+Current source op-amp,Precision OPA177,1,OPA177GP,Digi-Key,$4.50,$4.50,Current source amplifier
+Voltage reference,REF5025 2.5V,1,REF5025AIDGKT,Digi-Key,$3.50,$3.50,Precision reference
+Current sense resistor,1.25kΩ 0.1%,1,RN73R2BTTD1251B10,Digi-Key,$1.50,$1.50,For 2mA full scale
+Polarity switch,DPDT relay 5V,1,G5V-2-5DC,Digi-Key,$3.50,$3.50,Polarity reversal
+Relay driver,Transistor 2N7002,1,2N7002,Digi-Key,$0.25,$0.25,Drive relay coil
+Instrumentation amp,INA128 precision,1,INA128PAG4,Digi-Key,$7.50,$7.50,High-precision diff amp
+ADC,24-bit ADS1256,1,ADS1256IDBR,Digi-Key,$18.50,$18.50,High resolution ADC
+Multiplexer,CD4051 8-channel,1,CD4051BE,Digi-Key,$1.50,$1.50,Channel selection optional
+Crystal oscillator,10 MHz oscillator,1,ECS-100-10-30B-TR,Digi-Key,$2.50,$2.50,Reference clock
+Clock buffer,74HC244 octal buffer,1,SN74HC244N,Digi-Key,$1.50,$1.50,Drive multiple outputs
+Sync cables,CAT5 cable 20m,1,Custom,Digi-Key/Mouser,$10-20,$10-20,Sync distribution
+Sync connectors,RJ45 connectors,20,Various,Digi-Key,$0.50,$10,For sync cables
+Battery,12V 12Ah SLA,1,UB12120,Digi-Key/Amazon,$25-35,$25-35,Sealed lead-acid
+Battery charger,12V SLA charger,1,Various,Amazon/Digi-Key,$15-25,$15-25,Automatic charger
+Fuse holder,Panel mount 5A,1,0287005.PXCN,Digi-Key,$2.00,$2.00,Fuse holder
+Fuses,5A fast-blow,5,0034.5002,Digi-Key,$0.50,$2.50,Spare fuses
+Distribution block,Terminal block,1,Various,Digi-Key,$3-5,$3-5,Power distribution
+Voltage regulator,12V to 5V buck,1,LM2596 module,Amazon,$3-5,$3-5,5V regulator module
+Data logger,Raspberry Pi 4 or tablet,1,Various,Various,$50-200,$50-200,RPi4 + SD or Android tablet
+RS485 transceiver,MAX485 module,1,MAX485ESA+,Digi-Key,$2.50,$2.50,RS485 interface
+Data cables,CAT5 cable 50m,1,Custom,Digi-Key/Mouser,$15-25,$15-25,Data/power cables
+Data connectors,RJ45 connectors,20,Various,Digi-Key,$0.50,$10,For data cables
+Power connectors,DC power jacks,20,PJ-002A,Digi-Key,$0.50,$10,Power connectors
+Wireless option,LoRa module optional,1,SX1278 module,Amazon,$8-12,$8-12,Optional LoRa
+Enclosure,Weatherproof box IP65,1,Various,Digi-Key/Amazon,$25-50,$25-50,200x150x100mm
+Mounting hardware,Screws brackets,1,Various,McMaster/Digi-Key,$5-10,$5-10,M3 screws
+Cable management,Strain reliefs glands,1,Various,Digi-Key,$5-10,$5-10,PG glands
