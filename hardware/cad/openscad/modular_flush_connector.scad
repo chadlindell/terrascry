@@ -21,7 +21,10 @@ THREAD_DIA_FEMALE = 10.5;
 THREAD_LEN = 15.0;
 WIRE_HOLE_DIA = 6.0;    // Center wiring channel
 
-SENSOR_BODY_LEN = 60.0; // Length of the exposed sensor section (Female side)
+// UPDATED: Sensor body made longer (70mm) to allow deeper thread hole
+SENSOR_BODY_LEN = 70.0; // Increased from 60.0
+THREAD_HOLE_DEPTH = 25.0; // Increased from 15+1 to 25mm for tap clearance
+
 FLANGE_THICKNESS = 2.0; // Stop flange to butt against tube end
 
 // Render Control
@@ -84,8 +87,12 @@ module female_sensor_module() {
             cylinder(d=WIRE_HOLE_DIA, h=ROD_INSERT_DEPTH + SENSOR_BODY_LEN + 2);
             
         // Threaded Socket (Female hole for Tapping)
-        translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - THREAD_LEN])
-            cylinder(d=THREAD_DIA_FEMALE, h=THREAD_LEN + 1);
+        // UPDATED: Deeper hole for tap clearance (25mm deep)
+        translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - THREAD_HOLE_DEPTH])
+            cylinder(d=THREAD_DIA_FEMALE, h=THREAD_HOLE_DEPTH + 1);
+            
+        // RELIEF CUT at bottom of thread hole (optional, helps tap chips fall or not bind)
+        // Using a slightly wider recess at bottom if needed, but just deep hole is usually enough
             
         // --- Sensor Cutouts ---
         translate([0,0,ROD_INSERT_DEPTH + 10])
@@ -150,7 +157,9 @@ module print_array_mixed() {
     
     // 3. Top Scaffolding (High up for female parts)
     // Connects the two tall parts
-    translate([spacing/2, spacing, 75]) 
+    // Updated height for taller sensor body (70mm len + 20mm depth = 90mm total)
+    // Bar at 85mm
+    translate([spacing/2, spacing, 85]) 
         cube([spacing, 3.0, 1.5], center=true); // Thick bar at top
 }
 
