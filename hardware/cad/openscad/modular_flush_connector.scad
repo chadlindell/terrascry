@@ -7,7 +7,7 @@
  * - M12 threads (12mm nominal) - Sized for Die/Tap cutting
  * - Center pass-through for wiring
  * - O-ring seal groove
- * - Printing Optimizations: SUPER BRIM and rigid scaffolding
+ * - Printing Optimizations: SUPER BRIM and rigid scaffolding (Non-Intersecting)
  */
 
 // --- Parameters ---
@@ -21,7 +21,6 @@ THREAD_DIA_FEMALE = 10.5;
 THREAD_LEN = 15.0;
 WIRE_HOLE_DIA = 6.0;    // Center wiring channel
 
-// UPDATED: Sensor body made longer (70mm) to allow deeper thread hole
 SENSOR_BODY_LEN = 70.0; // Increased from 60.0
 THREAD_HOLE_DEPTH = 25.0; // Increased from 15+1 to 25mm for tap clearance
 
@@ -87,12 +86,8 @@ module female_sensor_module() {
             cylinder(d=WIRE_HOLE_DIA, h=ROD_INSERT_DEPTH + SENSOR_BODY_LEN + 2);
             
         // Threaded Socket (Female hole for Tapping)
-        // UPDATED: Deeper hole for tap clearance (25mm deep)
         translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - THREAD_HOLE_DEPTH])
             cylinder(d=THREAD_DIA_FEMALE, h=THREAD_HOLE_DEPTH + 1);
-            
-        // RELIEF CUT at bottom of thread hole (optional, helps tap chips fall or not bind)
-        // Using a slightly wider recess at bottom if needed, but just deep hole is usually enough
             
         // --- Sensor Cutouts ---
         translate([0,0,ROD_INSERT_DEPTH + 10])
@@ -111,11 +106,20 @@ module female_sensor_module() {
 module super_brim(spacing, radius) {
     // A solid 0.28mm sheet connecting the bases
     // Acts as a super-raft to prevent lifting
-    hull() {
-        translate([0, 0, 0]) cylinder(r=radius, h=0.28);
-        translate([spacing, 0, 0]) cylinder(r=radius, h=0.28);
-        translate([0, spacing, 0]) cylinder(r=radius, h=0.28);
-        translate([spacing, spacing, 0]) cylinder(r=radius, h=0.28);
+    
+    difference() {
+        hull() {
+            translate([0, 0, 0]) cylinder(r=radius, h=0.28);
+            translate([spacing, 0, 0]) cylinder(r=radius, h=0.28);
+            translate([0, spacing, 0]) cylinder(r=radius, h=0.28);
+            translate([spacing, spacing, 0]) cylinder(r=radius, h=0.28);
+        }
+        
+        // CLEANOUT: Remove brim from center hole of each part
+        translate([0, 0, -1]) cylinder(d=WIRE_HOLE_DIA, h=2);
+        translate([spacing, 0, -1]) cylinder(d=WIRE_HOLE_DIA, h=2);
+        translate([0, spacing, -1]) cylinder(d=WIRE_HOLE_DIA, h=2);
+        translate([spacing, spacing, -1]) cylinder(d=WIRE_HOLE_DIA, h=2);
     }
 }
 
@@ -125,10 +129,22 @@ module rigid_scaffolding(spacing, z_height) {
     beam_height = 1.2; 
     
     translate([0, 0, z_height]) {
-        // Box frame
+        // Box frame - Shortened slightly to NOT pierce the center rod
+        
+        // Horizontals (X-axis)
+        // Don't cross the center line of the part
+        // Left side
+        translate([spacing/2, -beam_width/2, 0]) 
+            cube([spacing - ROD_ID, beam_width, beam_height], center=true); // Offset to avoid center? No, easier to difference
+        
+        // Instead of complex offset geometry, we build the full grid
+        // AND THEN SUBTRACT THE PART FOOTPRINT from it in the main module
+        
+        // Horizontal connectors
         translate([spacing/2, 0, 0]) cube([spacing, beam_width, beam_height], center=true);
         translate([spacing/2, spacing, 0]) cube([spacing, beam_width, beam_height], center=true);
         
+        // Vertical connectors
         translate([0, spacing/2, 0]) cube([beam_width, spacing, beam_height], center=true);
         translate([spacing, spacing/2, 0]) cube([beam_width, spacing, beam_height], center=true);
         
@@ -142,31 +158,44 @@ module print_array_mixed() {
     spacing = ROD_OD + 8; // 24mm
     brim_rad = 12.0; // Radius of brim around each part center
     
-    // Parts
-    translate([0, 0, 0]) male_insert();
-    translate([spacing, 0, 0]) male_insert();
+    // Parts Group (Union)
+    union() {
+        translate([0, 0, 0]) male_insert();
+        translate([spacing, 0, 0]) male_insert();
+        
+        translate([0, spacing, 0]) female_sensor_module();
+        translate([spacing, spacing, 0]) female_sensor_module();
+    }
     
-    translate([0, spacing, 0]) female_sensor_module();
-    translate([spacing, spacing, 0]) female_sensor_module();
-    
-    // 1. SUPER BRIM (Base Stability)
+    // 1. SUPER BRIM (Base Stability) - Already has cleanouts
     super_brim(spacing, brim_rad);
     
-    // 2. Rigid Scaffolding (Mid-height)
-    rigid_scaffolding(spacing, 30);
-    
-    // 3. Top Scaffolding (High up for female parts)
-    // Connects the two tall parts
-    // Updated height for taller sensor body (70mm len + 20mm depth = 90mm total)
-    // Bar at 85mm
-    translate([spacing/2, spacing, 85]) 
-        cube([spacing, 3.0, 1.5], center=true); // Thick bar at top
+    // 2. SCAFFOLDING GROUP (Calculated then Subtracted)
+    difference() {
+        union() {
+            // Mid-height
+            rigid_scaffolding(spacing, 30);
+            // Top bar
+            translate([spacing/2, spacing, 85]) 
+                cube([spacing, 3.0, 1.5], center=true); 
+        }
+        
+        // SUBTRACT PARTS from Scaffolding
+        // We subtract a slightly larger cylinder for each part location
+        // so the scaffolding stops just before touching the part surface (or barely touches it)
+        // Actually, we want it to touch the outside but NOT go inside.
+        // So we subtract the WIRE_HOLE_DIA cylinder
+        
+        translate([0, 0, -10]) cylinder(d=WIRE_HOLE_DIA, h=200);
+        translate([spacing, 0, -10]) cylinder(d=WIRE_HOLE_DIA, h=200);
+        translate([0, spacing, -10]) cylinder(d=WIRE_HOLE_DIA, h=200);
+        translate([spacing, spacing, -10]) cylinder(d=WIRE_HOLE_DIA, h=200);
+    }
 }
 
 // --- Render Logic ---
 
 if (part == "male_array") {
-    // Only mixed array updated with super brim for now as requested
     print_array_mixed(); 
 } else if (part == "female_array") {
     print_array_mixed();
