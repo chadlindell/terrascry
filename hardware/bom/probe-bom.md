@@ -12,12 +12,20 @@
 | Component | Description | Quantity | Part Number | Supplier | Example Source (real-world) | Unit Cost | Total Cost | Notes |
 |-----------|-------------|----------|-------------|----------|-----------------------------|-----------|------------|-------|
 | Rod sections | Fiberglass tube 0.5–1.0 m, Ø16 mm OD / 12 mm ID | 2–3 | Custom | Local/McMaster | McMaster 5/8" OD fiberglass tube (or similar 16mm metric) | $6–10 | $12–30 | Cut to 0.5m or 1.0m lengths |
-| Male Insert Plugs | 3D printed threaded plug | 2–3 | Custom | 3D print | Printed per `hardware/cad/openscad/modular_flush_connector.scad` | $0.50 | $1.50 | Epoxied into rod ends |
-| Sensor Modules | 3D printed sensor housing (Female thread) | 2–3 | Custom | 3D print | Printed per `hardware/cad/openscad/modular_flush_connector.scad` | $1–2 | $2–6 | Houses coils/electrodes |
+| Male Insert Plugs | 3D printed threaded plug | 2–3 | Custom | 3D print | Printed per `hardware/cad/openscad/modular_flush_connector.scad` | $0.50 | $1.50 | Epoxied into rod ends. **Print with 100% Infill** |
+| Sensor Modules | 3D printed sensor housing (Female thread) | 2–3 | Custom | 3D print | Printed per `hardware/cad/openscad/modular_flush_connector.scad` | $1–2 | $2–6 | Houses coils/electrodes. **Print with 100% Infill** |
 | Probe tip | 3D-printed nose cone (Threaded) | 1 | Custom | 3D print | Custom SCAD | $1 | $1 | Screws into bottom rod |
 | O-rings | Seals for threaded joints | 2–4 | AS568-014 | McMaster | Buna-N O-ring for 12mm thread seal | $0.10 | $0.40 | Weatherproofing joints |
 | Epoxy | 2-part structural epoxy | 1 | Various | Hardware store | Loctite Marine Epoxy | $5 | $5 | For bonding inserts to rods |
 | **Subtotal Mechanical** | | | | | | | **$21.90–43.90** | |
+
+## Manufacturing Tools (One-time purchase)
+
+| Tool | Description | Quantity | Supplier | Cost | Notes |
+|------|-------------|----------|----------|------|-------|
+| Tap | M12×1.75 Plug Tap | 1 | Amazon/McMaster | $10–15 | To cut threads in female modules |
+| Die | M12×1.75 Round Die | 1 | Amazon/McMaster | $10–15 | To cut threads on male plugs |
+| Die Stock / Tap Handle | Handle for tools | 1 set | Amazon | $15–20 | |
 
 ## MIT-3D Components (Integrated into Modules)
 
@@ -46,12 +54,7 @@
 
 **Typical cost:** ~$45 per probe
 
-## Cost Comparison
-**Old Design (12mm glued):** $40–60 per probe
-**New Design (16mm modular):** $35–58 per probe
-*Cost is similar, but robustness and manufacturability are significantly improved.*
-
 ## Procurement Tips
 - **Rod Stock:** Buy standard 5/8" or 16mm fiberglass tubing in bulk lengths (e.g., 8ft or 2m) and cut to size.
-- **3D Printing:** This design relies heavily on printed parts. Use PETG or ASA for strength and outdoor durability.
+- **3D Printing:** This design relies heavily on printed parts. Use PETG or ASA for strength and outdoor durability. **Set slicer to 100% Infill.**
 - **O-rings:** Don't skip these. They keep groundwater out of the wiring channel.

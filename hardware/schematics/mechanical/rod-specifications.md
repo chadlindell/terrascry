@@ -68,7 +68,7 @@ The system uses a 2-part connector system that is permanently epoxied into the e
 *   **Function:** Provides the male thread for the joint.
 *   **Geometry:**
     *   **Flange:** Inserts into fiberglass rod ID (epoxied).
-    *   **Thread:** M12×1.75 or M14×2.0 (printed or cut).
+    *   **Thread:** M12×1.75 (printed oversize at 12.2mm for Die cutting).
     *   **Shoulder:** Matches Rod OD (16 mm) for flush fit.
 *   **Wiring:** Hollow center for wire pass-through.
 
@@ -77,7 +77,7 @@ The system uses a 2-part connector system that is permanently epoxied into the e
 *   **Geometry:**
     *   **Flange:** Inserts into fiberglass rod ID (epoxied).
     *   **Body:** Extended section matching Rod OD (16 mm).
-    *   **Thread:** Female internal thread.
+    *   **Thread:** Female internal thread (printed undersize at 10.5mm for Tapping).
 *   **Sensor Integration:**
     *   **MIT Coils:** Wound directly onto the printed module body (or on a ferrite core embedded within).
     *   **ERT Rings:** Conductive bands (copper/steel) mounted in grooves on the module body.
@@ -87,16 +87,21 @@ The system uses a 2-part connector system that is permanently epoxied into the e
 *   **Assembly:** Wires are threaded through as segments are screwed together.
 
 ## Advantages of New Design
-1.  **Strength:** 16 mm OD allows for robust M12/M14 threads (unlike fragile M10 on 12mm rods).
-2.  **Modularity:** Sensor spacing is determined by rod segment length. Need sensors every 50cm? Use 50cm rods.
+1.  **Strength:** 16 mm OD allows for robust M12 threads.
+2.  **Modularity:** Sensor spacing is determined by rod segment length.
 3.  **Manufacturability:** Sensors are built into the printed parts, not glued onto the rod surface.
 4.  **Smooth Profile:** Flush connections prevent snagging during insertion/extraction.
 
 ## Trade-offs
-*   **Slightly Larger Hole:** 16 mm rod requires ~18-20 mm hole (vs 14 mm for 12 mm rod). Still significantly smaller than original 25-50 mm designs.
-*   **Assembly Time:** Requires screwing segments together on-site (or transporting long assemblies).
+*   **Slightly Larger Hole:** 16 mm rod requires ~18-20 mm hole.
+*   **Assembly Time:** Requires screwing segments together on-site.
 
 ## Manufacturing Notes
-*   **3D Printing:** PETG or ASA recommended for impact resistance and UV stability.
-*   **Threads:** Print threads horizontally if possible, or use high wall count/100% infill for vertical printed threads.
+*   **3D Printing Settings:**
+    *   **Material:** PETG or ASA (UV/Impact resistant).
+    *   **Infill:** **100% INFILL REQUIRED**. Do not print hollow. The threads will fail if cut into infill.
+    *   **Walls/Perimeters:** If not using 100% infill, use at least 6-8 perimeters to ensure the threaded region is solid.
+*   **Thread Cutting:**
+    *   **Male:** Use M12×1.75 Die to cut clean threads on the printed stud.
+    *   **Female:** Use M12×1.75 Tap to cut threads in the printed hole.
 *   **Sealing:** O-rings should be included at the thread shoulder to seal the internal wiring channel from groundwater.
