@@ -1,115 +1,102 @@
-# Rod Specifications
+# Rod Specifications - Modular Micro-Probe Design
 
 ## Overview
 
-This document will contain detailed specifications for the probe rods.
+**Design Philosophy:** A modular, segmented probe system where sensors are integrated into 3D-printed couplers between standard fiberglass rod sections.
 
-## Status
+**Core Changes:**
+1.  **Increased Diameter:** Moved to **16 mm (5/8") OD** to enable structural 3D-printed threads and internal wiring.
+2.  **Modular Assembly:** Probes are built by stacking **Rod Segments** and **Sensor Modules**.
+3.  **Flush Design:** All connectors and modules match the rod OD (16 mm) for a smooth, snag-free profile.
 
-**Placeholder** - To be filled with:
-- Rod material specifications
-- Dimensional tolerances
-- Thread specifications
-- Coupler design
-- Length options
+## Stacked Assembly Visualization
 
-## Planned Content
+```
+      [TOP CAP]
+         │
+         │ Thread
+         ▼
+┌───────────────────────┐
+│ Female Insert (Top)   │
+│ (Epoxied into rod)    │
+└──────────┬────────────┘
+           │
+   [ROD SEGMENT 1]
+   (Fiberglass Tube)
+           │
+┌──────────┴────────────┐
+│ Male Insert Plug      │
+│ (Epoxied into rod)    │
+└──────────┬────────────┘
+           │ Thread (M12)
+           ▼
+┌───────────────────────┐
+│ SENSOR MODULE         │ ◄── 3D Printed Part
+│ (Housing Coils/Rings) │
+│                       │
+│ Top: Female Thread    │
+│ Btm: Epoxied to Rod 2 │
+└──────────┬────────────┘
+           │
+   [ROD SEGMENT 2]
+   (Fiberglass Tube)
+           │
+┌──────────┴────────────┐
+│ Male Insert Plug      │
+└──────────┬────────────┘
+           │
+           ▼
+      [PROBE TIP]
+```
 
-### Material Options
-- **Fiberglass (preferred):**
-  - High strength
-  - Non-conductive
-  - Durable
-  - Resistant to moisture
+## Dimensions
 
-- **PVC (alternative):**
-  - Lower cost
-  - Adequate for shallow deployments
-  - Less durable than fiberglass
+### Fiberglass Rod Segments
+*   **Outer Diameter (OD):** 16 mm (approx. 5/8") - *Increased from 12mm for strength*
+*   **Inner Diameter (ID):** 12–13 mm (standard pultruded tube)
+*   **Wall Thickness:** ~1.5–2.0 mm
+*   **Segment Lengths:**
+    *   **Spacer Segments:** 50 cm, 100 cm (defines sensor spacing)
+    *   **Top/Bottom Segments:** Variable
+*   **Material:** Fiberglass (non-conductive, RF transparent)
 
-### Dimensions
+## Connector Architecture: "Flush-Mount Modular Inserts"
 
-**Fiberglass Rod (Recommended):**
-- **Outer Diameter:** 25 mm (1 inch)
-- **Inner Diameter:** 20 mm (0.787 inch)
-- **Wall Thickness:** 2.5 mm
-- **Standard Section Length:** 1000 mm (1.0 m)
-- **Material:** Fiberglass reinforced epoxy (FRP)
-- **Weight:** ~200-250 g per meter section
-- **Strength:** Sufficient for 3 m insertion depth
+The system uses a 2-part connector system that is permanently epoxied into the ends of rod segments to create a screw-together stack.
 
-**Alternative - PVC Rod:**
-- **Outer Diameter:** 25 mm (1 inch Schedule 40)
-- **Inner Diameter:** 21 mm
-- **Wall Thickness:** 2 mm
-- **Standard Section Length:** 1000 mm (1.0 m)
-- **Material:** Rigid PVC (Schedule 40)
-- **Weight:** ~150-200 g per meter section
-- **Note:** Less durable than fiberglass, adequate for shallow deployments
+### 1. Male Insert (Thread Side)
+*   **Function:** Provides the male thread for the joint.
+*   **Geometry:**
+    *   **Flange:** Inserts into fiberglass rod ID (epoxied).
+    *   **Thread:** M12×1.75 or M14×2.0 (printed or cut).
+    *   **Shoulder:** Matches Rod OD (16 mm) for flush fit.
+*   **Wiring:** Hollow center for wire pass-through.
 
-### Thread Specifications
+### 2. Female Insert / Sensor Module (Socket Side)
+*   **Function:** Receives the male thread AND houses the sensors (Coils/Electrodes).
+*   **Geometry:**
+    *   **Flange:** Inserts into fiberglass rod ID (epoxied).
+    *   **Body:** Extended section matching Rod OD (16 mm).
+    *   **Thread:** Female internal thread.
+*   **Sensor Integration:**
+    *   **MIT Coils:** Wound directly onto the printed module body (or on a ferrite core embedded within).
+    *   **ERT Rings:** Conductive bands (copper/steel) mounted in grooves on the module body.
 
-**Thread Type:** Custom ACME-style or standard pipe thread
-- **Option 1:** 1" NPT (National Pipe Thread) - 11.5 threads per inch
-- **Option 2:** Custom ACME thread - 4 threads per inch (stronger, easier to engage)
-- **Thread Length:** 25-30 mm engagement length
-- **Tolerance:** Class 2 fit (standard commercial)
+## Wiring Path
+*   **Center Channel:** All wiring runs up the center of the hollow fiberglass rods and through the hollow center of the connectors.
+*   **Assembly:** Wires are threaded through as segments are screwed together.
 
-### Coupler Specifications
+## Advantages of New Design
+1.  **Strength:** 16 mm OD allows for robust M12/M14 threads (unlike fragile M10 on 12mm rods).
+2.  **Modularity:** Sensor spacing is determined by rod segment length. Need sensors every 50cm? Use 50cm rods.
+3.  **Manufacturability:** Sensors are built into the printed parts, not glued onto the rod surface.
+4.  **Smooth Profile:** Flush connections prevent snagging during insertion/extraction.
 
-**Material:** Glass-filled nylon (preferred) or 3D-printed PETG with brass inserts
-
-**Dimensions:**
-- **Length:** 75 mm (3 inches)
-- **Outer Diameter:** 30 mm (to accommodate thread)
-- **Thread:** M/F matching rod threads
-- **Wall Thickness:** 3-4 mm (for strength)
-
-**Design Details:**
-- **Thread Engagement:** 25-30 mm on each side
-- **Center Section:** Smooth, no threads (for grip)
-- **Sealing:** O-ring groove at each end (AS568-225 or similar, 25mm ID)
-- **Markings:** Depth graduations every 0.5 m (optional)
-
-**3D Printing Specifications (if custom):**
-- **Material:** PETG or ABS (waterproof, strong)
-- **Infill:** 40-50% (for strength)
-- **Wall Count:** 3-4 perimeters
-- **Brass Inserts:** M6 threaded inserts for additional strength (optional)
-
-### Length Configurations
-
-**1.5 m Configuration (Woods Burials):**
-- 1 × 1.0 m section
-- 1 × 0.5 m section (cut from full section)
-- 1 × coupler
-- **Total Length:** 1.5 m
-- **Weight:** ~375-500 g
-
-**3.0 m Configuration (Crater Deployments):**
-- 3 × 1.0 m sections
-- 2 × couplers
-- **Total Length:** 3.0 m
-- **Weight:** ~750-1000 g
-
-**Custom Lengths:**
-- Can cut sections to any length
-- Use couplers to join sections
-- Maximum recommended: 4 m (weight and handling considerations)
-
-### Depth Graduations
-
-**Marking Specifications:**
-- **Location:** Every 0.5 m from probe tip
-- **Method:** Engraved, painted, or heat-stamped
-- **Format:** "0.5", "1.0", "1.5", "2.0", "2.5", "3.0" meters
-- **Visibility:** High-contrast (white on dark rod, or black on light rod)
-- **Purpose:** Field depth verification during insertion
+## Trade-offs
+*   **Slightly Larger Hole:** 16 mm rod requires ~18-20 mm hole (vs 14 mm for 12 mm rod). Still significantly smaller than original 25-50 mm designs.
+*   **Assembly Time:** Requires screwing segments together on-site (or transporting long assemblies).
 
 ## Manufacturing Notes
-
-- Threads must be precise for reliable connection
-- Consider weight for field handling
-- Ensure electrical isolation for ERT measurements
-- Mark depth graduations for field use
-
+*   **3D Printing:** PETG or ASA recommended for impact resistance and UV stability.
+*   **Threads:** Print threads horizontally if possible, or use high wall count/100% infill for vertical printed threads.
+*   **Sealing:** O-rings should be included at the thread shoulder to seal the internal wiring channel from groundwater.
