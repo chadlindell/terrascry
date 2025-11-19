@@ -34,17 +34,20 @@ HIRT/
 ## Key Features
 
 - **Dual-Method Imaging:** MIT (magneto-inductive) + ERT (electrical resistivity)
-- **Modular Design:** Identical dual-role probes simplify logistics
+- **Micro-Probe Design:** 12mm OD passive probes (~10× less disturbance)
+- **Modular Design:** Identical passive probes + central electronics hub
 - **Low Cost:** $1,800–3,900 for complete starter kit
 - **Field-Ready:** Designed for archaeological/forensic field teams
 - **DIY-Friendly:** Detailed documentation for construction
+- **Archaeology-Friendly:** Minimal intrusion, acceptable for sensitive contexts
 
 ## System Overview
 
-- **Probes:** 20–24 identical dual-role probes
+- **Probes:** 20–24 identical passive micro-probes (12mm OD)
 - **Depth:** 2–6 m investigation depth (depending on configuration)
 - **Resolution:** 0.5–1.5 m lateral resolution
 - **Applications:** Aircraft wreckage, disturbed fill, voids, potential burials
+- **Design:** Minimal intrusion (~10× less disturbance than 2" probes)
 
 ## Getting Started
 
@@ -88,6 +91,14 @@ See [docs/README.md](docs/README.md) for complete documentation index.
 ## License
 
 [To be determined]
+
+## Patent & IP Status
+
+- The micro-probe mechanics, CAD, and assembly notes published in this repo act as a defensive publication so the community retains DIY access to the design.
+- A limited-scope provisional filing (covering the hybrid MIT/ERT deployment workflow and base hub control chain) is being prepared; reach out via the project issue tracker for coordination before filing derivative patents.
+- By contributing, you acknowledge that your submissions may be referenced in any future patent filings (defensive or otherwise) and that you retain the right to practice your contributions.
+- Please document any prior-art references inside pull requests so we can maintain a clear freedom-to-operate record.
+- See `docs/IP-LOG.md` for a running log of publications, prior art, and filing status.
 
 ## Contributing
 

@@ -6,30 +6,30 @@ This guide provides instructions for manufacturing HIRT probe components from th
 
 ## Available Parts
 
-### 1. Probe Head (Nose Capsule)
+### 1. Probe Tip (Nose Cone) - BOTTOM
 
-**File:** `openscad/probe_head.scad`
+**File:** `openscad/micro_probe_tip.scad`
 
 **3D Printing:**
 - **Material:** PETG (preferred) or ABS
 - **Layer Height:** 0.2-0.3mm
 - **Infill:** 40-50%
-- **Supports:** Minimal (may need supports for cable gland hole)
-- **Orientation:** Print standing on end (cap at bottom)
+- **Supports:** Minimal (may need supports for point)
+- **Orientation:** Print standing on end (point up)
 - **Post-Processing:**
-  - Clean threads with M25×2.5 tap if needed
+  - Clean threads with M12×1.5 tap
   - Test fit with rod
-  - Verify cable gland fit
+  - Verify sharp point
 
 **CNC Machining:**
 - Export as STEP file
 - Material: Delrin, Nylon, or Aluminum
-- Threads: Cut with appropriate tap
-- Surface finish: Smooth for waterproofing
+- Threads: Cut with M12×1.5 tap
+- Surface finish: Smooth
 
-### 2. Rod Coupler
+### 2. Rod Coupler - MIDDLE
 
-**File:** `openscad/rod_coupler.scad`
+**File:** `openscad/micro_rod_coupler.scad`
 
 **3D Printing:**
 - **Material:** Glass-filled nylon (preferred) or PETG
@@ -48,9 +48,9 @@ This guide provides instructions for manufacturing HIRT probe components from th
 - Threads: Cut with appropriate tap/die
 - O-ring grooves: Machine to exact dimensions
 
-### 3. ERT Ring Collar
+### 3. ERT Ring Collar - MIDDLE
 
-**File:** `openscad/ert_ring_collar.scad`
+**File:** `openscad/micro_ert_ring_collar.scad`
 
 **3D Printing:**
 - **Material:** PETG or ABS
@@ -59,13 +59,30 @@ This guide provides instructions for manufacturing HIRT probe components from th
 - **Supports:** None needed
 - **Orientation:** Print standing on end
 - **Post-Processing:**
-  - Test fit on rod
+  - Test fit on rod (should be snug)
   - Verify ring groove dimensions
+
+### 4. Surface Junction Box - TOP
+
+**File:** `openscad/micro_probe_head.scad`
+
+**3D Printing:**
+- **Material:** PETG (preferred for weatherproof)
+- **Layer Height:** 0.2-0.3mm
+- **Infill:** 40-50%
+- **Supports:** Minimal
+- **Orientation:** Print standing on end
+- **Post-Processing:**
+  - Clean threads with M12×1.5 tap
+  - Test fit with rod
+  - Verify cable gland fit
+  - Test weatherproofing
 
 **CNC Machining:**
 - Export as STEP file
-- Material: Nylon or Delrin
-- Simple turning operation
+- Material: Delrin or Nylon
+- Threads: Cut with M12×1.5 tap
+- Surface finish: Smooth for weatherproofing
 
 ## Thread Specifications
 

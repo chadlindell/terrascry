@@ -32,9 +32,10 @@ This guide explains how to export OpenSCAD files to formats needed for manufactu
 # Install OpenSCAD command-line tools
 # Then run:
 
-openscad -o stl/probe_head.stl openscad/probe_head.scad
-openscad -o stl/rod_coupler.stl openscad/rod_coupler.scad
-openscad -o stl/ert_ring_collar.stl openscad/ert_ring_collar.scad
+openscad -o stl/micro_probe_tip.stl openscad/micro_probe_tip.scad
+openscad -o stl/micro_rod_coupler.stl openscad/micro_rod_coupler.scad
+openscad -o stl/micro_probe_head.stl openscad/micro_probe_head.scad
+openscad -o stl/micro_ert_ring_collar.stl openscad/micro_ert_ring_collar.scad
 ```
 
 ### Batch Export Script
@@ -45,10 +46,10 @@ Create a script to export all parts:
 ```bash
 #!/bin/bash
 mkdir -p stl
-openscad -o stl/probe_head.stl openscad/probe_head.scad
-openscad -o stl/rod_coupler.stl openscad/rod_coupler.scad
-openscad -o stl/ert_ring_collar.stl openscad/ert_ring_collar.scad
-openscad -o stl/probe_head_dummy.stl openscad/probe_head_dummy.scad
+openscad -o stl/micro_probe_tip.stl openscad/micro_probe_tip.scad
+openscad -o stl/micro_rod_coupler.stl openscad/micro_rod_coupler.scad
+openscad -o stl/micro_probe_head.stl openscad/micro_probe_head.scad
+openscad -o stl/micro_ert_ring_collar.stl openscad/micro_ert_ring_collar.scad
 echo "STL files exported to stl/ directory"
 ```
 
@@ -56,10 +57,10 @@ echo "STL files exported to stl/ directory"
 ```batch
 @echo off
 mkdir stl
-openscad -o stl\probe_head.stl openscad\probe_head.scad
-openscad -o stl\rod_coupler.stl openscad\rod_coupler.scad
-openscad -o stl\ert_ring_collar.stl openscad\ert_ring_collar.scad
-openscad -o stl\probe_head_dummy.stl openscad\probe_head_dummy.scad
+openscad -o stl\micro_probe_tip.stl openscad\micro_probe_tip.scad
+openscad -o stl\micro_rod_coupler.stl openscad\micro_rod_coupler.scad
+openscad -o stl\micro_probe_head.stl openscad\micro_probe_head.scad
+openscad -o stl\micro_ert_ring_collar.stl openscad\micro_ert_ring_collar.scad
 echo STL files exported to stl\ directory
 ```
 

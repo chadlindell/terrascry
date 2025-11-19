@@ -1,4 +1,4 @@
-# Quick Start - CAD Files for Prototyping
+# Quick Start - Micro-Probe CAD Files
 
 ## Get Started in 5 Minutes
 
@@ -11,7 +11,7 @@
 ### Step 2: Open a Part
 
 1. Launch OpenSCAD
-2. File → Open → `openscad/probe_head_dummy.scad`
+2. File → Open → `openscad/micro_probe_tip.scad` (start with tip - simplest)
 3. Press **F5** to preview
 4. Press **F6** to render
 
@@ -24,23 +24,33 @@
 
 ### Step 4: Test Print
 
-Start with the **dummy probe head** (`probe_head_dummy.scad`):
-- No threads (faster to print)
-- Good for fit testing
-- Verify dimensions before printing full version
+Start with the **probe tip** (`micro_probe_tip.scad`):
+- Simple part (fast to print)
+- Good for testing dimensions
+- Verify 12mm base fits your rod
 
-## Available Parts
+## Available Parts (Micro-Probe Design)
 
-### For Quick Testing
-- **`probe_head_dummy.scad`** - Simplified probe head (no threads)
-  - Best for: Fit testing, size verification
-  - Print time: ~2-3 hours
+### Essential Parts
+- **`micro_probe_tip.scad`** - Tapered nose cone (25mm long)
+  - Best for: Testing insertion, verifying dimensions
+  - Print time: ~30 minutes
   - Material: PETG
 
-### For Production
-- **`probe_head.scad`** - Full probe head with threads
-- **`rod_coupler.scad`** - Threaded coupler for rod sections
-- **`ert_ring_collar.scad`** - ERT ring mounting collar
+- **`micro_probe_head.scad`** - Surface junction box (25mm × 35mm)
+  - Best for: Terminal block mounting, cable connections
+  - Print time: ~1-2 hours
+  - Material: PETG
+
+- **`micro_rod_coupler.scad`** - Threaded coupler (45mm × 18mm)
+  - Best for: Joining rod sections
+  - Print time: ~1 hour
+  - Material: Glass-filled nylon or PETG
+
+- **`micro_ert_ring_collar.scad`** - ERT ring collar (5mm × 12mm ID)
+  - Best for: Mounting narrow ERT rings
+  - Print time: ~20 minutes
+  - Material: PETG
 
 ## Recommended Print Settings
 
@@ -52,20 +62,31 @@ Start with the **dummy probe head** (`probe_head_dummy.scad`):
 - **Bed:** 70-80°C
 - **Speed:** 40-50mm/s
 
+**Note:** Micro-probe parts are smaller and faster to print than the old 25mm design!
+
+## Design Notes
+
+**Important:** This is the **micro-probe design** (12mm OD):
+- Much smaller than old 25mm design
+- Passive probes (no electronics in probe)
+- Electronics stay at surface
+- Minimal intrusion for archaeology
+
 ## Next Steps
 
-1. Print dummy parts first
-2. Test fit with actual components
-3. Adjust dimensions if needed (edit `.scad` file)
-4. Print production parts
+1. Print probe tip first (test fit with 12mm rod)
+2. Print junction box (test terminal block fit)
+3. Print coupler (test thread fit)
+4. Assemble test probe
+5. Test insertion
 
 ## Need Help?
 
 - See [README.md](README.md) for detailed information
 - See [Manufacturing Guide](docs/manufacturing-guide.md) for production tips
 - See [Export Instructions](docs/export-instructions.md) for file conversion
+- See [Design Change Document](../../DESIGN_CHANGE_MICRO_PROBE.md) for design rationale
 
 ---
 
 **Happy Printing!**
-

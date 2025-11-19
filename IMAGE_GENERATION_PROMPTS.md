@@ -455,6 +455,67 @@ Create a conceptual flow diagram showing HIRT data processing pipeline:
 
 ---
 
+## Component Library Images
+
+### Prompt 21: Micro Probe Tip Manufacturing Detail
+**File:** `images/assembly-photos/micro-probe-tip-print.png`  
+**Style:** Technical macro illustration, orthographic + inset detail
+
+```
+Create a detailed illustration of the 12 mm OD micro probe tip prepared for home 3D printing:
+
+- Show the tip oriented vertically on a PEI plate with an 8 mm brim and a slim stabilization tower connected by a single-layer tab.
+- Annotate printer settings: PETG 245 °C nozzle / 80 °C bed, 0.2 mm layers, 100% infill, 5 perimeters, first-layer speed 15 mm/s.
+- Include callouts for threaded bore (M12×1.5), tapered exterior, and epoxy soak step (thin epoxy being wicked into threads after tapping).
+- Inset diagram showing the M12×1.5 tap with cutting oil, plus another inset showing flood-coating threads with Loctite Marine Epoxy syringe.
+- Style: clean orthographic render with dimension arrows and labels (“8 mm brim”, “stabilizer tower”, “solid infill”, “tap after print”).
+- Color palette: neutral grays for part, blue callouts, orange epoxy highlights; white background.
+```
+
+### Prompt 22: Rod Coupler Stabilized Print
+**File:** `images/assembly-photos/micro-rod-coupler-print.png`  
+**Style:** Exploded + callout diagram
+
+```
+Generate a diagram showing the M12×1.5 rod coupler printed on its side:
+
+- Depict the coupler lying horizontally with dual 10 mm brims and tree supports only under the chamfered ends.
+- Show cross-section revealing 100% infill and 6 perimeters, highlighting O-ring grooves and dual threaded bores.
+- Include step-by-step callouts: “Print PETG 245 °C / 80 °C”, “Remove supports warm”, “Run M12×1.5 bottoming tap from each side”, “Brush thin epoxy into threads + grooves”.
+- Add small inset of QC check: two fiberglass rods threaded into both ends, confirming alignment.
+- Style: semi-realistic CAD render with annotations and sequential numbering, white/gray background with teal callout boxes.
+```
+
+### Prompt 23: Surface Junction Box Assembly
+**File:** `images/assembly-photos/micro-junction-box.png`  
+**Style:** Cutaway technical illustration
+
+```
+Illustrate the 25 mm × 35 mm PETG surface junction box printed upright:
+
+- Show body with 10 mm brim, stabilizer tower opposite the cable gland, and threaded interior (M12×1.5) highlighted.
+- Exploded view of cap, O-ring, cable gland, terminal block, and strain relief hardware.
+- Annotate print specs (100% infill, 5 perimeters), tapping steps (M12×1.5 tap, gland hole ream), epoxy sealing of threads, and water dunk test (vacuum syringe, no bubbles).
+- Include labels for cable routing, terminal block positions, and gasket groove.
+- Style: technical cutaway with subtle shading, color accents for gaskets/epoxy, background grid.
+```
+
+### Prompt 24: ERT Ring Collar Production Batch
+**File:** `images/assembly-photos/ert-ring-collar-batch.png`  
+**Style:** Process storyboard, top-down perspective
+
+```
+Create a storyboard showing multiple ERT ring collars being produced:
+
+- Panel 1: Slicer preview with collars nested flat, 5 mm brim, 0.16 mm layers, 100% infill, monotonic top layers highlighted.
+- Panel 2: Finished print on bed after cooling, with notes “allow to cool to room temp to preserve 12.00 mm ID”.
+- Panel 3: Deburring and bore check using a 12.00 mm gauge rod and 1/16" drill for wire channel cleanup.
+- Panel 4: Installation sequence—scuffed fiberglass rod, epoxy applied, collar rotated into position, stainless strip wrapped and overlapped 3 mm, heat-shrink covering the joint.
+- Style: clean vector panels with numbered captions, teal/orange highlight colors, white background.
+```
+
+---
+
 ## Notes for Image Generation
 
 - **Style Consistency:** Maintain consistent style across related images (technical diagrams vs. realistic illustrations)
@@ -476,6 +537,6 @@ When adding new image prompts:
 
 ---
 
-*Last Updated: 2024-03-15*
-*Total Prompts: 20*
+*Last Updated: 2025-11-16*
+*Total Prompts: 24*
 

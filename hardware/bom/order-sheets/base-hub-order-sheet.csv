@@ -1,28 +1,38 @@
 Component,Description,Quantity,Part Number,Supplier,Unit Cost,Total Cost,Notes
-Current source op-amp,Precision OPA177,1,OPA177GP,Digi-Key,$4.50,$4.50,Current source amplifier
-Voltage reference,REF5025 2.5V,1,REF5025AIDGKT,Digi-Key,$3.50,$3.50,Precision reference
-Current sense resistor,1.25kΩ 0.1%,1,RN73R2BTTD1251B10,Digi-Key,$1.50,$1.50,For 2mA full scale
-Polarity switch,DPDT relay 5V,1,G5V-2-5DC,Digi-Key,$3.50,$3.50,Polarity reversal
-Relay driver,Transistor 2N7002,1,2N7002,Digi-Key,$0.25,$0.25,Drive relay coil
-Instrumentation amp,INA128 precision,1,INA128PAG4,Digi-Key,$7.50,$7.50,High-precision diff amp
-ADC,24-bit ADS1256,1,ADS1256IDBR,Digi-Key,$18.50,$18.50,High resolution ADC
-Multiplexer,CD4051 8-channel,1,CD4051BE,Digi-Key,$1.50,$1.50,Channel selection optional
-Crystal oscillator,10 MHz oscillator,1,ECS-100-10-30B-TR,Digi-Key,$2.50,$2.50,Reference clock
-Clock buffer,74HC244 octal buffer,1,SN74HC244N,Digi-Key,$1.50,$1.50,Drive multiple outputs
-Sync cables,CAT5 cable 20m,1,Custom,Digi-Key/Mouser,$10-20,$10-20,Sync distribution
-Sync connectors,RJ45 connectors,20,Various,Digi-Key,$0.50,$10,For sync cables
-Battery,12V 12Ah SLA,1,UB12120,Digi-Key/Amazon,$25-35,$25-35,Sealed lead-acid
-Battery charger,12V SLA charger,1,Various,Amazon/Digi-Key,$15-25,$15-25,Automatic charger
-Fuse holder,Panel mount 5A,1,0287005.PXCN,Digi-Key,$2.00,$2.00,Fuse holder
-Fuses,5A fast-blow,5,0034.5002,Digi-Key,$0.50,$2.50,Spare fuses
-Distribution block,Terminal block,1,Various,Digi-Key,$3-5,$3-5,Power distribution
-Voltage regulator,12V to 5V buck,1,LM2596 module,Amazon,$3-5,$3-5,5V regulator module
-Data logger,Raspberry Pi 4 or tablet,1,Various,Various,$50-200,$50-200,RPi4 + SD or Android tablet
-RS485 transceiver,MAX485 module,1,MAX485ESA+,Digi-Key,$2.50,$2.50,RS485 interface
-Data cables,CAT5 cable 50m,1,Custom,Digi-Key/Mouser,$15-25,$15-25,Data/power cables
-Data connectors,RJ45 connectors,20,Various,Digi-Key,$0.50,$10,For data cables
-Power connectors,DC power jacks,20,PJ-002A,Digi-Key,$0.50,$10,Power connectors
-Wireless option,LoRa module optional,1,SX1278 module,Amazon,$8-12,$8-12,Optional LoRa
-Enclosure,Weatherproof box IP65,1,Various,Digi-Key/Amazon,$25-50,$25-50,200x150x100mm
-Mounting hardware,Screws brackets,1,Various,McMaster/Digi-Key,$5-10,$5-10,M3 screws
-Cable management,Strain reliefs glands,1,Various,Digi-Key,$5-10,$5-10,PG glands
+DDS generator,25 MHz SPI DDS,1,AD9833BRMZ-REEL7,Digi-Key,$8.75,$8.75,Drives MIT frequency plan
+Reference oscillator,10 MHz TCXO,1,ECS-100-10-33Q-TR,Digi-Key,$3.10,$3.10,Stable timebase for DDS/lock-in
+TX buffer amplifier,High-voltage op-amp 0.5A,1,OPA454AIDDA,Digi-Key,$20.30,$20.30,Drives selected TX coil
+TX sense resistor,0.5Ω 1% 3 W,2,WSL2512R5000FEA,Digi-Key,$1.45,$2.90,Measures TX current
+TX multiplexer,8:1 analog mux,1,CD4051BE,Digi-Key,$1.45,$1.45,Selects active TX channel
+RX preamp,Low-noise instrumentation amp,2,AD620ANZ,Digi-Key,$6.60,$13.20,One per differential branch
+RX instrumentation amp,Precision INA128,2,INA128PAG4,Digi-Key,$7.70,$15.40,Gain + common mode rejection
+Lock-in ADC,24-bit delta-sigma ADC,1,ADS1256IDBR,Digi-Key,$19.20,$19.20,Digitizes MIT & ERT voltages
+Lock-in analog mixer (optional),Balanced modulator,1,AD630ANZ,Digi-Key,$18.90,$18.90,Optional analog lock-in path
+RX multiplexer,16-channel differential mux,1,ADG706BRUZ,Digi-Key,$11.50,$11.50,Routes RX signals to ADC
+ERT current source op-amp,Precision op-amp,1,OPA177GP,Digi-Key,$4.70,$4.70,Drives 0.5–2 mA injection
+Voltage reference,2.5 V precision ref,1,REF5025AIDGKT,Digi-Key,$3.60,$3.60,ERT current accuracy
+Current sense resistor,1.25 kΩ 0.1% metal film,1,RN73R2BTTD1251B10,Digi-Key,$1.55,$1.55,Sets ERT current
+Polarity relay,DPDT signal relay 5 V,2,G5V-2-5DC,Digi-Key,$3.70,$7.40,Inject +/− current reversal
+Relay driver,FET for relay coil,2,2N7002,Digi-Key,$0.26,$0.52,Drives polarity relays
+ERT mux,8-ch instrumentation mux,2,CD4051BE,Digi-Key,$1.45,$2.90,Selects electrode pairs
+MCU / controller,ESP32 DevKitC-32E,1,ESP32-DEVKITC-32E,Adafruit,$10.00,$10.00,System control + comms
+Communications interface,Isolated RS-485 transceiver,1,MAXM22511EVKIT#,Digi-Key,$22.50,$22.50,Robust multi-drop link
+Clock buffer,Octal buffer/driver,1,SN74HC244N,Digi-Key,$1.55,$1.55,Distributes sync/clock to muxes
+Power MCU regulator,3.3 V LDO 1 A,1,AP7361C-33E-13,Digi-Key,$0.68,$0.68,ESP32 + digital rails
+Analog rail regulator,±12 V supply module,1,PDQE10-Q24-D12,Digi-Key,$18.00,$18.00,Feeds op-amps
+Main power converter,12→5 V buck,1,LM2596 module,Amazon,$4.50,$4.50,General 5 V rail
+Battery,12 V 12 Ah LiFePO4 pack,1,BB1212,Amazon,$89.00,$89.00,Lightweight field battery
+Battery charger,LiFePO4 smart charger 12 V,1,BPC1205,Amazon,$32.00,$32.00,Mains charging
+Fuse block,6-position ATC block,1,15600-06-20,Bussmann,$14.00,$14.00,Protect subsystems
+Enclosure,IP66 polycarbonate box 300×230×140 mm,1,NBF-32016,Bud Industries,$62.00,$62.00,Base hub housing
+Panel glands,M20 nylon cord grips,4,7002K51,McMaster,$2.65,$10.60,Cable ingress
+Backplane PCB,4-layer 160×120 mm custom PCB,1,HIRT-HUB-PCB,JLCPCB,$45.00,$45.00,Mounts analog/digital circuits
+Terminal blocks,5.08 mm pluggable 12-pos,4,1757248,Phoenix Contact,$6.25,$25.00,Probe harness breakout
+Harness cable,Shielded 12-pair 24 AWG,30 m,3066A 0101000,Belden,$3.20,$96.00,Cable bundle to probes
+RJ45 interconnects,CAT6 panel jack kit,4,SS-60000-005,Sure Seal/Digi-Key,$6.90,$27.60,Data + sync ports
+Data logger,Raspberry Pi 4B 4GB,1,RPI4-MODBP-4G,PiShop,$75.00,$75.00,Runs acquisition UI
+Storage,Industrial microSD 64 GB,1,SDSDQAF3-064G-I,Nxp/Arrow,$18.00,$18.00,Data logging media
+Display/control,10\" rugged Android tablet,1,TAB-A10,Amazon,$140.00,$140.00,Optional field UI
+Cooling,40 mm 12 V fan + grille,1,603-1131-ND,Digi-Key,$8.40,$8.40,Active airflow inside hub
+Assembly hardware,M3 SS screw kit 300 pcs,1,92196A307,McMaster,$14.00,$14.00,Mounting fasteners
+Label kit,Shrink tube printer cartridge,1,18055,Brady,$29.00,$29.00,Harness ID & panel labels

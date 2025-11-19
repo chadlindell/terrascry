@@ -1,4 +1,6 @@
-# 6. Bill of Materials (BOM) — per probe (indicative costs)
+# 6. Bill of Materials (BOM) - Micro-Probe Design
+
+**Note:** This section covers the micro-probe design (12mm OD, passive probes). See [Probe BOM](../../hardware/bom/probe-bom.md) and [Base Hub BOM](../../hardware/bom/base-hub-bom.md) for detailed component lists. — per probe (indicative costs)
 
 ## Mechanical Components
 
