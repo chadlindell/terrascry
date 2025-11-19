@@ -4,7 +4,7 @@
  * 
  * Features:
  * - Flush 16mm OD match
- * - M12 threads (robust for printing)
+ * - M12 threads (12mm nominal) - Sized for Die/Tap cutting
  * - Center pass-through for wiring
  * - O-ring seal groove
  * - Printing Optimizations: Chamfers, flat bases, breakaway support tabs
@@ -15,7 +15,14 @@ ROD_OD = 16.0;
 ROD_ID = 12.0;         // Inner diameter of fiberglass tube
 ROD_INSERT_DEPTH = 20.0; // How far it glues into the tube
 
-THREAD_DIA = 10.0;      // M10 Thread (Core dia for printing tolerance)
+// THREADING DIMENSIONS FOR TAP/DIE
+// M12x1.75 Thread
+// Male Pin: Printed slightly oversize (12.2mm) to ensure Die cuts clean full threads
+// Female Hole: Printed slightly undersize (10.5mm) for Tap drill diameter (standard M12x1.75 drill is 10.2mm, using 10.5 for easier plastic tapping)
+
+THREAD_DIA_MALE = 12.2;  
+THREAD_DIA_FEMALE = 10.5; 
+
 THREAD_LEN = 15.0;
 WIRE_HOLE_DIA = 6.0;    // Center wiring channel
 
@@ -48,9 +55,9 @@ module male_insert() {
             translate([0,0,ROD_INSERT_DEPTH])
                 cylinder(d=ROD_OD, h=FLANGE_THICKNESS);
                 
-            // 3. Threaded Section
+            // 3. Threaded Section (Male stud for Die cutting)
             translate([0,0,ROD_INSERT_DEPTH + FLANGE_THICKNESS])
-                cylinder(d=THREAD_DIA, h=THREAD_LEN);
+                cylinder(d=THREAD_DIA_MALE, h=THREAD_LEN);
         }
         
         // Center Wire Hole
@@ -60,8 +67,8 @@ module male_insert() {
         // O-Ring Groove
         translate([0,0,ROD_INSERT_DEPTH + FLANGE_THICKNESS])
             difference() {
-                cylinder(d=THREAD_DIA + 2.5, h=1);
-                cylinder(d=THREAD_DIA + 0.5, h=1);
+                cylinder(d=THREAD_DIA_MALE + 2.5, h=1);
+                cylinder(d=THREAD_DIA_MALE + 0.5, h=1);
             }
     }
 }
@@ -81,9 +88,9 @@ module female_sensor_module() {
         translate([0,0,-1])
             cylinder(d=WIRE_HOLE_DIA, h=ROD_INSERT_DEPTH + SENSOR_BODY_LEN + 2);
             
-        // Threaded Socket
+        // Threaded Socket (Female hole for Tapping)
         translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - THREAD_LEN])
-            cylinder(d=THREAD_DIA + 0.5, h=THREAD_LEN + 1);
+            cylinder(d=THREAD_DIA_FEMALE, h=THREAD_LEN + 1);
             
         // --- Sensor Cutouts ---
         translate([0,0,ROD_INSERT_DEPTH + 10])
