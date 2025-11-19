@@ -30,7 +30,7 @@ SENSOR_BODY_LEN = 60.0; // Length of the exposed sensor section (Female side)
 FLANGE_THICKNESS = 2.0; // Stop flange to butt against tube end
 
 // Render Control
-part = "all"; // "all", "male_array", "female_array"
+part = "all"; // "all", "male_array", "female_array", "mixed_array"
 
 $fn = 64; // Resolution
 
@@ -155,12 +155,43 @@ module print_array_female_sensor() {
     stabilization_grid(spacing, 75);  // Near top
 }
 
+module print_array_mixed() {
+    // 2 Male + 2 Female
+    spacing = ROD_OD + 8;
+    
+    // Row 0: Male Inserts (Shorter)
+    translate([0, 0, 0]) male_insert();
+    translate([spacing, 0, 0]) male_insert();
+    
+    // Row 1: Female Sensors (Taller)
+    translate([0, spacing, 0]) female_sensor_module();
+    translate([spacing, spacing, 0]) female_sensor_module();
+    
+    // Stabilization - Complex mixed height handling
+    
+    // Base Layer (All connected)
+    stabilization_grid(spacing, 0.2);
+    
+    // Mid Layer (Z=30) - Connects tops of Male to mids of Female
+    stabilization_grid(spacing, 30);
+    
+    // Top Layer (Z=75) - Connects tops of Female only (Back row)
+    tab_width = 1.2;
+    tab_height = 0.4;
+    translate([0, 0, 75]) {
+        // Connect the two female parts at the top
+         translate([spacing/2, spacing, 0]) cube([spacing, tab_width, tab_height], center=true);
+    }
+}
+
 // --- Render Logic ---
 
 if (part == "male_array") {
     print_array_male_insert();
 } else if (part == "female_array") {
     print_array_female_sensor();
+} else if (part == "mixed_array") {
+    print_array_mixed();
 } else {
     // Default View
     translate([-30, -30, 0]) print_array_male_insert();
