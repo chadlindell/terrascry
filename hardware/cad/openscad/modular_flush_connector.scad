@@ -111,8 +111,65 @@ module female_sensor_module() {
     }
 }
 
+// --- Array Modules for Printing ---
+
+module print_array_male_insert() {
+    // 4x Array with breakaway tabs
+    spacing = ROD_OD + 5; // Space between centers
+    tab_width = 2.0;
+    tab_height = 0.4; // Thin tab for cutting
+    
+    for (i = [0:1]) {
+        for (j = [0:1]) {
+            translate([i*spacing, j*spacing, 0])
+                male_insert();
+        }
+    }
+    
+    // Breakaway tabs connecting the bases
+    // Horizontal tabs
+    translate([0, 0, tab_height/2])
+        cube([spacing, tab_width, tab_height], center=true);
+    translate([spacing, 0, tab_height/2])
+        cube([spacing, tab_width, tab_height], center=true);
+        
+    translate([0, spacing, tab_height/2])
+        cube([spacing, tab_width, tab_height], center=true);
+        
+    // Vertical tabs
+    translate([0, spacing/2, tab_height/2])
+        cube([tab_width, spacing, tab_height], center=true);
+    translate([spacing, spacing/2, tab_height/2])
+        cube([tab_width, spacing, tab_height], center=true);
+}
+
+module print_array_female_sensor() {
+    // 4x Array with breakaway tabs
+    spacing = ROD_OD + 5; // Space between centers
+    tab_width = 2.0;
+    tab_height = 0.4; // Thin tab for cutting
+    
+    for (i = [0:1]) {
+        for (j = [0:1]) {
+            translate([i*spacing, j*spacing, 0])
+                female_sensor_module();
+        }
+    }
+    
+    // Breakaway tabs (simple grid connecting bases)
+    translate([spacing/2, 0, tab_height/2])
+        cube([spacing, tab_width, tab_height], center=true);
+    translate([spacing/2, spacing, tab_height/2])
+        cube([spacing, tab_width, tab_height], center=true);
+        
+    translate([0, spacing/2, tab_height/2])
+        cube([tab_width, spacing, tab_height], center=true);
+    translate([spacing, spacing/2, tab_height/2])
+        cube([tab_width, spacing, tab_height], center=true);
+}
+
 // --- Render ---
 
-// Layout for viewing
-translate([-15, 0, 0]) male_insert();
-translate([15, 0, 0]) female_sensor_module();
+// Layout for viewing (comment out for STL generation via command line)
+translate([-30, -30, 0]) print_array_male_insert();
+translate([30, -30, 0]) print_array_female_sensor();
