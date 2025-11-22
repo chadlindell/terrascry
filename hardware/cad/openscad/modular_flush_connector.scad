@@ -35,17 +35,12 @@ $fn = 64; // Resolution
 // --- ROBUST CHUNKY THREAD MODULE ---
 module simple_thread(od, len, pitch, internal=false) {
     // Generates a robust trapezoidal thread (Acme-like) 
-    // that is much easier to print than sharp ISO threads.
     
     // Thread Dimensions
-    // Ensure deep overlap with core to prevent "paper thin" non-manifold issues
+    // We need a BALANCED profile (Tooth width ≈ Gap width)
+    // so that both Male (Teeth) and Female (Gap-filling ridges) are strong.
     
     // Base Radius (Core)
-    // Male: Core is smaller (thread adds to OD)
-    // Female: Core is the Hole diameter (thread subtracts from solid)
-    
-    // For M12x1.75
-    // Tooth Height approx 1mm
     t_height = 0.6 * pitch; 
     
     base_r = internal ? (od/2) : (od/2 - t_height);
@@ -54,16 +49,14 @@ module simple_thread(od, len, pitch, internal=false) {
     clearance = 0.15; // Radial clearance
     adj_base_r = internal ? base_r + clearance : base_r - clearance;
     
-    // Tooth Geometry (Trapezoidal) - FIXED GEOMETRY for Bambu
-    // We use a fixed polygon that is rotated.
-    // To prevent "paper thin" issues, we ensure the polygon overlaps deeply with the core cylinder
-    // or IS the core cylinder modification.
+    // Tooth Geometry (Trapezoid) - BALANCED
+    // Previous error: root_w = 0.75*pitch made the male teeth fat but the female ridges (gaps) tiny.
+    // New setting: root_w = 0.5 * pitch.
     
-    // For robustness: We generate the thread COIL separately, then union/difference.
-    // The coil polygon must be closed and solid.
+    root_w = 0.48 * pitch; // Slightly less than half to ensure easy fit
+    tip_w = 0.20 * pitch;  // Tapered tip
     
-    root_w = 0.75 * pitch; 
-    tip_w = 0.25 * pitch;
+    // Overlap into cylinder (anchoring)
     overlap = 0.5; 
     
     turns = len / pitch;
@@ -74,20 +67,11 @@ module simple_thread(od, len, pitch, internal=false) {
         
         // Spiral thread tooth
         linear_extrude(height=len, twist=-360*turns, slices=turns*30, convexity=10)
-            translate([adj_base_r, 0, 0]) // Move to surface
-            rotate([90, 0, 0]) // Rotate to stand up (profile in XZ plane? No, XY plane extruded Z)
-            // Wait, linear_extrude extrudes a 2D shape in Z and twists.
-            // The 2D shape is on the XY plane.
-            // We need a shape that, when twisted, forms a thread.
-            // Standard approach: Offset circle or polygon from center.
-            
-            // Correct orientation for linear_extrude twist:
-            // Shape is on positive X axis.
             polygon(points=[
-                [-overlap, -root_w/2], // Anchor inside cylinder
-                [t_height, -tip_w/2],  // Tip Bottom
-                [t_height, tip_w/2],   // Tip Top
-                [-overlap, root_w/2]   // Anchor Top
+                [adj_base_r - overlap, -root_w/2], // Bottom Inner (Anchor)
+                [adj_base_r + t_height, -tip_w/2], // Bottom Outer (Tip)
+                [adj_base_r + t_height, tip_w/2],  // Top Outer (Tip)
+                [adj_base_r - overlap, root_w/2]   // Top Inner (Anchor)
             ]);
     }
 }
