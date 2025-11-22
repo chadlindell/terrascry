@@ -1,0 +1,17 @@
+{
+    "type": "process",
+    "name": "HIRT Connector Quality",
+    "from": "user",
+    "instantiation": "true",
+    "inherits": "0.12mm Fine @BBL A1 Mini",
+    "layer_height": "0.12",
+    "wall_loops": "6",
+    "sparse_infill_density": "100%",
+    "outer_wall_speed": "50",
+    "inner_wall_speed": "80",
+    "enable_support": "0",
+    "seam_position": "aligned",
+    "detect_thin_walls": "1",
+    "filename_format": "{input_filename_base}_{filament_type[0]}_{printer_model}.gcode"
+}
+
