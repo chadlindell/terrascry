@@ -4,7 +4,7 @@
  * 
  * Features:
  * - Flush 16mm OD match
- * - M12 threads (FULLY PRINTED) - ISO Profile M12x1.75
+ * - M12 threads (FULLY PRINTED) - "Chunky" Trapezoidal Profile for Printability
  * - Center pass-through for wiring
  * - O-ring seal groove
  * - Printing Optimizations: SUPER BRIM and rigid scaffolding
@@ -14,10 +14,6 @@
 ROD_OD = 16.0;
 ROD_ID = 12.0;         // Inner diameter of fiberglass tube
 ROD_INSERT_DEPTH = 20.0; // How far it glues into the tube
-
-// THREADING DIMENSIONS (PRINTED)
-// Pitch = 1.75mm
-// Major Dia = 12mm
 
 THREAD_DIA_MAJOR = 11.8; // Slight undersize for male fit (clearance)
 THREAD_DIA_MINOR = 10.4; // Female hole size
@@ -34,63 +30,38 @@ FLANGE_THICKNESS = 2.0; // Stop flange to butt against tube end
 // Render Control
 part = "all"; // "all", "male_array", "female_array", "mixed_array"
 
-$fn = 64; // Resolution for cylinders
+$fn = 64; // Resolution
 
-// --- Thread Module (Linear Extrude Twist Method) ---
-module printed_thread(od, len, pitch, internal=false) {
-    // Generates a printable metric-like thread using twisted extrusion
-    // This is robust for 3D printing and boolean operations
-    
-    major_r = od / 2;
-    // Triangle height for M12x1.75 is approx 1mm
-    t_h = 0.866 * pitch; 
-    
-    // Effective radius adjustment for internal/external
-    eff_r = internal ? major_r : major_r - t_h/8;
-    
-    // Twist calculation
-    turns = len / pitch;
-    twist_angle = -360 * turns;
-    
-    intersection() {
-        // Crop top/bottom to length
-        cylinder(r=od/2 + 2, h=len, $fn=$fn);
-        
-        // The twisted thread coil
-        linear_extrude(height=len, twist=twist_angle, slices=turns*30, convexity=10)
-            projection(cut=true)
-            rotate([90,0,0])
-            translate([0, 0, 0]) // Center at origin for rotation
-            // Generate profile at distance
-            translate([eff_r, 0, 0]) 
-            rotate([0, 0, 90]) // Face outward
-            polygon(points=[
-                [-pitch/2, 0],
-                [0, -t_h], // Point inwards? No, extrude twist rotates around Z
-                [pitch/2, 0]
-            ]);
-            // This projection hack is tricky. 
-            // Better method: Polygon offset from center rotated.
-    }
-}
-
-// --- ROBUST THREAD MODULE (Polyhedron-free, simple geometry) ---
+// --- ROBUST CHUNKY THREAD MODULE ---
 module simple_thread(od, len, pitch, internal=false) {
-    // Create a spiral using linear_extrude on a 2D shape offset from center
+    // Generates a robust trapezoidal thread (Acme-like) 
+    // that is much easier to print than sharp ISO threads.
     
-    // Profile: 60 deg triangle
-    t_h = 0.866 * pitch;
+    // Thread Dimensions
+    // Ensure deep overlap with core to prevent "paper thin" non-manifold issues
     
-    // Determine base radius
-    // For Male: od is the peaks. Base is od/2 - t_h
-    // For Female: od is the valleys. Base is od/2
+    // Base Radius (Core)
+    // Male: Core is smaller (thread adds to OD)
+    // Female: Core is the Hole diameter (thread subtracts from solid)
     
-    base_r = internal ? (od/2) : (od/2 - t_h);
-    tip_r = internal ? (od/2 - t_h) : (od/2);
+    // For M12x1.75
+    // Tooth Height approx 1mm
+    t_height = 0.6 * pitch; 
     
-    // Adjust for clearance
-    clearance = 0.15;
+    base_r = internal ? (od/2) : (od/2 - t_height);
+    
+    // Clearance
+    clearance = 0.15; // Radial clearance
     adj_base_r = internal ? base_r + clearance : base_r - clearance;
+    
+    // Tooth Geometry (Trapezoid)
+    // Root width (wide base for strength)
+    root_w = 0.75 * pitch; 
+    // Tip width (no sharp edges)
+    tip_w = 0.25 * pitch;
+    
+    // Overlap into cylinder (anchoring)
+    overlap = 0.5; 
     
     turns = len / pitch;
     
@@ -98,20 +69,20 @@ module simple_thread(od, len, pitch, internal=false) {
         // Core cylinder
         cylinder(r=adj_base_r, h=len, $fn=$fn);
         
-        // Spiral thread
-        linear_extrude(height=len, twist=-360*turns, slices=turns*20, convexity=10)
-            translate([adj_base_r, 0, 0])
-            circle(r=t_h/1.8, $fn=3); // Triangle approximated by 3-sided circle (quick & dirty thread)
-            // Actually, using a circle makes a "Knuckle Thread" which is stronger for printing
-            // and much smoother to screw in.
-            // ISO threads are sharp and prone to stress concentrations.
-            // We will use a round profile thread (Knuckle) for printed parts.
-            // Ideally M12x1.75 Knuckle.
+        // Spiral thread tooth
+        // We use linear_extrude with twist on a offset 2D profile
+        linear_extrude(height=len, twist=-360*turns, slices=turns*30, convexity=10)
+            polygon(points=[
+                [adj_base_r - overlap, -root_w/2], // Bottom Inner (Anchor)
+                [adj_base_r + t_height, -tip_w/2], // Bottom Outer (Tip)
+                [adj_base_r + t_height, tip_w/2],  // Top Outer (Tip)
+                [adj_base_r - overlap, root_w/2]   // Top Inner (Anchor)
+            ]);
     }
 }
 
 module iso_thread_12(len, internal=false) {
-    // Hardcoded M12x1.75 optimized for printing
+    // M12x1.75 Optimized
     pitch = 1.75;
     od = 12.0;
     
@@ -247,13 +218,6 @@ module print_array_mixed() {
             translate([spacing/2, spacing, 85]) 
                 cube([spacing, 3.0, 1.5], center=true); 
         }
-        
-        // SUBTRACT PARTS from Scaffolding
-        // FIX: Subtracting ROD_OD (approx) ensures scaffolding only touches OUTSIDE
-        // and does NOT penetrate to the inner hole.
-        // ROD_OD is 16. We subtract 15mm cylinders.
-        // This means scaffolding penetrates 0.5mm into the 16mm shell.
-        // Inner hole (6mm) is safe.
         
         cutout_d = ROD_OD - 1.0; 
         
