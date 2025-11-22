@@ -180,9 +180,24 @@ module super_brim(spacing, radius) {
     }
 }
 
-module rigid_scaffolding(spacing, z_height) {
+module rigid_scaffolding(spacing, z_height, parts_height_config="mixed") {
+    // z_height is target height
+    // parts_height_config helps decide if we need to avoid threads
+    
+    // For mixed array:
+    // Male parts are at (0,0) and (spacing,0). Thread starts at ~22mm.
+    // Female parts are at (0,spacing) and (spacing,spacing). No threads on OD.
+    
     beam_width = 2.5;
     beam_height = 1.2; 
+    
+    // CHECK: If this is the mid-scaffolding (z=30), it hits the male threads!
+    // Male insert: 20mm insert + 2mm flange = 22mm height. Then 15mm thread starts.
+    // So threads are from Z=22 to Z=37.
+    // Scaffolding at Z=30 cuts right through them.
+    
+    // FIX: Lower scaffolding to Z=20 (Flange level)
+    // The calling module controls Z.
     
     translate([0, 0, z_height]) {
         // Box frame
@@ -214,7 +229,16 @@ module print_array_mixed() {
     // Scaffolding logic
     difference() {
         union() {
-            rigid_scaffolding(spacing, 30);
+            // LOWERED mid-scaffolding to Z=20mm to grab the FLANGE, not the thread.
+            // Flange is at Z=20 to 22. Scaffolding centered at 20 might hit the rod insert section?
+            // Rod insert is Z=0 to 20.
+            // Flange is Z=20 to 22.
+            // Thread is Z=22+.
+            // Safest place: Z=18 (High up on the insert section) or Z=21 (On the flange).
+            // Z=21 is best (Solid flange).
+            rigid_scaffolding(spacing, 21.0);
+            
+            // Top bar remains high for female parts
             translate([spacing/2, spacing, 85]) 
                 cube([spacing, 3.0, 1.5], center=true); 
         }
