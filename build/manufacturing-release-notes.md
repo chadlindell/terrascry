@@ -39,4 +39,3 @@ The HIRT probe has been successfully migrated to a **16mm Modular Flush-Connecto
 - **Tap Clearance:** Female hole depth increased to 25mm to prevent tap bottoming out.
 
 **Project Phase: Manufacturing**
-
