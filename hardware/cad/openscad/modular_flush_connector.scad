@@ -54,13 +54,16 @@ module simple_thread(od, len, pitch, internal=false) {
     clearance = 0.15; // Radial clearance
     adj_base_r = internal ? base_r + clearance : base_r - clearance;
     
-    // Tooth Geometry (Trapezoid)
-    // Root width (wide base for strength)
-    root_w = 0.75 * pitch; 
-    // Tip width (no sharp edges)
-    tip_w = 0.25 * pitch;
+    // Tooth Geometry (Trapezoidal) - FIXED GEOMETRY for Bambu
+    // We use a fixed polygon that is rotated.
+    // To prevent "paper thin" issues, we ensure the polygon overlaps deeply with the core cylinder
+    // or IS the core cylinder modification.
     
-    // Overlap into cylinder (anchoring)
+    // For robustness: We generate the thread COIL separately, then union/difference.
+    // The coil polygon must be closed and solid.
+    
+    root_w = 0.75 * pitch; 
+    tip_w = 0.25 * pitch;
     overlap = 0.5; 
     
     turns = len / pitch;
@@ -70,13 +73,21 @@ module simple_thread(od, len, pitch, internal=false) {
         cylinder(r=adj_base_r, h=len, $fn=$fn);
         
         // Spiral thread tooth
-        // We use linear_extrude with twist on a offset 2D profile
         linear_extrude(height=len, twist=-360*turns, slices=turns*30, convexity=10)
+            translate([adj_base_r, 0, 0]) // Move to surface
+            rotate([90, 0, 0]) // Rotate to stand up (profile in XZ plane? No, XY plane extruded Z)
+            // Wait, linear_extrude extrudes a 2D shape in Z and twists.
+            // The 2D shape is on the XY plane.
+            // We need a shape that, when twisted, forms a thread.
+            // Standard approach: Offset circle or polygon from center.
+            
+            // Correct orientation for linear_extrude twist:
+            // Shape is on positive X axis.
             polygon(points=[
-                [adj_base_r - overlap, -root_w/2], // Bottom Inner (Anchor)
-                [adj_base_r + t_height, -tip_w/2], // Bottom Outer (Tip)
-                [adj_base_r + t_height, tip_w/2],  // Top Outer (Tip)
-                [adj_base_r - overlap, root_w/2]   // Top Inner (Anchor)
+                [-overlap, -root_w/2], // Anchor inside cylinder
+                [t_height, -tip_w/2],  // Tip Bottom
+                [t_height, tip_w/2],   // Tip Top
+                [-overlap, root_w/2]   // Anchor Top
             ]);
     }
 }
@@ -181,23 +192,8 @@ module super_brim(spacing, radius) {
 }
 
 module rigid_scaffolding(spacing, z_height, parts_height_config="mixed") {
-    // z_height is target height
-    // parts_height_config helps decide if we need to avoid threads
-    
-    // For mixed array:
-    // Male parts are at (0,0) and (spacing,0). Thread starts at ~22mm.
-    // Female parts are at (0,spacing) and (spacing,spacing). No threads on OD.
-    
     beam_width = 2.5;
     beam_height = 1.2; 
-    
-    // CHECK: If this is the mid-scaffolding (z=30), it hits the male threads!
-    // Male insert: 20mm insert + 2mm flange = 22mm height. Then 15mm thread starts.
-    // So threads are from Z=22 to Z=37.
-    // Scaffolding at Z=30 cuts right through them.
-    
-    // FIX: Lower scaffolding to Z=20 (Flange level)
-    // The calling module controls Z.
     
     translate([0, 0, z_height]) {
         // Box frame
@@ -229,13 +225,7 @@ module print_array_mixed() {
     // Scaffolding logic
     difference() {
         union() {
-            // LOWERED mid-scaffolding to Z=20mm to grab the FLANGE, not the thread.
-            // Flange is at Z=20 to 22. Scaffolding centered at 20 might hit the rod insert section?
-            // Rod insert is Z=0 to 20.
-            // Flange is Z=20 to 22.
-            // Thread is Z=22+.
-            // Safest place: Z=18 (High up on the insert section) or Z=21 (On the flange).
-            // Z=21 is best (Solid flange).
+            // LOWERED mid-scaffolding to Z=21mm (Flange level)
             rigid_scaffolding(spacing, 21.0);
             
             // Top bar remains high for female parts
