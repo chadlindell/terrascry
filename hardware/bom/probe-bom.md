@@ -23,8 +23,8 @@
 
 | Tool | Description | Quantity | Supplier | Cost | Notes |
 |------|-------------|----------|----------|------|-------|
-| Tap | M12×1.75 Plug Tap | 1 | Amazon/McMaster | $10–15 | **Recommended** to clean up printed female threads |
-| Die | M12×1.75 Round Die | 1 | Amazon/McMaster | $10–15 | **Recommended** to clean up printed male threads |
+| Tap | M12×1.75 Plug Tap | 1 | Amazon/McMaster | $10–15 | **Recommended** to cut threads in female "Blanks" |
+| Die | M12×1.75 Round Die | 1 | Amazon/McMaster | $10–15 | **Recommended** to cut threads on male "Blanks" |
 | Die Stock / Tap Handle | Handle for tools | 1 set | Amazon | $15–20 | |
 
 ## MIT-3D Components (Integrated into Modules)
@@ -58,4 +58,4 @@
 - **Rod Stock:** Buy standard 5/8" or 16mm fiberglass tubing in bulk lengths (e.g., 8ft or 2m) and cut to size.
 - **3D Printing:** This design relies heavily on printed parts. Use PETG or ASA for strength and outdoor durability. **Set slicer to 100% Infill.**
 - **O-rings:** Don't skip these. They keep groundwater out of the wiring channel.
-- **Threads:** Threads are fully printed but may be tight. Use the Tap/Die to "chase" them for a perfect fit.
+- **Threads:** **STRONGLY RECOMMENDED:** Print the "Blanks" version (`modular_mixed_array_4x_BLANKS.stl`) and cut threads with Tap/Die for superior strength and fit.
