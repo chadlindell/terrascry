@@ -28,7 +28,7 @@ THREAD_HOLE_DEPTH = 25.0; // Depth of thread hole
 FLANGE_THICKNESS = 2.0; // Stop flange to butt against tube end
 
 // Render Control
-part = "all"; // "all", "male_array", "female_array", "mixed_array"
+part = "all"; // "all", "male_array", "female_array", "mixed_array", "mixed_array_blanks"
 
 $fn = 64; // Resolution
 
@@ -92,6 +92,69 @@ module chamfer_cylinder(d, h, chamfer=1.0) {
         translate([0,0,chamfer]) cylinder(d=d, h=h-2*chamfer);
         cylinder(d1=d-2*chamfer, d2=d, h=chamfer);
         translate([0,0,h-chamfer]) cylinder(d1=d, d2=d-2*chamfer, h=chamfer);
+    }
+}
+
+// --- BLANK MODULES (For Tap & Die) ---
+module male_insert_blank() {
+    difference() {
+        union() {
+            // 1. Insert Section
+            cylinder(d=ROD_ID - 0.2, h=ROD_INSERT_DEPTH - 1);
+            translate([0,0,ROD_INSERT_DEPTH-1]) cylinder(d1=ROD_ID-0.2, d2=ROD_OD, h=1); 
+            
+            // 2. Stop Flange
+            translate([0,0,ROD_INSERT_DEPTH])
+                cylinder(d=ROD_OD, h=FLANGE_THICKNESS);
+                
+            // 3. Threaded Section (BLANK STUD)
+            // 11.9mm for easy die start
+            translate([0,0,ROD_INSERT_DEPTH + FLANGE_THICKNESS])
+                cylinder(d=11.9, h=THREAD_LEN); 
+        }
+        
+        // Center Wire Hole
+        translate([0,0,-1])
+            cylinder(d=WIRE_HOLE_DIA, h=ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN + 2);
+            
+        // O-Ring Groove
+        translate([0,0,ROD_INSERT_DEPTH + FLANGE_THICKNESS])
+            difference() {
+                cylinder(d=12.0 + 2.5, h=1);
+                cylinder(d=12.0 + 0.5, h=1);
+            }
+    }
+}
+
+module female_sensor_module_blank() {
+    difference() {
+        union() {
+            // 1. Insert Section
+            cylinder(d=ROD_ID - 0.2, h=ROD_INSERT_DEPTH); 
+            
+            // 2. Sensor Body
+            translate([0,0,ROD_INSERT_DEPTH])
+                cylinder(d=ROD_OD, h=SENSOR_BODY_LEN);
+        }
+        
+        // Center Wire Hole
+        translate([0,0,-1])
+            cylinder(d=WIRE_HOLE_DIA, h=ROD_INSERT_DEPTH + SENSOR_BODY_LEN + 2);
+            
+        // Threaded Socket (BLANK HOLE)
+        // 10.4mm for tapping
+        translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - THREAD_HOLE_DEPTH])
+            cylinder(d=10.4, h=THREAD_HOLE_DEPTH + 1);
+            
+        // --- Sensor Cutouts ---
+        translate([0,0,ROD_INSERT_DEPTH + 10])
+            difference() { cylinder(d=ROD_OD+0.1, h=4); cylinder(d=ROD_OD-1, h=4); }
+            
+        translate([0,0,ROD_INSERT_DEPTH + SENSOR_BODY_LEN - 14])
+             difference() { cylinder(d=ROD_OD+0.1, h=4); cylinder(d=ROD_OD-1, h=4); }
+            
+        translate([0,0,ROD_INSERT_DEPTH + 20])
+             difference() { cylinder(d=ROD_OD+0.1, h=20); cylinder(d=ROD_OD-2, h=20); }
     }
 }
 
@@ -191,17 +254,23 @@ module rigid_scaffolding(spacing, z_height, parts_height_config="mixed") {
     }
 }
 
-module print_array_mixed() {
+module print_array_mixed(use_blanks=false) {
     // 2 Male + 2 Female
     spacing = ROD_OD + 8; // 24mm
     brim_rad = 12.0; 
     
     union() {
-        translate([0, 0, 0]) male_insert();
-        translate([spacing, 0, 0]) male_insert();
-        
-        translate([0, spacing, 0]) female_sensor_module();
-        translate([spacing, spacing, 0]) female_sensor_module();
+        if (use_blanks) {
+            translate([0, 0, 0]) male_insert_blank();
+            translate([spacing, 0, 0]) male_insert_blank();
+            translate([0, spacing, 0]) female_sensor_module_blank();
+            translate([spacing, spacing, 0]) female_sensor_module_blank();
+        } else {
+            translate([0, 0, 0]) male_insert();
+            translate([spacing, 0, 0]) male_insert();
+            translate([0, spacing, 0]) female_sensor_module();
+            translate([spacing, spacing, 0]) female_sensor_module();
+        }
     }
     
     super_brim(spacing, brim_rad);
@@ -229,11 +298,13 @@ module print_array_mixed() {
 // --- Render Logic ---
 
 if (part == "male_array") {
-    print_array_mixed(); 
+    print_array_mixed(false); 
 } else if (part == "female_array") {
-    print_array_mixed();
+    print_array_mixed(false);
 } else if (part == "mixed_array") {
-    print_array_mixed();
+    print_array_mixed(false);
+} else if (part == "mixed_array_blanks") {
+    print_array_mixed(true); // Enable blanks
 } else {
-    print_array_mixed();
+    print_array_mixed(false);
 }
