@@ -1,6 +1,6 @@
 # DIY Probe-Array Subsurface Imaging System (MIT‑3D + ERT‑Lite)
 
-**Edition:** v0.9 (Prototype Field Guide)
+**Edition:** v2.0 (January 2026)
 
 **Audience:** Archaeology/forensic field teams, crash-site recovery teams, advanced hobbyists
 
@@ -10,25 +10,34 @@
 
 ## Table of Contents
 
-1. [Scope & Use Cases](sections/01-scope.md)
-2. [Ethics, Legal & Safety](sections/02-ethics-legal-safety.md)
-3. [Concept: Why Probes (Not Only Surface Scans)](sections/03-concept.md)
-4. [Physics (practical, field-level)](sections/04-physics.md)
-5. [System Architecture](sections/05-system-architecture.md)
-6. [Bill of Materials (BOM)](sections/06-bom.md)
-7. [Mechanical Build (step‑by‑step)](sections/07-mechanical-build.md)
-8. [Electronics (block‑level)](sections/08-electronics.md)
-9. [Bench Calibration & QC (before field)](sections/09-calibration.md)
-10. [Field Deployment (sectional survey)](sections/10-field-deployment.md)
-11. [Data Specification (collection only; software later)](sections/11-data-spec.md)
-12. [Interpreting Depth & Resolution (field expectations)](sections/12-interpretation.md)
-13. [Troubleshooting (common issues)](sections/13-troubleshooting.md)
-14. [Cost & Build Plan](sections/14-cost-build-plan.md)
-15. [Scenario‑Specific Playbooks](sections/15-scenario-playbooks.md)
-16. [Optional Add‑Ons (later)](sections/16-optional-addons.md)
-17. [Field Checklists](sections/17-field-checklists.md)
-18. [Glossary (quick)](sections/18-glossary.md)
-19. [What Comes Next (Software – Step 2, not in this doc)](sections/19-next-steps.md)
+> **See [Full Documentation Index](sections/00-index.md) for detailed navigation and reader paths.**
+
+### Part I: Foundations
+1. [Executive Summary](sections/01-executive-summary.md)
+2. [Physics & Theory](sections/02-physics-theory.md)
+3. [System Architecture](sections/03-system-architecture.md)
+
+### Part II: Building
+4. [Bill of Materials](sections/04-bill-of-materials.md)
+5. [Mechanical Design](sections/05-mechanical-design.md)
+6. [Electronics & Circuits](sections/06-electronics-circuits.md)
+7. [Assembly & Wiring](sections/07-assembly-wiring.md)
+8. [Testing & Verification](sections/08-testing-verification.md)
+9. [Calibration](sections/09-calibration.md)
+
+### Part III: Field Operations
+10. [Field Operations](sections/10-field-operations.md)
+11. [Data Recording](sections/11-data-recording.md)
+12. [Data Interpretation](sections/12-data-interpretation.md)
+13. [Troubleshooting](sections/13-troubleshooting.md)
+
+### Part IV: Reference
+14. [Glossary](sections/14-glossary.md)
+15. [Quick Reference](sections/15-quick-reference.md)
+16. [Field Checklists](sections/16-field-checklists.md)
+17. [Application Scenarios](sections/17-application-scenarios.md)
+18. [Future Development](sections/18-future-development.md)
+19. [Ethics, Legal & Safety](sections/19-ethics-legal-safety.md)
 
 ---
 
