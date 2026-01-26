@@ -1,6 +1,10 @@
-# Generated PDFs
-docs/whitepaper/pdf/
-*.pdf
+# Generated PDFs (keep specific PDFs in repo root)
+!HIRT_Introduction.pdf
+!HIRT_Scientific_Whitepaper.pdf
+
+# Installer packages
+*.deb
+*.rpm
 
 # Python (if software development added later)
 __pycache__/

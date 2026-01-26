@@ -1,0 +1,520 @@
+---
+title: "Troubleshooting"
+---
+
+## Overview {#sec-troubleshooting-overview}
+
+This section provides diagnostic approaches and solutions for common issues encountered during HIRT field operations. Systematic troubleshooting ensures minimal downtime and maximum data quality during surveys.
+
+## Diagnostic Approach {#sec-diagnostic-approach}
+
+### System Check Procedure {#sec-system-check}
+
+When issues arise, follow this systematic check procedure:
+
+1. **Hub Power:** Verify the Central Hub power LED is green.
+2. **Zone Continuity:** Check continuity between Hub Trunk port and Probe tip (using DMM).
+3. **Trunk Seating:** Ensure all DB25/Trunk connectors are fully seated and screwed in.
+4. **MIT Baseline:** Verify TX to RX coupling on two probes in air before insertion.
+
+### Quick Reference Table {#sec-ts-quick-reference}
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| RX saturation on nearby probes | TX too strong | Lower TX level; rotate coils to orthogonal |
+| Noisy MIT data | Trunk shielding issue | Check trunk cable ground; verify star ground |
+| Unstable ERT voltages | Poor soil contact | Pre-moisten hole; apply saline gel |
+| Zone Hub not detected | Trunk disconnected | Inspect DB25 pins; reseat Trunk Cable |
+| Inconsistent repeats | Thermal drift | Allow 15 min warmup; check Hub fans |
+
+: Common symptoms, causes, and solutions {#tbl-quick-reference}
+
+### Diagnostic Decision Tree {#sec-decision-tree}
+
+The following decision tree provides a systematic approach to diagnosing HIRT system issues, from initial symptom identification through resolution.
+
+```{python}
+#| label: fig-diagnostic-decision-tree
+#| fig-cap: "Comprehensive diagnostic decision tree for HIRT troubleshooting. Follow the flowchart from the top to systematically identify and resolve issues."
+#| fig-width: 14
+#| fig-height: 10
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Polygon
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'light_green': '#c6f6d5',
+    'light_blue': '#ebf8ff',
+    'light_orange': '#feebc8',
+    'light_red': '#fed7d7',
+    'light_purple': '#e9d8fd',
+}
+
+def draw_process_box(ax, x, y, width, height, text, color='white', fontsize=8):
+    patch = FancyBboxPatch((x - width/2, y - height/2), width, height,
+                           boxstyle="round,pad=0.02",
+                           facecolor=color, edgecolor='black', linewidth=1)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=fontsize, wrap=True)
+
+def draw_decision_diamond(ax, x, y, size, text, color='white'):
+    half = size / 2
+    points = [(x, y + half), (x + half, y), (x, y - half), (x - half, y)]
+    patch = Polygon(points, facecolor=color, edgecolor='black', linewidth=1)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=7)
+
+def draw_terminal(ax, x, y, width, height, text, color='white'):
+    patch = FancyBboxPatch((x - width/2, y - height/2), width, height,
+                           boxstyle="round,pad=0.3",
+                           facecolor=color, edgecolor='black', linewidth=1.5)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=9, fontweight='bold')
+
+def draw_flow_arrow(ax, start, end, label=None, color='black', label_offset=(0.1, 0)):
+    ax.annotate('', xy=end, xytext=start,
+                arrowprops=dict(arrowstyle='->', color=color, lw=1.5))
+    if label:
+        mid_x = (start[0] + end[0]) / 2 + label_offset[0]
+        mid_y = (start[1] + end[1]) / 2 + label_offset[1]
+        ax.text(mid_x, mid_y, label, fontsize=7, color=color)
+
+fig, ax = plt.subplots(figsize=(14, 10))
+ax.set_xlim(0, 14)
+ax.set_ylim(0, 10)
+ax.set_aspect('equal')
+ax.axis('off')
+
+ax.text(7, 9.7, 'HIRT Diagnostic Decision Tree', ha='center',
+        fontsize=12, fontweight='bold', color=COLORS['primary'])
+
+# Start terminal
+draw_terminal(ax, 7, 9, 2.5, 0.5, 'ISSUE DETECTED', COLORS['light_red'])
+
+# Level 1: Initial Assessment
+draw_decision_diamond(ax, 7, 7.8, 1.4, 'Power\nLED On?', COLORS['light_blue'])
+draw_flow_arrow(ax, (7, 8.75), (7, 8.5))
+
+# Power OFF path
+draw_flow_arrow(ax, (6.3, 7.8), (4, 7.8), 'No')
+draw_process_box(ax, 2.5, 7.8, 2.2, 0.7, 'Check Battery\n>12.0V?', COLORS['light_orange'])
+draw_flow_arrow(ax, (2.5, 7.45), (2.5, 6.8))
+draw_decision_diamond(ax, 2.5, 6.3, 1.2, 'Battery\nOK?', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (1.9, 6.3), (0.8, 6.3), 'No')
+draw_process_box(ax, 0.8, 5.5, 1.4, 0.6, 'Charge or\nReplace', COLORS['light_green'])
+
+draw_flow_arrow(ax, (2.5, 5.7), (2.5, 5.0), 'Yes')
+draw_process_box(ax, 2.5, 4.5, 2.0, 0.7, 'Check Fuse\n& Connectors', COLORS['light_orange'])
+draw_flow_arrow(ax, (2.5, 4.15), (2.5, 3.5))
+draw_terminal(ax, 2.5, 3.0, 2.0, 0.5, 'Replace\nFuse/Cable', COLORS['light_green'])
+
+# Power ON path
+draw_flow_arrow(ax, (7, 7.1), (7, 6.5), 'Yes')
+draw_decision_diamond(ax, 7, 6, 1.4, 'Data\nOutput?', COLORS['light_blue'])
+
+# No data path
+draw_flow_arrow(ax, (7.7, 6), (9.5, 6), 'No')
+draw_process_box(ax, 11, 6, 2.2, 0.7, 'Check USB/\nCommunication', COLORS['light_orange'])
+draw_flow_arrow(ax, (11, 5.65), (11, 5.0))
+draw_decision_diamond(ax, 11, 4.5, 1.2, 'Comms\nOK?', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (11.6, 4.5), (13, 4.5), 'No')
+draw_process_box(ax, 13, 3.8, 1.6, 0.6, 'Replace\nCable', COLORS['light_green'])
+
+draw_flow_arrow(ax, (11, 3.9), (11, 3.3), 'Yes')
+draw_process_box(ax, 11, 2.8, 2.0, 0.7, 'Check Hub\nFirmware', COLORS['light_orange'])
+
+# Data present path
+draw_flow_arrow(ax, (7, 5.3), (7, 4.7), 'Yes')
+draw_decision_diamond(ax, 7, 4.2, 1.4, 'Valid\nReadings?', COLORS['light_blue'])
+
+# Invalid readings
+draw_flow_arrow(ax, (6.3, 4.2), (5, 4.2), 'No')
+draw_decision_diamond(ax, 4, 4.2, 1.2, 'MIT or\nERT?', COLORS['light_blue'])
+
+# MIT branch
+draw_flow_arrow(ax, (4, 3.6), (4, 2.8), 'MIT')
+draw_process_box(ax, 4, 2.3, 2.2, 0.7, 'MIT Diagnostics', COLORS['light_purple'])
+
+draw_flow_arrow(ax, (4, 1.95), (4, 1.4))
+ax.add_patch(FancyBboxPatch((2.5, 0.3), 3.0, 1.0,
+                            boxstyle="round,pad=0.02",
+                            facecolor=COLORS['light_purple'], edgecolor=COLORS['purple'], lw=1))
+ax.text(4, 0.8, 'MIT Checks:', ha='center', va='center', fontsize=8, fontweight='bold')
+ax.text(4, 0.45, '* Coil connections\n* TX level (saturation?)\n* Frequency setting',
+        ha='center', va='center', fontsize=6)
+
+# ERT branch
+draw_flow_arrow(ax, (4.6, 4.2), (5.5, 4.2))
+draw_flow_arrow(ax, (5.5, 4.2), (5.5, 2.8), 'ERT')
+draw_process_box(ax, 5.5, 2.3, 2.0, 0.7, 'ERT Diagnostics', COLORS['light_orange'])
+
+draw_flow_arrow(ax, (6.5, 2.3), (8, 2.3))
+ax.add_patch(FancyBboxPatch((7.5, 1.3), 3.0, 1.3,
+                            boxstyle="round,pad=0.02",
+                            facecolor=COLORS['light_orange'], edgecolor=COLORS['orange'], lw=1))
+ax.text(9, 1.95, 'ERT Checks:', ha='center', va='center', fontsize=8, fontweight='bold')
+ax.text(9, 1.4, '* Ring-soil contact\n* Pre-moisten hole\n* Current source\n* Saline gel application',
+        ha='center', va='center', fontsize=6)
+
+# Valid readings - SUCCESS
+draw_flow_arrow(ax, (7, 3.5), (7, 2.8), 'Yes')
+draw_terminal(ax, 7, 2.3, 2.5, 0.5, 'SYSTEM OK', COLORS['light_green'])
+
+# Quick reference box
+ax.add_patch(FancyBboxPatch((10.5, 7.5), 3.0, 1.8,
+                            boxstyle="round,pad=0.02",
+                            facecolor='white', edgecolor=COLORS['gray_med'], lw=1))
+ax.text(12, 9.0, 'Quick Reference', ha='center', va='center', fontsize=9, fontweight='bold',
+        color=COLORS['primary'])
+ax.text(12, 8.4, '* Battery min: 12.0V\n* Warmup: 15 min\n* Ground: single-point\n* MIT freq: 2-20 kHz',
+        ha='center', va='center', fontsize=7)
+
+plt.tight_layout()
+plt.show()
+```
+
+## MIT Troubleshooting {#sec-mit-troubleshooting}
+
+### RX Saturation on Nearby Probes {#sec-rx-saturation}
+
+**Symptoms:** Amplitude readings maxed out on nearby probes, phase readings erratic or stuck, effects only visible on probes close to TX.
+
+**Causes:** TX output too high for close-range measurements, direct magnetic coupling between TX and RX coils, insufficient separation or poor coil orientation.
+
+**Solutions:**
+
+1. **Reduce TX level:** Lower DDS output or TX driver gain
+2. **Increase separation:** Use wider probe spacing for close pairs
+3. **Rotate coils:** Ensure TX and RX coils are orthogonal
+4. **Add attenuation:** Use lower gain on RX for nearby probes
+5. **Skip close pairs:** Do not measure TX to RX pairs less than 0.5 m apart
+
+### Noisy MIT Data {#sec-noisy-mit}
+
+**Symptoms:** High noise floor, erratic amplitude/phase readings, inconsistent measurements between sweeps.
+
+**Causes:** Poor cable shielding, ground loops (multiple ground paths), EMI from nearby sources, insufficient integration time.
+
+**Solutions:**
+
+1. **Check shielding:** Verify all cables are properly shielded
+2. **Single-point ground:** Ensure only one ground connection at Hub
+3. **Twist pairs:** Use twisted-pair cables for signal lines
+4. **Increase integration:** Longer measurement time reduces noise
+5. **Check EMI sources:** Move away from power lines, vehicles, radios
+6. **Verify connections:** Check all connectors are tight and clean
+
+### No Depth Sensitivity (MIT) {#sec-no-depth-mit}
+
+**Symptoms:** Measurements do not change with depth, all readings similar regardless of target depth, no response to known deep targets.
+
+**Solutions:**
+
+1. **Lower frequencies:** Use 2-5 kHz for MIT (deeper penetration)
+2. **Add longer offsets:** Include TX to RX pairs with >3 m spacing
+3. **Deeper probes:** Insert probes deeper if possible
+4. **Check targets:** Verify expected target depths are realistic for configuration
+
+## ERT Troubleshooting {#sec-ert-troubleshooting}
+
+### Unstable ERT Voltages {#sec-unstable-ert}
+
+**Symptoms:** Voltage readings drift or jump, inconsistent measurements, poor contact indicated in diagnostic output.
+
+**Causes:** Dry soil preventing good electrical contact, poor ring-to-soil contact, loose connections, polarization effects at electrodes.
+
+**Solutions:**
+
+1. **Pre-moisten hole:** Add water to improve contact
+2. **Use saline gel:** Apply conductive gel around rings
+3. **Check ring contact:** Ensure rings are flush with soil
+4. **Reverse polarity:** Use AC or periodic polarity reversal to reduce polarization
+5. **Check connections:** Verify all wiring is secure
+6. **Increase current:** Slightly higher current may improve SNR
+
+### ERT Contact Problems {#sec-ert-contact}
+
+**Symptoms:** High contact resistance, erratic voltage readings, some electrodes not responding.
+
+**Solutions:**
+
+1. Verify ring contact with soil
+2. Add water around probe (improve contact)
+3. Check ring-to-cable connection
+4. Clean rings if accessible
+5. Consider relocating probe if contact remains poor
+
+### No Depth Sensitivity (ERT) {#sec-no-depth-ert}
+
+**Symptoms:** All measurements show surface effects only, no response to known deep features, uniform readings across array.
+
+**Solutions:**
+
+1. **Longer ERT baselines:** Corner-to-corner, edge-to-edge injections
+2. **Deeper probes:** Insert probes deeper if possible
+3. **Wider spacing:** Increase array dimensions
+
+```{python}
+#| label: fig-troubleshooting-flowchart
+#| fig-cap: "Quick troubleshooting flowchart for rapid issue identification. This simplified guide helps identify the most common failure modes."
+#| fig-width: 10
+#| fig-height: 8
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Polygon, Rectangle
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'light_blue': '#ebf8ff',
+    'light_green': '#c6f6d5',
+    'light_orange': '#feebc8',
+    'light_red': '#fed7d7',
+    'gray_dark': '#4a5568',
+}
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.axis('off')
+
+ax.text(5, 7.7, 'Quick Troubleshooting Guide', fontsize=12, fontweight='bold',
+        ha='center', color=COLORS['primary'])
+
+# Issue categories
+categories = [
+    ('No Power', COLORS['light_red'], ['Check battery voltage', 'Check fuse', 'Check power switch']),
+    ('No Data', COLORS['light_orange'], ['Check USB connection', 'Check software', 'Restart system']),
+    ('Bad MIT', COLORS['light_blue'], ['Check coil connections', 'Reduce TX level', 'Check grounding']),
+    ('Bad ERT', COLORS['light_green'], ['Check soil contact', 'Add water/gel', 'Check electrodes']),
+]
+
+for i, (title, color, items) in enumerate(categories):
+    x = 0.5 + (i % 2) * 5
+    y = 5.5 - (i // 2) * 3.5
+
+    # Category box
+    ax.add_patch(FancyBboxPatch((x, y), 4, 2.8, boxstyle="round,pad=0.05",
+                                facecolor=color, edgecolor='black', lw=1.5))
+    ax.text(x + 2, y + 2.5, title, ha='center', va='center', fontsize=11,
+            fontweight='bold', color=COLORS['gray_dark'])
+
+    # Items
+    for j, item in enumerate(items):
+        ax.text(x + 0.3, y + 1.8 - j * 0.5, f'{j+1}. {item}', fontsize=9,
+                va='center', color=COLORS['gray_dark'])
+
+# Footer note
+ax.add_patch(Rectangle((0.5, 0.3), 9, 0.8, facecolor=COLORS['light_blue'],
+                       edgecolor=COLORS['accent'], lw=1.5))
+ax.text(5, 0.7, 'If issue persists after basic checks, consult Section 13 detailed procedures',
+        ha='center', va='center', fontsize=9, style='italic', color=COLORS['primary'])
+
+plt.tight_layout()
+plt.show()
+```
+
+## Power Issues {#sec-power-issues}
+
+### Probe Not Responding {#sec-probe-not-responding}
+
+**Symptoms:** No LED indicator, no communication with base hub, probe not detected in diagnostic scan.
+
+**Solutions:**
+
+1. Check cable connections (both ends)
+2. Test with multimeter (continuity)
+3. Try different port on base hub
+4. Swap to spare cable
+5. Restart probe (disconnect/reconnect power)
+6. Replace with spare probe if available
+
+### Base Hub Not Powering On {#sec-hub-not-powering}
+
+**Symptoms:** No power LED, no response to power switch, system completely dead.
+
+**Causes:** Depleted battery, blown fuse, power switch failure.
+
+**Solutions:**
+
+1. Check battery voltage (should be >12.0 V)
+2. Check fuse (replace if blown)
+3. Verify power switch operation
+4. Check internal connections if accessible
+5. Use backup power supply if available
+
+## Communication Issues {#sec-communication-issues}
+
+### Lost Probe Communication {#sec-lost-communication}
+
+**Symptoms:** Probe was working, now unresponsive; intermittent connection; partial data received.
+
+**Solutions:**
+
+1. Check cable connections (both ends)
+2. Inspect cable for damage (kinks, cuts)
+3. Clean connectors with contact cleaner
+4. Swap to known-good cable
+5. Check for EMI sources nearby
+6. Restart probe and base hub
+
+### Sync Problems {#sec-sync-problems}
+
+**Symptoms:** Timing errors in data, inconsistent measurements between probes, data corruption.
+
+**Causes:** Timebase distribution failure, clock drift, cable issues on sync line.
+
+**Solutions:**
+
+1. Verify sync signal at each probe
+2. Check sync cable for damage
+3. Restart measurement system
+4. Re-initialize sync before continuing
+
+## Environmental Factors {#sec-environmental-factors}
+
+### Temperature Effects {#sec-temperature-effects}
+
+**Symptoms:** Readings drift over time, morning vs. afternoon differences, inconsistent calibration.
+
+**Solutions:**
+
+1. Allow system to stabilize (10-15 min warmup)
+2. Note temperature variations in field log
+3. Apply temperature compensation if available
+4. Take baseline measurements at current temperature
+5. Shield equipment from direct sun if possible
+
+### Weather Impacts {#sec-weather-impacts}
+
+**Symptoms:** Data quality degradation, increased noise, contact problems.
+
+**Solutions:**
+
+1. Protect connections from moisture
+2. Secure cables against wind movement
+3. Use weather covers for sensitive equipment
+4. Postpone measurements in severe conditions
+
+## Field Repairs {#sec-field-repairs}
+
+### Field Repair Kit {#sec-repair-kit}
+
+Keep these items handy for field repairs:
+
+- Spare cables (2-3)
+- Spare probes (2-4 recommended)
+- Electrical tape
+- Multimeter
+- Small screwdriver set
+- Contact cleaner spray
+- Zip ties
+- Heat-shrink tubing
+- Solder and iron (battery powered, optional)
+- Notebook and pencil (for notes)
+- Calibration sheet
+
+### Emergency Cable Repair {#sec-emergency-cable-repair}
+
+If a cable is damaged in the field:
+
+1. **Locate the break** (continuity test)
+2. **Cut out damaged section** if possible
+3. **Strip and splice** wires
+4. **Insulate with tape** or heat-shrink
+5. **Test before use**
+
+::: {.callout-note}
+Field-repaired cables should be replaced at first opportunity.
+:::
+
+### Connector Cleaning {#sec-connector-cleaning}
+
+1. Apply contact cleaner to connector
+2. Wipe with clean cloth
+3. Allow to dry before reconnecting
+4. Apply thin layer of dielectric grease (optional, for moisture protection)
+
+## When to Abort Survey {#sec-when-to-abort}
+
+::: {.callout-warning}
+## Conditions Requiring Survey Abort
+
+- **Safety Issues:** Severe weather (lightning, high winds), site hazards discovered, equipment malfunction creating hazard
+- **Data Quality:** >25% probes non-functional, persistent unusable noise, unable to achieve ground contact on majority of probes
+- **Critical Failures:** Base hub failure, data logger failure, battery depletion with no backup
+- **Practical Issues:** Time constraints preventing quality data, site access revoked
+:::
+
+### Before Aborting {#sec-before-aborting}
+
+1. Document all issues in field log
+2. Save all data collected (even partial)
+3. Note probe positions for potential return
+4. Photograph site conditions
+5. Extract probes safely if time permits
+6. Backup data immediately
+
+### Partial Survey Options {#sec-partial-survey}
+
+If full abort is not necessary, consider these alternatives:
+
+- **Reduce survey area** to functional probes
+- **Simplify measurement protocol** (fewer frequencies, fewer patterns)
+- **Focus on priority targets** only
+- **Document limitations** for data interpretation
+
+## Prevention {#sec-prevention}
+
+### Pre-Field Checks {#sec-pre-field-checks}
+
+- All connectors tight and clean
+- Cables tested for continuity
+- Calibration up to date
+- Spare parts available
+- Field diagnostic kit packed
+- Batteries charged
+- Weather forecast reviewed
+
+### During Survey {#sec-during-survey}
+
+- Monitor data quality in real-time
+- Check reciprocity periodically
+- Note any anomalies immediately
+- Keep spare probes ready
+- Protect equipment from weather
+
+### Post-Survey {#sec-ts-post-survey}
+
+- Inspect all equipment
+- Note any issues for repair
+- Update calibration records
+- Clean and store properly
+- Recharge all batteries
+- Restock field repair kit
+
+::: {.callout-note}
+## Related Sections
+
+- For detailed operating procedures, see **Section 10: Field Operations**
+- For data format specifications, see **Section 11: Data Recording**
+- For calibration procedures, see **Section 9: Calibration**
+:::

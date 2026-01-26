@@ -11,7 +11,7 @@ A modular, in-ground probe array integrating magneto-inductive (low-frequency EM
 ## Quick Links
 
 - **[Documentation](docs/README.md)** - Complete project documentation
-- **[White Paper](docs/whitepaper/main.md)** - Full technical documentation
+- **[Technical Whitepaper](docs/hirt-whitepaper/)** - Full technical documentation (Quarto)
 - **[BOM Files](hardware/bom/)** - Bill of Materials and order sheets
 - **[Field Guide](docs/field-guide/)** - Field deployment guides
 
@@ -20,10 +20,13 @@ A modular, in-ground probe array integrating magneto-inductive (low-frequency EM
 ```
 HIRT/
 ├── docs/                    # Documentation
-│   ├── whitepaper/         # Main white paper
-│   └── field-guide/        # Field-ready guides
+│   ├── hirt-whitepaper/    # Technical whitepaper (Quarto - PDF & HTML)
+│   ├── field-guide/        # Field-ready guides
+│   ├── research/           # Research documents
+│   └── _archive/           # Deprecated documentation
 ├── hardware/               # Hardware documentation
 │   ├── bom/               # Bill of Materials
+│   ├── cad/               # OpenSCAD source and STLs
 │   ├── schematics/        # Circuit diagrams
 │   └── drawings/          # Technical drawings
 ├── images/                 # Generated images and photos
@@ -52,7 +55,7 @@ HIRT/
 ## Getting Started
 
 1. **Read the Documentation:** Start with [docs/README.md](docs/README.md)
-2. **Review the White Paper:** [docs/whitepaper/main.md](docs/whitepaper/main.md)
+2. **Review the Whitepaper:** [docs/hirt-whitepaper/](docs/hirt-whitepaper/) (build with `quarto render`)
 3. **Check BOM:** [hardware/bom/](hardware/bom/) for components
 4. **Order Components:** Use [order sheets](hardware/bom/order-sheets/)
 5. **Build System:** Follow [build/](build/) instructions
@@ -67,9 +70,9 @@ HIRT/
 
 ## Status
 
-- **Documentation:** v0.9 (Complete)
+- **Documentation:** v2.0 (Quarto whitepaper complete)
 - **Hardware Design:** In progress (schematics/drawings pending)
-- **Software:** Future development (see [Section 19](docs/whitepaper/sections/19-next-steps.md))
+- **Software:** Future development (see whitepaper Section 18)
 
 ## Cost Estimate
 
