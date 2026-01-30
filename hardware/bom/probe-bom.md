@@ -31,9 +31,16 @@
 
 | Component | Description | Quantity | Part Number | Supplier | Unit Cost | Total Cost | Notes |
 |-----------|-------------|----------|-------------|----------|-----------|------------|-------|
-| Ferrite cores | Ø6–8 mm × 40 mm | 2 | Custom | Mouser/Digi-Key | $2 | $4 | Inserted into sensor module body |
-| Magnet wire | 34–38 AWG enameled | 1 | MW-34 | Digi-Key | $5 | $5 | Wound on module body |
-| **Subtotal MIT** | | | | | | **$9** | |
+| Ferrite cores | NiZn Ø8 mm × 100 mm | 2 | 5961001801 | Fair-Rite/Mouser | $3 | $6 | Fair-Rite 61 material (μᵣ=125) for 2-50 kHz broadband |
+| Magnet wire | 34 AWG enameled | 1 spool | 8081 | Remington Industries | $8 | $8 | ~300 turns per coil, single-layer bank wound |
+| **Subtotal MIT** | | | | | | **$14** | |
+
+**MIT Coil Specifications:**
+- Inductance target: 1.5 mH ±10%
+- Q Factor: ≥30 @ 10 kHz, ≥20 across 2-50 kHz
+- DC Resistance: <8 Ω
+- Self-Resonant Frequency: >200 kHz
+- See `docs/field-guide/coil-winding-recipe.md` for complete winding procedure
 
 ## ERT Components (Integrated into Modules)
 
@@ -48,11 +55,11 @@
 | Category | Cost Range |
 |----------|------------|
 | Mechanical | $22–44 |
-| MIT Components | $9 |
+| MIT Components | $14 |
 | ERT Components | $4–5 |
-| **Total** | **$35–58** |
+| **Total** | **$40–63** |
 
-**Typical cost:** ~$45 per probe
+**Typical cost:** ~$50 per probe
 
 ## Procurement Tips
 - **Rod Stock:** Buy standard 5/8" or 16mm fiberglass tubing in bulk lengths (e.g., 8ft or 2m) and cut to size.

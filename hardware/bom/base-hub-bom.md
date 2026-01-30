@@ -6,20 +6,20 @@
 
 **Centralized Electronics:** All electronics are at surface in central hub. Probes are passive (see [Probe BOM](probe-bom.md)). One hub serves all probes (20–24 typical).
 
-## MIT Driver/Receiver System
+## MIT Driver/Receiver System (2026 Modernized)
 
 | Component | Description | Quantity | Part Number | Supplier | Unit Cost | Total Cost | Notes |
 |-----------|-------------|----------|-------------|----------|-----------|------------|-------|
-| DDS generator | AD9833 DDS | 1 | AD9833BRMZ-REEL7 | Digi-Key | $8.50 | $8.50 | 25 MHz DDS, SPI interface |
-| TX driver | Op-amp OPA2277 | 1 | OPA2277PA | Digi-Key | $4.50 | $4.50 | Precision op-amp, drives all TX coils |
-| RX preamp | Low-noise AD620 | 1 | AD620ANZ | Digi-Key | $6.50 | $6.50 | Instrumentation amp, low noise |
+| DDS generator | Low-power DDS | 1 | AD9837BCPZ-REEL7 | Digi-Key | $8.00 | $8.00 | 8.5mW low-power upgrade (LFCSP) |
+| TX driver | Precision Op-amp | 1 | OPA2186 | Digi-Key | $2.50 | $2.50 | Zero-drift, 90uA power (90% reduction) |
+| RX preamp | Low-noise In-Amp | 1 | AD8421ARZ | Digi-Key | $9.50 | $9.50 | 3 nV/sqrt(Hz) noise floor (3x better) |
 | Instrumentation amp | INA128 | 1 | INA128PAG4 | Digi-Key | $7.50 | $7.50 | Precision instrumentation amp |
-| Lock-in (Option A) | 24-bit ADC ADS1256 | 1 | ADS1256IDBR | Digi-Key | $18.50 | $18.50 | Digital lock-in, SPI interface |
-| Lock-in (Option B) | Analog multiplier AD630 | 1 | AD630ANZ | Digi-Key | $12.00 | $12.00 | Analog lock-in multiplier |
-| ADC (if Option B) | 16-bit ADC ADS1115 | 1 | ADS1115IDGST | Digi-Key | $6.00 | $6.00 | I2C interface, optional |
+| Lock-in / ADC | Integrated 24-bit AFE | 1 | AD7124-8 | Digi-Key | $12.50 | $12.50 | Integrated PGA + Ref + ADC (low power) |
+| Lock-in (Legacy) | Analog multiplier AD630 | 0 | AD630ANZ | Digi-Key | $12.00 | $0.00 | Deprecated in favor of digital lock-in |
 | TX multiplexer | Analog mux for TX selection | 1 | CD4051BE | Digi-Key | $1.50 | $1.50 | Select which probe TX to drive |
 | RX multiplexer | Analog mux for RX selection | 1 | CD4051BE | Digi-Key | $1.50 | $1.50 | Select which probe RX to read |
-| **Subtotal MIT System** | | | | | | **$56.50–66.50** | |
+| Probe Connectors | IP68 Circular 26-pin | 20 | Weipu SP29-26 | AliExpress | $8.00 | $160.00 | Waterproof replacement for DB25 |
+| **Subtotal MIT System** | | | | | | **$203.00** | Includes ruggedized connectors |
 
 ## ERT System
 

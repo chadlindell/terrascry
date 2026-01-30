@@ -1,0 +1,309 @@
+---
+title: "Index"
+---
+
+## About This Document
+
+This whitepaper provides complete documentation for the HIRT system, a hybrid geophysical survey tool combining Magnetic Induction Tomography (MIT) and Electrical Resistivity Tomography (ERT) for subsurface imaging in forensic, archaeological, and environmental applications.
+
+### Key Applications
+
+- **WWII bomb crater investigation** - UXO assessment and burial detection
+- **Woodland burial search** - Clandestine grave detection under tree cover
+- **Swamp/marsh crash sites** - Deep target recovery where aircraft sank into saturated ground
+
+```{python}
+#| label: fig-document-structure
+#| fig-cap: "HIRT Whitepaper v2.0 document organization. The whitepaper is divided into 5 parts containing 19 sections, with recommended reader paths for different user roles."
+#| fig-width: 10
+#| fig-height: 8
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.axis('off')
+
+# Color scheme for parts
+part_colors = {
+    'I': '#2c5282',    # Navy - Foundations
+    'II': '#38a169',   # Green - Building
+    'III': '#ed8936',  # Orange - Field Operations
+    'IV': '#805ad5',   # Purple - Analysis & Applications
+    'V': '#d53f8c',    # Pink - Appendices
+}
+
+# Title
+ax.text(5, 7.7, 'HIRT Whitepaper v2.0 - Document Structure',
+        fontsize=14, fontweight='bold', ha='center', color='#1a365d')
+ax.text(5, 7.35, '5 Parts | 19 Sections',
+        fontsize=10, ha='center', color='#4a5568', style='italic')
+
+# Part I: Foundations
+part1_x, part1_y = 0.3, 5.5
+ax.add_patch(FancyBboxPatch((part1_x, part1_y), 1.8, 1.6,
+                            boxstyle="round,pad=0.03",
+                            facecolor='#ebf8ff', edgecolor=part_colors['I'],
+                            linewidth=2))
+ax.text(part1_x + 0.9, part1_y + 1.4, 'PART I', fontsize=9,
+        fontweight='bold', ha='center', color=part_colors['I'])
+ax.text(part1_x + 0.9, part1_y + 1.15, 'FOUNDATIONS', fontsize=8,
+        ha='center', color=part_colors['I'])
+
+sections_p1 = ['01 Executive Summary', '02 Physics Theory', '03 System Architecture']
+for i, sec in enumerate(sections_p1):
+    ax.text(part1_x + 0.15, part1_y + 0.85 - i*0.28, sec, fontsize=7,
+            color='#2d3748', va='center')
+
+# Part II: Building
+part2_x, part2_y = 2.3, 4.8
+ax.add_patch(FancyBboxPatch((part2_x, part2_y), 1.8, 2.3,
+                            boxstyle="round,pad=0.03",
+                            facecolor='#f0fff4', edgecolor=part_colors['II'],
+                            linewidth=2))
+ax.text(part2_x + 0.9, part2_y + 2.1, 'PART II', fontsize=9,
+        fontweight='bold', ha='center', color=part_colors['II'])
+ax.text(part2_x + 0.9, part2_y + 1.85, 'BUILDING', fontsize=8,
+        ha='center', color=part_colors['II'])
+
+sections_p2 = ['04 Bill of Materials', '05 Mechanical Design',
+               '06 Electronics and Circuits', '07 Assembly and Wiring',
+               '08 Testing and Verification', '09 Calibration']
+for i, sec in enumerate(sections_p2):
+    ax.text(part2_x + 0.15, part2_y + 1.55 - i*0.26, sec, fontsize=7,
+            color='#2d3748', va='center')
+
+# Part III: Field Operations
+part3_x, part3_y = 4.4, 4.9
+ax.add_patch(FancyBboxPatch((part3_x, part3_y), 1.8, 2.2,
+                            boxstyle="round,pad=0.03",
+                            facecolor='#fffaf0', edgecolor=part_colors['III'],
+                            linewidth=2))
+ax.text(part3_x + 0.9, part3_y + 2.0, 'PART III', fontsize=9,
+        fontweight='bold', ha='center', color=part_colors['III'])
+ax.text(part3_x + 0.9, part3_y + 1.75, 'FIELD OPERATIONS', fontsize=8,
+        ha='center', color=part_colors['III'])
+
+sections_p3 = ['19 Ethics, Legal, Safety', '10 Field Operations', '11 Data Recording',
+               '12 Data Interpretation', '13 Troubleshooting']
+for i, sec in enumerate(sections_p3):
+    ax.text(part3_x + 0.15, part3_y + 1.45 - i*0.26, sec, fontsize=7,
+            color='#2d3748', va='center')
+
+# Part IV: Analysis & Applications
+part4_x, part4_y = 6.4, 5.6
+ax.add_patch(FancyBboxPatch((part4_x, part4_y), 1.9, 1.5,
+                            boxstyle="round,pad=0.03",
+                            facecolor='#faf5ff', edgecolor=part_colors['IV'],
+                            linewidth=2))
+ax.text(part4_x + 0.95, part4_y + 1.3, 'PART IV', fontsize=9,
+        fontweight='bold', ha='center', color=part_colors['IV'])
+ax.text(part4_x + 0.95, part4_y + 1.05, 'ANALYSIS &', fontsize=7,
+        ha='center', color=part_colors['IV'])
+ax.text(part4_x + 0.95, part4_y + 0.88, 'APPLICATIONS', fontsize=7,
+        ha='center', color=part_colors['IV'])
+
+sections_p4 = ['17 Application Scenarios', '18 Future Development']
+for i, sec in enumerate(sections_p4):
+    ax.text(part4_x + 0.15, part4_y + 0.58 - i*0.26, sec, fontsize=7,
+            color='#2d3748', va='center')
+
+# Part V: Appendices
+part5_x, part5_y = 8.5, 5.6
+ax.add_patch(FancyBboxPatch((part5_x, part5_y), 1.4, 1.3,
+                            boxstyle="round,pad=0.03",
+                            facecolor='#fff5f7', edgecolor=part_colors['V'],
+                            linewidth=2))
+ax.text(part5_x + 0.7, part5_y + 1.1, 'PART V', fontsize=9,
+        fontweight='bold', ha='center', color=part_colors['V'])
+ax.text(part5_x + 0.7, part5_y + 0.88, 'APPENDICES', fontsize=7,
+        ha='center', color=part_colors['V'])
+
+sections_p5 = ['14 Glossary', '15 Quick Reference', '16 Field Checklists']
+for i, sec in enumerate(sections_p5):
+    ax.text(part5_x + 0.1, part5_y + 0.6 - i*0.22, sec, fontsize=6.5,
+            color='#2d3748', va='center')
+
+# Connection arrows between parts
+arrow_style = dict(arrowstyle='->', color='#718096', lw=1.5,
+                   connectionstyle='arc3,rad=0.1')
+ax.annotate('', xy=(part2_x, part2_y + 1.6), xytext=(part1_x + 1.8, part1_y + 0.8),
+            arrowprops=arrow_style)
+ax.annotate('', xy=(part3_x, part3_y + 0.95), xytext=(part2_x + 1.8, part2_y + 1.15),
+            arrowprops=arrow_style)
+ax.annotate('', xy=(part4_x, part4_y + 0.85), xytext=(part3_x + 1.8, part3_y + 0.95),
+            arrowprops=arrow_style)
+
+# Reader Paths section at bottom
+ax.axhline(y=3.8, xmin=0.03, xmax=0.97, color='#e2e8f0', linewidth=1)
+ax.text(5, 3.5, 'READER PATHS', fontsize=10, fontweight='bold',
+        ha='center', color='#1a365d')
+
+paths = [
+    ('System Builder', '#2c5282', '01 > 03 > 04...09', 0.5),
+    ('Field Operator', '#38a169', '14 > 15 > 10 > 11', 2.7),
+    ('Data Analyst', '#ed8936', '02 > 11 > 12 > 17', 5.0),
+    ('Quick Start', '#805ad5', '01 > 15 > 10', 7.3),
+]
+
+for name, color, path, x in paths:
+    ax.add_patch(FancyBboxPatch((x, 2.0), 2.2, 1.3,
+                                boxstyle="round,pad=0.03",
+                                facecolor='white', edgecolor=color,
+                                linewidth=1.5))
+    ax.text(x + 1.1, 3.05, name, fontsize=8, fontweight='bold',
+            ha='center', color=color)
+    ax.text(x + 1.1, 2.65, path, fontsize=6, ha='center', color='#4a5568')
+    ax.add_patch(Circle((x + 1.1, 2.35), 0.15, facecolor=color, alpha=0.3))
+
+plt.tight_layout()
+plt.show()
+```
+
+## Part I: Foundations
+
+The Foundations part introduces the HIRT system, its theoretical basis, and overall architecture. These sections provide essential context for understanding the system design.
+
+| # | Section | Description |
+|---|---------|-------------|
+| 01 | Executive Summary | What is HIRT, use cases, capabilities, target audience |
+| 02 | Physics Theory | MIT and ERT principles, frequency selection, measurement geometry |
+| 03 | System Architecture | Micro-probe design, centralized hub, array configurations |
+
+: Part I: Foundations - 3 sections {#tbl-part1}
+
+## Part II: Building
+
+The Building part provides comprehensive instructions for constructing a complete HIRT system. These sections should be followed sequentially when building a new system from components.
+
+| # | Section | Description |
+|---|---------|-------------|
+| 04 | Bill of Materials | Complete BOM with costs ($1,800-3,900), part numbers, suppliers |
+| 05 | Mechanical Design | Rod segments, coils, ERT rings, junction box, 3D prints, CAD |
+| 06 | Electronics and Circuits | MIT circuit, ERT circuit, power, complete schematics |
+| 07 | Assembly and Wiring | Step-by-step assembly, wiring diagrams, waterproofing |
+| 08 | Testing and Verification | Test procedures, QC checklist, pass/fail criteria |
+| 09 | Calibration | Coil, TX, RX, ERT calibration; field quick-check; schedule |
+
+: Part II: Building - 6 sections {#tbl-part2}
+
+## Part III: Field Operations
+
+The Field Operations part covers deployment, data collection, and troubleshooting in the field. These sections are essential references for field operators.
+
+| # | Section | Description |
+|---|---------|-------------|
+| 19 | Ethics, Legal, and Safety | Permits, UXO protocols, conductivity monitoring |
+| 10 | Field Operations | Planning, grid design, installation, measurement protocols |
+| 11 | Data Recording | MIT/ERT file formats, probe registry, metadata |
+| 12 | Data Interpretation | Resolution, detection limits, combined analysis |
+| 13 | Troubleshooting | Diagnostics, repairs, when to abort |
+
+: Part III: Field Operations - 5 sections {#tbl-part3}
+
+## Part IV: Analysis & Applications
+
+The Analysis & Applications part presents detailed case studies, development roadmap, and critical safety and ethical considerations. These sections provide context for real-world deployment scenarios and responsible use of the HIRT system.
+
+| # | Section | Description |
+|---|---------|-------------|
+| 17 | Application Scenarios | Detailed playbooks for crater, woods, swamp/marsh |
+| 18 | Future Development | Software roadmap, hardware improvements, manufacturing status |
+
+: Part IV: Analysis & Applications - 2 sections {#tbl-part4}
+
+## Part V: Appendices
+
+The Appendices part contains essential reference materials for field operators, including terminology definitions, quick-reference cards, and deployment checklists. These sections are designed for quick lookup during planning and field operations.
+
+| # | Section | Description |
+|---|---------|-------------|
+| 14 | Glossary | Acronyms and terminology |
+| 15 | Quick Reference | Printable field card |
+| 16 | Field Checklists | Pre/on-site/post deployment checklists |
+
+: Part V: Appendices - 3 sections {#tbl-part5}
+
+## Reader Paths
+
+Different users should follow different paths through the documentation based on their role and objectives:
+
+### Path A: System Builder
+
+For building a HIRT system from scratch, follow this sequence:
+01 Executive Summary (overview) > 03 System Architecture (understand design) > 04 Bill of Materials (order parts) > 05 Mechanical Design (manufacture components) > 06 Electronics and Circuits (assemble PCBs) > 07 Assembly and Wiring (integration) > 08 Testing and Verification (quality control) > 09 Calibration (prepare for deployment).
+
+### Path B: Field Operator
+
+For operating an existing HIRT system:
+14 Glossary (terminology) > 15 Quick Reference (keep on hand) > 10 Field Operations (detailed procedures) > 11 Data Recording (data formats) > 13 Troubleshooting (when issues arise) > 16 Field Checklists (pre-deployment) > 19 Ethics, Legal, and Safety (UXO sites).
+
+### Path C: Data Analyst
+
+For processing and interpreting HIRT data:
+02 Physics Theory (understand measurements) > 11 Data Recording (format specs) > 12 Data Interpretation (analysis methods) > 17 Application Scenarios (interpretation context).
+
+### Path D: Quick Start
+
+Minimal reading for experienced users:
+01 Executive Summary (5 min overview) > 15 Quick Reference (field card) > 10 Field Operations (detailed if needed).
+
+## Quick Topic Lookup
+
+| Topic | Primary Section | Related Sections |
+|-------|-----------------|------------------|
+| Coil winding | 05 Mechanical Design | 09 Calibration |
+| Current source (ERT) | 06 Electronics | 08 Testing |
+| Data formats | 11 Data Recording | 12 Interpretation |
+| DDS/TX circuit | 06 Electronics | 09 Calibration |
+| Frequency selection | 02 Physics | 10 Field Ops |
+| Grid layout | 10 Field Operations | 15 Quick Reference |
+| Lock-in detection | 06 Electronics | 02 Physics |
+| Part numbers | 04 Bill of Materials | - |
+| PCB layout | 06 Electronics | 07 Assembly |
+| Probe insertion | 10 Field Operations | 05 Mechanical |
+| QC checklist | 08 Testing | 16 Checklists |
+| Reciprocity | 09 Calibration | 12 Interpretation |
+| Ring electrodes | 05 Mechanical | 06 Electronics |
+| Schematics | 06 Electronics | 04 BOM |
+| Skin depth | 02 Physics | 12 Interpretation |
+| STL files | 05 Mechanical | 18 Future Dev |
+| UXO safety | 19 Ethics/Safety | 10 Field Ops |
+
+: Quick topic lookup for common subjects across the whitepaper {#tbl-lookup}
+
+## Document Conventions
+
+### File Naming
+
+Section files follow the format `XX-topic-name.qmd` where XX is the section number (00-19). All filenames use lowercase with hyphens.
+
+### Cross-References
+
+Internal links use standard Quarto cross-reference syntax. Section references in text follow the pattern: "See @sec-field-overview".
+
+### Measurement Units
+
+- **Length:** meters (m), millimeters (mm)
+- **Frequency:** kilohertz (kHz), hertz (Hz)
+- **Current:** milliamps (mA), microamps (uA)
+- **Resistance:** ohms, kilohms (k-ohm), megohms (M-ohm)
+- **Conductivity:** microsiemens/cm (uS/cm)
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0 | 2026-01 | Quarto migration; consolidated 19 sections |
+| 1.x | 2025 | PDF generator implementation |
+| 0.9 | 2024-12 | Manufacturing release (16mm modular design) |
+
+: Document version history {#tbl-versions}
+
+::: {.callout-note}
+This is the master index for the HIRT whitepaper v2.0. All 19 sections are contained in the `docs/hirt-whitepaper/sections/` directory.
+:::

@@ -91,21 +91,34 @@ TX Coil ──→ 1Ω sense resistor ──→ GND
 
 ### TX Coil Interface
 
-**Coil Specifications:**
-- Inductance: 1-2 mH
-- DC Resistance: <10 Ω
-- Q Factor: >20
+**Optimized Coil Specifications (2-50 kHz broadband):**
+
+| Parameter | Target | Notes |
+|-----------|--------|-------|
+| Inductance | 1.5 mH ±10% | Measured at 1 kHz |
+| DC Resistance | <8 Ω | 34 AWG, ~300 turns |
+| Q Factor @ 10 kHz | ≥30 | Primary design frequency |
+| Q Factor @ 2-50 kHz | ≥20 | Full operating range |
+| Self-Resonant Freq | >200 kHz | Above operating range |
+| Core Material | NiZn ferrite | Fair-Rite 61 or equivalent |
+| Core Dimensions | Ø8 mm × 100 mm | |
 
 **Coil Driver Circuit:**
 ```
 TX Driver Output ──→ 100nF ──→ TX Coil ──→ GND
-                              (1-2 mH)
+                              (1.5 mH)
 ```
 
-**Current Calculation:**
-- At 10 kHz: XL = 2πfL = 2π × 10k × 1.5mH ≈ 94 Ω
-- Coil impedance: Z ≈ √(R² + XL²) ≈ 94 Ω (mostly inductive)
-- Current: I = V/Z = 3V / 94Ω ≈ 32 mA RMS
+**Impedance vs Frequency:**
+
+| Frequency | XL (Ω) | Z (Ω) | Current @ 3V |
+|-----------|--------|-------|--------------|
+| 2 kHz | 19 | 21 | 143 mA |
+| 10 kHz | 94 | 94 | 32 mA |
+| 20 kHz | 188 | 188 | 16 mA |
+| 50 kHz | 471 | 471 | 6 mA |
+
+Note: At low frequencies, current limiting resistor may be needed.
 
 **Protection:**
 - Add series resistor (10-50Ω) to limit current if needed
@@ -117,10 +130,17 @@ TX Driver Output ──→ 100nF ──→ TX Coil ──→ GND
 
 ### RX Coil Interface
 
-**Coil Specifications:**
-- Inductance: 1-2 mH (match TX coil)
-- DC Resistance: <10 Ω
-- Orientation: Orthogonal to TX coil (reduces direct coupling)
+**Optimized Coil Specifications (matched to TX):**
+
+| Parameter | Target | Notes |
+|-----------|--------|-------|
+| Inductance | 1.5 mH ±10% | Match TX within 5% |
+| DC Resistance | <8 Ω | 34 AWG, ~300 turns |
+| Q Factor @ 10 kHz | ≥30 | Higher Q = better sensitivity |
+| Q Factor @ 2-50 kHz | ≥20 | Full operating range |
+| Self-Resonant Freq | >200 kHz | Above operating range |
+| TX-RX Coupling | <-40 dB | Via orthogonal mounting |
+| Orientation | 90° ±5° to TX | Critical for coupling rejection |
 
 **Coil Connection:**
 ```

@@ -1,0 +1,458 @@
+---
+title: "System Architecture"
+---
+
+## Design Philosophy {#sec-design-philosophy}
+
+**"Archaeologist brain first, engineer brain second"** - This guiding principle shapes every aspect of the HIRT system architecture. The primary goal is to minimize ground disturbance while maintaining sufficient measurement quality for target detection. The result is a probe design with 10-16 mm outer diameter (target: 12-16 mm), representing approximately 10x less ground disturbance than traditional 25+ mm geophysical probes.
+
+The design philosophy embraces a key constraint: many thin, gentle holes are preferable to fewer large ones. This approach is particularly important for sensitive archaeological contexts where visible disturbance must be minimized and backfilling should leave no lasting trace of the survey.
+
+## Probe Overview (Passive Micro-Probes) {#sec-probe-overview}
+
+Each HIRT probe is fundamentally **passive** - containing no active electronics downhole. Only sensors and wiring reside within the probe body, with all signal conditioning and processing occurring at the central electronics hub. This architecture offers significant advantages in reliability, cost, and field serviceability.
+
+```{python}
+#| label: fig-probe-cross-section-arch
+#| fig-cap: "HIRT passive micro-probe cross-section showing internal component arrangement. TX and RX coils are wound on ferrite cores (6-8 mm diameter) and mounted along the fiberglass rod. ERT rings are flush-mounted at standard positions (0.5m, 1.5m, 2.5m from tip). Modular M12x1.75 threaded joints allow field assembly of multiple segments."
+#| fig-width: 8
+#| fig-height: 9
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.mechanical import create_probe_cross_section
+import matplotlib.pyplot as plt
+from PIL import Image
+
+buf = create_probe_cross_section()
+img = Image.open(buf)
+plt.figure(figsize=(8, 9))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### MIT Coil Set {#sec-mit-coils}
+
+- **1x TX coil + 1x RX coil** wound on ferrite cores
+- **Ferrite cores:** 6-8 mm diameter x 40-80 mm long
+- **Mounting:** Glued along rod (not in bulky head) for streamlined profile
+- **Orientation:** Orthogonal or slightly separated to reduce direct coupling
+- **Wire:** Fine wire (34-38 AWG), 200-400 turns for adequate signal strength
+
+### ERT-Lite Rings {#sec-ert-rings}
+
+- **2-3 narrow ring electrodes** (3-5 mm wide bands)
+- **Standard positions:** 0.5 m and 1.5 m from tip
+- **Deep extension:** Add third ring at 2.5-3.0 m for longer rods
+- **Material:** Stainless steel or copper foil
+- **Mounting:** Bonded with epoxy, flush with rod surface
+
+### Rod Construction {#sec-rod-construction}
+
+- **Material:** Fiberglass (G10) or carbon-fiber segments
+- **OD:** 10-16 mm (target: 16 mm with flush joints)
+- **Segments:** 50 cm or 100 cm lengths with M12x1.75 threaded couplers
+- **Total depth:** Up to 3 m with coupled segments
+- **Weight:** ~50-100 g per meter (much lighter than 25mm design)
+
+```{python}
+#| label: fig-component-positioning
+#| fig-cap: "Component positioning along a 3-meter probe assembly. Sensors are distributed to maximize coverage: TX coil near surface for strong drive, RX coil at mid-depth, and ERT rings at three depths for resistivity profiling. Threaded joints allow field disassembly for transport."
+#| fig-width: 10
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_component_positioning
+
+buf = create_component_positioning()
+img = Image.open(buf)
+plt.figure(figsize=(10, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Central Electronics Hub {#sec-electronics-hub}
+
+All active electronics reside in a central hub unit, typically housed in a rugged IP65-rated enclosure. This centralized architecture simplifies probe design, reduces per-probe cost, and enables sophisticated signal processing that would be impractical in distributed electronics.
+
+```{python}
+#| label: fig-hub-layout
+#| fig-cap: "Central Electronics Hub internal layout. The hub contains power supply, MCU (ESP32 or STM32), MIT analog front-end (DDS transmitter and lock-in receiver), ERT current source and measurement circuitry, and the high-density analog multiplexer array. DB25 connectors provide interface to Zone Hub trunk cables."
+#| fig-width: 10
+#| fig-height: 7
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_electronics_hub_layout
+
+buf = create_electronics_hub_layout()
+img = Image.open(buf)
+plt.figure(figsize=(10, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### MIT Driver/Receiver {#sec-mit-electronics}
+
+- **Central DDS sine source** (e.g., AD9833) for 2-50 kHz operation
+- **TX driver amplifier** - drives all probe TX coils via trunk cables (10-50 mA)
+- **RX low-noise amplifier chain** - instrumentation amplifier with G=1000
+- **ADC/lock-in detection** - digital synchronous demodulation
+- **MCU** (ESP32 or STM32) for control, DSP, and data acquisition
+
+### ERT System {#sec-ert-electronics}
+
+- **Howland current source** - 0.5-2 mA, programmable via DAC
+- **Polarity reversal** - H-bridge for DC measurements with polarity cycling
+- **Voltage measurement** - differential amplifier (INA128) + 24-bit ADC
+- **Multiplexer** - High-density matrix (CD74HC4067) to switch electrode pairs
+
+### Power and Communications {#sec-power-comms}
+
+- **Power:** 12V or 5V battery pack, 10-20 Ah for full-day field operations
+- **Distribution:** Power remains at hub; only signals traverse trunk cables
+- **Data logging:** USB or WiFi connection to field tablet
+- **Control:** Centralized MCU handles all scheduling and sequencing
+
+## System Block Diagram {#sec-block-diagram}
+
+The complete HIRT system follows a hierarchical architecture: Central Electronics Hub connects to multiple Zone Hubs via high-density trunk cables, with each Zone Hub serving as a passive breakout for 4 individual probes. This scalable design supports arrays from 4 probes (single zone) to 50+ probes (12+ zones).
+
+```{python}
+#| label: fig-system-block
+#| fig-cap: "HIRT system block diagram showing the hierarchical architecture. The Central Electronics Hub contains all active circuitry. High-density trunk cables (DB25) connect to passive Zone Hubs, which distribute signals to individual probes. This architecture minimizes cable complexity while maintaining signal integrity over 10-20m cable runs."
+#| fig-width: 11
+#| fig-height: 7
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.circuits import create_system_block_diagram
+
+buf = create_system_block_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(11, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Scalability Architecture: The Zone Strategy {#sec-zone-strategy}
+
+To scale the system from a small prototype (4-8 probes) to a field-ready array (20-50+ probes) without creating an unmanageable cable harness, HIRT employs a **Zone Wiring Strategy**. This approach divides the array into logical zones, each containing 4 probes connected through a local Zone Hub.
+
+### The Challenge {#sec-zone-challenge}
+
+A single passive probe requires 8-12 analog conductors (TX coil pair, RX coil pair, 3x ERT rings, Shield, ID). Connecting 25 probes directly to a central hub would require terminating ~250-300 conductors at a single panel, creating severe mechanical congestion and crosstalk risks.
+
+### The Solution: Passive Zone Hubs {#sec-zone-solution}
+
+1. **Probes connect to a local Zone Hub:** A small, passive IP65 box placed on the ground near the probe cluster.
+2. **Zone Hubs connect to the Main Unit:** Via a single high-quality, shielded trunk cable (DB25 or 37-pin connector).
+3. **Central Hub manages Zones:** The hub switches between trunk lines to address specific probes via the multiplexer array.
+
+```{python}
+#| label: fig-zone-topology
+#| fig-cap: "Zone Hub wiring topology. Each passive Zone Hub aggregates connections from 4 probes into a single DB25 trunk cable. Terminal blocks inside the Zone Hub provide strain relief and easy field replacement of individual probe cables. This modular approach dramatically simplifies field deployment."
+#| fig-width: 10
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_zone_hub_topology
+
+buf = create_zone_hub_topology()
+img = Image.open(buf)
+plt.figure(figsize=(10, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: fig-trunk-cable
+#| fig-cap: "Trunk cable DB25 pin assignments for a 4-probe zone. Each probe uses 7 conductors (TX pair, RX pair, 3 ERT rings), with shared shield and zone ID pins. Shielded twisted-pair cables maintain signal integrity over 10-20m runs from Zone Hub to Central Hub."
+#| fig-width: 10
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_trunk_cable_diagram
+
+buf = create_trunk_cable_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(10, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-note}
+## Zone Wiring Benefits & Noise Immunity
+
+- **Modular Deployment:** Setup involves running a few thick cables rather than dozens of thin ones
+- **Signal Integrity:** Trunk cables utilize individual shielded twisted pairs for all analog lines
+- **Noise Rejection:** Differential signaling (balanced TX drive, instrumentation amp RX) rejects common-mode noise
+- **Field Repair:** A damaged probe cable only affects one local zone, not the main harness
+- **Scalability:** Add zones as needed without redesigning the core system
+:::
+
+## Signal Flow Paths {#sec-signal-flow}
+
+### MIT Signal Path {#sec-mit-signal-path}
+
+The MIT measurement chain begins with the MCU generating a sine wave via Direct Digital Synthesis (DDS), which is converted to analog, filtered, and amplified to drive the TX coil. The induced signal in the RX coil passes through a high-gain amplifier chain before synchronous demodulation extracts amplitude and phase information.
+
+```{python}
+#| label: fig-mit-signal-flow
+#| fig-cap: "MIT signal flow from DDS generation through TX drive and RX amplification. The lock-in detection uses the reference signal from the DDS to perform synchronous demodulation, extracting both in-phase (resistive) and quadrature (reactive) components. Operating frequency range: 2-50 kHz."
+#| fig-width: 11
+#| fig-height: 4
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_mit_signal_flow
+
+buf = create_mit_signal_flow()
+img = Image.open(buf)
+plt.figure(figsize=(11, 4))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### ERT Signal Path {#sec-ert-signal-path}
+
+The ERT system injects a known current (0.5-2 mA) between selected electrode pairs and measures the resulting voltage distribution. A Howland current source provides stable current injection regardless of load impedance, while a precision differential amplifier rejects common-mode noise from the measurement electrodes.
+
+```{python}
+#| label: fig-ert-signal-flow
+#| fig-cap: "ERT signal flow showing current injection and voltage measurement paths. The Howland current source provides output impedance >1M ohm, ensuring stable injection regardless of electrode contact resistance. Polarity reversal (every 1-2 seconds) cancels electrode polarization effects."
+#| fig-width: 11
+#| fig-height: 4.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_ert_signal_flow
+
+buf = create_ert_signal_flow()
+img = Image.open(buf)
+plt.figure(figsize=(11, 4.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Multiplexer Switching Topology {#sec-mux-topology}
+
+The analog multiplexer array is central to HIRT's ability to address any probe in the array. Using CD74HC4067 16:1 analog multiplexers, the system can route TX drive signals to any probe's TX coil and simultaneously route any RX coil to the receiver chain. Similar switching enables flexible ERT electrode pair selection.
+
+```{python}
+#| label: fig-mux-topology
+#| fig-cap: "Multiplexer switching topology showing channel allocation across MIT and ERT subsystems. The MCU controls all MUX address lines, enabling any-to-any probe addressing. Total capacity: 80+ analog channels (32 MIT + 48+ ERT) using cascaded 16:1 multiplexers."
+#| fig-width: 10
+#| fig-height: 7
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_mux_topology
+
+buf = create_mux_topology()
+img = Image.open(buf)
+plt.figure(figsize=(10, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Array Configuration Options {#sec-array-configurations}
+
+The HIRT system supports multiple array geometries optimized for different investigation scenarios. Array configuration affects both lateral resolution and the distribution of ray paths through the target volume. The following standard configurations address common field requirements.
+
+```{python}
+#| label: fig-array-configs
+#| fig-cap: "Standard array configuration options. (a) Square grid provides uniform coverage for unknown target locations. (b) Perimeter array enables safe standoff from suspected UXO while maintaining imaging capability. (c) Dense center configuration concentrates probes around a known anomaly for maximum resolution."
+#| fig-width: 11
+#| fig-height: 4
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_array_configurations
+
+buf = create_array_configurations()
+img = Image.open(buf)
+plt.figure(figsize=(11, 4))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+| Configuration | Best For | Probe Count | Spacing |
+|---------------|----------|-------------|---------|
+| Square Grid | Unknown target locations | 16-36 (4x4 to 6x6) | 1.5-2.0 m |
+| Perimeter | UXO/hazard standoff | 12-16 | 1.5-2.0 m |
+| Dense Center | Known anomaly detail | 17-25 | 0.75-1.0 m center |
+
+: Array configuration selection guide {#tbl-array-configs}
+
+## Site Suitability and Method Selection {#sec-site-suitability}
+
+Deploying HIRT effectively requires understanding when the method excels and when alternative techniques may be more appropriate. While HIRT offers unique capabilities for simultaneous metal detection and soil disturbance imaging at depth, certain site conditions favor other geophysical approaches. We developed the following decision framework based on field trials across diverse investigation scenarios.
+
+### Comparative Method Assessment {#sec-method-comparison}
+
+HIRT occupies a distinct niche in the geophysical toolkit: it provides true 3D tomographic imaging through crosshole geometry while maintaining sensitivity to both conductive targets (MIT-3D) and resistivity anomalies (ERT-Lite). This dual-mode capability becomes critical when target characteristics are uncertain or when soil disturbance patterns provide complementary evidence to metal signatures.
+
+```{python}
+#| label: fig-method-comparison
+#| fig-cap: "Comparative performance of HIRT versus alternative geophysical methods across key site parameters. HIRT excels in the 1-3m depth range with soft soils, offering superior resolution for combined metal/disturbance detection. GPR provides faster surface coverage but struggles in conductive soils. Surface ERT lacks the depth resolution of crosshole geometry but requires no invasive deployment."
+#| fig-width: 11
+#| fig-height: 7
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.architecture import create_method_comparison_table
+
+buf = create_method_comparison_table()
+img = Image.open(buf)
+plt.figure(figsize=(11, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+| Method | Depth Range | Resolution | Metal Sens. | Soil Sens. | Deploy Time | Relative Cost |
+|--------|-------------|------------|-------------|------------|-------------|---------------|
+| **HIRT** | 1-3 m | High (0.3-0.5 m) | Excellent (Al+Fe) | Excellent | 2-4 hrs | High |
+| GPR | 0-2 m | Moderate (0.2-0.4 m) | Good (if dry) | Poor | 1-2 hrs | Medium |
+| Magnetometry | 0-3 m | Low (0.5-1.0 m) | Fe only | None | 0.5-1 hr | Low |
+| Surface ERT | 0-5 m | Poor (1-2 m) | None | Good | 1-2 hrs | Medium |
+| EMI/Metal Detector | 0-1.5 m | Poor (0.3-0.8 m) | Good | None | 0.5-1 hr | Low |
+
+: Geophysical method comparison for subsurface investigation {#tbl-method-comparison}
+
+### When to Deploy HIRT {#sec-when-hirt}
+
+HIRT achieves optimal performance under conditions that favor both probe insertion and electromagnetic propagation. We recommend HIRT deployment when investigation requirements align with the following ideal conditions:
+
+**Soil Conditions:** Soft to medium soils that permit probe insertion to target depth without excessive force. Sandy loams, silty clays, and woodland humus layers are ideal substrates. Probes penetrate these materials with minimal disturbance, establishing reliable electrode contact for ERT measurements while maintaining stable coil positioning for MIT-3D.
+
+**Target Depth and Size:** Targets located in the 1-3 m depth range represent HIRT's performance sweet spot. Shallower targets often resolve more efficiently with surface methods (GPR, magnetometry), while deeper targets exceed the effective imaging volume given practical probe spacing constraints. Target dimensions should exceed approximately 0.3-0.5 m in at least one dimension to generate detectable anomalies.
+
+**Investigation Requirements:** Cases requiring simultaneous characterization of metallic objects and associated soil disturbance strongly favor HIRT over single-mode techniques. Archaeological features involving both ferrous artifacts and disturbed fill, bomb craters containing fragmented ordnance within backfilled soil, and aircraft crash sites with aluminum debris in displaced sediment all benefit from dual-channel imaging.
+
+**Site Geometry:** The crosshole measurement approach requires establishing a two-dimensional array surrounding or bracketing the target volume. Linear sites (pipeline corridors, trench lines) permit probe placement, but the resulting ray path distribution yields lower resolution than full perimeter deployments. Ideal sites allow 3-5 m diameter circular or square arrays with 12-25 probe positions.
+
+**Operational Context:** HIRT deployment makes practical sense when investigation time exceeds 2-4 hours and when the value of high-resolution 3D data justifies the setup effort. Single-point target confirmation often resolves faster with handheld metal detectors or penetrometers, but systematic surveys of unknown target distributions benefit from HIRT's comprehensive imaging capability.
+
+### When to Avoid HIRT {#sec-when-not-hirt}
+
+Certain site conditions fundamentally limit HIRT performance or present contraindications that favor alternative methods. Recognizing these scenarios prevents wasted deployment effort and ensures appropriate technique selection.
+
+**Ground Conditions Preventing Insertion:** Rocky substrates, heavily consolidated clays, frozen ground, and concrete/asphalt surfaces physically prevent probe insertion to target depth. We have attempted pilot hole methods in glacial till and weathered bedrock with limited success - the insertion effort becomes prohibitive and often damages probe assemblies. Sites with subsurface cobble layers or buried construction debris similarly resist probe penetration.
+
+**Electromagnetic Interference:** Dense urban environments with overhead power lines, buried utilities, and metal infrastructure generate continuous electromagnetic noise across HIRT's 2-50 kHz operating range. MIT-3D measurements become unreliable when ambient noise exceeds signal levels by more than 20 dB. ERT measurements remain functional in these conditions, but the loss of MIT capability removes much of HIRT's advantage over conventional resistivity surveys.
+
+**Extreme Soil Conductivity:** Highly saline soils, brackish groundwater, and seawater-saturated sediments create conductive pathways that short-circuit ERT current injection at typical 0.5-2 mA levels. While MIT-3D may still function, the loss of resistivity imaging again reduces HIRT to single-mode operation. Marine and coastal sites often fall into this category.
+
+**Shallow Target Distribution:** Targets located in the top 0.5 m of soil resolve more efficiently with surface methods. GPR provides rapid areal coverage without ground penetration, while handheld metal detectors locate ferrous and non-ferrous objects interactively. The HIRT deployment overhead (probe insertion, cable connection, measurement sequence) cannot compete with surface techniques for near-surface work.
+
+**Deep Targets Beyond Resolution Limit:** Targets deeper than 5 m fall outside HIRT's practical imaging range given realistic probe spacing (1.5-2.0 m) and signal strength limitations. While MIT-3D can detect large ferrous masses to greater depths in favorable conditions, the ERT component loses resolution rapidly beyond 3-4 m. Deep target investigations require borehole logging tools or surface geophysics with longer electrode arrays.
+
+**Constrained Site Access:** Linear sites, narrow corridors, and inaccessible terrain that prevent establishing crosshole geometry eliminate HIRT's primary advantage. Single borehole or surface-to-borehole configurations may still provide useful data, but they sacrifice the tomographic imaging capability that justifies the method's complexity. In these cases, simpler borehole geophysical tools often prove more effective.
+
+**Explosive Ordnance Risk:** Sites with confirmed or suspected unexploded ordnance require specialized protocols that may preclude invasive probe deployment. While HIRT offers perimeter-only array configurations for standoff detection (@sec-array-configurations), the insertion process itself presents unacceptable risk in extreme UXO scenarios. Professional explosive ordnance disposal (EOD) teams may prohibit any ground penetration until surface clearance completes.
+
+### Pre-Deployment Site Assessment {#sec-pre-deployment-assessment}
+
+Before committing to HIRT deployment, we recommend a systematic site assessment to verify suitability and identify potential challenges. This rapid evaluation typically requires 30-60 minutes and substantially improves deployment success rates.
+
+**Physical Reconnaissance:** Walk the site perimeter and identify proposed probe locations. Probe the soil at 3-5 representative positions using a 10mm steel rod driven by hand or with light hammer blows. The rod should penetrate to target depth (typically 2-3 m) without excessive resistance. Encountering refusal depth, buried obstructions, or requiring heavy sledgehammer impacts indicates unsuitable conditions.
+
+**Soil Characterization:** Extract soil samples at proposed insertion depths using the same pilot rod or a hand auger. Examine texture, moisture content, and cohesion. Ideal soils form a cohesive core on the auger and show moderate moisture. Dry sand or saturated clay present challenges for electrode contact. Gravel-rich soils or highly organic material (peat, woody debris) may prevent effective probe insertion.
+
+**Electromagnetic Noise Survey:** Deploy a portable metal detector or EMI sensor at the proposed measurement frequency (typically 5-20 kHz for MIT-3D). Record background readings with instrument stationary for 1-2 minutes. Noise spikes exceeding 50% of expected target signals indicate challenging conditions. Identify and map noise sources (power lines, buried cables, metal fencing) and adjust array layout to maximize distance from interference.
+
+**Access and Logistics:** Verify vehicle access to within 50 m of the array center for equipment transport. Identify flat working area for central electronics hub placement with protection from weather. Confirm availability of electrical power for battery charging (if multi-day deployment) and data logging equipment. Map any access restrictions (locked gates, seasonal flooding, vegetation) that could delay deployment.
+
+**Regulatory and Safety Review:** Confirm land access permissions and any required permits for invasive investigation. For UXO sites, verify professional EOD clearance status and establish exclusion zones. Review archaeological site protections and ensure insertion methods comply with heritage authority requirements. Document landowner constraints on probe density, insertion methods, and backfill requirements.
+
+The following checklist format facilitates rapid site assessment documentation:
+
+```
+HIRT Site Assessment Checklist
+
+Site: ________________  Date: ________  Assessor: __________
+
+[ ] Soil penetration test (10mm rod to target depth)
+[ ] Soil samples extracted and characterized
+[ ] EMI noise survey completed (background < 50% signal)
+[ ] Array geometry feasible (perimeter or grid)
+[ ] Vehicle access verified (< 50m from site center)
+[ ] Power source identified (battery charging)
+[ ] Weather protection available for hub
+[ ] Land access permission obtained
+[ ] UXO clearance confirmed (if applicable)
+[ ] Heritage authority approval (if applicable)
+
+Soil Type: ________________  Moisture: __________
+Target Depth: ______ m      Probe Count: ______
+Anticipated Deployment Time: ______ hours
+
+Proceed with HIRT:  [ ] Yes   [ ] No   [ ] Conditional
+
+Notes:
+_______________________________________________________
+```
+
+This systematic assessment approach reduces deployment failures and helps investigators make informed decisions about method selection. When site conditions present significant challenges, hybrid approaches combining HIRT with complementary techniques often provide the most robust characterization strategy.
+
+## Insertion Methods {#sec-insertion-methods}
+
+The slim 16mm probe profile enables multiple insertion methods depending on soil conditions. All methods prioritize minimal disturbance and safe operation.
+
+1. **Hand Auger:** 18-20 mm hand auger creates clearance hole, probe inserted without force
+2. **Pilot Rod:** 8-10 mm steel rod driven to depth, wiggled to ~14 mm, removed before probe insertion
+3. **Direct Push:** In sandy loam, probe may push directly (requires hardened tip)
+4. **Water-Jet:** In sand, water lance fluidizes soil; probe inserted as water drains
+
+::: {.callout-warning}
+## Insertion Safety - UXO Sites
+
+- Never hammer or drive probes directly - use pilot hole methods only
+- Professional EOD clearance required before any insertion operations
+- Maintain 100m exclusion zone during pilot rod operations
+- Use perimeter-only deployment when UXB suspected at center
+:::
+
+## Advantages of Micro-Probe Design {#sec-advantages}
+
+1. **Minimal Intrusion:** ~10x less ground disturbance than 25mm designs
+2. **Easy Insertion:** Lightweight probes (~100g/m) require minimal force
+3. **Better Contact:** Slurry/water in insertion hole improves ERT electrode contact
+4. **Flexible Deployment:** Can achieve denser spacing; easy removal and backfill
+5. **Simplified Electronics:** Centralized hub is easier to maintain; passive probes are more reliable
+6. **Archaeology-Friendly:** Acceptable for sensitive contexts with minimal visual impact
+
+## Software Pipeline Roadmap {#sec-software-roadmap}
+
+While this document focuses on hardware, the HIRT system is designed to output data compatible with established open-source inversion frameworks. The 'Stage 2' software pipeline is currently in development to leverage these powerful tools:
+
+- **EIDORS (Electrical Impedance Tomography and Diffuse Optical Tomography Reconstruction Software):** Primary target for MIT-3D image reconstruction using finite element models.
+- **pyGIMLi (Geophysical Inversion and Modeling Library):** Target framework for coupled ERT/MIT inversion and multi-physics mesh generation.
+- **ResIPy:** User-friendly interface for the ERT component processing and inversion.
+
+## References {#sec-architecture-references}
+
+1. Daily, W., Ramirez, A., & Johnson, R. (1998). Electrical impedance tomography of a perchloroethylene release. *Journal of Environmental and Engineering Geophysics*, 2(3), 189-201. [DOI: 10.2113/JEEG3.3.189](https://doi.org/10.2113/JEEG3.3.189)
+
+2. Binley, A., & Kemna, A. (2005). DC resistivity and induced polarization methods. In Y. Rubin & S. Hubbard (Eds.), *Hydrogeophysics* (pp. 129-156). Springer. [DOI: 10.1007/1-4020-3102-5_5](https://doi.org/10.1007/1-4020-3102-5_5)
+
+3. Wait, J. R. (1982). *Geo-Electromagnetism*. Academic Press.
+
+4. Telford, W. M., Geldart, L. P., & Sheriff, R. E. (1990). *Applied Geophysics*. Cambridge University Press. [DOI: 10.1017/CBO9781139167932](https://doi.org/10.1017/CBO9781139167932)
+
+5. Butler, D. K. (2001). Potential fields methods for location of unexploded ordnance. *The Leading Edge*, 20(8), 890-895. [DOI: 10.1190/1.1487298](https://doi.org/10.1190/1.1487298)

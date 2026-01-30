@@ -1,0 +1,95 @@
+---
+title: "Glossary"
+---
+
+This glossary provides definitions for technical terms, acronyms, and specialized vocabulary used throughout the HIRT whitepaper. Terms are organized alphabetically within functional categories to facilitate quick reference during system assembly, calibration, and field deployment.
+
+## Acronyms and Terms
+
+### A-D
+
+**Analog-to-Digital Converter (ADC):** Converts analog voltage signals to digital values for processing.
+
+**Amplitude:** Magnitude of a signal, typically measured in volts or normalized units.
+
+**Baseline:** Distance/geometry between source and receiver probes; longer baselines provide deeper investigation depth.
+
+**Bill of Materials (BOM):** Complete list of components needed to build the system.
+
+**Crosshole:** Measurement geometry where sensors are placed in separate boreholes/probes; provides true tomographic coverage through the volume.
+
+**Delta-Sigma ADC:** Type of analog-to-digital converter that uses oversampling and noise shaping to achieve high resolution; commonly used in precision measurement applications.
+
+**Direct Digital Synthesis (DDS):** Technique for generating precise frequency signals digitally; used in HIRT to create stable excitation waveforms for both MIT and ERT channels.
+
+### E-H
+
+**Electrical Resistivity Tomography (ERT):** Method using current injection and voltage measurement to map soil resistivity; detects moisture, disturbance, voids, and soil variations.
+
+**Eddy Currents:** Electrical currents induced in conductive materials by changing magnetic fields; cause attenuation and phase lag in MIT measurements.
+
+**Ferrite Core:** Magnetic material used in coils to increase inductance and efficiency; typically rod-shaped for probe applications.
+
+**Frequency:** Number of cycles per second, measured in Hz (Hertz); lower frequencies penetrate deeper; higher frequencies provide better resolution.
+
+**Howland Current Source:** Precision current source circuit topology used in the ERT channel to inject controlled current into the soil independent of load impedance.
+
+### I-L
+
+**Inductance:** Property of a coil that resists changes in current; measured in Henries (H) or millihenries (mH).
+
+**Inversion:** Mathematical process to reconstruct 3D property distribution from measurements; software step (not covered in this hardware guide).
+
+**Lock-in Detection:** Technique to extract small signals at a known reference frequency with high SNR; can be analog (AD630) or digital (DSP-based).
+
+### M-P
+
+**Magnetic Induction Tomography (MIT):** Low-frequency electromagnetic method using coils; measures amplitude and phase changes caused by conductive objects.
+
+**Microcontroller Unit (MCU):** Small computer on a chip (e.g., ESP32); located exclusively in the Central Hub; manages signal generation, multiplexing, and data acquisition.
+
+**Probe:** The passive sensor assembly inserted into the ground; contains only coils and electrodes; no active electronics are located downhole.
+
+**Zone Hub:** A local, passive breakout box that aggregates 4 probes into a single high-density trunk cable.
+
+**Trunk Cable:** A high-density shielded multi-core cable (e.g., DB25) that carries analog signals from a Zone Hub to the Central Hub.
+
+### Q-T
+
+**Q Factor:** Quality factor of a coil, indicates efficiency; higher Q = lower losses, better performance.
+
+**Reciprocity:** Principle that TX->RX measurement should equal RX->TX measurement; used for quality control.
+
+**Resistivity:** Property of material to resist electrical current flow; measured in ohm-meters (ohm-m); high resistivity: dry soil, voids; low resistivity: wet soil, clay, metal.
+
+**Receive/Receiver (RX):** Receiving coil or probe that measures signals.
+
+**Sensitivity Volume:** The 3D region that contributes most to a particular measurement; depends on probe spacing, frequency, and soil properties.
+
+### U-Z
+
+**Transmit/Transmitter (TX):** Transmitting coil or probe that generates signals.
+
+**Tomography:** Imaging method that reconstructs 3D structure from multiple measurements; similar to medical CT scanning.
+
+**Unexploded Ordnance (UXO):** Live explosive devices that may be present at WWII sites; requires EOD clearance before deployment.
+
+## Measurement Terms
+
+**Apparent Resistivity:** Calculated resistivity from voltage/current measurements; may differ from true resistivity due to measurement geometry.
+
+**Attenuation:** Reduction in signal amplitude; indicates presence of conductive objects or losses.
+
+**Common-Mode Rejection:** Ability to reject signals common to both inputs; important for differential measurements.
+
+**Signal-to-Noise Ratio (SNR):** Ratio of signal strength to noise level; higher SNR = better data quality.
+
+## Field Terms
+
+**Section:** Grid area surveyed in one deployment cycle; typically 10x10 m, manageable by small team.
+
+**Node:** Probe insertion point in the grid; spacing determines resolution and depth.
+
+**Pilot Rod:** Metal rod used to create hole for probe insertion; removed before inserting sensor rod.
+
+**Rim Deployment:** Placing probes around perimeter rather than throughout area; reduces ground disturbance.

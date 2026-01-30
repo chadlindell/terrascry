@@ -1,0 +1,56 @@
+{
+  "agents": {
+    "description": "3-agent consolidated architecture for improved performance",
+    "primary": ["research-innovate", "plan-execute", "review"]
+  },
+  "commands": {
+    "description": "RIPER mode control and memory bank operations",
+    "namespaces": ["riper", "memory"]
+  },
+  "memory-bank": {
+    "auto-backup": true,
+    "branch-aware": true,
+    "directories": {
+      "backups": "backups",
+      "plans": "{branch}/plans",
+      "reviews": "{branch}/reviews",
+      "root": ".claude/memory-bank",
+      "sessions": "{branch}/sessions"
+    },
+    "enabled": true
+  },
+  "project-context": {
+    "important-paths": {
+      "whitepaper": "docs/hirt-whitepaper/sections",
+      "diagrams": "docs/hirt-whitepaper/diagrams",
+      "cad": "hardware/cad/openscad",
+      "stl": "hardware/cad/stl"
+    },
+    "key-patterns": [
+      "Crosshole tomography geometry",
+      "MIT-3D coil design (2-50 kHz)",
+      "ERT-Lite electrode arrays",
+      "Dual-channel signal processing",
+      "Modular probe assembly"
+    ],
+    "tech-stack": [
+      "Quarto",
+      "Python",
+      "matplotlib",
+      "OpenSCAD",
+      "Electronics/PCB",
+      "Embedded firmware"
+    ],
+    "research-domains": [
+      "Electromagnetic induction",
+      "Electrical resistivity tomography",
+      "Geophysical surveying",
+      "Archaeological prospection",
+      "Signal processing",
+      "Analog electronics"
+    ]
+  },
+  "reference-docs": [".claude/project-info.md"],
+  "version": "1.0.0",
+  "workflow": "RIPER"
+}

@@ -1,0 +1,1279 @@
+---
+title: "Data Recording"
+---
+
+## Overview {#sec-recording-overview}
+
+This section specifies the data formats and organization for HIRT field measurements. Consistent data recording ensures reliable post-processing and long-term data management. The HIRT system generates two primary data types: Magnetic Induction Tomography (MIT) measurements and Electrical Resistivity Tomography (ERT) measurements, each requiring specific record formats to capture all relevant parameters.
+
+All data files use CSV (Comma-Separated Values) format for maximum compatibility with analysis software. Field logs supplement electronic records with contextual information that may affect data interpretation. The combination of structured electronic records and detailed field notes enables comprehensive quality assessment during post-processing.
+
+```{python}
+#| label: fig-file-structure
+#| fig-cap: "HIRT data file organization showing directory structure, file naming conventions, and record field definitions for MIT and ERT data types. Each survey date creates a separate subdirectory containing section-specific measurement files."
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.patches import FancyBboxPatch, Rectangle
+
+# Color palette
+COLOR_PALETTE = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'light_bg': '#f7fafc',
+    'text_muted': '#718096',
+}
+
+fig, ax = plt.subplots(figsize=(9, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.axis('off')
+
+# Title
+ax.text(5, 7.7, 'HIRT Data File Organization', fontsize=12, fontweight='bold',
+        ha='center', color=COLOR_PALETTE['primary'])
+
+# === Directory Tree (Left Side) ===
+tree_x = 0.5
+
+# Root folder
+ax.add_patch(FancyBboxPatch((tree_x, 6.5), 2.2, 0.5, boxstyle="round,pad=0.02",
+                            facecolor=COLOR_PALETTE['accent'], edgecolor='black', linewidth=1))
+ax.text(tree_x + 1.1, 6.75, 'data/', fontsize=10, fontweight='bold',
+        ha='center', va='center', color='white', family='monospace')
+
+# Date folder
+ax.plot([tree_x + 0.3, tree_x + 0.3, tree_x + 0.6], [6.5, 5.8, 5.8],
+        color='#4a5568', linewidth=1.5)
+ax.add_patch(FancyBboxPatch((tree_x + 0.6, 5.55), 2.5, 0.5, boxstyle="round,pad=0.02",
+                            facecolor=COLOR_PALETTE['secondary'], edgecolor='black', linewidth=1))
+ax.text(tree_x + 1.85, 5.8, '2024-03-15/', fontsize=9, fontweight='bold',
+        ha='center', va='center', color='white', family='monospace')
+
+# MIT files
+file_y = 4.9
+for i, fname in enumerate(['MIT_S01_2024-03-15.csv', 'MIT_S02_2024-03-15.csv']):
+    ax.plot([tree_x + 0.9, tree_x + 0.9, tree_x + 1.2], [5.55, file_y - i*0.55, file_y - i*0.55],
+            color='#4a5568', linewidth=1.5)
+    ax.add_patch(FancyBboxPatch((tree_x + 1.2, file_y - 0.2 - i*0.55), 3.0, 0.4,
+                                boxstyle="round,pad=0.02",
+                                facecolor=COLOR_PALETTE['success'], edgecolor='black', linewidth=1))
+    ax.text(tree_x + 2.7, file_y - i*0.55, fname, fontsize=8,
+            ha='center', va='center', color='white', family='monospace')
+
+# ERT files
+file_y = 3.5
+for i, fname in enumerate(['ERT_S01_2024-03-15.csv', 'ERT_S02_2024-03-15.csv']):
+    ax.plot([tree_x + 0.9, tree_x + 0.9, tree_x + 1.2], [4.35, file_y - i*0.55, file_y - i*0.55],
+            color='#4a5568', linewidth=1.5)
+    ax.add_patch(FancyBboxPatch((tree_x + 1.2, file_y - 0.2 - i*0.55), 3.0, 0.4,
+                                boxstyle="round,pad=0.02",
+                                facecolor=COLOR_PALETTE['orange'], edgecolor='black', linewidth=1))
+    ax.text(tree_x + 2.7, file_y - i*0.55, fname, fontsize=8,
+            ha='center', va='center', color='white', family='monospace')
+
+# Registry file
+ax.plot([tree_x + 0.3, tree_x + 0.3, tree_x + 0.6], [6.5, 2.0, 2.0],
+        color='#4a5568', linewidth=1.5)
+ax.add_patch(FancyBboxPatch((tree_x + 0.6, 1.75), 2.8, 0.5, boxstyle="round,pad=0.02",
+                            facecolor=COLOR_PALETTE['purple'], edgecolor='black', linewidth=1))
+ax.text(tree_x + 2.0, 2.0, 'probe_registry.csv', fontsize=9, fontweight='bold',
+        ha='center', va='center', color='white', family='monospace')
+
+# Field log
+ax.plot([tree_x + 0.3, tree_x + 0.3, tree_x + 0.6], [2.0, 1.0, 1.0],
+        color='#4a5568', linewidth=1.5)
+ax.add_patch(FancyBboxPatch((tree_x + 0.6, 0.75), 3.0, 0.5, boxstyle="round,pad=0.02",
+                            facecolor=COLOR_PALETTE['gray_med'], edgecolor='black', linewidth=1))
+ax.text(tree_x + 2.1, 1.0, 'field_log_2024-03-15.txt', fontsize=9, fontweight='bold',
+        ha='center', va='center', color='white', family='monospace')
+
+# === File Format Details (Right Side) ===
+detail_x = 5.5
+
+# MIT Record Format Box
+ax.add_patch(FancyBboxPatch((detail_x, 5.2), 4.3, 2.5, boxstyle="round,pad=0.05",
+                            facecolor='#f0fff4', edgecolor=COLOR_PALETTE['success'], linewidth=2))
+ax.text(detail_x + 2.15, 7.4, 'MIT Record Fields', fontsize=10, fontweight='bold',
+        ha='center', color=COLOR_PALETTE['success'])
+
+mit_fields = [
+    ('timestamp', 'ISO 8601'),
+    ('section_id', 'String (S01)'),
+    ('zone_id', 'String (ZA)'),
+    ('tx_probe_id', 'String (P01)'),
+    ('rx_probe_id', 'String (P02)'),
+    ('freq_hz', 'Hz'),
+    ('amp', 'V or normalized'),
+    ('phase_deg', 'Degrees'),
+    ('tx_current_mA', 'mA'),
+]
+
+for i, (field, fmt) in enumerate(mit_fields):
+    y_pos = 7.0 - i * 0.2
+    ax.text(detail_x + 0.15, y_pos, field, fontsize=7, family='monospace',
+            color=COLOR_PALETTE['gray_dark'])
+    ax.text(detail_x + 2.3, y_pos, fmt, fontsize=7, color=COLOR_PALETTE['text_muted'])
+
+# ERT Record Format Box
+ax.add_patch(FancyBboxPatch((detail_x, 2.3), 4.3, 2.6, boxstyle="round,pad=0.05",
+                            facecolor='#fffaf0', edgecolor=COLOR_PALETTE['orange'], linewidth=2))
+ax.text(detail_x + 2.15, 4.6, 'ERT Record Fields', fontsize=10, fontweight='bold',
+        ha='center', color=COLOR_PALETTE['orange'])
+
+ert_fields = [
+    ('timestamp', 'ISO 8601'),
+    ('section_id', 'String'),
+    ('zone_id', 'String'),
+    ('inject_pos_id', 'String (P01)'),
+    ('inject_neg_id', 'String (P20)'),
+    ('sense_id', 'String (P05)'),
+    ('volt_mV', 'mV'),
+    ('current_mA', 'mA'),
+    ('polarity', '+1 or -1'),
+    ('notes', 'Free text'),
+]
+
+for i, (field, fmt) in enumerate(ert_fields):
+    y_pos = 4.25 - i * 0.19
+    ax.text(detail_x + 0.15, y_pos, field, fontsize=7, family='monospace',
+            color=COLOR_PALETTE['gray_dark'])
+    ax.text(detail_x + 2.3, y_pos, fmt, fontsize=7, color=COLOR_PALETTE['text_muted'])
+
+# Naming Convention Box
+ax.add_patch(FancyBboxPatch((detail_x, 0.3), 4.3, 1.7, boxstyle="round,pad=0.05",
+                            facecolor=COLOR_PALETTE['light_bg'], edgecolor=COLOR_PALETTE['gray_med'], linewidth=1.5))
+ax.text(detail_x + 2.15, 1.75, 'File Naming Convention', fontsize=9, fontweight='bold',
+        ha='center', color=COLOR_PALETTE['primary'])
+
+conventions = [
+    ('MIT:', 'MIT_S{section}_{date}.csv'),
+    ('ERT:', 'ERT_S{section}_{date}.csv'),
+    ('Registry:', 'probe_registry.csv'),
+    ('Log:', 'field_log_{date}.txt'),
+]
+
+for i, (label, pattern) in enumerate(conventions):
+    y_pos = 1.45 - i * 0.27
+    ax.text(detail_x + 0.15, y_pos, label, fontsize=8, fontweight='bold',
+            color=COLOR_PALETTE['secondary'])
+    ax.text(detail_x + 1.0, y_pos, pattern, fontsize=8, family='monospace',
+            color=COLOR_PALETTE['gray_dark'])
+
+# Legend
+legend_elements = [
+    mpatches.Patch(color=COLOR_PALETTE['success'], label='MIT Data'),
+    mpatches.Patch(color=COLOR_PALETTE['orange'], label='ERT Data'),
+    mpatches.Patch(color=COLOR_PALETTE['purple'], label='Probe Registry'),
+    mpatches.Patch(color=COLOR_PALETTE['gray_med'], label='Field Log'),
+]
+ax.legend(handles=legend_elements, loc='lower left', fontsize=8,
+          framealpha=0.9, bbox_to_anchor=(0.05, 0.02))
+
+plt.tight_layout()
+plt.show()
+```
+
+## Data Acquisition Fundamentals {#sec-data-acquisition-fundamentals}
+
+Understanding how HIRT collects data is essential for interpreting the resulting measurements. The system builds a comprehensive 3D picture of the subsurface by systematically cycling through all probe combinations, with each measurement sampling a different region of the ground.
+
+### The Measurement Matrix Concept
+
+HIRT data acquisition is based on a **transmit-receive (TX-RX) matrix**. For an array of N probes:
+
+- Each probe takes turns acting as the **transmitter** (TX)
+- While transmitting, **all other probes** simultaneously act as receivers (RX)
+- This produces N $\times$ (N-1) unique TX-RX measurements per frequency (MIT) or injection pattern (ERT)
+
+For a typical 16-probe array, this yields 240 unique measurements per acquisition cycle---each sampling a different geometric path through the subsurface.
+
+### Probe Coordinate System
+
+Each probe is positioned in 3D space and contains sensors at multiple depths:
+
+| Coordinate | Description | Typical Values |
+|------------|-------------|----------------|
+| X | Horizontal position (grid column) | 0 to 10 m |
+| Y | Horizontal position (grid row) | 0 to 10 m |
+| Z | Vertical depth below surface | 0 to -3 m (negative = below ground) |
+
+: Probe coordinate system {#tbl-probe-coordinates}
+
+Within each probe, multiple sensor rings are spaced along the shaft (e.g., at 0.5 m intervals). A 3 m probe with 0.5 m ring spacing contains **6 electrode rings**, each at a known depth. The complete array therefore samples a 3D volume defined by the probe positions (X, Y) and sensor depths (Z).
+
+```{python}
+#| label: fig-measurement-matrix
+#| fig-cap: "HIRT measurement matrix concept. Left: A 4-probe array showing how each probe sequentially transmits while others receive, building a complete TX-RX matrix. Right: The resulting measurement matrix where each cell represents one TX-RX pair measurement. The diagonal is empty (a probe cannot measure itself)."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Rectangle, FancyBboxPatch, FancyArrowPatch
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'tx_active': '#c53030',
+    'rx_active': '#38a169',
+    'inactive': '#e2e8f0',
+}
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+
+# === Left panel: TX-RX cycling visualization ===
+ax1 = axes[0]
+ax1.set_xlim(-1, 7)
+ax1.set_ylim(-1, 6)
+ax1.set_aspect('equal')
+ax1.axis('off')
+
+# Title
+ax1.text(3, 5.7, 'TX-RX Cycling Pattern', ha='center', fontsize=11,
+         fontweight='bold', color=COLORS['primary'])
+
+# Draw 4 probes in a square arrangement
+probe_positions = [(1, 4), (5, 4), (1, 1), (5, 1)]
+probe_labels = ['P1', 'P2', 'P3', 'P4']
+
+# Show P1 as transmitter (highlighted state)
+for i, ((x, y), label) in enumerate(zip(probe_positions, probe_labels)):
+    if i == 0:  # P1 is TX
+        color = COLORS['tx_active']
+        ax1.add_patch(Circle((x, y), 0.4, facecolor=color, edgecolor='black', lw=2, zorder=10))
+        ax1.text(x, y, label, ha='center', va='center', fontsize=10,
+                fontweight='bold', color='white', zorder=11)
+        ax1.text(x, y + 0.7, 'TX', ha='center', fontsize=9, fontweight='bold',
+                color=COLORS['tx_active'])
+        # Draw transmission waves
+        for r in [0.6, 0.9, 1.2]:
+            circle = plt.Circle((x, y), r, fill=False, color=COLORS['tx_active'],
+                               alpha=0.5 - r/3, lw=1.5, linestyle='--')
+            ax1.add_patch(circle)
+    else:  # Others are RX
+        color = COLORS['rx_active']
+        ax1.add_patch(Circle((x, y), 0.4, facecolor=color, edgecolor='black', lw=2, zorder=10))
+        ax1.text(x, y, label, ha='center', va='center', fontsize=10,
+                fontweight='bold', color='white', zorder=11)
+        ax1.text(x, y + 0.7, 'RX', ha='center', fontsize=9, fontweight='bold',
+                color=COLORS['rx_active'])
+
+# Draw arrows from TX to each RX
+for i in range(1, 4):
+    tx_pos = probe_positions[0]
+    rx_pos = probe_positions[i]
+    # Calculate arrow start/end to not overlap circles
+    dx = rx_pos[0] - tx_pos[0]
+    dy = rx_pos[1] - tx_pos[1]
+    dist = np.sqrt(dx**2 + dy**2)
+    start_x = tx_pos[0] + 0.5 * dx/dist
+    start_y = tx_pos[1] + 0.5 * dy/dist
+    end_x = rx_pos[0] - 0.5 * dx/dist
+    end_y = rx_pos[1] - 0.5 * dy/dist
+    ax1.annotate('', xy=(end_x, end_y), xytext=(start_x, start_y),
+                arrowprops=dict(arrowstyle='->', color=COLORS['orange'], lw=2,
+                               connectionstyle='arc3,rad=0.1'))
+
+# Sequence indicator
+ax1.text(3, -0.3, 'Step 1 of 4: P1 transmits → P2, P3, P4 receive',
+        ha='center', fontsize=9, style='italic', color=COLORS['gray_dark'])
+
+# Legend
+ax1.add_patch(Circle((0.5, -0.8), 0.2, facecolor=COLORS['tx_active'], edgecolor='black'))
+ax1.text(0.9, -0.8, 'Transmitter', va='center', fontsize=8)
+ax1.add_patch(Circle((3.5, -0.8), 0.2, facecolor=COLORS['rx_active'], edgecolor='black'))
+ax1.text(3.9, -0.8, 'Receivers', va='center', fontsize=8)
+
+# === Right panel: Measurement matrix ===
+ax2 = axes[1]
+ax2.set_xlim(-0.5, 6)
+ax2.set_ylim(-0.5, 6)
+ax2.set_aspect('equal')
+ax2.axis('off')
+
+ax2.text(2.5, 5.7, 'Measurement Matrix (4 probes)', ha='center', fontsize=11,
+         fontweight='bold', color=COLORS['primary'])
+
+# Draw matrix grid
+n_probes = 4
+cell_size = 1.0
+matrix_origin = (0.5, 1)
+
+# Column headers (RX)
+ax2.text(2.5, 5.2, 'Receiver (RX)', ha='center', fontsize=9, fontweight='bold',
+        color=COLORS['rx_active'])
+for j, label in enumerate(probe_labels):
+    x = matrix_origin[0] + j * cell_size + cell_size/2
+    ax2.text(x, 4.7, label, ha='center', fontsize=9, fontweight='bold')
+
+# Row headers (TX)
+ax2.text(-0.2, 2.8, 'TX', ha='center', va='center', fontsize=9, fontweight='bold',
+        color=COLORS['tx_active'], rotation=90)
+for i, label in enumerate(probe_labels):
+    y = matrix_origin[1] + (n_probes - 1 - i) * cell_size + cell_size/2
+    ax2.text(0.2, y, label, ha='center', va='center', fontsize=9, fontweight='bold')
+
+# Draw matrix cells
+for i in range(n_probes):  # TX (rows)
+    for j in range(n_probes):  # RX (columns)
+        x = matrix_origin[0] + j * cell_size
+        y = matrix_origin[1] + (n_probes - 1 - i) * cell_size
+
+        if i == j:  # Diagonal - no self-measurement
+            color = COLORS['gray_light']
+            ax2.add_patch(Rectangle((x, y), cell_size, cell_size,
+                         facecolor=color, edgecolor='black', lw=1))
+            ax2.text(x + cell_size/2, y + cell_size/2, '—', ha='center', va='center',
+                    fontsize=12, color=COLORS['gray_med'])
+        else:
+            # Highlight first row (P1 as TX) to match left panel
+            if i == 0:
+                color = COLORS['orange']
+                alpha = 0.6
+            else:
+                color = COLORS['accent']
+                alpha = 0.3
+            ax2.add_patch(Rectangle((x, y), cell_size, cell_size,
+                         facecolor=color, alpha=alpha, edgecolor='black', lw=1))
+            # Measurement number
+            meas_num = i * (n_probes - 1) + (j if j < i else j - 1) + 1
+            ax2.text(x + cell_size/2, y + cell_size/2, f'M{meas_num}',
+                    ha='center', va='center', fontsize=8)
+
+# Matrix statistics
+ax2.text(2.5, 0.4, f'Total measurements: {n_probes} × {n_probes-1} = {n_probes*(n_probes-1)}',
+        ha='center', fontsize=9, color=COLORS['gray_dark'])
+ax2.text(2.5, 0.0, '(per frequency / injection pattern)', ha='center', fontsize=8,
+        style='italic', color=COLORS['gray_med'])
+
+plt.tight_layout()
+plt.show()
+```
+
+### Sequential Acquisition Process
+
+The HIRT controller automates the measurement sequence, cycling through all TX-RX combinations:
+
+```{python}
+#| label: fig-acquisition-sequence
+#| fig-cap: "Sequential data acquisition timeline showing how the system cycles through transmitters. Each TX probe activates in turn while all other probes receive simultaneously. For MIT, this cycle repeats at each measurement frequency. For ERT, different injection patterns are used."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, FancyBboxPatch, Circle
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'tx_active': '#c53030',
+    'rx_active': '#38a169',
+}
+
+fig, ax = plt.subplots(figsize=(12, 6))
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 7)
+ax.axis('off')
+
+ax.text(6, 6.7, 'HIRT Data Acquisition Sequence', ha='center', fontsize=12,
+        fontweight='bold', color=COLORS['primary'])
+
+# Timeline
+timeline_y = 5.0
+ax.plot([1, 11], [timeline_y, timeline_y], 'k-', lw=2)
+ax.text(0.5, timeline_y, 'Time →', ha='right', va='center', fontsize=9)
+
+# TX cycles
+n_probes = 4
+cycle_width = 2.2
+frequencies = ['2 kHz', '10 kHz', '50 kHz']
+
+for i in range(n_probes):
+    x_start = 1.2 + i * cycle_width
+
+    # TX indicator box
+    ax.add_patch(FancyBboxPatch((x_start, timeline_y + 0.2), cycle_width - 0.3, 0.6,
+                                boxstyle="round,pad=0.02",
+                                facecolor=COLORS['tx_active'], alpha=0.8,
+                                edgecolor='black', lw=1))
+    ax.text(x_start + (cycle_width-0.3)/2, timeline_y + 0.5, f'P{i+1} TX',
+            ha='center', va='center', fontsize=9, fontweight='bold', color='white')
+
+    # Time tick
+    ax.plot([x_start, x_start], [timeline_y - 0.1, timeline_y + 0.1], 'k-', lw=1)
+
+    # RX indicators below timeline
+    rx_y = timeline_y - 0.8
+    rx_probes = [f'P{j+1}' for j in range(n_probes) if j != i]
+    ax.text(x_start + (cycle_width-0.3)/2, rx_y, f'RX: {", ".join(rx_probes)}',
+            ha='center', va='center', fontsize=8, color=COLORS['rx_active'])
+
+# End tick
+ax.plot([10.8, 10.8], [timeline_y - 0.1, timeline_y + 0.1], 'k-', lw=1)
+
+# Cycle repeat arrow
+ax.annotate('', xy=(1.2, timeline_y - 1.5), xytext=(10.8, timeline_y - 1.5),
+            arrowprops=dict(arrowstyle='<->', color=COLORS['accent'], lw=2))
+ax.text(6, timeline_y - 1.8, 'One complete TX cycle (all probes)', ha='center',
+        fontsize=9, color=COLORS['accent'])
+
+# Frequency sweep section
+freq_y = 2.5
+ax.add_patch(FancyBboxPatch((0.5, freq_y - 0.3), 11, 1.8,
+                            boxstyle="round,pad=0.05",
+                            facecolor='#f7fafc', edgecolor=COLORS['gray_med'],
+                            lw=1, linestyle='--'))
+ax.text(6, freq_y + 1.2, 'Frequency Sweep (MIT) or Pattern Sequence (ERT)',
+        ha='center', fontsize=10, fontweight='bold', color=COLORS['primary'])
+
+# Show frequency blocks
+freq_colors = [COLORS['success'], COLORS['orange'], COLORS['purple']]
+for i, (freq, color) in enumerate(zip(frequencies, freq_colors)):
+    x = 1.5 + i * 3.3
+    ax.add_patch(FancyBboxPatch((x, freq_y), 2.8, 0.7,
+                                boxstyle="round,pad=0.02",
+                                facecolor=color, alpha=0.4,
+                                edgecolor=color, lw=1.5))
+    ax.text(x + 1.4, freq_y + 0.35, f'{freq}\n(full TX cycle)', ha='center',
+            va='center', fontsize=8)
+    if i < len(frequencies) - 1:
+        ax.annotate('', xy=(x + 3.0, freq_y + 0.35), xytext=(x + 2.9, freq_y + 0.35),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+
+# Data output section
+output_y = 0.8
+ax.add_patch(FancyBboxPatch((0.5, output_y - 0.4), 11, 1.0,
+                            boxstyle="round,pad=0.05",
+                            facecolor=COLORS['accent'], alpha=0.2,
+                            edgecolor=COLORS['accent'], lw=1.5))
+ax.text(1.0, output_y + 0.1, 'Output:', fontsize=9, fontweight='bold',
+        color=COLORS['primary'])
+
+# Data statistics
+stats_text = ('16 probes × 15 RX × 5 frequencies = 1,200 MIT measurements\n'
+              '16 probes × 15 RX × 3 patterns = 720 ERT measurements')
+ax.text(6.5, output_y + 0.1, stats_text, ha='center', va='center', fontsize=9,
+        family='monospace', color=COLORS['gray_dark'])
+
+plt.tight_layout()
+plt.show()
+```
+
+### Building 3D Sensitivity Coverage
+
+Each TX-RX measurement samples a specific region of the subsurface. The **sensitivity volume** for a measurement is the region where changes in conductivity/resistivity would affect the measured signal.
+
+```{python}
+#| label: fig-3d-sensitivity
+#| fig-cap: "3D sensitivity coverage concept. Left: Cross-section showing how different TX-RX pairs sample different depths and lateral positions. The overlapping sensitivity regions build complete volumetric coverage. Right: Plan view of a 4×4 probe grid showing how the array geometry defines the measurement volume."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse, Rectangle, Circle, Polygon
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'ground_tan': '#d4a373',
+}
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+
+# === Left panel: Cross-section view ===
+ax1 = axes[0]
+ax1.set_xlim(-1, 9)
+ax1.set_ylim(-5, 2)
+ax1.set_aspect('equal')
+
+# Ground surface
+ax1.axhline(0, color='#654321', lw=3)
+ax1.fill_between([-1, 9], [0, 0], [-5, -5], color=COLORS['ground_tan'], alpha=0.3)
+ax1.fill_between([-1, 9], [0, 0], [2, 2], color='#87CEEB', alpha=0.2)
+ax1.text(8, 1, 'Air', fontsize=9, color=COLORS['gray_med'])
+ax1.text(8, -0.5, 'Soil', fontsize=9, color=COLORS['gray_dark'])
+
+# Draw 3 probes
+probe_x = [1, 4, 7]
+probe_labels = ['P1', 'P2', 'P3']
+probe_depth = -3.0
+
+for x, label in zip(probe_x, probe_labels):
+    # Probe shaft
+    ax1.add_patch(Rectangle((x - 0.1, probe_depth), 0.2, -probe_depth,
+                            facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+    # Sensor rings
+    for ring_z in [-0.5, -1.0, -1.5, -2.0, -2.5, -3.0]:
+        ax1.plot([x - 0.15, x + 0.15], [ring_z, ring_z], color=COLORS['orange'], lw=2)
+    # Label
+    ax1.text(x, 0.5, label, ha='center', fontsize=10, fontweight='bold',
+            color=COLORS['primary'])
+
+# Draw sensitivity ellipses for different TX-RX pairs
+sensitivity_pairs = [
+    (1, 4, -1.5, 'P1→P2', COLORS['success'], 0.3),    # Short baseline, shallow
+    (1, 7, -2.5, 'P1→P3', COLORS['purple'], 0.2),    # Long baseline, deep
+    (4, 7, -1.8, 'P2→P3', COLORS['orange'], 0.25),   # Medium baseline
+]
+
+for tx_x, rx_x, center_z, label, color, alpha in sensitivity_pairs:
+    center_x = (tx_x + rx_x) / 2
+    width = abs(rx_x - tx_x) * 0.7
+    height = abs(rx_x - tx_x) * 0.4
+    ellipse = Ellipse((center_x, center_z), width, height,
+                     facecolor=color, alpha=alpha, edgecolor=color, lw=2)
+    ax1.add_patch(ellipse)
+    ax1.text(center_x, center_z, label, ha='center', va='center', fontsize=8,
+            color='white', fontweight='bold')
+
+# Annotations
+ax1.annotate('Shallow\nsensitivity', xy=(2.5, -1.2), xytext=(0, -0.5),
+            fontsize=8, ha='center',
+            arrowprops=dict(arrowstyle='->', color=COLORS['success']))
+ax1.annotate('Deep\nsensitivity', xy=(4, -2.8), xytext=(2, -4),
+            fontsize=8, ha='center',
+            arrowprops=dict(arrowstyle='->', color=COLORS['purple']))
+
+ax1.set_xlabel('Distance (m)', fontsize=10)
+ax1.set_ylabel('Depth (m)', fontsize=10)
+ax1.set_title('Cross-Section: Sensitivity Regions', fontsize=11,
+              fontweight='bold', color=COLORS['primary'])
+
+# === Right panel: Plan view of probe grid ===
+ax2 = axes[1]
+ax2.set_xlim(-1, 9)
+ax2.set_ylim(-1, 9)
+ax2.set_aspect('equal')
+
+# Draw 4x4 probe grid
+grid_spacing = 2.0
+for i in range(4):
+    for j in range(4):
+        x = i * grid_spacing + 1
+        y = j * grid_spacing + 1
+        ax2.add_patch(Circle((x, y), 0.25, facecolor=COLORS['secondary'],
+                            edgecolor='black', lw=1))
+        probe_num = i * 4 + j + 1
+        ax2.text(x, y, f'{probe_num}', ha='center', va='center', fontsize=7,
+                color='white', fontweight='bold')
+
+# Draw measurement volume outline
+volume_x = [0.5, 7.5, 7.5, 0.5, 0.5]
+volume_y = [0.5, 0.5, 7.5, 7.5, 0.5]
+ax2.plot(volume_x, volume_y, 'b--', lw=2, label='Measurement volume')
+ax2.fill(volume_x, volume_y, color=COLORS['accent'], alpha=0.1)
+
+# Show some ray paths
+ray_pairs = [
+    (1, 5, 5, 5),   # Horizontal
+    (1, 1, 7, 7),   # Diagonal
+    (3, 1, 3, 7),   # Vertical
+    (1, 3, 5, 7),   # Angled
+]
+for x1, y1, x2, y2 in ray_pairs:
+    ax2.plot([x1, x2], [y1, y2], '-', color=COLORS['orange'], alpha=0.4, lw=1)
+
+# Grid lines for reference
+for i in range(4):
+    pos = i * grid_spacing + 1
+    ax2.axhline(pos, color=COLORS['gray_light'], linestyle=':', alpha=0.5)
+    ax2.axvline(pos, color=COLORS['gray_light'], linestyle=':', alpha=0.5)
+
+# Dimension annotations
+ax2.annotate('', xy=(7, -0.5), xytext=(1, -0.5),
+            arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+ax2.text(4, -0.8, '6 m (grid width)', ha='center', fontsize=9)
+
+ax2.set_xlabel('X position (m)', fontsize=10)
+ax2.set_ylabel('Y position (m)', fontsize=10)
+ax2.set_title('Plan View: 4×4 Probe Array', fontsize=11,
+              fontweight='bold', color=COLORS['primary'])
+
+# Statistics box
+stats_text = ('16 probes\n'
+              '240 TX-RX pairs\n'
+              '6 m × 6 m × 3 m volume')
+ax2.text(8.5, 4, stats_text, ha='left', va='center', fontsize=8,
+        bbox=dict(boxstyle='round', facecolor='white', edgecolor=COLORS['gray_med']))
+
+plt.tight_layout()
+plt.show()
+```
+
+### How a Buried Object Appears in the Data
+
+When a conductive object (such as buried metal) is present in the subsurface, it perturbs the electromagnetic field between TX-RX probe pairs. The strength of this perturbation depends on whether the object lies within the sensitivity region of each measurement. By examining which TX-RX pairs show anomalous readings, the inversion algorithm localizes the object in 3D space.
+
+```{python}
+#| label: fig-object-detection-cycle
+#| fig-cap: "Detection of a buried object through TX-RX cycling. Top row: As each probe transmits in sequence, TX-RX pairs whose sensitivity region intersects the buried target (red star) show elevated responses. Bottom: The resulting measurement matrix shows which probe combinations detected the anomaly, enabling 3D localization."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Rectangle, FancyBboxPatch, Ellipse, RegularPolygon
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'ground_tan': '#d4a373',
+    'target': '#c53030',
+}
+
+fig = plt.figure(figsize=(12, 8))
+
+# Create grid for subplots
+gs = fig.add_gridspec(2, 4, height_ratios=[1.2, 1], hspace=0.3, wspace=0.25)
+
+# === Top row: Four TX cycles showing detection ===
+probe_positions = [(1, 1), (3, 1), (1, 3), (3, 3)]  # 2x2 grid
+probe_labels = ['P1', 'P2', 'P3', 'P4']
+target_pos = (2.3, 2.0)  # Buried object location
+
+for cycle_idx in range(4):
+    ax = fig.add_subplot(gs[0, cycle_idx])
+    ax.set_xlim(0, 4)
+    ax.set_ylim(0, 4)
+    ax.set_aspect('equal')
+
+    # Ground representation
+    ax.add_patch(Rectangle((0, 0), 4, 4, facecolor=COLORS['ground_tan'], alpha=0.2))
+
+    # Draw buried target
+    target = RegularPolygon(target_pos, numVertices=5, radius=0.3,
+                           facecolor=COLORS['target'], edgecolor='black', lw=2, zorder=15)
+    ax.add_patch(target)
+
+    # Draw probes and their roles
+    tx_idx = cycle_idx
+    for i, ((px, py), label) in enumerate(zip(probe_positions, probe_labels)):
+        if i == tx_idx:
+            # This probe is transmitting
+            color = COLORS['warning']
+            ax.add_patch(Circle((px, py), 0.25, facecolor=color, edgecolor='black', lw=2, zorder=10))
+            ax.text(px, py - 0.5, 'TX', ha='center', fontsize=7, fontweight='bold', color=color)
+            # Draw transmission waves
+            for r in [0.4, 0.6, 0.8]:
+                wave = plt.Circle((px, py), r, fill=False, color=color, alpha=0.4, lw=1, linestyle='--')
+                ax.add_patch(wave)
+        else:
+            # This probe is receiving
+            color = COLORS['success']
+            ax.add_patch(Circle((px, py), 0.25, facecolor=color, edgecolor='black', lw=2, zorder=10))
+            ax.text(px, py - 0.5, 'RX', ha='center', fontsize=7, fontweight='bold', color=color)
+
+        ax.text(px, py, label, ha='center', va='center', fontsize=8, color='white', fontweight='bold', zorder=11)
+
+    # Draw sensitivity ellipses and signal paths to receivers
+    tx_pos = probe_positions[tx_idx]
+    for i, (rx_pos, rx_label) in enumerate(zip(probe_positions, probe_labels)):
+        if i != tx_idx:
+            # Calculate if this TX-RX pair "sees" the target
+            mid_x = (tx_pos[0] + rx_pos[0]) / 2
+            mid_y = (tx_pos[1] + rx_pos[1]) / 2
+            dist_to_target = np.sqrt((mid_x - target_pos[0])**2 + (mid_y - target_pos[1])**2)
+            baseline = np.sqrt((tx_pos[0] - rx_pos[0])**2 + (tx_pos[1] - rx_pos[1])**2)
+
+            # Sensitivity region (simplified as ellipse)
+            sees_target = dist_to_target < baseline * 0.4
+
+            if sees_target:
+                # Strong signal - target in sensitivity zone
+                ellipse = Ellipse((mid_x, mid_y), baseline * 0.6, baseline * 0.3,
+                                 angle=np.degrees(np.arctan2(rx_pos[1]-tx_pos[1], rx_pos[0]-tx_pos[0])),
+                                 facecolor=COLORS['orange'], alpha=0.3, edgecolor=COLORS['orange'], lw=2)
+                ax.add_patch(ellipse)
+                # Signal line
+                ax.plot([tx_pos[0], rx_pos[0]], [tx_pos[1], rx_pos[1]],
+                       color=COLORS['orange'], lw=2, alpha=0.8)
+            else:
+                # Weak/normal signal - target outside sensitivity
+                ax.plot([tx_pos[0], rx_pos[0]], [tx_pos[1], rx_pos[1]],
+                       color=COLORS['gray_light'], lw=1, alpha=0.5, linestyle=':')
+
+    ax.set_title(f'Cycle {cycle_idx + 1}: {probe_labels[tx_idx]} transmits', fontsize=9, fontweight='bold')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+# === Bottom left: Combined measurement matrix ===
+ax_matrix = fig.add_subplot(gs[1, :2])
+ax_matrix.set_xlim(-0.5, 5.5)
+ax_matrix.set_ylim(-0.5, 5.5)
+ax_matrix.set_aspect('equal')
+ax_matrix.axis('off')
+
+ax_matrix.text(2.5, 5.2, 'Measurement Matrix with Target Response', ha='center',
+               fontsize=10, fontweight='bold', color=COLORS['primary'])
+
+# Define which TX-RX pairs detect the target (based on geometry)
+# Target at (2.3, 2.0) - pairs with sensitivity near this location show anomaly
+detecting_pairs = [
+    (0, 2), (0, 3),  # P1 TX to P3, P4
+    (1, 2), (1, 3),  # P2 TX to P3, P4
+    (2, 0), (2, 1),  # P3 TX to P1, P2
+    (3, 0), (3, 1),  # P4 TX to P1, P2
+]
+
+# Column headers (RX)
+ax_matrix.text(2.5, 4.7, 'Receiver (RX)', ha='center', fontsize=8, color=COLORS['success'])
+for j, label in enumerate(probe_labels):
+    ax_matrix.text(1 + j, 4.4, label, ha='center', fontsize=9, fontweight='bold')
+
+# Row headers (TX)
+ax_matrix.text(0.3, 2.5, 'TX', ha='center', va='center', fontsize=8, rotation=90, color=COLORS['warning'])
+for i, label in enumerate(probe_labels):
+    ax_matrix.text(0.5, 3.5 - i, label, ha='center', va='center', fontsize=9, fontweight='bold')
+
+# Draw matrix cells
+cell_size = 0.9
+for i in range(4):  # TX rows
+    for j in range(4):  # RX columns
+        x = 1 + j * cell_size - cell_size/2 + 0.45
+        y = 3.5 - i * cell_size - cell_size/2 + 0.45
+
+        if i == j:
+            # Diagonal - no measurement
+            ax_matrix.add_patch(Rectangle((x, y), cell_size, cell_size,
+                               facecolor=COLORS['gray_light'], edgecolor='black', lw=1))
+            ax_matrix.text(x + cell_size/2, y + cell_size/2, '-', ha='center', va='center',
+                          fontsize=10, color=COLORS['gray_med'])
+        elif (i, j) in detecting_pairs:
+            # This pair detects the target - anomalous response
+            ax_matrix.add_patch(Rectangle((x, y), cell_size, cell_size,
+                               facecolor=COLORS['orange'], alpha=0.7, edgecolor=COLORS['warning'], lw=2))
+            ax_matrix.text(x + cell_size/2, y + cell_size/2, 'HIGH', ha='center', va='center',
+                          fontsize=7, fontweight='bold', color='white')
+        else:
+            # Normal background response
+            ax_matrix.add_patch(Rectangle((x, y), cell_size, cell_size,
+                               facecolor=COLORS['accent'], alpha=0.2, edgecolor='black', lw=1))
+            ax_matrix.text(x + cell_size/2, y + cell_size/2, 'low', ha='center', va='center',
+                          fontsize=7, color=COLORS['gray_dark'])
+
+# Legend
+ax_matrix.add_patch(Rectangle((0.8, -0.3), 0.4, 0.3, facecolor=COLORS['orange'], alpha=0.7))
+ax_matrix.text(1.4, -0.15, 'Anomaly detected', fontsize=8, va='center')
+ax_matrix.add_patch(Rectangle((3.2, -0.3), 0.4, 0.3, facecolor=COLORS['accent'], alpha=0.2, edgecolor='black'))
+ax_matrix.text(3.8, -0.15, 'Background', fontsize=8, va='center')
+
+# === Bottom right: 3D localization concept ===
+ax_3d = fig.add_subplot(gs[1, 2:])
+ax_3d.set_xlim(0, 5)
+ax_3d.set_ylim(-3, 2)
+ax_3d.set_aspect('equal')
+
+ax_3d.text(2.5, 1.7, 'Target Localization from Matrix Pattern', ha='center',
+           fontsize=10, fontweight='bold', color=COLORS['primary'])
+
+# Ground surface
+ax_3d.axhline(0.5, color='#654321', lw=2)
+ax_3d.fill_between([0, 5], [0.5, 0.5], [-3, -3], color=COLORS['ground_tan'], alpha=0.3)
+
+# Draw probes (cross-section view)
+probe_x_positions = [0.8, 2.0, 3.2, 4.4]
+for i, px in enumerate(probe_x_positions):
+    ax_3d.add_patch(Rectangle((px - 0.08, -2.5), 0.16, 3.0,
+                              facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+    ax_3d.text(px, 1.0, f'P{i+1}', ha='center', fontsize=8, fontweight='bold')
+
+# Draw the buried target
+target_x, target_z = 2.6, -1.2
+target = RegularPolygon((target_x, target_z), numVertices=5, radius=0.25,
+                       facecolor=COLORS['target'], edgecolor='black', lw=2, zorder=15)
+ax_3d.add_patch(target)
+ax_3d.text(target_x + 0.4, target_z, 'Target', fontsize=8, va='center', color=COLORS['target'])
+
+# Draw sensitivity regions that intersect target
+# P2-P3 and P2-P4 pairs should "see" the target
+sensitivity_regions = [
+    ((2.0, 3.2), -1.0, COLORS['orange'], 0.4, 'P2-P3'),
+    ((2.0, 4.4), -1.5, COLORS['purple'], 0.3, 'P2-P4'),
+]
+
+for (x1, x2), center_z, color, alpha, label in sensitivity_regions:
+    center_x = (x1 + x2) / 2
+    width = abs(x2 - x1) * 0.7
+    height = 1.0
+    ellipse = Ellipse((center_x, center_z), width, height,
+                     facecolor=color, alpha=alpha, edgecolor=color, lw=2, linestyle='--')
+    ax_3d.add_patch(ellipse)
+
+# Intersection annotation
+ax_3d.annotate('Overlapping\nsensitivity\nregions', xy=(2.6, -1.2), xytext=(4.0, -0.3),
+              fontsize=8, ha='center',
+              arrowprops=dict(arrowstyle='->', color='black', lw=1.5),
+              bbox=dict(boxstyle='round', facecolor='white', edgecolor=COLORS['gray_med']))
+
+ax_3d.text(2.5, -2.8, 'Cross-section view', ha='center', fontsize=8, style='italic',
+          color=COLORS['gray_dark'])
+
+ax_3d.set_xlabel('Distance (m)', fontsize=9)
+ax_3d.set_ylabel('Depth (m)', fontsize=9)
+ax_3d.set_xticks([1, 2, 3, 4])
+ax_3d.set_yticks([0, -1, -2])
+
+plt.tight_layout()
+plt.show()
+```
+
+The figure above illustrates the detection process:
+
+1. **Top row:** As each probe takes its turn transmitting (Cycles 1-4), the TX-RX pairs whose sensitivity ellipses overlap the buried target show elevated signal responses (orange paths). Pairs that don't intersect the target show only background response (gray dashed lines).
+
+2. **Bottom left:** The measurement matrix accumulates which TX-RX combinations detected anomalies. The pattern of "HIGH" responses reveals that the target lies in a region sensed by P1-P3, P1-P4, P2-P3, P2-P4 pairs (and their reciprocals).
+
+3. **Bottom right:** By finding where the sensitivity regions of the anomalous TX-RX pairs overlap, the inversion algorithm localizes the target in 3D space. The intersection of multiple sensitivity ellipses pinpoints the target position and depth.
+
+::: {.callout-note}
+## From Matrix Pattern to 3D Location
+
+The inversion algorithm essentially asks: *"What distribution of subsurface conductivity would produce this specific pattern of TX-RX responses?"* A localized anomaly creates a characteristic fingerprint in the measurement matrix---strong responses for pairs whose sensitivity intersects the target, background responses elsewhere. The mathematical inversion reconstructs the 3D conductivity distribution that best explains all measurements simultaneously.
+:::
+
+### Key Principles of HIRT Data Structure
+
+| Concept | Description |
+|---------|-------------|
+| **TX-RX Matrix** | Every probe transmits to every other probe, creating N$\times$(N-1) measurements |
+| **Multi-frequency** | MIT repeats the TX cycle at multiple frequencies (2-50 kHz) for depth discrimination |
+| **Multi-pattern** | ERT uses different injection patterns (Wenner, dipole-dipole) for sensitivity variation |
+| **3D Sensitivity** | Each measurement samples a unique subsurface region; combined coverage fills the volume |
+| **Redundancy** | Reciprocity (A-to-B equals B-to-A) provides built-in quality check |
+
+: Core concepts of HIRT data acquisition {#tbl-acquisition-concepts}
+
+::: {.callout-note}
+## Why This Matters for Interpretation
+
+The measurement matrix structure means that:
+
+1. **Missing probes** reduce the number of ray paths through certain regions, creating coverage gaps
+2. **Probe spacing** determines the minimum feature size that can be resolved
+3. **Probe depth** limits the maximum depth of sensitivity
+4. **Frequency selection** (MIT) trades off penetration depth vs. near-surface resolution
+:::
+
+## MIT Record Format {#sec-mit-format}
+
+Each MIT measurement records the electromagnetic coupling between a transmitter-receiver probe pair. The record captures both the measurement geometry (which probes, which zone) and the signal parameters (amplitude, phase, frequency) needed for tomographic reconstruction.
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| timestamp | Measurement time | ISO 8601 or Unix |
+| section_id | Survey section identifier | String (e.g., "S01") |
+| zone_id | Zone Hub identifier | String (e.g., "ZA") |
+| tx_probe_id | Transmitting probe ID | String (e.g., "P01") |
+| rx_probe_id | Receiving probe ID | String (e.g., "P02") |
+| freq_hz | Measurement frequency | Hz |
+| amp | Signal amplitude | V or normalized |
+| phase_deg | Phase angle | Degrees |
+| tx_current_mA | TX coil current | mA |
+
+: MIT record format fields {#tbl-mit-format}
+
+## ERT Record Format {#sec-ert-format}
+
+ERT measurements record the voltage response to injected current, capturing the electrode geometry and the resulting potential. HIRT uses a sequential ring-pair measurement approach where current is injected between two rings on one probe, and voltage is measured at corresponding ring positions on adjacent probes. This differs from traditional ABMN four-electrode configurations---each HIRT ERT record captures a single voltage measurement at one sensing ring relative to a remote reference (typically the probe's surface ground connection).
+
+::: {.callout-note}
+## ERT Electrode Configuration: Ring-Pair Sequential Measurements
+
+HIRT's borehole geometry uses a simplified three-electrode approach per measurement:
+
+- **A (inject_pos):** Current injection ring (e.g., Ring A at 0.5m on Probe P01)
+- **B (inject_neg):** Current return ring (e.g., Ring B at 1.5m on Probe P01, or ring on adjacent probe)
+- **M (sense):** Voltage measurement ring (e.g., Ring A at 0.5m on Probe P02)
+
+The reference potential (N) is implicitly the surface ground connection shared by all probes. For each injection pair (A-B), the system sequentially measures voltage at each available sensing ring on all adjacent probes. This approach simplifies hardware (no need for differential voltage measurement between two subsurface rings) while still providing adequate spatial sampling for tomographic reconstruction.
+:::
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| timestamp | Measurement time | ISO 8601 |
+| section_id | Survey section identifier | String |
+| zone_id | Zone Hub identifier | String |
+| inject_pos_id | Positive current probe/ring ID | String (e.g., P01_RA) |
+| inject_neg_id | Negative current probe/ring ID | String (e.g., P01_RB) |
+| sense_id | Voltage sensing probe/ring ID | String (e.g., P02_RA) |
+| volt_mV | Measured voltage (vs. ground) | mV |
+| current_mA | Injected current | mA |
+| polarity | Current direction | +1 or -1 |
+| notes | Additional notes | Free text |
+
+: ERT record format fields. Probe/ring IDs use format P{nn}_R{A|B|C} to identify both probe number and ring position. {#tbl-ert-format}
+
+### Example ERT Record
+
+```csv
+timestamp,section_id,inject_pos_id,inject_neg_id,sense_id,volt_mV,current_mA,polarity,notes
+2024-03-15T10:45:12Z,S01,P01_RA,P01_RB,P02_RA,12.5,1.2,+1,
+2024-03-15T10:45:13Z,S01,P01_RA,P01_RB,P02_RB,8.3,1.2,+1,
+2024-03-15T10:45:14Z,S01,P01_RA,P01_RB,P03_RA,6.1,1.2,+1,
+2024-03-15T10:45:15Z,S01,P01_RA,P01_RB,P02_RA,-12.4,1.2,-1,reversed polarity
+```
+
+The sequence above shows current injected between rings A and B on Probe P01, with sequential voltage measurements at Ring A on P02, Ring B on P02, and Ring A on P03. The final line shows polarity-reversed measurement for electrode polarization correction.
+
+## Probe Registry {#sec-probe-registry}
+
+Each probe in the HIRT system has a registry entry documenting its physical characteristics and calibration status. The probe registry is a shared file that applies across all surveys and enables consistent data interpretation even when probes are swapped between deployments.
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| probe_id | Unique probe identifier | String |
+| coil_L_mH | TX coil inductance | mH |
+| coil_Q | Coil Q factor | Dimensionless |
+| rx_gain_dB | RX amplifier gain | dB |
+| ring_depths_m | ERT ring depths | m (comma-separated) |
+| firmware_rev | Firmware version | String |
+| calibration_date | Last calibration date | YYYY-MM-DD |
+| notes | Additional notes | Free text |
+
+: Probe registry fields {#tbl-probe-registry}
+
+### Example Probe Registry
+
+```csv
+probe_id,coil_L_mH,coil_Q,rx_gain_dB,ring_depths_m,firmware_rev,calibration_date,notes
+P01,1.2,25,40,0.5,1.5,v1.2,2024-03-10,
+P02,1.15,28,40,0.5,1.5,v1.2,2024-03-10,
+P03,1.18,26,40,0.5,1.5,v1.2,2024-03-10,
+```
+
+## Survey Geometry File {#sec-survey-geometry}
+
+The survey geometry file links probe identifiers to their actual field positions, enabling accurate tomographic reconstruction even when probes deviate from ideal grid locations. A new geometry file should be created for each survey deployment.
+
+### File Format
+
+**Filename convention:** `survey_geometry_{YYYY-MM-DD}.csv`
+
+| Field | Description | Units |
+|-------|-------------|-------|
+| probe_id | Probe identifier (matches registry) | String |
+| x_m | X position from grid origin | meters |
+| y_m | Y position from grid origin | meters |
+| z_surface_m | Ground surface elevation (relative) | meters |
+| z_tip_m | Probe tip depth below surface | meters (negative) |
+| status | Deployment status | ACTIVE / PARTIAL / SKIPPED |
+| notes | Field observations | Free text |
+
+: Survey geometry file fields {#tbl-survey-geometry}
+
+### Status Codes
+
+| Status | Meaning | Inversion Handling |
+|--------|---------|-------------------|
+| ACTIVE | Full insertion achieved | All sensors included |
+| PARTIAL | Reduced depth due to obstruction | Exclude sensors below z_tip |
+| SKIPPED | Position not deployed | Omit from geometry |
+
+: Probe status codes and their interpretation {#tbl-status-codes}
+
+### Example Survey Geometry File
+
+```csv
+probe_id,x_m,y_m,z_surface_m,z_tip_m,status,notes
+P01,0.00,0.00,0.00,-3.00,ACTIVE,reference origin
+P02,2.05,0.12,0.00,-2.95,ACTIVE,offset 12cm for surface root
+P03,4.00,0.00,0.00,-3.00,ACTIVE,
+P04,6.00,0.00,0.00,-3.00,ACTIVE,
+P05,,,,,SKIPPED,large oak tree at position
+P06,1.85,1.92,0.15,-2.10,PARTIAL,hit rock layer at 2.1m
+P07,4.00,2.00,0.08,-3.00,ACTIVE,
+P08,6.10,2.05,-0.05,-3.00,ACTIVE,minor offset for puddle
+```
+
+::: {.callout-note}
+## Recording Best Practice
+
+Complete the survey geometry file **before** leaving the field site. Position measurements are difficult to reconstruct after extraction. Take photographs of the deployed array with visible probe markers as backup documentation.
+:::
+
+### Coordinate System Convention
+
+For consistency across surveys, adopt a standard local coordinate system:
+
+- **Origin (0, 0, 0):** First probe position or marked survey stake
+- **X-axis:** Primary baseline direction (typically longest dimension)
+- **Y-axis:** Perpendicular to X, following right-hand rule
+- **Z-axis:** Positive upward; surface elevations positive, tip depths negative
+- **Units:** Always meters with two decimal places
+
+When using GPS or total station, record the transformation parameters (origin coordinates, rotation angle) to enable conversion between local and absolute coordinates.
+
+## Recording Workflow {#sec-recording-workflow}
+
+The HIRT data recording workflow follows a systematic process from site preparation through data backup. Each measurement loop captures MIT and ERT data for all probe pairs in a section before moving to the next section. Quality checks at multiple stages ensure data integrity before final storage.
+
+```{python}
+#| label: fig-recording-workflow
+#| fig-cap: "Data recording workflow from field setup through storage. The measurement loop iterates through all probe pairs within each section, recording both MIT and ERT data before advancing. Quality checks and field notes are captured before final backup to multiple storage locations."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Rectangle, Polygon
+
+fig, ax = plt.subplots(figsize=(10, 5.5))
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 7)
+ax.axis('off')
+
+# Colors
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+}
+
+# Title
+ax.text(6, 6.7, 'HIRT Data Recording Workflow', fontsize=12, fontweight='bold',
+        ha='center', color=COLORS['primary'])
+
+def draw_process_box(x, y, width, height, text, color, text_color='white'):
+    ax.add_patch(FancyBboxPatch((x, y), width, height, boxstyle="round,pad=0.03",
+                                facecolor=color, edgecolor='black', linewidth=1.5))
+    lines = text.split('\n')
+    line_height = 0.25 if len(lines) > 1 else 0
+    for i, line in enumerate(lines):
+        ax.text(x + width/2, y + height/2 + (len(lines)/2 - i - 0.5) * line_height,
+                line, fontsize=8, fontweight='bold', ha='center', va='center',
+                color=text_color)
+
+def draw_arrow(x1, y1, x2, y2, color='#4a5568'):
+    ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
+                arrowprops=dict(arrowstyle='->', color=color, lw=1.5))
+
+# Row 1: Field Setup
+row1_y = 5.3
+draw_process_box(0.3, row1_y, 2.0, 0.8, 'Site\nPreparation', COLORS['secondary'])
+draw_arrow(2.3, row1_y + 0.4, 2.8, row1_y + 0.4)
+draw_process_box(2.8, row1_y, 2.0, 0.8, 'Probe\nDeployment', COLORS['secondary'])
+draw_arrow(4.8, row1_y + 0.4, 5.3, row1_y + 0.4)
+draw_process_box(5.3, row1_y, 2.0, 0.8, 'System\nInitialization', COLORS['secondary'])
+draw_arrow(7.3, row1_y + 0.4, 7.8, row1_y + 0.4)
+draw_process_box(7.8, row1_y, 2.0, 0.8, 'Record\nMetadata', COLORS['accent'])
+draw_arrow(9.8, row1_y + 0.4, 10.3, row1_y + 0.4)
+draw_process_box(10.3, row1_y, 1.4, 0.8, 'Start\nLogging', COLORS['success'])
+
+# Row 2: Measurement Loop
+row2_y = 3.8
+ax.add_patch(FancyBboxPatch((0.1, row2_y - 0.3), 11.6, 1.4, boxstyle="round,pad=0.05",
+                            facecolor='#f7fafc', edgecolor=COLORS['gray_med'],
+                            linewidth=1, linestyle='--'))
+ax.text(0.3, row2_y + 0.85, 'Measurement Loop (per section)', fontsize=8,
+        fontstyle='italic', color=COLORS['gray_dark'])
+
+draw_process_box(0.5, row2_y, 1.8, 0.8, 'Select\nProbe Pair', COLORS['primary'])
+draw_arrow(2.3, row2_y + 0.4, 2.6, row2_y + 0.4)
+draw_process_box(2.6, row2_y, 1.8, 0.8, 'MIT\nMeasurement', COLORS['success'])
+draw_arrow(4.4, row2_y + 0.4, 4.7, row2_y + 0.4)
+draw_process_box(4.7, row2_y, 1.8, 0.8, 'ERT\nMeasurement', COLORS['orange'])
+draw_arrow(6.5, row2_y + 0.4, 6.8, row2_y + 0.4)
+draw_process_box(6.8, row2_y, 1.6, 0.8, 'Record\nData', COLORS['accent'])
+draw_arrow(8.4, row2_y + 0.4, 8.7, row2_y + 0.4)
+
+# Decision diamond
+diamond_x, diamond_y = 9.5, row2_y + 0.4
+diamond = Polygon([[diamond_x - 0.6, diamond_y],
+                   [diamond_x, diamond_y + 0.4],
+                   [diamond_x + 0.6, diamond_y],
+                   [diamond_x, diamond_y - 0.4]],
+                  facecolor='#fbd38d', edgecolor='black', linewidth=1.5)
+ax.add_patch(diamond)
+ax.text(diamond_x, diamond_y, 'More\npairs?', fontsize=7, ha='center', va='center',
+        color='black', fontweight='bold')
+
+# Loop back
+ax.annotate('', xy=(0.5, row2_y + 0.4), xytext=(diamond_x - 0.6, diamond_y),
+            arrowprops=dict(arrowstyle='->', color=COLORS['success'], lw=1.5,
+                           connectionstyle='arc3,rad=0.3'))
+ax.text(5, row2_y + 1.1, 'Yes', fontsize=7, color=COLORS['success'])
+
+# Exit arrow
+draw_arrow(diamond_x, diamond_y - 0.4, diamond_x, row2_y - 0.6)
+ax.text(diamond_x + 0.2, row2_y - 0.15, 'No', fontsize=7, color=COLORS['warning'])
+
+# Row 3: Data Storage
+row3_y = 1.8
+draw_process_box(1.0, row3_y, 2.0, 0.8, 'Quality\nCheck', '#fbd38d')
+draw_arrow(3.0, row3_y + 0.4, 3.5, row3_y + 0.4)
+draw_process_box(3.5, row3_y, 2.0, 0.8, 'Add Field\nNotes', COLORS['gray_med'])
+draw_arrow(5.5, row3_y + 0.4, 6.0, row3_y + 0.4)
+draw_process_box(6.0, row3_y + 0.5, 1.8, 0.7, 'CSV\nExport', COLORS['secondary'])
+draw_process_box(6.0, row3_y - 0.4, 1.8, 0.7, 'Paper\nLog', COLORS['gray_dark'])
+draw_arrow(7.8, row3_y + 0.85, 8.5, row3_y + 0.4)
+draw_arrow(7.8, row3_y - 0.05, 8.5, row3_y + 0.4)
+draw_process_box(8.5, row3_y, 2.2, 0.8, 'Backup\nStorage', COLORS['primary'])
+
+# Connect row 2 to row 3
+draw_arrow(diamond_x, row2_y - 0.6, 2.0, row3_y + 0.8)
+
+# Quality notes box
+ax.add_patch(FancyBboxPatch((0.3, 0.2), 4.5, 1.3, boxstyle="round,pad=0.05",
+                            facecolor='#fff5f5', edgecolor='#fbd38d', linewidth=1.5))
+ax.text(2.55, 1.3, 'Quality Notes to Record', fontsize=9, fontweight='bold',
+        ha='center', color=COLORS['warning'])
+
+quality_items = [
+    'Soil moisture changes during survey',
+    'Temperature variations',
+    'Disturbances (vehicles, people)',
+    'Equipment issues / anomalous readings',
+]
+for i, item in enumerate(quality_items):
+    ax.text(0.5, 1.0 - i * 0.2, f'* {item}', fontsize=7,
+            color=COLORS['gray_dark'])
+
+# Metadata checklist box
+ax.add_patch(FancyBboxPatch((5.2, 0.2), 3.2, 1.3, boxstyle="round,pad=0.05",
+                            facecolor='#ebf8ff', edgecolor=COLORS['accent'], linewidth=1.5))
+ax.text(6.8, 1.3, 'Required Metadata', fontsize=9, fontweight='bold',
+        ha='center', color=COLORS['accent'])
+
+metadata_items = [
+    'Site name / GPS coordinates',
+    'Survey date/time, team members',
+    'Weather, soil type/moisture',
+    'Probe spacing, insertion depths',
+]
+for i, item in enumerate(metadata_items):
+    ax.text(5.4, 1.0 - i * 0.2, f'* {item}', fontsize=7,
+            color=COLORS['gray_dark'])
+
+# Legend for process types
+ax.add_patch(FancyBboxPatch((8.8, 0.2), 2.9, 1.3, boxstyle="round,pad=0.05",
+                            facecolor='white', edgecolor=COLORS['gray_med'], linewidth=1))
+ax.text(10.25, 1.3, 'Process Types', fontsize=9, fontweight='bold',
+        ha='center', color=COLORS['primary'])
+
+legend_items = [
+    (COLORS['secondary'], 'Setup'),
+    (COLORS['success'], 'MIT Data'),
+    (COLORS['orange'], 'ERT Data'),
+    (COLORS['accent'], 'Recording'),
+]
+for i, (color, label) in enumerate(legend_items):
+    ax.add_patch(Rectangle((9.0, 1.0 - i * 0.2 - 0.05), 0.3, 0.15, facecolor=color))
+    ax.text(9.4, 1.0 - i * 0.2, label, fontsize=7, va='center',
+            color=COLORS['gray_dark'])
+
+plt.tight_layout()
+plt.show()
+```
+
+## Data Storage {#sec-data-storage}
+
+### File Organization
+
+- **One CSV file per section** for MIT data
+- **One CSV file per section** for ERT data
+- **One registry file** for all probes (shared across surveys)
+- **Paper log** for conditions and notes (backup)
+
+### Naming Convention
+
+- MIT: `MIT_S{section_id}_{date}.csv`
+- ERT: `ERT_S{section_id}_{date}.csv`
+- Registry: `probe_registry.csv`
+- Field Log: `field_log_{date}.txt`
+
+## Metadata Requirements {#sec-metadata}
+
+### Site Information
+
+- Site name and GPS coordinates
+- Survey date and time (start/end)
+- Team members present
+- Weather conditions (temperature, precipitation, wind)
+- Soil type and estimated moisture content
+- Site access notes and restrictions
+
+### Measurement Parameters
+
+- Frequency list for MIT measurements
+- Current levels for ERT measurements
+- Probe spacing configuration
+- Insertion depths achieved
+- Grid coordinates and orientation
+
+## Data Quality Notes {#sec-quality-notes}
+
+Field conditions that may affect data quality should be recorded in the paper log or the notes field of individual records. These annotations are critical for proper interpretation during post-processing and help identify measurements that may require special handling or exclusion from analysis.
+
+::: {.callout-note}
+## Record in Paper Log or Notes Field
+
+- Soil moisture changes during survey
+- Temperature variations (especially for long surveys)
+- External disturbances (vehicles, people, machinery)
+- Equipment issues or malfunctions
+- Anomalous readings with contextual explanation
+- Probe insertion difficulties or obstructions
+:::
+
+## Best Practices {#sec-best-practices}
+
+1. **Verify file integrity** after each section by checking record counts match expected probe pair combinations.
+2. **Backup data** to at least two locations before leaving the field site.
+3. **Timestamp all entries** using ISO 8601 format for unambiguous date/time parsing.
+4. **Document probe positions** with photographs showing grid layout and reference markers.
+5. **Record baseline readings** before and after each survey session to detect drift.
+6. **Note environmental changes** including passing weather fronts, irrigation events, or traffic patterns.
+
+::: {.callout-warning}
+## Data Integrity Warning
+
+- Never modify raw data files after collection
+- Create processed copies for any transformations
+- Maintain chain of custody documentation for forensic applications
+- Store original files in read-only archive locations
+:::
+
+## Software Compatibility Roadmap {#sec-software-compatibility}
+
+The CSV data formats described above are designed as raw intermediate storage. Future software tools will provide import scripts to convert these raw logs into standard formats for open-source inversion frameworks:
+
+- **EIDORS (Matlab/Octave):** Import script will generate .mat structures for MIT-3D finite element reconstruction.
+- **pyGIMLi (Python):** Converters will map ERT data to the Unified Data Format for coupled inversion.
+- **ResIPy:** Direct import support for ERT .csv files is planned.
