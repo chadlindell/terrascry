@@ -1,0 +1,194 @@
+---
+title: "Overview"
+---
+
+## What is HIRT? {#sec-what-is-hirt}
+
+HIRT (Hybrid Inductive-Resistivity Tomography) is a **dual-channel subsurface imaging system** designed for archaeological and forensic investigations. By placing sensors inside the ground and measuring through the volume using **crosshole geometry**, HIRT obtains true tomographic coverage for 3D reconstruction of subsurface features.
+
+```{python}
+#| label: fig-system-overview
+#| fig-cap: "HIRT dual-channel system overview. The system combines MIT-3D (Magneto-Inductive Tomography) for metal detection with ERT-Lite (Electrical Resistivity) for soil disturbance mapping. Probes are inserted into pre-drilled 18-20mm holes, with ray paths traversing the target volume for true 3D tomographic imaging."
+#| fig-width: 9
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.executive_summary import create_system_overview
+import matplotlib.pyplot as plt
+from PIL import Image
+
+buf = create_system_overview()
+img = Image.open(buf)
+plt.figure(figsize=(9, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Why the Name {#sec-why-the-name}
+
+HIRT was created in a landscape shaped by war and unfinished consequences.
+
+The Silesian basin of modern-day Poland was the target of one of the most intensive Allied bombing campaigns of World War II, centered on the Blechhammer industrial complex. Tens of thousands of bombs fell here. Many exploded. Thousands did not. Today, an estimated 4,000--6,000 unexploded bombs remain buried beneath forests, wetlands, and towns, still capable of detonation decades later. These UXOs continue to shape land use, infrastructure planning, and public safety across the region.
+
+This same ground holds other histories. POW camps and forced labor sites. Jewish victims of the industrial death system tied to Blechhammer. Aircrews lost in the bombing campaigns. Civilians---families and children---killed not as targets, but by proximity. After the war came displacement, silence, and redevelopment layered over danger that was never fully removed.
+
+My great-uncle, 1st Lt. Arthur Lindell, was shot down here. He and his crew are still missing, believed to lie in a filled bomb crater at the crash site. That search is personal---but it exists within a much larger, unresolved problem shared by communities across Europe and beyond.
+
+HIRT takes its name from this history of hurt and pain, and from a commitment to address what remains beneath the surface. It was designed to see without excavation, to reduce risk where danger still exists, and to help bring clarity---whether the goal is safety, remembrance, or recovery.
+
+## Dual-Channel Approach {#sec-dual-channel}
+
+HIRT employs two complementary sensing modalities that together provide comprehensive subsurface characterization:
+
+- **MIT-3D (Magneto-Inductive Tomography):** Low-frequency TX/RX coils (2-50 kHz) measure amplitude and phase changes caused by eddy currents. Maps conductive metal masses including aluminum, which magnetometry cannot detect.
+- **ERT-Lite (Electrical Resistivity):** Small ring electrodes inject tiny currents (0.5-2 mA) and measure voltage distribution. Maps soil resistivity variations from moisture, disturbance patterns, voids, and grave shafts.
+
+::: {.callout-note}
+## Design Philosophy
+
+- Make each probe dual-role (TX & RX for MIT) plus ERT pickup
+- Identical probes simplify logistics and improve data quality
+- Modular, interchangeable components for field serviceability
+- Minimal site disturbance (~10x less than traditional methods)
+:::
+
+## Primary Use Cases {#sec-use-cases}
+
+HIRT is optimized for three primary application scenarios, each with specific configuration recommendations:
+
+| Use Case | Typical Parameters | Key Method | Target Types |
+|----------|-------------------|------------|--------------|
+| Filled Bomb Crater | 10-15m dia, 0-4m depth; 3m probes, 1.5m spacing | MIT + ERT combined | Metal parts + remains |
+| Woods Burials | 0.6-1.5m depth; 1.5m probes, 1m spacing | ERT patterns + MIT | Grave shafts, artifacts |
+| Swamp/Marsh Crash | 5-8+m depth; 3.5m probes, 2-3m spacing | Low-freq MIT | Deep-buried aircraft |
+
+: Primary HIRT use cases and configurations {#tbl-use-cases}
+
+## System Capabilities {#sec-capabilities}
+
+```{python}
+#| label: fig-capabilities
+#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters. Cost savings of 95%+ make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
+#| fig-width: 10
+#| fig-height: 4.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.executive_summary import create_capabilities_infographic
+
+buf = create_capabilities_infographic()
+img = Image.open(buf)
+plt.figure(figsize=(10, 4.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+Surface GPR and magnetometry are excellent screening tools but can yield ambiguous results in complex conditions. HIRT's crosshole geometry provides superior performance through direct measurement paths:
+
+- **True tomographic coverage** through the target volume (not surface extrapolation)
+- **2-5x better resolution** than surface methods at depths exceeding 2 meters (*modeled*)
+- **Superior depth discrimination** - targets at 3m vs 4m are clearly distinguishable
+- **Non-ferrous detection** - aluminum aircraft parts that magnetometry cannot sense
+- **3D localization** with measured positions rather than estimated pseudo-depth
+
+```{python}
+#| label: fig-depth-investigation
+#| fig-cap: "Depth of investigation ranges by HIRT configuration. The typical surface method limit (~1.5m) is shown for comparison. Confidence levels indicate the reliability of detection at different depths and soil conditions."
+#| fig-width: 9
+#| fig-height: 4
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.executive_summary import create_depth_investigation
+
+buf = create_depth_investigation()
+img = Image.open(buf)
+plt.figure(figsize=(9, 4))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Limitations and Non-Goals {#sec-limitations}
+
+::: {.callout-warning}
+## Non-Goals
+
+- Producing final 3D visuals (software pipeline is a separate development phase)
+- Replacing standard ethical/excavation practices or permits
+- Replacing professional archaeological/forensic protocols
+:::
+
+**When Surface Methods Remain Superior:** Rapid large-area screening (10x faster), shallow targets (<1m) where GPR resolution excels, purely ferrous targets (magnetometry), and initial site characterization before targeted investigation.
+
+**Technical Limitations:** Smaller coil area results in ~19 dB SNR loss compared to commercial systems (compensated by longer integration times). Survey time increases 5-10x compared to commercial systems. Requires post-processing software for 3D reconstruction. Limited depth performance in highly conductive soils.
+
+## Optimal Workflow {#sec-workflow}
+
+```{python}
+#| label: fig-workflow
+#| fig-cap: "Two-stage optimal workflow combining surface screening methods with HIRT crosshole follow-up. This approach leverages the speed of surface methods for initial anomaly identification, then applies HIRT's superior resolution for detailed characterization of identified targets."
+#| fig-width: 10
+#| fig-height: 3.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.executive_summary import create_workflow_diagram
+
+buf = create_workflow_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(10, 3.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+The physics supports a **two-stage approach** that leverages the strengths of both surface and crosshole methods:
+
+1. **Surface screening** (magnetometry, GPR, EM31): Identify anomalies quickly over large areas with rapid coverage rates.
+2. **HIRT crosshole follow-up**: Characterize identified anomalies with superior 3D resolution and depth discrimination.
+
+## Target Audience {#sec-audience}
+
+This documentation and the HIRT system are designed for:
+
+- **Archaeologists** investigating WWII sites, burial locations, or crash sites
+- **Forensic investigators** requiring non-destructive subsurface imaging
+- **Geophysicists** interested in low-cost tomographic methods
+- **DIY builders** seeking to construct field-deployable systems
+- **Researchers** exploring crosshole electromagnetic/resistivity techniques
+
+## Cost Overview {#sec-cost}
+
+```{python}
+#| label: fig-cost-comparison
+#| fig-cap: "Cost comparison between HIRT and commercial crosshole systems. A complete HIRT starter kit costs $1,800-3,900 depending on component selection, representing 95%+ savings compared to commercial systems ($50,000-200,000+). The primary cost driver is the number of probes (20-24 for standard deployment at $70-150 each)."
+#| fig-width: 10
+#| fig-height: 4
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.executive_summary import create_cost_comparison
+
+buf = create_cost_comparison()
+img = Image.open(buf)
+plt.figure(figsize=(10, 4))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+| Component | Low-End | High-End | Notes |
+|-----------|---------|----------|-------|
+| Probes (20-24) | $1,400 | $3,600 | $70-150 per probe |
+| Electronics Hub | $200 | $300 | DIY vs pre-built |
+| Cables & Connectors | $50 | $50 | Standard components |
+| Tools & Misc | $50 | $50 | Assembly tools |
+| **Total** | **$1,800** | **$3,900** | **95%+ vs commercial** |
+
+: HIRT system cost breakdown {#tbl-cost-breakdown}
+
+This cost structure places professional-grade subsurface imaging capabilities within reach of university research groups, non-profit humanitarian organizations, and archaeological teams that could not otherwise afford crosshole tomography.

@@ -1,0 +1,507 @@
+/* HIRT Whitepaper - Custom CSS for HTML Output */
+/* Quarto Book Theme Customizations */
+
+/* ================================
+   Color Variables - HIRT Branding
+   ================================ */
+:root {
+  --hirt-primary: #1a365d;
+  --hirt-secondary: #2c5282;
+  --hirt-accent: #3182ce;
+  --hirt-success: #38a169;
+  --hirt-warning: #c53030;
+  --hirt-info: #805ad5;
+  --hirt-light-bg: #f7fafc;
+  --hirt-ground-tan: #d4a373;
+  --hirt-orange: #ed8936;
+  --hirt-border: #e2e8f0;
+  --hirt-text: #2d3748;
+  --hirt-text-muted: #718096;
+}
+
+/* ================================
+   Typography
+   ================================ */
+body {
+  color: var(--hirt-text);
+  line-height: 1.5;
+}
+
+/* Title styling */
+.quarto-title h1.title {
+  color: var(--hirt-primary);
+  font-weight: 700;
+  border-bottom: 3px solid var(--hirt-accent);
+  padding-bottom: 0.5rem;
+}
+
+.quarto-title .subtitle {
+  color: var(--hirt-secondary);
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+/* Section headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--hirt-primary);
+  font-weight: 600;
+}
+
+h1 {
+  border-bottom: 2px solid var(--hirt-border);
+  padding-bottom: 0.3rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+h2 {
+  border-bottom: 1px solid var(--hirt-border);
+  padding-bottom: 0.2rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+h3, h4, h5, h6 {
+  margin-top: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Reduce paragraph spacing */
+p {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Reduce list spacing */
+ul, ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.15rem;
+}
+
+/* ================================
+   Callout Boxes
+   ================================ */
+.callout {
+  border-radius: 4px;
+  margin: 0.75rem 0;
+}
+
+.callout-note {
+  border-left-color: var(--hirt-accent);
+  background-color: #ebf8ff;
+}
+
+.callout-warning {
+  border-left-color: var(--hirt-warning);
+  background-color: #fff5f5;
+}
+
+.callout-tip {
+  border-left-color: var(--hirt-success);
+  background-color: #f0fff4;
+}
+
+.callout-important {
+  border-left-color: var(--hirt-orange);
+  background-color: #fffaf0;
+}
+
+.callout-caution {
+  border-left-color: var(--hirt-info);
+  background-color: #faf5ff;
+}
+
+.callout .callout-title {
+  font-weight: 600;
+}
+
+/* Hardware documentation reference callouts */
+.callout-tip .callout-title::before {
+  content: none;
+}
+
+/* ================================
+   Tables
+   ================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+table thead {
+  background-color: var(--hirt-primary);
+  color: white;
+}
+
+table thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid var(--hirt-secondary);
+}
+
+table tbody td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--hirt-border);
+}
+
+table tbody tr:nth-child(even) {
+  background-color: var(--hirt-light-bg);
+}
+
+table tbody tr:hover {
+  background-color: #edf2f7;
+}
+
+/* Table captions */
+table caption,
+.table-caption {
+  font-size: 0.85rem;
+  color: var(--hirt-text-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+
+/* ================================
+   Figures and Images
+   ================================ */
+figure {
+  margin: 0.75rem 0;
+  text-align: center;
+}
+
+figure img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--hirt-border);
+  border-radius: 4px;
+}
+
+.figure-caption,
+figcaption {
+  font-size: 0.9em;
+  color: var(--hirt-text-muted);
+  font-style: italic;
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+  line-height: 1.5;
+}
+
+/* ================================
+   Code Blocks
+   ================================ */
+pre.sourceCode {
+  background-color: var(--hirt-light-bg);
+  border-left: 3px solid var(--hirt-accent);
+  border-radius: 0 4px 4px 0;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+}
+
+:not(pre) > code {
+  background-color: var(--hirt-light-bg);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  color: var(--hirt-secondary);
+}
+
+/* Code fold button */
+.code-fold-btn {
+  background-color: var(--hirt-accent);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.code-fold-btn:hover {
+  background-color: var(--hirt-secondary);
+}
+
+/* ================================
+   Sidebar Navigation
+   ================================ */
+.sidebar-navigation {
+  border-right: 1px solid var(--hirt-border);
+}
+
+.sidebar-navigation .sidebar-item a {
+  color: var(--hirt-secondary);
+  text-decoration: none;
+  padding: 0.4rem 0;
+  display: block;
+}
+
+.sidebar-navigation .sidebar-item a:hover {
+  color: var(--hirt-primary);
+  background-color: var(--hirt-light-bg);
+}
+
+.sidebar-navigation .sidebar-item.active a {
+  color: var(--hirt-primary);
+  font-weight: 600;
+  border-left: 3px solid var(--hirt-accent);
+  padding-left: calc(1rem - 3px);
+}
+
+/* Part headers in sidebar */
+.sidebar-section-header {
+  color: var(--hirt-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--hirt-border);
+}
+
+/* ================================
+   Part Dividers
+   ================================ */
+.part-header {
+  background: linear-gradient(135deg, var(--hirt-light-bg), white);
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-left: 4px solid var(--hirt-primary);
+  border-radius: 0 4px 4px 0;
+}
+
+.part-header h1 {
+  border-bottom: none;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* ================================
+   Technical Content
+   ================================ */
+/* Units and measurements */
+.unit {
+  font-style: normal;
+  white-space: nowrap;
+}
+
+/* Equations */
+.math {
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+/* Cross-references */
+a[href^="#sec-"],
+a[href^="#fig-"],
+a[href^="#tbl-"],
+a[href^="#eq-"] {
+  color: var(--hirt-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--hirt-accent);
+}
+
+a[href^="#sec-"]:hover,
+a[href^="#fig-"]:hover,
+a[href^="#tbl-"]:hover,
+a[href^="#eq-"]:hover {
+  color: var(--hirt-primary);
+  border-bottom-style: solid;
+}
+
+/* ================================
+   Reader Path Boxes
+   ================================ */
+.reader-path {
+  background-color: white;
+  border: 2px solid var(--hirt-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.reader-path h3 {
+  color: var(--hirt-secondary);
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.reader-path .path-sequence {
+  font-family: monospace;
+  color: var(--hirt-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ================================
+   Responsive Design
+   ================================ */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.8rem;
+  }
+
+  table thead th,
+  table tbody td {
+    padding: 0.4rem 0.5rem;
+  }
+
+  figure {
+    margin: 1rem 0;
+  }
+
+  .callout {
+    margin: 1rem 0;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ================================
+   Print Styles
+   ================================ */
+@media print {
+  /* Page setup */
+  @page {
+    size: letter;
+    margin: 0.75in;
+  }
+
+  body {
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* Title page */
+  .quarto-title-block {
+    page-break-after: always;
+    text-align: center;
+    padding-top: 3in;
+  }
+
+  /* Headings */
+  h1, h2 {
+    page-break-after: avoid;
+  }
+
+  h1 {
+    page-break-before: always;
+  }
+
+  h1:first-of-type {
+    page-break-before: avoid;
+  }
+
+  /* Content blocks */
+  figure {
+    page-break-inside: avoid;
+    max-width: 6in;
+    margin: 0 auto;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  pre.sourceCode {
+    page-break-inside: avoid;
+    max-height: 4in;
+    overflow: hidden;
+  }
+
+  .callout {
+    page-break-inside: avoid;
+  }
+
+  /* Hide navigation */
+  .sidebar-navigation,
+  .nav-footer,
+  .code-fold-btn {
+    display: none !important;
+  }
+
+  /* Links */
+  a {
+    color: var(--hirt-text) !important;
+    text-decoration: none !important;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: var(--hirt-text-muted);
+  }
+
+  /* Colors for print */
+  table thead {
+    background-color: #e2e8f0 !important;
+    color: var(--hirt-text) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .callout {
+    border-left-width: 4px;
+    background-color: white !important;
+  }
+
+  /* Orphans and widows */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+}
+
+/* ================================
+   Dark Mode Support (Optional)
+   ================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hirt-light-bg: #1a202c;
+    --hirt-border: #2d3748;
+    --hirt-text: #e2e8f0;
+    --hirt-text-muted: #a0aec0;
+  }
+
+  body {
+    background-color: #171923;
+  }
+
+  table thead {
+    background-color: var(--hirt-secondary);
+  }
+
+  table tbody tr:nth-child(even) {
+    background-color: #1a202c;
+  }
+
+  .callout-note {
+    background-color: #1a365d40;
+  }
+
+  .callout-warning {
+    background-color: #742a2a40;
+  }
+
+  .callout-tip {
+    background-color: #22543d40;
+  }
+}

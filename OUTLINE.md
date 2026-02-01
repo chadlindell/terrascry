@@ -1,168 +1,206 @@
-# HIRT Whitepaper Outline
+# HIRT Technical Manual Outline
 
-This document tracks the status and requirements for each whitepaper section.
+This document tracks the status and requirements for each documentation section.
 
 ## Status Legend
 
 | Status | Meaning |
 |--------|---------|
-| `RESEARCH` | Needs research before writing |
+| `NEW` | Newly created, needs review |
 | `DRAFT` | Written but needs review |
 | `REVIEW` | Under review, may need revisions |
 | `COMPLETE` | Reviewed and finalized |
+| `MIGRATED` | Migrated from old whitepaper structure |
 
 ---
 
-## Part I: Foundations
+## Getting Started
 
-### 00 - Index
-- **Status:** COMPLETE
-- **Purpose:** Document navigation, reader paths, structure overview
-- **Lines:** ~250
-- **Notes:** Updated with consistent terminology
+### index.qmd - Task Map
+- **Status:** NEW
+- **Purpose:** Cross-cutting navigation, user-type routing
+- **Notes:** Links field ops to build troubleshooting, builders to acceptance tests
 
-### 01 - Executive Summary
-- **Status:** COMPLETE
-- **Purpose:** High-level overview for decision-makers
-- **Lines:** ~200
+### overview.qmd
+- **Status:** MIGRATED
+- **Purpose:** What is HIRT, dual-channel approach, use cases
+- **Source:** 01-executive-summary.qmd
 - **Notes:** Covers both MIT-3D and ERT-Lite, applications, cost summary
 
-### 02 - Physics Theory
-- **Status:** COMPLETE
-- **Purpose:** Theoretical foundation for both sensing modalities
-- **Lines:** ~400
-- **Notes:** DOIs added to all citations, added "Crosshole Advantage" expansion
+### quick-start.qmd
+- **Status:** NEW
+- **Purpose:** Rapid deployment guide for experienced users
+- **Notes:** Minimal setup checklist, first survey in 2-3 hours
 
-### 03 - System Architecture
-- **Status:** COMPLETE
-- **Purpose:** Overall system design, component relationships
-- **Lines:** ~350
-- **Notes:** Block diagrams, signal flow, added "Site Suitability Decision Guide"
+### safety.qmd
+- **Status:** NEW (split from 19-ethics-legal-safety)
+- **Purpose:** UXO safety protocols, HERO compliance
+- **Notes:** Critical for field deployment
 
 ---
 
-## Part II: Building
+## Field Guide
 
-### 04 - Bill of Materials
-- **Status:** COMPLETE
-- **Purpose:** Complete parts list with costs and suppliers
-- **Lines:** ~550
-- **Notes:** Links to detailed BOMs in /hardware/bom/
+### deployment.qmd
+- **Status:** MIGRATED
+- **Purpose:** Standard deployment procedures
+- **Source:** 10-field-operations.qmd
+- **Notes:** Comprehensive field guidance, cable management
 
-### 05 - Mechanical Design
-- **Status:** COMPLETE
-- **Purpose:** Physical construction - probes, rods, housings
-- **Lines:** ~750
-- **Notes:** Extensive diagram coverage
+### progressive-deployment.qmd
+- **Status:** NEW
+- **Purpose:** Advanced four-phase deployment workflow
+- **Notes:** Shallow to deep, data-driven decisions, UXO protocols
 
-### 06 - Electronics and Circuits
-- **Status:** COMPLETE
-- **Purpose:** Circuit designs for MIT and ERT channels
-- **Lines:** ~550
-- **Notes:** Datasheet URLs added to references
+### data-acquisition.qmd
+- **Status:** NEW (split from 11-data-recording)
+- **Purpose:** Practical acquisition procedures
+- **Notes:** TX-RX matrix, coordinate systems
 
-### 07 - Assembly and Wiring
-- **Status:** COMPLETE
-- **Purpose:** Step-by-step assembly procedures
-- **Lines:** ~750
-- **Notes:** Links to expanded hardware/drawings/
+### interpretation.qmd
+- **Status:** NEW (split from 12-data-interpretation)
+- **Purpose:** Practical interpretation guidance
+- **Notes:** Anomaly identification, quality control
 
-### 08 - Testing and Verification
-- **Status:** COMPLETE
-- **Purpose:** QC procedures, acceptance criteria
-- **Lines:** ~350
-- **Notes:** Specs aligned with calibration section
-
-### 09 - Calibration
-- **Status:** COMPLETE
-- **Purpose:** Calibration procedures for field readiness
-- **Lines:** ~400
-- **Notes:** Frequency-dependent Q factor specs
-
----
-
-## Part III: Field Operations
-
-### 10 - Field Operations
-- **Status:** COMPLETE
-- **Purpose:** Deployment procedures, survey patterns
-- **Lines:** ~1000
-- **Notes:** Comprehensive field guidance, added "Cable Management" section
-
-### 11 - Data Recording
-- **Status:** COMPLETE
-- **Purpose:** Data formats, acquisition procedures
-- **Lines:** ~1300
-- **Notes:** Longest section, extensive diagrams
-
-### 12 - Data Interpretation
-- **Status:** COMPLETE
-- **Purpose:** Analysis methods, visualization
-- **Lines:** ~900
-- **Notes:** Software tool references with DOIs, added "Signature Catalogue" and "Uncertainty & Limitations"
-
-### 13 - Troubleshooting
-- **Status:** COMPLETE
-- **Purpose:** Common problems and solutions
-- **Lines:** ~550
-- **Notes:** EMI terminology clarified
-
----
-
-## Part IV: Analysis & Applications
-
-### 17 - Application Scenarios
-- **Status:** COMPLETE
-- **Purpose:** Detailed scenarios for primary applications
-- **Lines:** ~750
+### scenarios.qmd
+- **Status:** MIGRATED
+- **Purpose:** Detailed application scenarios
+- **Source:** 17-application-scenarios.qmd
 - **Notes:** Bomb crater, woodland burial, swamp recovery
 
-### 18 - Future Development
-- **Status:** COMPLETE
-- **Purpose:** Roadmap, potential improvements
-- **Lines:** ~700
-- **Notes:** Software citations with DOIs added
-
-### 19 - Ethics, Legal, and Safety
-- **Status:** COMPLETE
-- **Purpose:** UXO protocols, legal considerations
-- **Lines:** ~350
-- **Notes:** Critical for field deployment, added "Chain of Custody" section
+### troubleshooting.qmd
+- **Status:** MIGRATED (needs hybrid rewrite)
+- **Purpose:** Common problems and solutions
+- **Source:** 13-troubleshooting.qmd
+- **Notes:** Needs hybrid format (tables + narrative)
 
 ---
 
-## Part V: Appendices
+## Build Guide
 
-### 14 - Glossary
-- **Status:** COMPLETE
+### bill-of-materials.qmd
+- **Status:** MIGRATED
+- **Purpose:** Complete parts list with costs
+- **Source:** 04-bill-of-materials.qmd
+- **Notes:** Links to detailed BOMs in /hardware/bom/
+
+### mechanical.qmd
+- **Status:** MIGRATED
+- **Purpose:** Physical construction details
+- **Source:** 05-mechanical-design.qmd
+- **Notes:** Extensive diagram coverage
+
+### electronics.qmd
+- **Status:** MIGRATED
+- **Purpose:** Circuit designs for MIT and ERT
+- **Source:** 06-electronics-circuits.qmd
+- **Notes:** Datasheet URLs in references
+
+### assembly.qmd
+- **Status:** MIGRATED
+- **Purpose:** Step-by-step assembly procedures
+- **Source:** 07-assembly-wiring.qmd
+- **Notes:** Links to hardware/drawings/
+
+### testing.qmd
+- **Status:** MIGRATED
+- **Purpose:** QC procedures, acceptance criteria
+- **Source:** 08-testing-verification.qmd
+- **Notes:** Specs aligned with calibration
+
+### calibration.qmd
+- **Status:** MIGRATED
+- **Purpose:** Calibration for field readiness
+- **Source:** 09-calibration.qmd
+- **Notes:** Frequency-dependent Q factor specs
+
+### validation.qmd
+- **Status:** NEW
+- **Purpose:** HardwareX compliance validation
+- **Notes:** Placeholder with (Target) specs
+
+---
+
+## Theory
+
+### physics.qmd
+- **Status:** MIGRATED
+- **Purpose:** Theoretical foundation
+- **Source:** 02-physics-theory.qmd
+- **Notes:** DOIs on all citations
+
+### architecture.qmd
+- **Status:** MIGRATED
+- **Purpose:** System design, component relationships
+- **Source:** 03-system-architecture.qmd
+- **Notes:** Block diagrams, signal flow
+
+### sensor-modalities.qmd
+- **Status:** NEW
+- **Purpose:** Sensor maturity framework
+- **Notes:** Supported/Recommended/Future labeling
+
+### inversion.qmd
+- **Status:** NEW (split from 12-data-interpretation)
+- **Purpose:** Mathematical basis, algorithms
+- **Notes:** pyGIMLi, SimPEG references
+
+### uncertainty.qmd
+- **Status:** NEW
+- **Purpose:** Limitations, non-uniqueness
+- **Notes:** "What No Anomaly Actually Means"
+
+---
+
+## Developer Guide
+
+### contributing.qmd
+- **Status:** NEW
+- **Purpose:** Contribution guidelines
+- **Notes:** Development workflow, code standards
+
+### firmware.qmd
+- **Status:** NEW
+- **Purpose:** Firmware architecture
+- **Notes:** Placeholder pending firmware maturity
+
+### data-formats.qmd
+- **Status:** NEW (split from 11-data-recording)
+- **Purpose:** CSV format specifications
+- **Notes:** Compatible with pyGIMLi/SimPEG
+
+### roadmap.qmd
+- **Status:** MIGRATED
+- **Purpose:** Future development plans
+- **Source:** 18-future-development.qmd
+- **Notes:** Software citations with DOIs
+
+---
+
+## Appendices
+
+### glossary.qmd
+- **Status:** MIGRATED
 - **Purpose:** Technical term definitions
-- **Lines:** ~100
+- **Source:** 14-glossary.qmd
 - **Notes:** Added DDS, Delta-Sigma ADC, Howland Current Source
 
-### 15 - Quick Reference
-- **Status:** COMPLETE
+### quick-reference.qmd
+- **Status:** MIGRATED
 - **Purpose:** Field reference card
-- **Lines:** ~120
+- **Source:** 15-quick-reference.qmd
 - **Notes:** Compact format for field use
 
-### 16 - Field Checklists
-- **Status:** COMPLETE
-- **Purpose:** Pre-deployment, post-deployment checklists
-- **Lines:** ~250
+### checklists.qmd
+- **Status:** MIGRATED
+- **Purpose:** Pre/post-deployment checklists
+- **Source:** 16-field-checklists.qmd
 - **Notes:** Printable format
 
----
-
-## Research Integration Backlog
-
-Research documents in `/research/` that may inform whitepaper updates:
-
-| Research File | Potential Section | Status |
-|---------------|-------------------|--------|
-| `deployment/*.md` | 10-Field Operations, 18-Future Development | Review needed |
-| `electronics/electronics-modernization.md` | 06-Electronics, 18-Future Development | Review needed |
-| `electronics/manufacturing-cost-report.md` | 04-BOM | Review needed |
-| `regulatory/regulatory-compliance-uxo.md` | 19-Ethics-Legal-Safety | Review needed |
+### regulations.qmd
+- **Status:** NEW (split from 19-ethics-legal-safety)
+- **Purpose:** Legal requirements by jurisdiction
+- **Notes:** Permits, chain of custody
 
 ---
 
@@ -175,6 +213,18 @@ Research documents in `/research/` that may inform whitepaper updates:
 - [x] Specifications consistent across sections
 - [x] Academic citations have DOIs where available
 - [x] Glossary covers key technical terms
-- [x] Whitepaper reorganized into five parts (v2.0)
+- [x] Documentation restructured to onion model (v3.0)
+- [x] GitHub Actions CI workflow created
+- [ ] Troubleshooting hybrid rewrite (keep tables + add narrative)
+- [ ] Performance claim qualifications throughout
+- [ ] Progressive deployment diagrams (5-6 new)
 - [ ] Research backlog reviewed and integrated
-- [ ] LaTeX export tested for journal submission
+
+---
+
+## Pending Tasks
+
+1. **Troubleshooting hybrid rewrite** - Apply hybrid format (keep diagnostic tables, add narrative context sections)
+2. **Performance qualifications** - Add (Measured)/(Modeled)/(Target) labels to all specs
+3. **Progressive deployment diagrams** - Create workflow flowchart, depth extension decision tree, etc.
+4. **Sensor modality diagrams** - Multi-modal fusion illustration

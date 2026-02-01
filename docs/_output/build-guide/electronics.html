@@ -1,0 +1,2488 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.557">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>HIRT: Hybrid Inductive-Resistivity Tomography - 13&nbsp; Electronics and Circuits</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../build-guide/assembly.html" rel="next">
+<link href="../build-guide/mechanical.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles/custom.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html">Build Guide</a></li><li class="breadcrumb-item"><a href="../build-guide/electronics.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">HIRT: Hybrid Inductive-Resistivity Tomography</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">HIRT Technical Manual</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/quick-start.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Quick Start</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/safety.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Safety</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Field Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/progressive-deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Progressive Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/data-acquisition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Acquisition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/interpretation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Data Interpretation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Application Scenarios</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Build Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/bill-of-materials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/mechanical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mechanical Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/electronics.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/assembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Assembly and Wiring</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Testing and Verification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/calibration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Calibration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Validation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/physics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/architecture.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">System Architecture</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/sensor-modalities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Sensor Modalities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Inversion and Reconstruction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Uncertainty and Limitations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">Developer Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/contributing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/firmware.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Firmware</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/data-formats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Data Formats</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/roadmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Roadmap</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/quick-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Quick Reference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/checklists.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Field Checklists</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/regulations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Regulations and Legal Requirements</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-electronics-overview" id="toc-sec-electronics-overview" class="nav-link active" data-scroll-target="#sec-electronics-overview"><span class="header-section-number">13.1</span> Overview</a></li>
+  <li><a href="#sec-system-block" id="toc-sec-system-block" class="nav-link" data-scroll-target="#sec-system-block"><span class="header-section-number">13.2</span> System Block Diagram</a></li>
+  <li><a href="#sec-mit-tx" id="toc-sec-mit-tx" class="nav-link" data-scroll-target="#sec-mit-tx"><span class="header-section-number">13.3</span> MIT Transmit (TX) Chain</a></li>
+  <li><a href="#sec-dds" id="toc-sec-dds" class="nav-link" data-scroll-target="#sec-dds"><span class="header-section-number">13.4</span> DDS Sine Generator</a></li>
+  <li><a href="#sec-tx-driver" id="toc-sec-tx-driver" class="nav-link" data-scroll-target="#sec-tx-driver"><span class="header-section-number">13.5</span> TX Power Driver</a></li>
+  <li><a href="#sec-mit-rx" id="toc-sec-mit-rx" class="nav-link" data-scroll-target="#sec-mit-rx"><span class="header-section-number">13.6</span> MIT Receive (RX) Chain</a></li>
+  <li><a href="#sec-rx-preamp" id="toc-sec-rx-preamp" class="nav-link" data-scroll-target="#sec-rx-preamp"><span class="header-section-number">13.7</span> RX Preamplifier (AD8421)</a>
+  <ul class="collapse">
+  <li><a href="#sec-noise-conditions" id="toc-sec-noise-conditions" class="nav-link" data-scroll-target="#sec-noise-conditions"><span class="header-section-number">13.7.1</span> Noise Floor Measurement Conditions</a></li>
+  </ul></li>
+  <li><a href="#sec-signal-conditioning" id="toc-sec-signal-conditioning" class="nav-link" data-scroll-target="#sec-signal-conditioning"><span class="header-section-number">13.8</span> Signal Conditioning and Gain Stage</a></li>
+  <li><a href="#sec-signal-levels" id="toc-sec-signal-levels" class="nav-link" data-scroll-target="#sec-signal-levels"><span class="header-section-number">13.9</span> Signal Level Progression</a></li>
+  <li><a href="#sec-lockin" id="toc-sec-lockin" class="nav-link" data-scroll-target="#sec-lockin"><span class="header-section-number">13.10</span> Lock-In Detection</a></li>
+  <li><a href="#sec-lockin-algorithm" id="toc-sec-lockin-algorithm" class="nav-link" data-scroll-target="#sec-lockin-algorithm"><span class="header-section-number">13.11</span> Digital Lock-In Algorithm</a></li>
+  <li><a href="#sec-ert-current" id="toc-sec-ert-current" class="nav-link" data-scroll-target="#sec-ert-current"><span class="header-section-number">13.12</span> ERT Current Source (Howland Pump)</a>
+  <ul class="collapse">
+  <li><a href="#sec-ert-compliance" id="toc-sec-ert-compliance" class="nav-link" data-scroll-target="#sec-ert-compliance"><span class="header-section-number">13.12.1</span> Compliance Voltage vs Load</a></li>
+  </ul></li>
+  <li><a href="#sec-polarity-reversal" id="toc-sec-polarity-reversal" class="nav-link" data-scroll-target="#sec-polarity-reversal"><span class="header-section-number">13.13</span> Polarity Reversal</a></li>
+  <li><a href="#sec-adc" id="toc-sec-adc" class="nav-link" data-scroll-target="#sec-adc"><span class="header-section-number">13.14</span> ADC Interface</a></li>
+  <li><a href="#sec-multiplexer" id="toc-sec-multiplexer" class="nav-link" data-scroll-target="#sec-multiplexer"><span class="header-section-number">13.15</span> Multiplexer Switching</a></li>
+  <li><a href="#sec-power" id="toc-sec-power" class="nav-link" data-scroll-target="#sec-power"><span class="header-section-number">13.16</span> Power Distribution</a></li>
+  <li><a href="#sec-noise-filtering" id="toc-sec-noise-filtering" class="nav-link" data-scroll-target="#sec-noise-filtering"><span class="header-section-number">13.17</span> Noise Filtering Stages</a></li>
+  <li><a href="#sec-grounding" id="toc-sec-grounding" class="nav-link" data-scroll-target="#sec-grounding"><span class="header-section-number">13.18</span> Shielding and Ground Loop Prevention</a></li>
+  <li><a href="#sec-pcb-layout" id="toc-sec-pcb-layout" class="nav-link" data-scroll-target="#sec-pcb-layout"><span class="header-section-number">13.19</span> PCB Layout Guidelines</a></li>
+  <li><a href="#sec-layout-rules" id="toc-sec-layout-rules" class="nav-link" data-scroll-target="#sec-layout-rules"><span class="header-section-number">13.20</span> Layout Rules</a></li>
+  <li><a href="#sec-components" id="toc-sec-components" class="nav-link" data-scroll-target="#sec-components"><span class="header-section-number">13.21</span> Key Component Summary</a></li>
+  <li><a href="#sec-pinouts" id="toc-sec-pinouts" class="nav-link" data-scroll-target="#sec-pinouts"><span class="header-section-number">13.22</span> Connector Pinouts (Probe-to-Zone)</a></li>
+  <li><a href="#sec-firmware-status" id="toc-sec-firmware-status" class="nav-link" data-scroll-target="#sec-firmware-status"><span class="header-section-number">13.23</span> Firmware Status</a></li>
+  <li><a href="#sec-safety" id="toc-sec-safety" class="nav-link" data-scroll-target="#sec-safety"><span class="header-section-number">13.24</span> Safety Considerations</a></li>
+  <li><a href="#sec-elec-troubleshooting" id="toc-sec-elec-troubleshooting" class="nav-link" data-scroll-target="#sec-elec-troubleshooting"><span class="header-section-number">13.25</span> Troubleshooting Guide</a></li>
+  <li><a href="#sec-electronics-references" id="toc-sec-electronics-references" class="nav-link" data-scroll-target="#sec-electronics-references"><span class="header-section-number">13.26</span> References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html">Build Guide</a></li><li class="breadcrumb-item"><a href="../build-guide/electronics.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec-electronics-overview" class="level2" data-number="13.1">
+<h2 data-number="13.1" class="anchored" data-anchor-id="sec-electronics-overview"><span class="header-section-number">13.1</span> Overview</h2>
+<p>This section consolidates all circuit designs for the HIRT system, including the MIT (Magneto-Inductive Tomography) circuits, ERT (Electrical Resistivity Tomography) circuits, and base hub electronics. The design uses <strong>centralized electronics with passive probes</strong>: all active components reside in the surface hub, while probes contain only coils and electrodes.</p>
+<p>This architecture offers significant advantages: lower per-probe cost, easier maintenance, better reliability (passive probes are more robust), centralized firmware updates, and simplified probe construction. The trade-off is increased cabling complexity for the multi-probe harness.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Hardware Documentation Reference
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Complete circuit schematics and detailed design notes are maintained in the hardware documentation:</p>
+<ul>
+<li><strong>MIT Circuit:</strong> <code>/hardware/schematics/electronics/mit-circuit.md</code> - Full TX/RX chain design with component values</li>
+<li><strong>ERT Circuit:</strong> <code>/hardware/schematics/electronics/ert-circuit.md</code> - Howland current source and measurement circuits</li>
+<li><strong>Base Hub Circuit:</strong> <code>/hardware/schematics/electronics/base-hub-circuit.md</code> - Central hub electronics integration</li>
+<li><strong>Block Diagrams:</strong> <code>/hardware/schematics/electronics/probe-electronics-block.md</code> - System-level block diagrams</li>
+</ul>
+<p>The diagrams in this section provide conceptual overviews; refer to the hardware schematics for exact component values and PCB layout guidance.</p>
+</div>
+</div>
+</section>
+<section id="sec-system-block" class="level2" data-number="13.2">
+<h2 data-number="13.2" class="anchored" data-anchor-id="sec-system-block"><span class="header-section-number">13.2</span> System Block Diagram</h2>
+<p>The central hub contains: (1) MCU for control and DSP, (2) MIT transmitter chain (DDS + power driver), (3) MIT receiver chain (preamp + instrumentation amplifier + ADC), (4) ERT current source and voltage measurement, and (5) high-density analog multiplexers. These connect via DB25 trunk cables to passive <strong>Zone Hubs</strong>, which then distribute signals to individual probes.</p>
+</section>
+<section id="sec-mit-tx" class="level2" data-number="13.3">
+<h2 data-number="13.3" class="anchored" data-anchor-id="sec-mit-tx"><span class="header-section-number">13.3</span> MIT Transmit (TX) Chain</h2>
+</section>
+<section id="sec-dds" class="level2" data-number="13.4">
+<h2 data-number="13.4" class="anchored" data-anchor-id="sec-dds"><span class="header-section-number">13.4</span> DDS Sine Generator</h2>
+<p>The transmit chain begins with a Direct Digital Synthesis (DDS) generator, the <strong>AD9833</strong>. This IC provides a highly precise sine wave output from 0.1 Hz to 12.5 MHz with 28-bit frequency resolution. Its compact MSOP-10 footprint and low power consumption make it ideal for the 2-50 kHz HIRT operating range.</p>
+<div id="tbl-dds-specs" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-dds-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.1: AD9833 DDS Generator Specifications.
+</figcaption>
+<div aria-describedby="tbl-dds-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Part Number</td>
+<td><strong>AD9833BRMZ</strong></td>
+</tr>
+<tr class="even">
+<td>Frequency Range</td>
+<td>0 Hz to 12.5 MHz</td>
+</tr>
+<tr class="odd">
+<td>Output Level</td>
+<td>0.6 V p-p sine wave</td>
+</tr>
+<tr class="even">
+<td>Interface</td>
+<td>SPI (3-wire)</td>
+</tr>
+<tr class="odd">
+<td>Resolution</td>
+<td>28-bit frequency, 12-bit phase</td>
+</tr>
+<tr class="even">
+<td>Power Supply</td>
+<td>2.3-5.5V, 12.65 mW typical</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-tx-driver" class="level2" data-number="13.5">
+<h2 data-number="13.5" class="anchored" data-anchor-id="sec-tx-driver"><span class="header-section-number">13.5</span> TX Power Driver</h2>
+<p>The DDS output is buffered by a <strong>Texas Instruments OPA2186</strong> precision operational amplifier. This component is selected for its zero-drift architecture and ultra-low quiescent current (<strong>90 µA</strong>), which ensures high precision and extended battery life for the hub while maintaining rail-to-rail output for the TX coil drive.</p>
+<div id="tbl-tx-driver" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tx-driver-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.2: TX Driver Op-Amp Specifications.
+</figcaption>
+<div aria-describedby="tbl-tx-driver-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>OPA2186 Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quiescent Current</td>
+<td><strong>90 µA</strong></td>
+</tr>
+<tr class="even">
+<td>Drift</td>
+<td><strong>0.04 µV/°C</strong> (Zero-Drift)</td>
+</tr>
+<tr class="odd">
+<td>Offset Voltage</td>
+<td>10 µV</td>
+</tr>
+<tr class="even">
+<td>Power Supply</td>
+<td>4.5V to 36V</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-mit-rx" class="level2" data-number="13.6">
+<h2 data-number="13.6" class="anchored" data-anchor-id="sec-mit-rx"><span class="header-section-number">13.6</span> MIT Receive (RX) Chain</h2>
+</section>
+<section id="sec-rx-preamp" class="level2" data-number="13.7">
+<h2 data-number="13.7" class="anchored" data-anchor-id="sec-rx-preamp"><span class="header-section-number">13.7</span> RX Preamplifier (AD8421)</h2>
+<p>The receiver front-end utilizes the <strong>Analog Devices AD8421</strong>. This high-speed instrumentation amplifier features an exceptionally low input voltage noise floor of <strong>3 nV/<span class="math inline">\(\sqrt{\mathrm{Hz}}\)</span></strong>. This performance characteristic is essential for resolving the weak secondary magnetic fields generated by subsurface targets in the MIT tomography process.</p>
+<div id="tbl-preamp-specs" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-preamp-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.3: RX Preamplifier Specifications.
+</figcaption>
+<div aria-describedby="tbl-preamp-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Component</td>
+<td><strong>AD8421</strong></td>
+</tr>
+<tr class="even">
+<td>Input Noise</td>
+<td><strong>3 nV/<span class="math inline">\(\sqrt{\mathrm{Hz}}\)</span></strong></td>
+</tr>
+<tr class="odd">
+<td>Bandwidth (G=10)</td>
+<td>10 MHz</td>
+</tr>
+<tr class="even">
+<td>Slew Rate</td>
+<td>35 V/µs</td>
+</tr>
+<tr class="odd">
+<td>Supply Current</td>
+<td>2.0 mA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<section id="sec-noise-conditions" class="level3" data-number="13.7.1">
+<h3 data-number="13.7.1" class="anchored" data-anchor-id="sec-noise-conditions"><span class="header-section-number">13.7.1</span> Noise Floor Measurement Conditions</h3>
+<p>The AD8421’s specified noise floor of <strong>3 nV/<span class="math inline">\(\sqrt{\mathrm{Hz}}\)</span></strong> is achieved under specific measurement conditions. Field performance depends on several factors:</p>
+<div id="tbl-noise-conditions" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-noise-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.4: Noise floor measurement conditions and field impact.
+</figcaption>
+<div aria-describedby="tbl-noise-conditions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Specification</th>
+<th>Field Typical</th>
+<th>Impact on SNR</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Bandwidth</td>
+<td>1-50 kHz (HIRT operating range)</td>
+<td>2-50 kHz</td>
+<td>~100 nV RMS integrated</td>
+</tr>
+<tr class="even">
+<td>Temperature</td>
+<td>25°C reference</td>
+<td>-10 to +40°C</td>
+<td>±10% variation</td>
+</tr>
+<tr class="odd">
+<td>Cable length</td>
+<td>&lt;1 m bench test</td>
+<td>3-5 m probe cable</td>
+<td>+20-50% noise pickup</td>
+</tr>
+<tr class="even">
+<td>Averaging</td>
+<td>100-sample mean</td>
+<td>16-64 samples typical</td>
+<td>Improves by <span class="math inline">\(\sqrt{N}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Integrated Noise Calculation:</strong> For a 1-50 kHz bandwidth (49 kHz span), the theoretical integrated input-referred noise is:</p>
+<p><span class="math display">\[V_{n,rms} = 3\ \text{nV}/\sqrt{\text{Hz}} \times \sqrt{49,000\ \text{Hz}} \approx 100\ \text{nV RMS}\]</span></p>
+<p>This represents the <em>design target</em> under controlled conditions. Field measurements typically show 150-300 nV RMS due to cable capacitance, EMI pickup, and connector losses.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Performance Claim Context
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The ~100 nV noise floor is a <strong>design target</strong> based on component specifications and bench measurements. Actual field performance varies with environmental conditions and cable routing. For planning purposes, assume 200-300 nV RMS input-referred noise in typical outdoor conditions.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-signal-conditioning" class="level2" data-number="13.8">
+<h2 data-number="13.8" class="anchored" data-anchor-id="sec-signal-conditioning"><span class="header-section-number">13.8</span> Signal Conditioning and Gain Stage</h2>
+<p>Following the AD8421 preamplifier, the signal passes through additional gain and filtering stages before reaching the ADC. An instrumentation amplifier (INA128) provides adjustable gain to match signal levels to the ADC input range. The total signal chain gain is typically 800-1000x, bringing microvolt-level coil signals up to the millivolt range required by the ADC.</p>
+</section>
+<section id="sec-signal-levels" class="level2" data-number="13.9">
+<h2 data-number="13.9" class="anchored" data-anchor-id="sec-signal-levels"><span class="header-section-number">13.9</span> Signal Level Progression</h2>
+</section>
+<section id="sec-lockin" class="level2" data-number="13.10">
+<h2 data-number="13.10" class="anchored" data-anchor-id="sec-lockin"><span class="header-section-number">13.10</span> Lock-In Detection</h2>
+<p>Lock-in detection is essential for extracting weak MIT signals from noise. The HIRT system uses <strong>digital lock-in detection</strong> implemented in the MCU, which offers flexibility, software configurability, and no analog drift. The technique multiplies the received signal by reference sine and cosine waveforms at the excitation frequency, then low-pass filters to extract the in-phase (I) and quadrature (Q) components.</p>
+<p>The lock-in algorithm provides exceptional noise rejection (&gt; 40 dB improvement) by responding only to signals at the exact reference frequency. This allows detection of MIT signals buried deep in noise, critical for weak responses from distant or low-conductivity targets.</p>
+</section>
+<section id="sec-lockin-algorithm" class="level2" data-number="13.11">
+<h2 data-number="13.11" class="anchored" data-anchor-id="sec-lockin-algorithm"><span class="header-section-number">13.11</span> Digital Lock-In Algorithm</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Simplified digital lock-in implementation</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> I_sum <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> Q_sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> N_samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> sample <span class="op">=</span> read_adc<span class="op">();</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> ref_I <span class="op">=</span> sin<span class="op">(</span><span class="dv">2</span> <span class="op">*</span> PI <span class="op">*</span> f <span class="op">*</span> i <span class="op">/</span> Fs<span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> ref_Q <span class="op">=</span> cos<span class="op">(</span><span class="dv">2</span> <span class="op">*</span> PI <span class="op">*</span> f <span class="op">*</span> i <span class="op">/</span> Fs<span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    I_sum <span class="op">+=</span> sample <span class="op">*</span> ref_I<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    Q_sum <span class="op">+=</span> sample <span class="op">*</span> ref_Q<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> amplitude <span class="op">=</span> sqrt<span class="op">(</span>I_sum<span class="op">*</span>I_sum <span class="op">+</span> Q_sum<span class="op">*</span>Q_sum<span class="op">)</span> <span class="op">/</span> N_samples<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> phase <span class="op">=</span> atan2<span class="op">(</span>Q_sum<span class="op">,</span> I_sum<span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="sec-ert-current" class="level2" data-number="13.12">
+<h2 data-number="13.12" class="anchored" data-anchor-id="sec-ert-current"><span class="header-section-number">13.12</span> ERT Current Source (Howland Pump)</h2>
+<p>The ERT subsystem injects controlled current into the ground through electrode rings and measures the resulting voltage distribution. The current source uses a <strong>Howland current pump</strong> topology, which provides high output impedance (&gt;1 M-ohm) and stable current regardless of load variations.</p>
+<div id="tbl-ert-current" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ert-current-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.5: ERT Current Source Specifications.
+</figcaption>
+<div aria-describedby="tbl-ert-current-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Output Current</td>
+<td>0.5-2 mA (adjustable)</td>
+</tr>
+<tr class="even">
+<td>Current Accuracy</td>
+<td>+/- 5%</td>
+</tr>
+<tr class="odd">
+<td>Compliance Voltage</td>
+<td>+/- 10V minimum</td>
+</tr>
+<tr class="even">
+<td>Output Impedance</td>
+<td>&gt; 1 M-ohm</td>
+</tr>
+<tr class="odd">
+<td>Load Range</td>
+<td>100 ohm - 10 k-ohm</td>
+</tr>
+<tr class="even">
+<td>Polarity Reversal</td>
+<td>Programmable (0.5 Hz)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<section id="sec-ert-compliance" class="level3" data-number="13.12.1">
+<h3 data-number="13.12.1" class="anchored" data-anchor-id="sec-ert-compliance"><span class="header-section-number">13.12.1</span> Compliance Voltage vs Load</h3>
+<p>The +/-10V compliance voltage determines the maximum load impedance at each current setting. Operators should select current levels based on expected soil resistivity to ensure adequate measurement headroom:</p>
+<div id="tbl-ert-compliance" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ert-compliance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.6: ERT current vs load compliance limits. Higher resistivity soils require lower current to stay within compliance voltage.
+</figcaption>
+<div aria-describedby="tbl-ert-compliance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Max Current</th>
+<th>Max Load at 10V</th>
+<th>Typical Application</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2.0 mA</td>
+<td>5 k-ohm</td>
+<td>Low resistivity soil (&lt;100 ohm-m)</td>
+</tr>
+<tr class="even">
+<td>1.0 mA</td>
+<td>10 k-ohm</td>
+<td>Medium resistivity (100-500 ohm-m)</td>
+</tr>
+<tr class="odd">
+<td>0.5 mA</td>
+<td>20 k-ohm</td>
+<td>High resistivity (&gt;500 ohm-m)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Compliance Limit Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the load impedance exceeds the compliance limit for the selected current, the current source will saturate and actual injected current will be less than commanded. The ERT firmware monitors this condition and flags affected measurements. Reduce current setting or improve electrode contact if compliance warnings occur frequently.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="sec-polarity-reversal" class="level2" data-number="13.13">
+<h2 data-number="13.13" class="anchored" data-anchor-id="sec-polarity-reversal"><span class="header-section-number">13.13</span> Polarity Reversal</h2>
+<p>Electrode polarization causes measurement drift in DC systems. To mitigate this, HIRT reverses the current polarity every 2 seconds using a DPDT relay (G5V-2-H1) or solid-state switch (ADG1219). Positive and negative measurements are averaged to cancel polarization effects.</p>
+</section>
+<section id="sec-adc" class="level2" data-number="13.14">
+<h2 data-number="13.14" class="anchored" data-anchor-id="sec-adc"><span class="header-section-number">13.14</span> ADC Interface</h2>
+<div id="tbl-adc-specs" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-adc-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.7: ADS1256 ADC Specifications.
+</figcaption>
+<div aria-describedby="tbl-adc-specs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>ADS1256 Specification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Resolution</td>
+<td>24 bits</td>
+</tr>
+<tr class="even">
+<td>Sample Rate</td>
+<td>30 kSPS maximum</td>
+</tr>
+<tr class="odd">
+<td>Noise</td>
+<td>0.6 uV RMS (at 100 SPS)</td>
+</tr>
+<tr class="even">
+<td>Interface</td>
+<td>SPI</td>
+</tr>
+<tr class="odd">
+<td>Internal PGA</td>
+<td>1, 2, 4, 8, 16, 32, 64x</td>
+</tr>
+<tr class="even">
+<td>Input Channels</td>
+<td>8 single-ended or 4 differential</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-multiplexer" class="level2" data-number="13.15">
+<h2 data-number="13.15" class="anchored" data-anchor-id="sec-multiplexer"><span class="header-section-number">13.15</span> Multiplexer Switching</h2>
+<p>With up to 24 probes in a typical array, the HIRT system requires a scalable multiplexing strategy. The design uses <strong>CD74HC4067</strong> 16:1 analog multiplexers controlled by MCU GPIO pins. Each TX and RX signal path has its own multiplexer, allowing independent selection of transmit and receive probes. For arrays exceeding 16 probes, cascaded multiplexers can be used.</p>
+</section>
+<section id="sec-power" class="level2" data-number="13.16">
+<h2 data-number="13.16" class="anchored" data-anchor-id="sec-power"><span class="header-section-number">13.16</span> Power Distribution</h2>
+<div id="tbl-power-rails" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-power-rails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.8: Power Rail Specifications.
+</figcaption>
+<div aria-describedby="tbl-power-rails-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Rail</th>
+<th>Voltage</th>
+<th>Current</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>+12V (Battery)</td>
+<td>11.1-12.6V</td>
+<td>200 mA total</td>
+<td>System input</td>
+</tr>
+<tr class="even">
+<td>+5V (LDO)</td>
+<td>5.0V</td>
+<td>50 mA</td>
+<td>Power driver, references</td>
+</tr>
+<tr class="odd">
+<td>+3.3V (LDO)</td>
+<td>3.3V</td>
+<td>100 mA</td>
+<td>MCU, ADC, digital</td>
+</tr>
+<tr class="even">
+<td>-5V (Charge pump)</td>
+<td>-5.0V</td>
+<td>10 mA</td>
+<td>Op-amp negative rail</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-noise-filtering" class="level2" data-number="13.17">
+<h2 data-number="13.17" class="anchored" data-anchor-id="sec-noise-filtering"><span class="header-section-number">13.17</span> Noise Filtering Stages</h2>
+<p>Noise reduction is critical for MIT measurements where signal levels can be in the microvolt range. The filtering strategy employs multiple stages:</p>
+<ul>
+<li><strong>Input RC filter (fc=100kHz):</strong> Blocks RF interference and high-frequency EMI</li>
+<li><strong>High-pass filter (fc=100Hz):</strong> Removes DC offsets and 60Hz pickup</li>
+<li><strong>Active band-pass (1-50kHz):</strong> Passes only the measurement band</li>
+<li><strong>Anti-aliasing filter (fc=15kHz):</strong> Prevents aliasing in ADC sampling</li>
+<li><strong>Digital matched filter:</strong> Optimizes SNR in post-processing</li>
+</ul>
+</section>
+<section id="sec-grounding" class="level2" data-number="13.18">
+<h2 data-number="13.18" class="anchored" data-anchor-id="sec-grounding"><span class="header-section-number">13.18</span> Shielding and Ground Loop Prevention</h2>
+<p>Proper grounding is essential for achieving low-noise measurements. The HIRT design follows these best practices:</p>
+<ul>
+<li><strong>Star grounding:</strong> All ground returns connect at a single point near the ADC</li>
+<li><strong>Separate ground planes:</strong> Analog and digital grounds are split on the PCB</li>
+<li><strong>Shielded cables:</strong> All signal cables use twisted-pair with overall shield</li>
+<li><strong>Single-point shield termination:</strong> Shields grounded at hub end only</li>
+<li><strong>Minimum loop area:</strong> Signal and return paths routed together</li>
+</ul>
+</section>
+<section id="sec-pcb-layout" class="level2" data-number="13.19">
+<h2 data-number="13.19" class="anchored" data-anchor-id="sec-pcb-layout"><span class="header-section-number">13.19</span> PCB Layout Guidelines</h2>
+</section>
+<section id="sec-layout-rules" class="level2" data-number="13.20">
+<h2 data-number="13.20" class="anchored" data-anchor-id="sec-layout-rules"><span class="header-section-number">13.20</span> Layout Rules</h2>
+<ol type="1">
+<li>Place bypass capacitors (100nF) within 5mm of each IC power pin</li>
+<li>Route analog signals with minimum trace length; avoid crossing digital signals</li>
+<li>Use differential pairs for RX coil signals with matched length</li>
+<li>Keep TX and RX signal paths physically separated (&gt;10mm)</li>
+<li>Provide shielding (copper pour) around sensitive analog circuits</li>
+<li>Use wide traces (&gt;20 mil) for power distribution</li>
+<li>Connect analog and digital ground planes at a single star point near the ADC</li>
+</ol>
+</section>
+<section id="sec-components" class="level2" data-number="13.21">
+<h2 data-number="13.21" class="anchored" data-anchor-id="sec-components"><span class="header-section-number">13.21</span> Key Component Summary</h2>
+<div id="tbl-components" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.9: Key IC Components.
+</figcaption>
+<div aria-describedby="tbl-components-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Part Number</th>
+<th>Function</th>
+<th>Package</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DDS</td>
+<td>AD9833BRMZ</td>
+<td>Signal generator</td>
+<td>MSOP-10</td>
+</tr>
+<tr class="even">
+<td>TX Driver</td>
+<td>OPA454AIDDAR</td>
+<td>Coil driver</td>
+<td>SOIC-8</td>
+</tr>
+<tr class="odd">
+<td>Preamp</td>
+<td>AD8421BRZ</td>
+<td>RX preamplifier</td>
+<td>SOIC-8</td>
+</tr>
+<tr class="even">
+<td>Inst Amp</td>
+<td>INA128PAG4</td>
+<td>Gain stage</td>
+<td>DIP-8</td>
+</tr>
+<tr class="odd">
+<td>ADC</td>
+<td>ADS1256IDBR</td>
+<td>24-bit ADC</td>
+<td>SSOP-28</td>
+</tr>
+<tr class="even">
+<td>Multiplexer</td>
+<td>CD74HC4067M</td>
+<td>16-channel mux</td>
+<td>SOIC-24</td>
+</tr>
+<tr class="odd">
+<td>MCU</td>
+<td>ESP32-WROOM-32</td>
+<td>Controller</td>
+<td>Module</td>
+</tr>
+<tr class="even">
+<td>V-Reference</td>
+<td>REF5025AIDGKR</td>
+<td>2.5V reference</td>
+<td>SOIC-8</td>
+</tr>
+<tr class="odd">
+<td>LDO</td>
+<td>AMS1117-3.3</td>
+<td>3.3V regulator</td>
+<td>SOT-223</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-pinouts" class="level2" data-number="13.22">
+<h2 data-number="13.22" class="anchored" data-anchor-id="sec-pinouts"><span class="header-section-number">13.22</span> Connector Pinouts (Probe-to-Zone)</h2>
+<div id="tbl-pinout" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pinout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.10: 12-pin Probe Connector Pinout.
+</figcaption>
+<div aria-describedby="tbl-pinout-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Pin</th>
+<th>Signal</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>TX+</td>
+<td>To probe TX coil</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>TX-</td>
+<td>Return path</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>RX+</td>
+<td>Differential RX</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>RX-</td>
+<td>Differential RX return</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Guard</td>
+<td>Analog ground</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Ring A</td>
+<td>Upper ERT electrode</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Ring B</td>
+<td>Mid ERT electrode</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Ring C</td>
+<td>Deep electrode</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>ID Sense</td>
+<td>Auto-ID resistor</td>
+</tr>
+<tr class="even">
+<td>10-11</td>
+<td>Spare</td>
+<td>Reserved</td>
+</tr>
+<tr class="odd">
+<td>12</td>
+<td>Shield</td>
+<td>Cable shield clamp</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-firmware-status" class="level2" data-number="13.23">
+<h2 data-number="13.23" class="anchored" data-anchor-id="sec-firmware-status"><span class="header-section-number">13.23</span> Firmware Status</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Firmware Development - Phase 2
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The hardware system documented in this whitepaper requires MCU firmware to operate. Firmware development is explicitly <strong>Phase 2</strong> of the project, separate from the hardware design presented here.</p>
+<p><strong>Current Status:</strong></p>
+<ul>
+<li>Hardware is designed for ESP32-WROOM-32 MCU</li>
+<li>No firmware repository is published yet</li>
+<li>Planned firmware features: DDS control, ADC sampling, lock-in detection, USB data logging</li>
+</ul>
+<p><strong>Planned Repository:</strong> <code>github.com/hirt-project/hirt-firmware</code> (future)</p>
+<p>Builders can test hardware subsystems (coils, ERT source, ADC) using bench equipment before firmware is available. See Section 18 for the software development roadmap.</p>
+</div>
+</div>
+</section>
+<section id="sec-safety" class="level2" data-number="13.24">
+<h2 data-number="13.24" class="anchored" data-anchor-id="sec-safety"><span class="header-section-number">13.24</span> Safety Considerations</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+ELECTRICAL SAFETY
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Maximum output current limited to 5 mA by design</li>
+<li>Compliance voltage restricted to +/-12V (safe for soil contact)</li>
+<li>Include 10 mA fast-blow fuse on ERT output</li>
+<li>Use opto-isolated relay control for polarity switching</li>
+<li>Ensure proper earth ground connection for safety</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="sec-elec-troubleshooting" class="level2" data-number="13.25">
+<h2 data-number="13.25" class="anchored" data-anchor-id="sec-elec-troubleshooting"><span class="header-section-number">13.25</span> Troubleshooting Guide</h2>
+<div id="tbl-troubleshooting" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-troubleshooting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;13.11: Common Issues and Solutions.
+</figcaption>
+<div aria-describedby="tbl-troubleshooting-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 42%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>Likely Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>No TX output</td>
+<td>DDS not initialized</td>
+<td>Check SPI connection, verify clock</td>
+</tr>
+<tr class="even">
+<td>Weak RX signal</td>
+<td>Gain too low</td>
+<td>Verify R<sub>G</sub> resistor, check amplifier rails</td>
+</tr>
+<tr class="odd">
+<td>Noisy readings</td>
+<td>Ground loops</td>
+<td>Implement star grounding, shield cables</td>
+</tr>
+<tr class="even">
+<td>No ERT current</td>
+<td>Open circuit</td>
+<td>Check electrode contact, verify relay state</td>
+</tr>
+<tr class="odd">
+<td>Current drift</td>
+<td>Reference unstable</td>
+<td>Verify Vref output, add bypass caps</td>
+</tr>
+<tr class="even">
+<td>ADC errors</td>
+<td>SPI timing</td>
+<td>Reduce SPI clock speed, check DRDY timing</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-electronics-references" class="level2" data-number="13.26">
+<h2 data-number="13.26" class="anchored" data-anchor-id="sec-electronics-references"><span class="header-section-number">13.26</span> References</h2>
+<ol type="1">
+<li><p>Analog Devices. AD9833 Programmable Waveform Generator Data Sheet. Rev.&nbsp;F, 2019. <a href="https://www.analog.com/media/en/technical-documentation/data-sheets/AD9833.pdf">Datasheet</a></p></li>
+<li><p>Texas Instruments. OPA454 High-Voltage, High-Current Operational Amplifier. SBOS328D, 2018. <a href="https://www.ti.com/lit/ds/symlink/opa454.pdf">Datasheet</a></p></li>
+<li><p>Analog Devices. AD620 Low Cost, Low Power Instrumentation Amplifier. Rev.&nbsp;H, 2011. <a href="https://www.analog.com/media/en/technical-documentation/data-sheets/AD620.pdf">Datasheet</a></p></li>
+<li><p>Texas Instruments. INA128 Precision, Low Power Instrumentation Amplifiers. SBOS051B, 2005. <a href="https://www.ti.com/lit/ds/symlink/ina128.pdf">Datasheet</a></p></li>
+<li><p>Texas Instruments. ADS1256 Very Low Noise, 24-Bit Analog-to-Digital Converter. SBAS288K, 2013. <a href="https://www.ti.com/lit/ds/symlink/ads1256.pdf">Datasheet</a></p></li>
+<li><p>Horowitz, P. and Hill, W. (2015). <em>The Art of Electronics</em>, 3rd Edition. Cambridge University Press. Chapter 5: Precision Circuits. <a href="https://doi.org/10.1017/CBO9781139644204">DOI: 10.1017/CBO9781139644204</a></p></li>
+<li><p>Ott, H.W. (2009). <em>Electromagnetic Compatibility Engineering</em>. Wiley. Chapter 3: Grounding. <a href="https://doi.org/10.1002/9780470508510">DOI: 10.1002/9780470508510</a></p></li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../build-guide/mechanical.html" class="pagination-link" aria-label="Mechanical Design">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mechanical Design</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../build-guide/assembly.html" class="pagination-link" aria-label="Assembly and Wiring">
+        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Assembly and Wiring</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Electronics and Circuits"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview {#sec-electronics-overview}</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>This section consolidates all circuit designs for the HIRT system, including the MIT (Magneto-Inductive Tomography) circuits, ERT (Electrical Resistivity Tomography) circuits, and base hub electronics. The design uses **centralized electronics with passive probes**: all active components reside in the surface hub, while probes contain only coils and electrodes.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>This architecture offers significant advantages: lower per-probe cost, easier maintenance, better reliability (passive probes are more robust), centralized firmware updates, and simplified probe construction. The trade-off is increased cabling complexity for the multi-probe harness.</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hardware Documentation Reference</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>Complete circuit schematics and detailed design notes are maintained in the hardware documentation:</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**MIT Circuit:** <span class="in">`/hardware/schematics/electronics/mit-circuit.md`</span> - Full TX/RX chain design with component values</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ERT Circuit:** <span class="in">`/hardware/schematics/electronics/ert-circuit.md`</span> - Howland current source and measurement circuits</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Base Hub Circuit:** <span class="in">`/hardware/schematics/electronics/base-hub-circuit.md`</span> - Central hub electronics integration</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Block Diagrams:** <span class="in">`/hardware/schematics/electronics/probe-electronics-block.md`</span> - System-level block diagrams</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>The diagrams in this section provide conceptual overviews; refer to the hardware schematics for exact component values and PCB layout guidance.</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## System Block Diagram {#sec-system-block}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-system-block-elec</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Complete HIRT system architecture showing the central electronics hub, zone wiring strategy, and passive probe connections. All signal processing occurs in the hub; probes are purely passive sensors."</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 7</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_system_block_diagram</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_system_block_diagram()</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">11</span>, <span class="dv">7</span>))</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>The central hub contains: (1) MCU for control and DSP, (2) MIT transmitter chain (DDS + power driver), (3) MIT receiver chain (preamp + instrumentation amplifier + ADC), (4) ERT current source and voltage measurement, and (5) high-density analog multiplexers. These connect via DB25 trunk cables to passive **Zone Hubs**, which then distribute signals to individual probes.</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## MIT Transmit (TX) Chain {#sec-mit-tx}</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mit-tx-chain</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "MIT transmitter signal chain from MCU through DDS, filtering, and power driver to the TX coil. Operating frequency range is 2-50 kHz."</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_mit_tx_chain</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_mit_tx_chain()</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="fu">## DDS Sine Generator {#sec-dds}</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>The transmit chain begins with a Direct Digital Synthesis (DDS) generator, the **AD9833**. This IC provides a highly precise sine wave output from 0.1 Hz to 12.5 MHz with 28-bit frequency resolution. Its compact MSOP-10 footprint and low power consumption make it ideal for the 2-50 kHz HIRT operating range.</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>| Parameter | Specification |</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>|-----------|---------------|</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>| Part Number | **AD9833BRMZ** |</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>| Frequency Range | 0 Hz to 12.5 MHz |</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>| Output Level | 0.6 V p-p sine wave |</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>| Interface | SPI (3-wire) |</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>| Resolution | 28-bit frequency, 12-bit phase |</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>| Power Supply | 2.3-5.5V, 12.65 mW typical |</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>: AD9833 DDS Generator Specifications. {#tbl-dds-specs}</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## TX Power Driver {#sec-tx-driver}</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>The DDS output is buffered by a **Texas Instruments OPA2186** precision operational amplifier. This component is selected for its zero-drift architecture and ultra-low quiescent current (**90 µA**), which ensures high precision and extended battery life for the hub while maintaining rail-to-rail output for the TX coil drive.</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>| Parameter | OPA2186 Specification |</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>|-----------|------------------|</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>| Quiescent Current | **90 µA** |</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>| Drift | **0.04 µV/°C** (Zero-Drift) |</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>| Offset Voltage | 10 µV |</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>| Power Supply | 4.5V to 36V |</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>: TX Driver Op-Amp Specifications. {#tbl-tx-driver}</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="fu">## MIT Receive (RX) Chain {#sec-mit-rx}</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mit-rx-chain</span></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "MIT receiver signal chain. The updated 2026 architecture uses the AD8421 for ultra-low noise preamplification (3 nV/rtHz), followed by the integrated AD7124-8 AFE."</span></span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_mit_rx_chain</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_mit_rx_chain()</span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a><span class="fu">## RX Preamplifier (AD8421) {#sec-rx-preamp}</span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>The receiver front-end utilizes the **Analog Devices AD8421**. This high-speed instrumentation amplifier features an exceptionally low input voltage noise floor of **3 nV/$\sqrt{\mathrm{Hz}}$**. This performance characteristic is essential for resolving the weak secondary magnetic fields generated by subsurface targets in the MIT tomography process.</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>| Parameter | Specification |</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>|-----------|---------------|</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>| Component | **AD8421** |</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>| Input Noise | **3 nV/$\sqrt{\mathrm{Hz}}$** |</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>| Bandwidth (G=10) | 10 MHz |</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>| Slew Rate | 35 V/µs |</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>| Supply Current | 2.0 mA |</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>: RX Preamplifier Specifications. {#tbl-preamp-specs}</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a><span class="fu">### Noise Floor Measurement Conditions {#sec-noise-conditions}</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>The AD8421's specified noise floor of **3 nV/$\sqrt{\mathrm{Hz}}$** is achieved under specific measurement conditions. Field performance depends on several factors:</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>| Condition | Specification | Field Typical | Impact on SNR |</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>|-----------|---------------|---------------|---------------|</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>| Bandwidth | 1-50 kHz (HIRT operating range) | 2-50 kHz | ~100 nV RMS integrated |</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>| Temperature | 25°C reference | -10 to +40°C | ±10% variation |</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>| Cable length | &lt;1 m bench test | 3-5 m probe cable | +20-50% noise pickup |</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>| Averaging | 100-sample mean | 16-64 samples typical | Improves by $\sqrt{N}$ |</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>: Noise floor measurement conditions and field impact. {#tbl-noise-conditions}</span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>**Integrated Noise Calculation:** For a 1-50 kHz bandwidth (49 kHz span), the theoretical integrated input-referred noise is:</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>$$V_{n,rms} = 3\ \text{nV}/\sqrt{\text{Hz}} \times \sqrt{49,000\ \text{Hz}} \approx 100\ \text{nV RMS}$$</span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>This represents the *design target* under controlled conditions. Field measurements typically show 150-300 nV RMS due to cable capacitance, EMI pickup, and connector losses.</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## Performance Claim Context</span></span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>The ~100 nV noise floor is a **design target** based on component specifications and bench measurements. Actual field performance varies with environmental conditions and cable routing. For planning purposes, assume 200-300 nV RMS input-referred noise in typical outdoor conditions.</span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Signal Conditioning and Gain Stage {#sec-signal-conditioning}</span></span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>Following the AD8421 preamplifier, the signal passes through additional gain and filtering stages before reaching the ADC. An instrumentation amplifier (INA128) provides adjustable gain to match signal levels to the ADC input range. The total signal chain gain is typically 800-1000x, bringing microvolt-level coil signals up to the millivolt range required by the ADC.</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a><span class="fu">## Signal Level Progression {#sec-signal-levels}</span></span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-signal-level</span></span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Signal level progression through the MIT RX chain. The signal starts at approximately 1 uV at the coil and is amplified to 0.8 mV at the ADC input. The noise floor also rises but at a slower rate, maintaining adequate SNR."</span></span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_signal_level_progression</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_signal_level_progression()</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lock-In Detection {#sec-lockin}</span></span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>Lock-in detection is essential for extracting weak MIT signals from noise. The HIRT system uses **digital lock-in detection** implemented in the MCU, which offers flexibility, software configurability, and no analog drift. The technique multiplies the received signal by reference sine and cosine waveforms at the excitation frequency, then low-pass filters to extract the in-phase (I) and quadrature (Q) components.</span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-lockin-detection</span></span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Digital lock-in detection block diagram. The RX signal is multiplied by reference sine (Q-channel) and cosine (I-channel) signals, then filtered and integrated. Amplitude A = sqrt(I^2 + Q^2) and phase Phi = atan2(Q,I) are computed from the I/Q outputs."</span></span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-211"><a href="#cb2-211" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_lock_in_detection_diagram</span>
+<span id="cb2-212"><a href="#cb2-212" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-213"><a href="#cb2-213" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-214"><a href="#cb2-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-215"><a href="#cb2-215" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_lock_in_detection_diagram()</span>
+<span id="cb2-216"><a href="#cb2-216" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-217"><a href="#cb2-217" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb2-218"><a href="#cb2-218" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-219"><a href="#cb2-219" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-220"><a href="#cb2-220" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-221"><a href="#cb2-221" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-222"><a href="#cb2-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-223"><a href="#cb2-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-224"><a href="#cb2-224" aria-hidden="true" tabindex="-1"></a>The lock-in algorithm provides exceptional noise rejection (&gt; 40 dB improvement) by responding only to signals at the exact reference frequency. This allows detection of MIT signals buried deep in noise, critical for weak responses from distant or low-conductivity targets.</span>
+<span id="cb2-225"><a href="#cb2-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-226"><a href="#cb2-226" aria-hidden="true" tabindex="-1"></a><span class="fu">## Digital Lock-In Algorithm {#sec-lockin-algorithm}</span></span>
+<span id="cb2-227"><a href="#cb2-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-228"><a href="#cb2-228" aria-hidden="true" tabindex="-1"></a><span class="in">```c</span></span>
+<span id="cb2-229"><a href="#cb2-229" aria-hidden="true" tabindex="-1"></a><span class="co">// Simplified digital lock-in implementation</span></span>
+<span id="cb2-230"><a href="#cb2-230" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> I_sum <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> Q_sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-231"><a href="#cb2-231" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> N_samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb2-232"><a href="#cb2-232" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> sample <span class="op">=</span> read_adc<span class="op">();</span></span>
+<span id="cb2-233"><a href="#cb2-233" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> ref_I <span class="op">=</span> sin<span class="op">(</span><span class="dv">2</span> <span class="op">*</span> PI <span class="op">*</span> f <span class="op">*</span> i <span class="op">/</span> Fs<span class="op">);</span></span>
+<span id="cb2-234"><a href="#cb2-234" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> ref_Q <span class="op">=</span> cos<span class="op">(</span><span class="dv">2</span> <span class="op">*</span> PI <span class="op">*</span> f <span class="op">*</span> i <span class="op">/</span> Fs<span class="op">);</span></span>
+<span id="cb2-235"><a href="#cb2-235" aria-hidden="true" tabindex="-1"></a>    I_sum <span class="op">+=</span> sample <span class="op">*</span> ref_I<span class="op">;</span></span>
+<span id="cb2-236"><a href="#cb2-236" aria-hidden="true" tabindex="-1"></a>    Q_sum <span class="op">+=</span> sample <span class="op">*</span> ref_Q<span class="op">;</span></span>
+<span id="cb2-237"><a href="#cb2-237" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-238"><a href="#cb2-238" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> amplitude <span class="op">=</span> sqrt<span class="op">(</span>I_sum<span class="op">*</span>I_sum <span class="op">+</span> Q_sum<span class="op">*</span>Q_sum<span class="op">)</span> <span class="op">/</span> N_samples<span class="op">;</span></span>
+<span id="cb2-239"><a href="#cb2-239" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> phase <span class="op">=</span> atan2<span class="op">(</span>Q_sum<span class="op">,</span> I_sum<span class="op">);</span></span>
+<span id="cb2-240"><a href="#cb2-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-241"><a href="#cb2-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-242"><a href="#cb2-242" aria-hidden="true" tabindex="-1"></a><span class="fu">## ERT Current Source (Howland Pump) {#sec-ert-current}</span></span>
+<span id="cb2-243"><a href="#cb2-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-244"><a href="#cb2-244" aria-hidden="true" tabindex="-1"></a>The ERT subsystem injects controlled current into the ground through electrode rings and measures the resulting voltage distribution. The current source uses a **Howland current pump** topology, which provides high output impedance (&gt;1 M-ohm) and stable current regardless of load variations.</span>
+<span id="cb2-245"><a href="#cb2-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-248"><a href="#cb2-248" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-249"><a href="#cb2-249" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ert-current-source</span></span>
+<span id="cb2-250"><a href="#cb2-250" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Howland current pump circuit for ERT measurements. When R1=R2=R3=R4, the output current is I_out = V_in / R_sense, independent of load impedance. A precision 2.5V reference (REF5025) provides stable input voltage."</span></span>
+<span id="cb2-251"><a href="#cb2-251" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-252"><a href="#cb2-252" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb2-253"><a href="#cb2-253" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-254"><a href="#cb2-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-255"><a href="#cb2-255" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-256"><a href="#cb2-256" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_ert_current_source</span>
+<span id="cb2-257"><a href="#cb2-257" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-258"><a href="#cb2-258" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-259"><a href="#cb2-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-260"><a href="#cb2-260" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_ert_current_source()</span>
+<span id="cb2-261"><a href="#cb2-261" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-262"><a href="#cb2-262" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb2-263"><a href="#cb2-263" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-264"><a href="#cb2-264" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-265"><a href="#cb2-265" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-266"><a href="#cb2-266" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-267"><a href="#cb2-267" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-268"><a href="#cb2-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-269"><a href="#cb2-269" aria-hidden="true" tabindex="-1"></a>| Parameter | Specification |</span>
+<span id="cb2-270"><a href="#cb2-270" aria-hidden="true" tabindex="-1"></a>|-----------|---------------|</span>
+<span id="cb2-271"><a href="#cb2-271" aria-hidden="true" tabindex="-1"></a>| Output Current | 0.5-2 mA (adjustable) |</span>
+<span id="cb2-272"><a href="#cb2-272" aria-hidden="true" tabindex="-1"></a>| Current Accuracy | +/- 5% |</span>
+<span id="cb2-273"><a href="#cb2-273" aria-hidden="true" tabindex="-1"></a>| Compliance Voltage | +/- 10V minimum |</span>
+<span id="cb2-274"><a href="#cb2-274" aria-hidden="true" tabindex="-1"></a>| Output Impedance | &gt; 1 M-ohm |</span>
+<span id="cb2-275"><a href="#cb2-275" aria-hidden="true" tabindex="-1"></a>| Load Range | 100 ohm - 10 k-ohm |</span>
+<span id="cb2-276"><a href="#cb2-276" aria-hidden="true" tabindex="-1"></a>| Polarity Reversal | Programmable (0.5 Hz) |</span>
+<span id="cb2-277"><a href="#cb2-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-278"><a href="#cb2-278" aria-hidden="true" tabindex="-1"></a>: ERT Current Source Specifications. {#tbl-ert-current}</span>
+<span id="cb2-279"><a href="#cb2-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-280"><a href="#cb2-280" aria-hidden="true" tabindex="-1"></a><span class="fu">### Compliance Voltage vs Load {#sec-ert-compliance}</span></span>
+<span id="cb2-281"><a href="#cb2-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-282"><a href="#cb2-282" aria-hidden="true" tabindex="-1"></a>The +/-10V compliance voltage determines the maximum load impedance at each current setting. Operators should select current levels based on expected soil resistivity to ensure adequate measurement headroom:</span>
+<span id="cb2-283"><a href="#cb2-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-284"><a href="#cb2-284" aria-hidden="true" tabindex="-1"></a>| Max Current | Max Load at 10V | Typical Application |</span>
+<span id="cb2-285"><a href="#cb2-285" aria-hidden="true" tabindex="-1"></a>|-------------|-----------------|---------------------|</span>
+<span id="cb2-286"><a href="#cb2-286" aria-hidden="true" tabindex="-1"></a>| 2.0 mA | 5 k-ohm | Low resistivity soil (&lt;100 ohm-m) |</span>
+<span id="cb2-287"><a href="#cb2-287" aria-hidden="true" tabindex="-1"></a>| 1.0 mA | 10 k-ohm | Medium resistivity (100-500 ohm-m) |</span>
+<span id="cb2-288"><a href="#cb2-288" aria-hidden="true" tabindex="-1"></a>| 0.5 mA | 20 k-ohm | High resistivity (&gt;500 ohm-m) |</span>
+<span id="cb2-289"><a href="#cb2-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-290"><a href="#cb2-290" aria-hidden="true" tabindex="-1"></a>: ERT current vs load compliance limits. Higher resistivity soils require lower current to stay within compliance voltage. {#tbl-ert-compliance}</span>
+<span id="cb2-291"><a href="#cb2-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-292"><a href="#cb2-292" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb2-293"><a href="#cb2-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Compliance Limit Warning</span></span>
+<span id="cb2-294"><a href="#cb2-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-295"><a href="#cb2-295" aria-hidden="true" tabindex="-1"></a>If the load impedance exceeds the compliance limit for the selected current, the current source will saturate and actual injected current will be less than commanded. The ERT firmware monitors this condition and flags affected measurements. Reduce current setting or improve electrode contact if compliance warnings occur frequently.</span>
+<span id="cb2-296"><a href="#cb2-296" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-297"><a href="#cb2-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-298"><a href="#cb2-298" aria-hidden="true" tabindex="-1"></a><span class="fu">## Polarity Reversal {#sec-polarity-reversal}</span></span>
+<span id="cb2-299"><a href="#cb2-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-300"><a href="#cb2-300" aria-hidden="true" tabindex="-1"></a>Electrode polarization causes measurement drift in DC systems. To mitigate this, HIRT reverses the current polarity every 2 seconds using a DPDT relay (G5V-2-H1) or solid-state switch (ADG1219). Positive and negative measurements are averaged to cancel polarization effects.</span>
+<span id="cb2-301"><a href="#cb2-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-304"><a href="#cb2-304" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-305"><a href="#cb2-305" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-polarity-reversal</span></span>
+<span id="cb2-306"><a href="#cb2-306" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "ERT polarity reversal circuit using a DPDT relay. The relay alternates current direction between Ring A and Ring B every 2 seconds, eliminating electrode polarization artifacts from the measurement."</span></span>
+<span id="cb2-307"><a href="#cb2-307" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb2-308"><a href="#cb2-308" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-309"><a href="#cb2-309" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-310"><a href="#cb2-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-311"><a href="#cb2-311" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-312"><a href="#cb2-312" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_ert_polarity_reversal</span>
+<span id="cb2-313"><a href="#cb2-313" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-314"><a href="#cb2-314" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-315"><a href="#cb2-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-316"><a href="#cb2-316" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_ert_polarity_reversal()</span>
+<span id="cb2-317"><a href="#cb2-317" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-318"><a href="#cb2-318" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb2-319"><a href="#cb2-319" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-320"><a href="#cb2-320" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-321"><a href="#cb2-321" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-322"><a href="#cb2-322" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-323"><a href="#cb2-323" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-324"><a href="#cb2-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-325"><a href="#cb2-325" aria-hidden="true" tabindex="-1"></a><span class="fu">## ADC Interface {#sec-adc}</span></span>
+<span id="cb2-326"><a href="#cb2-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-329"><a href="#cb2-329" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-330"><a href="#cb2-330" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-adc-interface</span></span>
+<span id="cb2-331"><a href="#cb2-331" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "ADS1256 ADC interface showing differential analog inputs for MIT and ERT signals, SPI connection to MCU, and reference voltage. The 24-bit resolution and internal PGA provide excellent dynamic range."</span></span>
+<span id="cb2-332"><a href="#cb2-332" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb2-333"><a href="#cb2-333" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-334"><a href="#cb2-334" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-335"><a href="#cb2-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-336"><a href="#cb2-336" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-337"><a href="#cb2-337" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_adc_interface_diagram</span>
+<span id="cb2-338"><a href="#cb2-338" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-339"><a href="#cb2-339" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-340"><a href="#cb2-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-341"><a href="#cb2-341" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_adc_interface_diagram()</span>
+<span id="cb2-342"><a href="#cb2-342" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-343"><a href="#cb2-343" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb2-344"><a href="#cb2-344" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-345"><a href="#cb2-345" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-346"><a href="#cb2-346" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-347"><a href="#cb2-347" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-348"><a href="#cb2-348" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-349"><a href="#cb2-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-350"><a href="#cb2-350" aria-hidden="true" tabindex="-1"></a>| Parameter | ADS1256 Specification |</span>
+<span id="cb2-351"><a href="#cb2-351" aria-hidden="true" tabindex="-1"></a>|-----------|----------------------|</span>
+<span id="cb2-352"><a href="#cb2-352" aria-hidden="true" tabindex="-1"></a>| Resolution | 24 bits |</span>
+<span id="cb2-353"><a href="#cb2-353" aria-hidden="true" tabindex="-1"></a>| Sample Rate | 30 kSPS maximum |</span>
+<span id="cb2-354"><a href="#cb2-354" aria-hidden="true" tabindex="-1"></a>| Noise | 0.6 uV RMS (at 100 SPS) |</span>
+<span id="cb2-355"><a href="#cb2-355" aria-hidden="true" tabindex="-1"></a>| Interface | SPI |</span>
+<span id="cb2-356"><a href="#cb2-356" aria-hidden="true" tabindex="-1"></a>| Internal PGA | 1, 2, 4, 8, 16, 32, 64x |</span>
+<span id="cb2-357"><a href="#cb2-357" aria-hidden="true" tabindex="-1"></a>| Input Channels | 8 single-ended or 4 differential |</span>
+<span id="cb2-358"><a href="#cb2-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-359"><a href="#cb2-359" aria-hidden="true" tabindex="-1"></a>: ADS1256 ADC Specifications. {#tbl-adc-specs}</span>
+<span id="cb2-360"><a href="#cb2-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-361"><a href="#cb2-361" aria-hidden="true" tabindex="-1"></a><span class="fu">## Multiplexer Switching {#sec-multiplexer}</span></span>
+<span id="cb2-362"><a href="#cb2-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-363"><a href="#cb2-363" aria-hidden="true" tabindex="-1"></a>With up to 24 probes in a typical array, the HIRT system requires a scalable multiplexing strategy. The design uses **CD74HC4067** 16:1 analog multiplexers controlled by MCU GPIO pins. Each TX and RX signal path has its own multiplexer, allowing independent selection of transmit and receive probes. For arrays exceeding 16 probes, cascaded multiplexers can be used.</span>
+<span id="cb2-364"><a href="#cb2-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-367"><a href="#cb2-367" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-368"><a href="#cb2-368" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-mux-switching</span></span>
+<span id="cb2-369"><a href="#cb2-369" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Multiplexer switching topology for probe selection. Separate TX and RX multiplexers allow any TX-RX probe combination to be measured. MCU GPIO controls multiplexer address lines (A0-A2)."</span></span>
+<span id="cb2-370"><a href="#cb2-370" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-371"><a href="#cb2-371" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb2-372"><a href="#cb2-372" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-373"><a href="#cb2-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-374"><a href="#cb2-374" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-375"><a href="#cb2-375" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_multiplexer_switching_diagram</span>
+<span id="cb2-376"><a href="#cb2-376" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-377"><a href="#cb2-377" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-378"><a href="#cb2-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-379"><a href="#cb2-379" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_multiplexer_switching_diagram()</span>
+<span id="cb2-380"><a href="#cb2-380" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-381"><a href="#cb2-381" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb2-382"><a href="#cb2-382" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-383"><a href="#cb2-383" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-384"><a href="#cb2-384" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-385"><a href="#cb2-385" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-386"><a href="#cb2-386" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-387"><a href="#cb2-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-388"><a href="#cb2-388" aria-hidden="true" tabindex="-1"></a><span class="fu">## Power Distribution {#sec-power}</span></span>
+<span id="cb2-389"><a href="#cb2-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-392"><a href="#cb2-392" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-393"><a href="#cb2-393" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-power-distribution</span></span>
+<span id="cb2-394"><a href="#cb2-394" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Power distribution from 12V battery through regulators to various subsystems. Total system current is approximately 200 mA, providing several hours of operation from a 3S LiPo battery."</span></span>
+<span id="cb2-395"><a href="#cb2-395" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-396"><a href="#cb2-396" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-397"><a href="#cb2-397" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-398"><a href="#cb2-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-399"><a href="#cb2-399" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-400"><a href="#cb2-400" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_power_distribution</span>
+<span id="cb2-401"><a href="#cb2-401" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-402"><a href="#cb2-402" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-403"><a href="#cb2-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-404"><a href="#cb2-404" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_power_distribution()</span>
+<span id="cb2-405"><a href="#cb2-405" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-406"><a href="#cb2-406" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb2-407"><a href="#cb2-407" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-408"><a href="#cb2-408" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-409"><a href="#cb2-409" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-410"><a href="#cb2-410" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-411"><a href="#cb2-411" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-412"><a href="#cb2-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-413"><a href="#cb2-413" aria-hidden="true" tabindex="-1"></a>| Rail | Voltage | Current | Purpose |</span>
+<span id="cb2-414"><a href="#cb2-414" aria-hidden="true" tabindex="-1"></a>|------|---------|---------|---------|</span>
+<span id="cb2-415"><a href="#cb2-415" aria-hidden="true" tabindex="-1"></a>| +12V (Battery) | 11.1-12.6V | 200 mA total | System input |</span>
+<span id="cb2-416"><a href="#cb2-416" aria-hidden="true" tabindex="-1"></a>| +5V (LDO) | 5.0V | 50 mA | Power driver, references |</span>
+<span id="cb2-417"><a href="#cb2-417" aria-hidden="true" tabindex="-1"></a>| +3.3V (LDO) | 3.3V | 100 mA | MCU, ADC, digital |</span>
+<span id="cb2-418"><a href="#cb2-418" aria-hidden="true" tabindex="-1"></a>| -5V (Charge pump) | -5.0V | 10 mA | Op-amp negative rail |</span>
+<span id="cb2-419"><a href="#cb2-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-420"><a href="#cb2-420" aria-hidden="true" tabindex="-1"></a>: Power Rail Specifications. {#tbl-power-rails}</span>
+<span id="cb2-421"><a href="#cb2-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-422"><a href="#cb2-422" aria-hidden="true" tabindex="-1"></a><span class="fu">## Noise Filtering Stages {#sec-noise-filtering}</span></span>
+<span id="cb2-423"><a href="#cb2-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-426"><a href="#cb2-426" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-427"><a href="#cb2-427" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-noise-filtering</span></span>
+<span id="cb2-428"><a href="#cb2-428" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Cascaded noise filtering stages in the signal chain. Each stage targets specific noise sources: EMI, DC offsets, wideband noise, aliasing, and quantization noise. Combined rejection exceeds 60 dB."</span></span>
+<span id="cb2-429"><a href="#cb2-429" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-430"><a href="#cb2-430" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb2-431"><a href="#cb2-431" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-432"><a href="#cb2-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-433"><a href="#cb2-433" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-434"><a href="#cb2-434" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_noise_filtering_diagram</span>
+<span id="cb2-435"><a href="#cb2-435" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-436"><a href="#cb2-436" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-437"><a href="#cb2-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-438"><a href="#cb2-438" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_noise_filtering_diagram()</span>
+<span id="cb2-439"><a href="#cb2-439" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-440"><a href="#cb2-440" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb2-441"><a href="#cb2-441" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-442"><a href="#cb2-442" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-443"><a href="#cb2-443" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-444"><a href="#cb2-444" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-445"><a href="#cb2-445" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-446"><a href="#cb2-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-447"><a href="#cb2-447" aria-hidden="true" tabindex="-1"></a>Noise reduction is critical for MIT measurements where signal levels can be in the microvolt range. The filtering strategy employs multiple stages:</span>
+<span id="cb2-448"><a href="#cb2-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-449"><a href="#cb2-449" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Input RC filter (fc=100kHz):** Blocks RF interference and high-frequency EMI</span>
+<span id="cb2-450"><a href="#cb2-450" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**High-pass filter (fc=100Hz):** Removes DC offsets and 60Hz pickup</span>
+<span id="cb2-451"><a href="#cb2-451" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Active band-pass (1-50kHz):** Passes only the measurement band</span>
+<span id="cb2-452"><a href="#cb2-452" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Anti-aliasing filter (fc=15kHz):** Prevents aliasing in ADC sampling</span>
+<span id="cb2-453"><a href="#cb2-453" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Digital matched filter:** Optimizes SNR in post-processing</span>
+<span id="cb2-454"><a href="#cb2-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-455"><a href="#cb2-455" aria-hidden="true" tabindex="-1"></a><span class="fu">## Shielding and Ground Loop Prevention {#sec-grounding}</span></span>
+<span id="cb2-456"><a href="#cb2-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-459"><a href="#cb2-459" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-460"><a href="#cb2-460" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ground-loop</span></span>
+<span id="cb2-461"><a href="#cb2-461" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Ground loop prevention techniques. (a) shows the problem: multiple ground paths create loops that pick up EMI. (b) shows the solution: star grounding with a single connection point eliminates loops."</span></span>
+<span id="cb2-462"><a href="#cb2-462" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-463"><a href="#cb2-463" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb2-464"><a href="#cb2-464" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-465"><a href="#cb2-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-466"><a href="#cb2-466" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-467"><a href="#cb2-467" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_ground_loop_prevention</span>
+<span id="cb2-468"><a href="#cb2-468" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-469"><a href="#cb2-469" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-470"><a href="#cb2-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-471"><a href="#cb2-471" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_ground_loop_prevention()</span>
+<span id="cb2-472"><a href="#cb2-472" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-473"><a href="#cb2-473" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb2-474"><a href="#cb2-474" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-475"><a href="#cb2-475" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-476"><a href="#cb2-476" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-477"><a href="#cb2-477" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-478"><a href="#cb2-478" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-479"><a href="#cb2-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-480"><a href="#cb2-480" aria-hidden="true" tabindex="-1"></a>Proper grounding is essential for achieving low-noise measurements. The HIRT design follows these best practices:</span>
+<span id="cb2-481"><a href="#cb2-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-482"><a href="#cb2-482" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Star grounding:** All ground returns connect at a single point near the ADC</span>
+<span id="cb2-483"><a href="#cb2-483" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Separate ground planes:** Analog and digital grounds are split on the PCB</span>
+<span id="cb2-484"><a href="#cb2-484" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Shielded cables:** All signal cables use twisted-pair with overall shield</span>
+<span id="cb2-485"><a href="#cb2-485" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Single-point shield termination:** Shields grounded at hub end only</span>
+<span id="cb2-486"><a href="#cb2-486" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Minimum loop area:** Signal and return paths routed together</span>
+<span id="cb2-487"><a href="#cb2-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-488"><a href="#cb2-488" aria-hidden="true" tabindex="-1"></a><span class="fu">## PCB Layout Guidelines {#sec-pcb-layout}</span></span>
+<span id="cb2-489"><a href="#cb2-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-492"><a href="#cb2-492" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb2-493"><a href="#cb2-493" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-pcb-layout</span></span>
+<span id="cb2-494"><a href="#cb2-494" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recommended PCB layout showing component placement zones. The analog section (shielded) is physically separated from digital circuits. Ground plane spans the bottom layer with analog/digital split connected at a star point."</span></span>
+<span id="cb2-495"><a href="#cb2-495" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb2-496"><a href="#cb2-496" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb2-497"><a href="#cb2-497" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb2-498"><a href="#cb2-498" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-499"><a href="#cb2-499" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb2-500"><a href="#cb2-500" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.circuits <span class="im">import</span> create_component_location_diagram</span>
+<span id="cb2-501"><a href="#cb2-501" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-502"><a href="#cb2-502" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb2-503"><a href="#cb2-503" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-504"><a href="#cb2-504" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_component_location_diagram()</span>
+<span id="cb2-505"><a href="#cb2-505" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb2-506"><a href="#cb2-506" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb2-507"><a href="#cb2-507" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb2-508"><a href="#cb2-508" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb2-509"><a href="#cb2-509" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-510"><a href="#cb2-510" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-511"><a href="#cb2-511" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-512"><a href="#cb2-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-513"><a href="#cb2-513" aria-hidden="true" tabindex="-1"></a><span class="fu">## Layout Rules {#sec-layout-rules}</span></span>
+<span id="cb2-514"><a href="#cb2-514" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-515"><a href="#cb2-515" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Place bypass capacitors (100nF) within 5mm of each IC power pin</span>
+<span id="cb2-516"><a href="#cb2-516" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Route analog signals with minimum trace length; avoid crossing digital signals</span>
+<span id="cb2-517"><a href="#cb2-517" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Use differential pairs for RX coil signals with matched length</span>
+<span id="cb2-518"><a href="#cb2-518" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Keep TX and RX signal paths physically separated (&gt;10mm)</span>
+<span id="cb2-519"><a href="#cb2-519" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Provide shielding (copper pour) around sensitive analog circuits</span>
+<span id="cb2-520"><a href="#cb2-520" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Use wide traces (&gt;20 mil) for power distribution</span>
+<span id="cb2-521"><a href="#cb2-521" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Connect analog and digital ground planes at a single star point near the ADC</span>
+<span id="cb2-522"><a href="#cb2-522" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-523"><a href="#cb2-523" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Component Summary {#sec-components}</span></span>
+<span id="cb2-524"><a href="#cb2-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-525"><a href="#cb2-525" aria-hidden="true" tabindex="-1"></a>| Component | Part Number | Function | Package |</span>
+<span id="cb2-526"><a href="#cb2-526" aria-hidden="true" tabindex="-1"></a>|-----------|-------------|----------|---------|</span>
+<span id="cb2-527"><a href="#cb2-527" aria-hidden="true" tabindex="-1"></a>| DDS | AD9833BRMZ | Signal generator | MSOP-10 |</span>
+<span id="cb2-528"><a href="#cb2-528" aria-hidden="true" tabindex="-1"></a>| TX Driver | OPA454AIDDAR | Coil driver | SOIC-8 |</span>
+<span id="cb2-529"><a href="#cb2-529" aria-hidden="true" tabindex="-1"></a>| Preamp | AD8421BRZ | RX preamplifier | SOIC-8 |</span>
+<span id="cb2-530"><a href="#cb2-530" aria-hidden="true" tabindex="-1"></a>| Inst Amp | INA128PAG4 | Gain stage | DIP-8 |</span>
+<span id="cb2-531"><a href="#cb2-531" aria-hidden="true" tabindex="-1"></a>| ADC | ADS1256IDBR | 24-bit ADC | SSOP-28 |</span>
+<span id="cb2-532"><a href="#cb2-532" aria-hidden="true" tabindex="-1"></a>| Multiplexer | CD74HC4067M | 16-channel mux | SOIC-24 |</span>
+<span id="cb2-533"><a href="#cb2-533" aria-hidden="true" tabindex="-1"></a>| MCU | ESP32-WROOM-32 | Controller | Module |</span>
+<span id="cb2-534"><a href="#cb2-534" aria-hidden="true" tabindex="-1"></a>| V-Reference | REF5025AIDGKR | 2.5V reference | SOIC-8 |</span>
+<span id="cb2-535"><a href="#cb2-535" aria-hidden="true" tabindex="-1"></a>| LDO | AMS1117-3.3 | 3.3V regulator | SOT-223 |</span>
+<span id="cb2-536"><a href="#cb2-536" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-537"><a href="#cb2-537" aria-hidden="true" tabindex="-1"></a>: Key IC Components. {#tbl-components}</span>
+<span id="cb2-538"><a href="#cb2-538" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-539"><a href="#cb2-539" aria-hidden="true" tabindex="-1"></a><span class="fu">## Connector Pinouts (Probe-to-Zone) {#sec-pinouts}</span></span>
+<span id="cb2-540"><a href="#cb2-540" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-541"><a href="#cb2-541" aria-hidden="true" tabindex="-1"></a>| Pin | Signal | Description |</span>
+<span id="cb2-542"><a href="#cb2-542" aria-hidden="true" tabindex="-1"></a>|-----|--------|-------------|</span>
+<span id="cb2-543"><a href="#cb2-543" aria-hidden="true" tabindex="-1"></a>| 1 | TX+ | To probe TX coil |</span>
+<span id="cb2-544"><a href="#cb2-544" aria-hidden="true" tabindex="-1"></a>| 2 | TX- | Return path |</span>
+<span id="cb2-545"><a href="#cb2-545" aria-hidden="true" tabindex="-1"></a>| 3 | RX+ | Differential RX |</span>
+<span id="cb2-546"><a href="#cb2-546" aria-hidden="true" tabindex="-1"></a>| 4 | RX- | Differential RX return |</span>
+<span id="cb2-547"><a href="#cb2-547" aria-hidden="true" tabindex="-1"></a>| 5 | Guard | Analog ground |</span>
+<span id="cb2-548"><a href="#cb2-548" aria-hidden="true" tabindex="-1"></a>| 6 | Ring A | Upper ERT electrode |</span>
+<span id="cb2-549"><a href="#cb2-549" aria-hidden="true" tabindex="-1"></a>| 7 | Ring B | Mid ERT electrode |</span>
+<span id="cb2-550"><a href="#cb2-550" aria-hidden="true" tabindex="-1"></a>| 8 | Ring C | Deep electrode |</span>
+<span id="cb2-551"><a href="#cb2-551" aria-hidden="true" tabindex="-1"></a>| 9 | ID Sense | Auto-ID resistor |</span>
+<span id="cb2-552"><a href="#cb2-552" aria-hidden="true" tabindex="-1"></a>| 10-11 | Spare | Reserved |</span>
+<span id="cb2-553"><a href="#cb2-553" aria-hidden="true" tabindex="-1"></a>| 12 | Shield | Cable shield clamp |</span>
+<span id="cb2-554"><a href="#cb2-554" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-555"><a href="#cb2-555" aria-hidden="true" tabindex="-1"></a>: 12-pin Probe Connector Pinout. {#tbl-pinout}</span>
+<span id="cb2-556"><a href="#cb2-556" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-557"><a href="#cb2-557" aria-hidden="true" tabindex="-1"></a><span class="fu">## Firmware Status {#sec-firmware-status}</span></span>
+<span id="cb2-558"><a href="#cb2-558" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-559"><a href="#cb2-559" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb2-560"><a href="#cb2-560" aria-hidden="true" tabindex="-1"></a><span class="fu">## Firmware Development - Phase 2</span></span>
+<span id="cb2-561"><a href="#cb2-561" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-562"><a href="#cb2-562" aria-hidden="true" tabindex="-1"></a>The hardware system documented in this whitepaper requires MCU firmware to operate. Firmware development is explicitly **Phase 2** of the project, separate from the hardware design presented here.</span>
+<span id="cb2-563"><a href="#cb2-563" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-564"><a href="#cb2-564" aria-hidden="true" tabindex="-1"></a>**Current Status:**</span>
+<span id="cb2-565"><a href="#cb2-565" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-566"><a href="#cb2-566" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Hardware is designed for ESP32-WROOM-32 MCU</span>
+<span id="cb2-567"><a href="#cb2-567" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>No firmware repository is published yet</span>
+<span id="cb2-568"><a href="#cb2-568" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Planned firmware features: DDS control, ADC sampling, lock-in detection, USB data logging</span>
+<span id="cb2-569"><a href="#cb2-569" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-570"><a href="#cb2-570" aria-hidden="true" tabindex="-1"></a>**Planned Repository:** <span class="in">`github.com/hirt-project/hirt-firmware`</span> (future)</span>
+<span id="cb2-571"><a href="#cb2-571" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-572"><a href="#cb2-572" aria-hidden="true" tabindex="-1"></a>Builders can test hardware subsystems (coils, ERT source, ADC) using bench equipment before firmware is available. See Section 18 for the software development roadmap.</span>
+<span id="cb2-573"><a href="#cb2-573" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-574"><a href="#cb2-574" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-575"><a href="#cb2-575" aria-hidden="true" tabindex="-1"></a><span class="fu">## Safety Considerations {#sec-safety}</span></span>
+<span id="cb2-576"><a href="#cb2-576" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-577"><a href="#cb2-577" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb2-578"><a href="#cb2-578" aria-hidden="true" tabindex="-1"></a><span class="fu">## ELECTRICAL SAFETY</span></span>
+<span id="cb2-579"><a href="#cb2-579" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-580"><a href="#cb2-580" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Maximum output current limited to 5 mA by design</span>
+<span id="cb2-581"><a href="#cb2-581" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Compliance voltage restricted to +/-12V (safe for soil contact)</span>
+<span id="cb2-582"><a href="#cb2-582" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Include 10 mA fast-blow fuse on ERT output</span>
+<span id="cb2-583"><a href="#cb2-583" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use opto-isolated relay control for polarity switching</span>
+<span id="cb2-584"><a href="#cb2-584" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Ensure proper earth ground connection for safety</span>
+<span id="cb2-585"><a href="#cb2-585" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-586"><a href="#cb2-586" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-587"><a href="#cb2-587" aria-hidden="true" tabindex="-1"></a><span class="fu">## Troubleshooting Guide {#sec-elec-troubleshooting}</span></span>
+<span id="cb2-588"><a href="#cb2-588" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-589"><a href="#cb2-589" aria-hidden="true" tabindex="-1"></a>| Symptom | Likely Cause | Solution |</span>
+<span id="cb2-590"><a href="#cb2-590" aria-hidden="true" tabindex="-1"></a>|---------|--------------|----------|</span>
+<span id="cb2-591"><a href="#cb2-591" aria-hidden="true" tabindex="-1"></a>| No TX output | DDS not initialized | Check SPI connection, verify clock |</span>
+<span id="cb2-592"><a href="#cb2-592" aria-hidden="true" tabindex="-1"></a>| Weak RX signal | Gain too low | Verify R~G~ resistor, check amplifier rails |</span>
+<span id="cb2-593"><a href="#cb2-593" aria-hidden="true" tabindex="-1"></a>| Noisy readings | Ground loops | Implement star grounding, shield cables |</span>
+<span id="cb2-594"><a href="#cb2-594" aria-hidden="true" tabindex="-1"></a>| No ERT current | Open circuit | Check electrode contact, verify relay state |</span>
+<span id="cb2-595"><a href="#cb2-595" aria-hidden="true" tabindex="-1"></a>| Current drift | Reference unstable | Verify Vref output, add bypass caps |</span>
+<span id="cb2-596"><a href="#cb2-596" aria-hidden="true" tabindex="-1"></a>| ADC errors | SPI timing | Reduce SPI clock speed, check DRDY timing |</span>
+<span id="cb2-597"><a href="#cb2-597" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-598"><a href="#cb2-598" aria-hidden="true" tabindex="-1"></a>: Common Issues and Solutions. {#tbl-troubleshooting}</span>
+<span id="cb2-599"><a href="#cb2-599" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-600"><a href="#cb2-600" aria-hidden="true" tabindex="-1"></a><span class="fu">## References {#sec-electronics-references}</span></span>
+<span id="cb2-601"><a href="#cb2-601" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-602"><a href="#cb2-602" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Analog Devices. AD9833 Programmable Waveform Generator Data Sheet. Rev. F, 2019. <span class="co">[</span><span class="ot">Datasheet</span><span class="co">](https://www.analog.com/media/en/technical-documentation/data-sheets/AD9833.pdf)</span></span>
+<span id="cb2-603"><a href="#cb2-603" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-604"><a href="#cb2-604" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Texas Instruments. OPA454 High-Voltage, High-Current Operational Amplifier. SBOS328D, 2018. <span class="co">[</span><span class="ot">Datasheet</span><span class="co">](https://www.ti.com/lit/ds/symlink/opa454.pdf)</span></span>
+<span id="cb2-605"><a href="#cb2-605" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-606"><a href="#cb2-606" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Analog Devices. AD620 Low Cost, Low Power Instrumentation Amplifier. Rev. H, 2011. <span class="co">[</span><span class="ot">Datasheet</span><span class="co">](https://www.analog.com/media/en/technical-documentation/data-sheets/AD620.pdf)</span></span>
+<span id="cb2-607"><a href="#cb2-607" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-608"><a href="#cb2-608" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Texas Instruments. INA128 Precision, Low Power Instrumentation Amplifiers. SBOS051B, 2005. <span class="co">[</span><span class="ot">Datasheet</span><span class="co">](https://www.ti.com/lit/ds/symlink/ina128.pdf)</span></span>
+<span id="cb2-609"><a href="#cb2-609" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-610"><a href="#cb2-610" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Texas Instruments. ADS1256 Very Low Noise, 24-Bit Analog-to-Digital Converter. SBAS288K, 2013. <span class="co">[</span><span class="ot">Datasheet</span><span class="co">](https://www.ti.com/lit/ds/symlink/ads1256.pdf)</span></span>
+<span id="cb2-611"><a href="#cb2-611" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-612"><a href="#cb2-612" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Horowitz, P. and Hill, W. (2015). *The Art of Electronics*, 3rd Edition. Cambridge University Press. Chapter 5: Precision Circuits. <span class="co">[</span><span class="ot">DOI: 10.1017/CBO9781139644204</span><span class="co">](https://doi.org/10.1017/CBO9781139644204)</span></span>
+<span id="cb2-613"><a href="#cb2-613" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-614"><a href="#cb2-614" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Ott, H.W. (2009). *Electromagnetic Compatibility Engineering*. Wiley. Chapter 3: Grounding. <span class="co">[</span><span class="ot">DOI: 10.1002/9780470508510</span><span class="co">](https://doi.org/10.1002/9780470508510)</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -22,9 +22,10 @@ Use `/riper:strict` to enable mode tracking. Available modes:
 - `/visualize:expand` - Convert placeholders to diagram code
 
 ### Key Commands
-- Render whitepaper: `cd whitepaper && quarto render`
-- Preview whitepaper: `cd whitepaper && quarto preview`
-- Export to LaTeX: `cd whitepaper && quarto render --to latex`
+- Render documentation: `cd docs && quarto render`
+- Preview documentation: `cd docs && quarto preview`
+- Render PDF only: `cd docs && quarto render --to pdf`
+- Render HTML only: `cd docs && quarto render --to html`
 - Export STL: `openscad -o output.stl input.scad`
 
 ## Project Structure
@@ -34,9 +35,15 @@ HIRT/
 ├── STATUS.md          # Current state, active work
 ├── OUTLINE.md         # Section-by-section status
 ├── CLAUDE.md          # This file - style guide
-├── whitepaper/        # Main deliverable (Quarto)
-│   ├── sections/      # 20 chapters
-│   └── diagrams/      # Python diagram generators
+├── docs/              # Main deliverable (Quarto Technical Manual)
+│   ├── index.qmd              # Task map landing page
+│   ├── getting-started/       # Onboarding (overview, quick-start, safety)
+│   ├── field-guide/           # Operations (deployment, data, troubleshooting)
+│   ├── build-guide/           # Construction (BOM, mechanical, electronics)
+│   ├── theory/                # Technical depth (physics, inversion, sensors)
+│   ├── developer/             # Contributors (firmware, data-formats, roadmap)
+│   ├── appendices/            # Reference (glossary, checklists, regulations)
+│   └── diagrams/              # Python diagram generators
 ├── research/          # Research by topic
 │   ├── deployment/    # Probe insertion methods
 │   ├── electronics/   # Circuit modernization
@@ -47,7 +54,7 @@ HIRT/
 │   ├── cad/          # OpenSCAD sources, STLs
 │   ├── drawings/     # Assembly drawings
 │   └── schematics/   # Circuit documentation
-└── _archive/          # Inactive files
+└── _archive/          # Inactive files (includes old whitepaper/)
 ```
 
 ---
@@ -55,12 +62,24 @@ HIRT/
 ## Writing Style Guide
 
 ### Philosophy
-The whitepaper should read like a peer-reviewed journal article that happens to include complete build instructions. Prioritize **narrative flow over enumeration**. When you find yourself writing a list of lists, stop and restructure as prose with transitions. Lists are appropriate for:
+The documentation follows a **hybrid approach**:
+- **Narrative prose** for theory, physics, and design sections - builds understanding progressively
+- **Lists and tables** for troubleshooting, checklists, and field procedures - quick scanning under stress
+
+Prioritize **narrative flow over enumeration** in explanatory sections. Lists are appropriate for:
 - Bill of materials and specifications
 - Step-by-step procedures where sequence matters
 - Quick reference tables
+- Troubleshooting diagnostics
 
-Everything else should flow as interconnected paragraphs that build understanding progressively.
+### Performance Claims Framework
+All specifications must be qualified with their validation status:
+
+| Qualifier | Usage | Example |
+|-----------|-------|---------|
+| **(Measured)** | Bench/field tested | "Bench measurements show 100 nV RMS noise" |
+| **(Modeled)** | Theoretical analysis | "Simulations predict 2-5x resolution improvement" |
+| **(Target)** | Design goal, not yet validated | "Design targets <$4000 total cost" |
 
 ### Audience
 Primary readers are technically sophisticated academics, forensic investigators, and archaeological researchers. Assume familiarity with basic physics and engineering concepts but not specialized geophysics. The writing should be:
@@ -87,9 +106,16 @@ Maintain consistency throughout:
 - **Survey stake**: Temporary marker for grid positioning (not the sensor probe)
 
 #### Unit Formatting
-- **Resistance**: Use "M-ohm" (megohm), "k-ohm" (kilohm), or "ohms" (not Ω symbols)
+- **Resistance**: Use "M-ohm" (megohm), "k-ohm" (kilohm), or "ohms" (not special symbols in prose)
 - **Inductance**: Use "mH" (millihenries) consistently
 - **Spacing**: Follow SI convention with space between value and unit (e.g., "16 mm", "2 kHz")
+- **Unicode**: Avoid special Unicode characters (arrows, Greek letters) in source - use ASCII alternatives for PDF compatibility
+
+### Sensor Maturity Framework
+Document sensors by maturity level:
+- **S (Supported Now)**: Fully validated, documented in build guide (MIT-3D, ERT-Lite)
+- **R (Recommended Extension)**: Tested principle, straightforward integration (Accelerometer, Temperature)
+- **F (Future Exploration)**: Promising concept, requires development (Moisture, pH, Gas)
 
 ### Visual-First Writing
 Complex concepts deserve rich visuals. When writing about something that would benefit from a diagram, schematic, or illustration, insert a visual placeholder block:

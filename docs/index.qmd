@@ -1,0 +1,107 @@
+---
+title: "HIRT Technical Manual"
+---
+
+# Welcome to HIRT
+
+**HIRT (Hybrid Inductive-Resistivity Tomography)** is a dual-channel subsurface imaging system designed for archaeological, forensic, and environmental investigations. By combining magneto-inductive (MIT-3D) and electrical resistivity (ERT-Lite) tomography in a crosshole configuration, HIRT achieves true 3D imaging of subsurface features at depths where surface methods fail.
+
+This technical manual provides complete documentation for building, operating, and understanding the HIRT system.
+
+## Who Is This Manual For?
+
+This documentation follows an "onion model"—start from the layer that matches your needs:
+
+### Field Operators
+
+**Start here:** [Field Guide](field-guide/deployment.qmd)
+
+You have a working HIRT system and need to conduct surveys. The Field Guide covers deployment, data acquisition, interpretation, and troubleshooting without requiring deep technical knowledge.
+
+### Builders
+
+**Start here:** [Build Guide](build-guide/bill-of-materials.qmd)
+
+You want to construct a HIRT system. The Build Guide provides complete bills of materials, mechanical design, electronics, assembly procedures, and testing/validation protocols.
+
+### Researchers and Students
+
+**Start here:** [Theory](theory/physics.qmd)
+
+You want to understand the physics, algorithms, and design decisions behind HIRT. The Theory section covers electromagnetic induction, resistivity tomography, inversion mathematics, and multi-modal fusion.
+
+### Developers
+
+**Start here:** [Developer Guide](developer/contributing.qmd)
+
+You want to contribute code, improve firmware, or extend HIRT capabilities. The Developer Guide covers data formats, firmware architecture, and the project roadmap.
+
+## Quick Navigation
+
+| I want to... | Go to... |
+|--------------|----------|
+| Learn what HIRT does | [Overview](getting-started/overview.qmd) |
+| Understand safety requirements | [Safety](getting-started/safety.qmd) |
+| Deploy probes and collect data | [Deployment](field-guide/deployment.qmd) |
+| Interpret survey results | [Interpretation](field-guide/interpretation.qmd) |
+| Order parts and build a system | [Bill of Materials](build-guide/bill-of-materials.qmd) |
+| Understand the physics | [Physics Theory](theory/physics.qmd) |
+| Learn about sensor options | [Sensor Modalities](theory/sensor-modalities.qmd) |
+| Contribute to the project | [Contributing](developer/contributing.qmd) |
+| Look up a term | [Glossary](appendices/glossary.qmd) |
+
+## Cross-Cutting Concerns
+
+Some topics span multiple layers. Use these links when your question crosses boundaries:
+
+**Troubleshooting:** If a problem occurs in the field, start with [Field Troubleshooting](field-guide/troubleshooting.qmd). If you suspect a build issue, see [Testing & Verification](build-guide/testing.qmd). For theory behind the symptoms, check [Uncertainty & Limitations](theory/uncertainty.qmd).
+
+**Calibration:** Field operators should follow [Field Calibration](build-guide/calibration.qmd) procedures. Builders should understand [Testing & Verification](build-guide/testing.qmd) before delivery. Theory users can find calibration mathematics in [Inversion](theory/inversion.qmd).
+
+**Data Formats:** For recording data in the field, see [Data Acquisition](field-guide/data-acquisition.qmd). For file specifications and software compatibility, see [Data Formats](developer/data-formats.qmd).
+
+## System Overview
+
+HIRT uses two complementary sensing channels:
+
+**MIT-3D (Magneto-Inductive Tomography):** Low-frequency TX/RX coils (2-50 kHz) detect metallic objects, including non-ferrous metals like aluminum that are invisible to magnetometers.
+
+**ERT-Lite (Electrical Resistivity Tomography):** Ring electrodes inject small currents (0.5-2 mA) to map soil disturbance, moisture content, and resistivity contrasts.
+
+The crosshole geometry—with probes inserted into the ground—provides direct ray paths through the target volume, achieving 2-5× better resolution than surface methods at depths beyond 2 meters (*modeled estimate; field validation pending*).
+
+### Primary Applications
+
+- **Filled bomb crater investigation:** UXO, remains, structural debris
+- **Forest burial detection:** Clandestine graves, historical burials
+- **Crash site recovery:** Aircraft wreckage in challenging terrain
+- **Environmental assessment:** Contamination plumes, buried waste
+
+## Documentation Standards
+
+This manual uses consistent terminology and formatting:
+
+- **Specifications** are qualified as *Measured*, *Modeled*, or *Target*
+- **MIT-3D** refers to the inductive channel (not "EMI" or "metal detector")
+- **ERT-Lite** refers to the resistivity channel (not "galvanic")
+- **Crosshole** describes the measurement geometry
+- Units follow SI conventions with space between value and unit (e.g., "16 mm")
+
+See the [Glossary](appendices/glossary.qmd) for complete terminology.
+
+## Project Status
+
+HIRT is open-source scientific hardware under active development. Current status:
+
+- **Hardware design:** Mature (revision 2.3)
+- **Build documentation:** Complete
+- **Field validation:** Ongoing
+- **Software tools:** In development
+
+For the latest status and roadmap, see [Developer: Roadmap](developer/roadmap.qmd).
+
+## Getting Help
+
+- **Issues and questions:** [GitHub Issues](https://github.com/hirt-project/hirt)
+- **Contribution guidelines:** [Contributing](developer/contributing.qmd)
+- **License:** This documentation and hardware designs are released under open-source licenses. See the repository for details.

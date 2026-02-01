@@ -1,0 +1,222 @@
+---
+title: "Firmware"
+---
+
+## Overview
+
+This section documents the HIRT firmware architecture and development environment. The firmware controls data acquisition, probe communication, and system coordination.
+
+::: {.callout-note}
+## Documentation Status
+
+Firmware documentation is under development. This section will be expanded as the firmware matures through validation testing.
+:::
+
+## Architecture Overview
+
+The HIRT system uses a distributed architecture:
+
+```
++------------------+     +------------------+
+|   Host System    |-----|    Zone Hub      |
+|  (Laptop/PC)     | USB |  (Controller)    |
++------------------+     +--------+---------+
+                                  | RS-485 Bus
+                     +------------+------------+
+                     |            |            |
+               +-----+-----+ +----+----+ +-----+-----+
+               |  Probe 1  | |  Probe  | |  Probe N  |
+               |  (Node)   | |   ...   | |  (Node)   |
+               +-----------+ +---------+ +-----------+
+```
+
+### Components
+
+**Host System:** Laptop or dedicated controller running acquisition software. Sends commands and receives data over USB.
+
+**Zone Hub:** Central coordination unit. Manages probe addressing, measurement sequencing, and data aggregation. Based on ARM Cortex-M4 microcontroller.
+
+**Probe Nodes:** Distributed sensing units. Each contains TX/RX coils (MIT), ring electrodes (ERT), signal conditioning, and ADC. Based on low-power microcontroller.
+
+## Communication Protocol
+
+### Physical Layer
+
+- **Bus:** RS-485 differential signaling
+- **Baud rate:** 115200 (default), configurable to 921600
+- **Topology:** Daisy-chain with termination resistors
+- **Cable:** Shielded twisted pair, max 100m total bus length
+
+### Message Format
+
+```
+[START] [ADDR] [CMD] [LEN] [DATA...] [CRC16] [END]
+  0x02   1 byte 1 byte 1 byte  0-255   2 bytes 0x03
+```
+
+### Commands
+
+| Code | Command | Description |
+|------|---------|-------------|
+| 0x10 | PING | Probe presence check |
+| 0x20 | CONFIG | Set operating parameters |
+| 0x30 | MIT_TX | Activate MIT transmitter |
+| 0x31 | MIT_RX | Read MIT receiver data |
+| 0x40 | ERT_INJ | Activate ERT current injection |
+| 0x41 | ERT_MEAS | Read ERT voltage measurement |
+| 0x50 | STATUS | Read probe status and diagnostics |
+| 0x60 | CAL | Run calibration routine |
+
+## Measurement Sequencing
+
+### MIT Acquisition Cycle
+
+```
+For each frequency in [2kHz, 5kHz, 10kHz, 20kHz, 50kHz]:
+    For each TX_probe in active_probes:
+        1. Send MIT_TX command to TX_probe
+        2. Wait for TX stabilization (10ms)
+        3. For each RX_probe in (active_probes - TX_probe):
+            a. Send MIT_RX command to RX_probe
+            b. Receive amplitude + phase data
+        4. Deactivate TX
+```
+
+### ERT Acquisition Cycle
+
+```
+For each injection_pattern in selected_patterns:
+    1. Send ERT_INJ command to injection probes
+    2. Wait for current stabilization (50ms)
+    3. For each sensing_probe in available_probes:
+        a. Send ERT_MEAS command
+        b. Receive voltage measurement
+    4. Deactivate injection
+    5. Repeat with reversed polarity
+```
+
+## Development Environment
+
+### Toolchain
+
+- **IDE:** PlatformIO (recommended) or Arduino IDE
+- **Compiler:** ARM GCC for Zone Hub, AVR GCC for Probe Nodes
+- **Debug:** J-Link or ST-Link for JTAG/SWD debugging
+
+### Building Firmware
+
+```bash
+# Zone Hub firmware
+cd firmware/zone_hub
+platformio run
+
+# Probe Node firmware
+cd firmware/probe_node
+platformio run
+```
+
+### Uploading Firmware
+
+```bash
+# Zone Hub (via ST-Link)
+platformio run --target upload
+
+# Probe Node (via bootloader)
+platformio run --target upload --upload-port /dev/ttyUSB0
+```
+
+## Configuration Parameters
+
+### Zone Hub Configuration
+
+| Parameter | Default | Range | Description |
+|-----------|---------|-------|-------------|
+| `bus_baud` | 115200 | 9600-921600 | RS-485 baud rate |
+| `mit_settle_ms` | 10 | 1-100 | TX stabilization time |
+| `ert_settle_ms` | 50 | 10-500 | Current stabilization time |
+| `timeout_ms` | 100 | 10-1000 | Probe response timeout |
+| `retry_count` | 3 | 0-10 | Communication retries |
+
+### Probe Node Configuration
+
+| Parameter | Default | Range | Description |
+|-----------|---------|-------|-------------|
+| `node_addr` | 0x01 | 0x01-0x20 | RS-485 bus address |
+| `tx_current_mA` | 10 | 1-50 | MIT TX coil current |
+| `ert_current_mA` | 1.0 | 0.1-2.0 | ERT injection current |
+| `adc_averaging` | 16 | 1-256 | ADC samples to average |
+| `cal_offset` | 0 | -1000-1000 | Calibration offset |
+
+## Calibration Routines
+
+### Self-Calibration
+
+The firmware includes self-calibration routines:
+
+1. **TX Current Calibration:** Adjusts DAC output to achieve target current
+2. **ADC Offset Calibration:** Measures and stores zero-input offset
+3. **Gain Calibration:** Uses reference signal to calibrate gain
+
+### Factory Calibration
+
+Full calibration requires:
+
+1. Precision current measurement for TX calibration
+2. Known reference targets for response calibration
+3. Temperature chamber for drift characterization
+
+See [Build Guide: Calibration](../build-guide/calibration.qmd) for procedures.
+
+## Error Handling
+
+### Error Codes
+
+| Code | Name | Description | Recovery |
+|------|------|-------------|----------|
+| 0x01 | TIMEOUT | No probe response | Retry, check connections |
+| 0x02 | CRC_ERR | Data corruption | Retry, check cable |
+| 0x03 | OVERLOAD | TX current overload | Reduce current setting |
+| 0x04 | ADC_SAT | ADC saturation | Reduce gain or signal |
+| 0x05 | TEMP_WARN | Temperature warning | Allow cooling |
+| 0x06 | CAL_INVALID | Invalid calibration | Recalibrate |
+
+### Watchdog and Recovery
+
+- Hardware watchdog timer (2 second timeout)
+- Automatic bus reset on repeated communication failures
+- State machine returns to IDLE on unrecoverable errors
+
+## Power Management
+
+### Operating Modes
+
+| Mode | Current Draw | Description |
+|------|--------------|-------------|
+| Active | 50-100 mA/probe | Full measurement |
+| Standby | 5 mA/probe | Awaiting commands |
+| Sleep | 0.1 mA/probe | Low-power wait |
+
+### Battery Considerations
+
+For portable operation:
+
+- Use lithium battery pack (12V nominal)
+- Enable sleep mode between measurement cycles
+- Target: 8 hours operation from 10 Ah battery
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0.0 | TBD | Initial release |
+| 0.9.0 | Development | Beta testing |
+
+## Future Development
+
+Planned firmware improvements:
+
+- [ ] Over-the-air firmware update via bootloader
+- [ ] Adaptive sampling rate based on signal quality
+- [ ] Built-in reciprocity checking
+- [ ] Real-time data quality indicators
+- [ ] Temperature compensation algorithms

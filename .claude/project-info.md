@@ -17,17 +17,20 @@ HIRT (Hybrid Inductive-Resistivity Tomography) is a dual-channel subsurface imag
 
 ### Documentation (Quarto)
 ```bash
-# Render whitepaper (HTML + PDF)
-cd whitepaper && quarto render
+# Render documentation (HTML + PDF)
+cd docs && quarto render
 
-# Preview whitepaper (live reload)
-cd whitepaper && quarto preview
+# Preview documentation (live reload)
+cd docs && quarto preview
 
-# Export to LaTeX for journal submission
-cd whitepaper && quarto render --to latex
+# Render PDF only
+cd docs && quarto render --to pdf
+
+# Render HTML only
+cd docs && quarto render --to html
 
 # Render specific section
-cd whitepaper && quarto render sections/01-executive-summary.qmd
+cd docs && quarto render getting-started/overview.qmd
 ```
 
 ### CAD (OpenSCAD)
@@ -44,10 +47,45 @@ HIRT/
 ├── OUTLINE.md             # Section-by-section status
 ├── CLAUDE.md              # Style guide and conventions
 │
-├── whitepaper/            # Main deliverable (Quarto project)
-│   ├── sections/          # 20 Quarto chapters (.qmd)
-│   ├── diagrams/          # Python diagram generators
-│   └── _quarto.yml        # Quarto config
+├── docs/                  # Main deliverable (Quarto Technical Manual)
+│   ├── index.qmd              # Task map landing page
+│   ├── getting-started/       # Onboarding
+│   │   ├── overview.qmd
+│   │   ├── quick-start.qmd
+│   │   └── safety.qmd
+│   ├── field-guide/           # Operations
+│   │   ├── deployment.qmd
+│   │   ├── progressive-deployment.qmd
+│   │   ├── data-acquisition.qmd
+│   │   ├── interpretation.qmd
+│   │   ├── scenarios.qmd
+│   │   └── troubleshooting.qmd
+│   ├── build-guide/           # Construction
+│   │   ├── bill-of-materials.qmd
+│   │   ├── mechanical.qmd
+│   │   ├── electronics.qmd
+│   │   ├── assembly.qmd
+│   │   ├── testing.qmd
+│   │   ├── calibration.qmd
+│   │   └── validation.qmd
+│   ├── theory/                # Technical depth
+│   │   ├── physics.qmd
+│   │   ├── architecture.qmd
+│   │   ├── sensor-modalities.qmd
+│   │   ├── inversion.qmd
+│   │   └── uncertainty.qmd
+│   ├── developer/             # Contributors
+│   │   ├── contributing.qmd
+│   │   ├── firmware.qmd
+│   │   ├── data-formats.qmd
+│   │   └── roadmap.qmd
+│   ├── appendices/            # Reference
+│   │   ├── glossary.qmd
+│   │   ├── quick-reference.qmd
+│   │   ├── checklists.qmd
+│   │   └── regulations.qmd
+│   ├── diagrams/              # Python diagram generators
+│   └── _quarto.yml            # Quarto config
 │
 ├── research/              # Research documents by topic
 │   ├── _backlog.md        # Research tracking
@@ -63,7 +101,7 @@ HIRT/
 │   └── schematics/       # Circuit documentation
 │
 ├── .claude/               # RIPER workflow, memory bank
-└── _archive/              # Inactive files (preserved)
+└── _archive/              # Inactive files (includes old whitepaper/)
 ```
 
 ## Technology Stack
@@ -112,10 +150,10 @@ This project uses the RIPER development process for structured, context-efficien
 ### Memory Bank Structure
 ```
 .claude/memory-bank/
-├── [branch-name]/
-│   ├── plans/      # Technical specifications
-│   ├── reviews/    # Code review reports
-│   └── sessions/   # Session context
++-- [branch-name]/
+    +-- plans/      # Technical specifications
+    +-- reviews/    # Code review reports
+    +-- sessions/   # Session context
 ```
 
 ## Research Guidelines for HIRT

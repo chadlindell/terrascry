@@ -1,38 +1,52 @@
 # HIRT Project Status
 
-*Last updated: 2026-01-30*
+*Last updated: 2026-02-01*
 
 ## Current Focus
 
-**Whitepaper completion and quality assurance**
+**Documentation restructure complete - Technical Manual ready for review**
 
-The technical whitepaper is the primary deliverable. All 20 sections exist and render successfully to both HTML and PDF.
+The documentation has been completely restructured from "whitepaper" to "Technical Manual" format following the onion model architecture (Field Ops -> Build Guide -> Theory -> Developer).
 
 ## Recent Accomplishments
+
+### 2026-02-01: Major Documentation Restructure
+- Renamed from "whitepaper" to "docs" (HIRT Technical Manual)
+- Restructured to "onion model" (Getting Started -> Field Guide -> Build Guide -> Theory -> Developer -> Appendices)
+- Created new sections:
+  - `progressive-deployment.qmd` - Advanced four-phase deployment workflow
+  - `sensor-modalities.qmd` - Sensor maturity framework (Supported/Recommended/Future)
+  - `validation.qmd` - HardwareX compliance validation procedures
+  - `uncertainty.qmd` - Limitations and "what no anomaly means"
+  - `contributing.qmd` - Contribution guidelines
+  - `firmware.qmd` - Firmware architecture documentation
+  - `quick-start.qmd` - New quick start guide
+  - `index.qmd` - Task map landing page with cross-cutting navigation
+- Split files:
+  - `data-recording` -> `data-acquisition.qmd` + `data-formats.qmd`
+  - `data-interpretation` -> `interpretation.qmd` + `inversion.qmd`
+  - `ethics-legal-safety` -> `safety.qmd` + `regulations.qmd`
+- Created GitHub Actions CI workflow for Quarto rendering
+- Fixed all Unicode character issues for PDF generation
+- Fixed cross-reference issues
+- Both HTML and PDF render successfully
 
 ### 2026-01-30: Project Reorganization
 - Cleaned up root directory structure
 - Archived legacy files to `_archive/`
 - Consolidated research into `research/` with topic subdirectories
-- Moved whitepaper to `/whitepaper/` at root level
-- Created project management files (VISION.md, STATUS.md, OUTLINE.md)
-
-### 2026-01-28: Comprehensive Whitepaper Review
-- Fixed specification conflicts (DC resistance, Q factor)
-- Added DOIs to academic citations
-- Expanded glossary with technical terms
-- Fixed Unicode issues blocking PDF generation
-- Improved colorblind accessibility in diagrams
-- Expanded all placeholder hardware documentation
 
 ## Active Work
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Whitepaper HTML/PDF generation | Complete | Both formats render cleanly |
-| Hardware documentation | Complete | All placeholders expanded |
-| Research organization | Complete | Moved to /research/ |
-| Style enforcement | Needs automation | Currently manual |
+| Documentation restructure | Complete | 30 sections render cleanly |
+| HTML generation | Complete | Full site at `docs/_output/` |
+| PDF generation | Complete | 2.5 MB Technical Manual |
+| CI/CD workflow | Complete | `.github/workflows/quarto-render.yml` |
+| Troubleshooting hybrid rewrite | Pending | Plan Phase 3 |
+| Performance claim qualifications | Pending | Plan Phase 3 |
+| Progressive deployment diagrams | Pending | Plan Phase 4 |
 
 ## Blockers
 
@@ -40,28 +54,74 @@ None currently.
 
 ## Next Steps
 
-1. **LaTeX export configuration** - Ensure clean .tex export for journal submission
-2. **Research integration** - Review research/ content for whitepaper integration
-3. **Automated style checks** - Pre-commit hooks for terminology validation
-4. **Section status tracking** - Complete OUTLINE.md with per-section status
+1. **Troubleshooting rewrite** - Apply hybrid approach (keep tables, add narrative context)
+2. **Performance qualifications** - Add (Measured)/(Modeled)/(Target) labels throughout
+3. **Progressive deployment diagrams** - Create 5-6 new diagrams
+4. **Update CLAUDE.md** - Update paths and structure references
+5. **Field validation** - Plan first prototype tests
 
 ## Quick Reference
 
 ```bash
-# Render whitepaper
-cd whitepaper && quarto render
+# Render documentation
+cd docs && quarto render
 
-# Preview whitepaper
-cd whitepaper && quarto preview
+# Preview documentation (live reload)
+cd docs && quarto preview
 
-# Export to LaTeX
-cd whitepaper && quarto render --to latex
+# Render PDF only
+cd docs && quarto render --to pdf
+
+# Render HTML only
+cd docs && quarto render --to html
+```
+
+## Directory Structure
+
+```
+docs/
+├── index.qmd                    # Task map landing page
+├── getting-started/             # Onboarding
+│   ├── overview.qmd
+│   ├── quick-start.qmd
+│   └── safety.qmd
+├── field-guide/                 # Operations
+│   ├── deployment.qmd
+│   ├── progressive-deployment.qmd
+│   ├── data-acquisition.qmd
+│   ├── interpretation.qmd
+│   ├── scenarios.qmd
+│   └── troubleshooting.qmd
+├── build-guide/                 # Construction
+│   ├── bill-of-materials.qmd
+│   ├── mechanical.qmd
+│   ├── electronics.qmd
+│   ├── assembly.qmd
+│   ├── testing.qmd
+│   ├── calibration.qmd
+│   └── validation.qmd
+├── theory/                      # Technical depth
+│   ├── physics.qmd
+│   ├── architecture.qmd
+│   ├── sensor-modalities.qmd
+│   ├── inversion.qmd
+│   └── uncertainty.qmd
+├── developer/                   # Contributors
+│   ├── contributing.qmd
+│   ├── firmware.qmd
+│   ├── data-formats.qmd
+│   └── roadmap.qmd
+└── appendices/                  # Reference
+    ├── glossary.qmd
+    ├── quick-reference.qmd
+    ├── checklists.qmd
+    └── regulations.qmd
 ```
 
 ## Session Notes
 
-Use this section for quick notes during work sessions. Clear after integrating into proper documentation.
+Documentation restructure complete. Old whitepaper archived to `_archive/whitepaper-pre-rewrite-20260201/`.
 
 ---
 
-*Next session: Review OUTLINE.md, identify sections needing research*
+*Next session: Hybrid troubleshooting rewrite, performance claim qualifications*

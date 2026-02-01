@@ -1,0 +1,267 @@
+---
+title: "Uncertainty and Limitations"
+---
+
+## Overview
+
+Scientific credibility requires explicit acknowledgment of measurement limitations and sources of uncertainty. This section documents the physical constraints, detection limits, and common failure modes that affect HIRT survey results.
+
+Understanding these limitations enables realistic survey planning and prevents overinterpretation of tomographic images.
+
+## Depth of Investigation
+
+The achievable investigation depth depends on several factors including probe depth, probe spacing, soil conductivity, and measurement frequency.
+
+### Factors Affecting Depth
+
+- **Probe depth:** Deeper insertion enables deeper sensitivity
+- **Probe spacing:** Wider spacing increases depth but reduces lateral resolution
+- **Soil conductivity:** Lower conductivity enables deeper signal penetration
+- **Frequency (MIT):** Lower frequency provides deeper sensitivity
+- **Current geometry (ERT):** Longer baselines enable deeper investigation
+
+### Typical Depth Capabilities
+
+| Configuration | MIT Depth | ERT Depth | Combined | Confidence |
+|---------------|-----------|-----------|----------|------------|
+| 1.5m probes, 1.5m spacing | 1.5-2.5m | 2-3m | 2-3m | HIGH |
+| 1.5m probes, 2.0m spacing | 2-3m | 2-3m | 2-3m | HIGH |
+| 3.0m probes, 2.0m spacing | 3-4m | 3-5m | 3-5m | MEDIUM |
+| 3.0m probes, 2.5m spacing | 3-4m | 4-6m | 4-6m | LOW |
+
+: Depth of investigation by configuration {#tbl-depth-investigation}
+
+::: {.callout-note}
+The commonly cited '3-6m' depth range represents favorable conditions only. For most field conditions, expect 2-4m typical depth, with up to 5-6m achievable in optimal soil conditions with longer probes and wider spacing.
+:::
+
+## Resolution Limits
+
+### Lateral Resolution
+
+HIRT can resolve lateral features with dimensions approximately 0.5 to 1.5 times the probe spacing.
+
+| Probe Spacing | Minimum Feature Size | Practical Resolution |
+|---------------|---------------------|---------------------|
+| 1.0 m | 0.5 m | 0.75-1.0 m |
+| 1.5 m | 0.75 m | 1.0-1.5 m |
+| 2.0 m | 1.0 m | 1.5-2.0 m |
+| 2.5 m | 1.25 m | 2.0-2.5 m |
+
+: Lateral resolution limits by probe spacing {#tbl-lateral-resolution}
+
+**Key Limitation:** Two anomalies separated by less than the minimum feature size will appear as a single blurred target in the tomogram.
+
+### Vertical Resolution
+
+**MIT Depth Resolution:** Controlled by frequency. For 5 kHz in soil with 10 mS/m conductivity, vertical resolution is approximately 0.5-0.8 m.
+
+**ERT Depth Resolution:** Depends on electrode spacing. With 0.5 m vertical electrode spacing, features separated by less than 0.25-0.5 m vertically will blur together.
+
+### Resolution Degradation with Depth
+
+Below the probe tips, sensitivity falls approximately exponentially:
+
+- **0-0.5 m below probe tip:** Moderate sensitivity, resolution degrades by ~30%
+- **0.5-1.0 m below tip:** Weak sensitivity, resolution degrades by ~60%
+- **>1.0 m below tip:** Very weak sensitivity, detection unreliable
+
+::: {.callout-warning}
+## Do Not Extend Inversions Beyond Probe Depth
+
+While mathematically possible to extend the inversion mesh below probe tips, results in this region are highly uncertain and often artifacts. Report survey depth as probe insertion depth, not inversion mesh extent.
+:::
+
+## Detection Limits
+
+### Minimum Detectable Object Size (MIT)
+
+| Target Type | Depth | Minimum Size | SNR Requirement | Confidence |
+|-------------|-------|--------------|-----------------|-----------|
+| High-contrast metal | 1 m | 0.1 m diameter | >5:1 | HIGH |
+| High-contrast metal | 2 m | 0.3 m diameter | >5:1 | MEDIUM |
+| High-contrast metal | 3 m | 0.5 m diameter | >5:1 | LOW |
+| Corroded metal | 1 m | 0.3 m diameter | >3:1 | MEDIUM |
+| Corroded metal | 2 m | 0.8 m diameter | >3:1 | LOW |
+
+: MIT detection limits for metallic targets {#tbl-mit-detection}
+
+### Minimum Detectable Feature Size (ERT)
+
+| Target Type | Depth | Minimum Size | Contrast Requirement | Confidence |
+|-------------|-------|--------------|---------------------|-----------|
+| Disturbed fill (2:1) | 1 m | 0.5 m | >50% contrast | HIGH |
+| Disturbed fill (2:1) | 2 m | 0.75 m | >50% contrast | MEDIUM |
+| Disturbed fill (2:1) | 3 m | 1.0 m | >50% contrast | LOW |
+| Weak contrast (<1.5:1) | 1 m | 1.0 m | >30% contrast | MEDIUM |
+| Weak contrast (<1.5:1) | 2 m | May not detect | >30% contrast | LOW/NONE |
+
+: ERT detection limits for resistivity contrasts {#tbl-ert-detection}
+
+**Critical Observation:** A small metallic object (e.g., 5 cm artifact) at 2 m depth is **below the detection limit**. The absence of an MIT anomaly does not confirm absence of small artifacts.
+
+## The Non-Uniqueness Problem
+
+Geophysical inversion suffers from a fundamental theoretical limitation: multiple different subsurface models can produce nearly identical measured data.
+
+### Why Inversion Results Are "Most Likely" Not "Certain"
+
+The inverse problem is underdetermined. The number of model parameters (conductivity values at thousands of mesh cells) greatly exceeds the number of independent measurements. Regularization forces the inversion to prefer smooth models, but this introduces bias.
+
+**Practical Implication:** A tomogram showing a high-conductivity anomaly at 2.5 m depth could represent:
+
+- A single large metallic object at 2.5 m depth
+- Multiple smaller objects distributed over 2-3 m depth range
+- A conductive soil layer combined with a smaller metal target
+- Any combination producing the same integrated response
+
+The inversion cannot distinguish between these scenarios based solely on measured data.
+
+### Mitigating Non-Uniqueness
+
+- **Site history:** Expected target types constrain interpretation
+- **Geological context:** Soil type informs background model
+- **Multi-modal fusion:** MIT and ERT together reduce ambiguity
+- **Depth constraints:** Targets below probe depth are highly uncertain
+
+::: {.callout-important}
+## Reporting Non-Unique Interpretations
+
+When multiple plausible interpretations exist, report all reasonable scenarios with confidence levels rather than selecting a single "best" interpretation.
+
+Example: "High-conductivity anomaly at 2-3 m depth: MOST LIKELY metallic debris, POSSIBLE concentrated clay lens, LESS LIKELY deep groundwater."
+:::
+
+## What "No Anomaly" Actually Means
+
+The phrase "no anomaly detected" is frequently misunderstood. It does **not** mean "the subsurface is definitely clear." It means "no statistically significant deviation from background was observed within the detection limits of this survey."
+
+### Possible Explanations for Negative Results
+
+A survey showing no anomalies could indicate:
+
+1. **No targets present** within the survey volume (desired conclusion)
+2. **Targets present but below detection limit** (too small, too deep, low contrast)
+3. **Targets masked by background heterogeneity** (geologic noise exceeds signal)
+4. **Targets outside the surveyed volume** (incorrect survey location)
+5. **Instrument failure or calibration error** (undetected measurement problem)
+
+Without additional information, these scenarios cannot be distinguished.
+
+### Appropriate Language for Negative Results
+
+**GOOD:** "No significant MIT or ERT anomalies were detected in the 4×4 probe grid covering 12 m × 12 m to 3 m depth. If metallic debris or disturbed fill is present within this volume, it is smaller than the detection limits (~0.3 m metal, ~0.75 m fill at 2 m depth) or masked by geologic variability."
+
+**BAD:** "The survey proves that no aircraft wreckage is present in the search area."
+
+### Confidence in Negative Results
+
+| Confidence | Criteria |
+|------------|----------|
+| HIGH | Dense grid, excellent data, uniform geology, expected target is large |
+| MEDIUM | Standard grid, good data, moderate noise, target near detection limit |
+| LOW | Sparse grid, poor data, high noise, small expected targets |
+
+: Confidence levels for negative results {#tbl-negative-confidence}
+
+## Common Failure Modes
+
+### Poor Electrode Contact (ERT)
+
+**Symptom:** Erratic variability, failed reciprocity checks (>10% error), unreasonably high apparent resistivity.
+
+**Cause:** Inadequate electrical contact between electrodes and soil.
+
+**Mitigation:**
+- Pre-wet insertion hole in dry sand
+- Apply conductive gel around electrodes
+- Tamp soil around probes to eliminate air gaps
+
+### Electromagnetic Interference (MIT)
+
+**Symptom:** Drifting measurements, periodic variation, high-frequency noise.
+
+**Cause:** External EM fields from power lines, radio transmitters, equipment.
+
+**Mitigation:**
+- Survey away from power infrastructure when possible
+- Use narrowband lock-in detection to reject out-of-band noise
+- Pause acquisition during known interference events
+
+### Temperature-Related Drift
+
+**Symptom:** Gradual baseline shift over extended survey duration.
+
+**Cause:** Temperature-dependent component behavior in electronics.
+
+**Mitigation:**
+- Record baseline at start and end of survey
+- Apply linear drift correction in post-processing
+- For critical surveys, shade electronics from direct sun
+
+### Coupling Variations
+
+**Symptom:** Inconsistent readings from probes at similar positions in different deployments.
+
+**Cause:** Variable contact quality, soil heterogeneity, probe orientation.
+
+**Mitigation:**
+- Standardize insertion procedures
+- Document actual probe orientations
+- Include coupling quality notes in field records
+
+## HIRT vs Surface Methods
+
+HIRT's crosshole geometry provides 2-5× better resolution than surface methods at depths greater than 2 m (*modeled estimate; field validation pending*). This advantage increases with depth.
+
+| Method | Lateral Res. | Depth Res. | At 3m Depth |
+|--------|--------------|------------|-------------|
+| Surface Magnetometry | 1-2m | Poor | ~2m lateral |
+| GPR (in sand) | 0.3-0.5m | 0.05-0.1m | Degrades to 1m+ |
+| GPR (in clay) | Limited | Limited | Often fails |
+| Surface ERT (Wenner) | ~1× spacing | ~0.5× spacing | ~2-3m |
+| **HIRT (1.5m spacing)** | **0.75-1.5m** | **0.5-0.75m** | **~1m lateral** |
+
+: Resolution comparison: HIRT vs surface methods {#tbl-method-comparison}
+
+### Why HIRT Achieves Better Resolution
+
+- Direct ray paths through target volume (not down-and-back)
+- No surface clutter from topography and cultural noise
+- True 3D sampling enables genuine tomographic reconstruction
+- Better depth discrimination between targets at different depths
+
+## Quantifying Uncertainty
+
+For rigorous applications, uncertainty should be quantified and reported.
+
+### Depth of Investigation (DOI) Index
+
+The DOI index identifies regions where inversion results are data-constrained vs. regularization-dominated:
+
+- DOI < 0.1: Well-constrained by data
+- DOI 0.1-0.3: Moderately constrained
+- DOI > 0.3: Poorly constrained, interpret with caution
+
+### Ensemble Uncertainty
+
+Run multiple inversions with perturbed data to assess result stability:
+
+1. Add Gaussian noise to measured data
+2. Invert each perturbed dataset independently
+3. Compute standard deviation across ensemble
+4. Features appearing in >90% of realizations have HIGH confidence
+
+### Reporting Requirements
+
+Every interpretation should include:
+
+- Estimated parameter uncertainty (from ensemble or covariance analysis)
+- DOI map showing sensitivity coverage
+- Confidence level assignment for key features
+
+::: {.callout-important}
+## Uncertainty Reporting is Mandatory
+
+Tomographic images without uncertainty estimates can be seriously misleading. A sharp-looking anomaly in a region with poor sensitivity may be an artifact of regularization, not a real target.
+:::

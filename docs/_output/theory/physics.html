@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.557">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>HIRT: Hybrid Inductive-Resistivity Tomography - 18&nbsp; Physics Theory</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../theory/architecture.html" rel="next">
+<link href="../build-guide/validation.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../assets/styles/custom.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../theory/physics.html">Theory</a></li><li class="breadcrumb-item"><a href="../theory/physics.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">HIRT: Hybrid Inductive-Resistivity Tomography</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">HIRT Technical Manual</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/quick-start.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Quick Start</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/safety.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Safety</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Field Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/progressive-deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Progressive Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/data-acquisition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Acquisition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/interpretation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Data Interpretation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Application Scenarios</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Build Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/bill-of-materials.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/mechanical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mechanical Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/electronics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/assembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Assembly and Wiring</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Testing and Verification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/calibration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Calibration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Validation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/physics.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/architecture.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">System Architecture</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/sensor-modalities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Sensor Modalities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Inversion and Reconstruction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Uncertainty and Limitations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">Developer Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/contributing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/firmware.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Firmware</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/data-formats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Data Formats</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/roadmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Roadmap</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/quick-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Quick Reference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/checklists.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Field Checklists</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/regulations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Regulations and Legal Requirements</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-physics-overview" id="toc-sec-physics-overview" class="nav-link active" data-scroll-target="#sec-physics-overview"><span class="header-section-number">18.1</span> Overview</a></li>
+  <li><a href="#sec-mit-physics" id="toc-sec-mit-physics" class="nav-link" data-scroll-target="#sec-mit-physics"><span class="header-section-number">18.2</span> MIT-3D (Low-Frequency Electromagnetic)</a>
+  <ul class="collapse">
+  <li><a href="#sec-mit-principle" id="toc-sec-mit-principle" class="nav-link" data-scroll-target="#sec-mit-principle"><span class="header-section-number">18.2.1</span> Operating Principle</a></li>
+  <li><a href="#sec-frequency-selection" id="toc-sec-frequency-selection" class="nav-link" data-scroll-target="#sec-frequency-selection"><span class="header-section-number">18.2.2</span> Frequency Selection</a></li>
+  </ul></li>
+  <li><a href="#sec-skin-depth" id="toc-sec-skin-depth" class="nav-link" data-scroll-target="#sec-skin-depth"><span class="header-section-number">18.3</span> Electromagnetic Skin Depth</a></li>
+  <li><a href="#sec-coupling-decay" id="toc-sec-coupling-decay" class="nav-link" data-scroll-target="#sec-coupling-decay"><span class="header-section-number">18.4</span> MIT Coil Coupling and 1/r^3 Decay</a>
+  <ul class="collapse">
+  <li><a href="#sec-snr-optimization" id="toc-sec-snr-optimization" class="nav-link" data-scroll-target="#sec-snr-optimization"><span class="header-section-number">18.4.1</span> SNR Optimization</a></li>
+  </ul></li>
+  <li><a href="#sec-ert-physics" id="toc-sec-ert-physics" class="nav-link" data-scroll-target="#sec-ert-physics"><span class="header-section-number">18.5</span> ERT-Lite (Galvanic Method)</a>
+  <ul class="collapse">
+  <li><a href="#sec-ert-principle" id="toc-sec-ert-principle" class="nav-link" data-scroll-target="#sec-ert-principle"><span class="header-section-number">18.5.1</span> Operating Principle</a></li>
+  <li><a href="#sec-geometric-factor" id="toc-sec-geometric-factor" class="nav-link" data-scroll-target="#sec-geometric-factor"><span class="header-section-number">18.5.2</span> Geometric Factor K</a></li>
+  <li><a href="#sec-ert-depth" id="toc-sec-ert-depth" class="nav-link" data-scroll-target="#sec-ert-depth"><span class="header-section-number">18.5.3</span> Depth of Investigation</a></li>
+  </ul></li>
+  <li><a href="#sec-multi-frequency" id="toc-sec-multi-frequency" class="nav-link" data-scroll-target="#sec-multi-frequency"><span class="header-section-number">18.6</span> Multi-Frequency Response</a></li>
+  <li><a href="#sec-crosshole-advantage" id="toc-sec-crosshole-advantage" class="nav-link" data-scroll-target="#sec-crosshole-advantage"><span class="header-section-number">18.7</span> Why Crosshole Geometry Beats Surface Methods</a>
+  <ul class="collapse">
+  <li><a href="#sec-surface-crosshole-comparison" id="toc-sec-surface-crosshole-comparison" class="nav-link" data-scroll-target="#sec-surface-crosshole-comparison"><span class="header-section-number">18.7.1</span> Surface vs.&nbsp;Crosshole: A Medical Analogy</a></li>
+  <li><a href="#sec-ray-paths" id="toc-sec-ray-paths" class="nav-link" data-scroll-target="#sec-ray-paths"><span class="header-section-number">18.7.2</span> Ray Path Geometry</a></li>
+  <li><a href="#sec-illumination-angles" id="toc-sec-illumination-angles" class="nav-link" data-scroll-target="#sec-illumination-angles"><span class="header-section-number">18.7.3</span> Illumination Angles and Angular Diversity</a></li>
+  <li><a href="#sec-resolution-comparison" id="toc-sec-resolution-comparison" class="nav-link" data-scroll-target="#sec-resolution-comparison"><span class="header-section-number">18.7.4</span> Resolution Comparison: Surface vs.&nbsp;Crosshole</a></li>
+  <li><a href="#sec-crosshole-applications" id="toc-sec-crosshole-applications" class="nav-link" data-scroll-target="#sec-crosshole-applications"><span class="header-section-number">18.7.5</span> Why This Matters for HIRT Applications</a></li>
+  <li><a href="#sec-crosshole-benefits" id="toc-sec-crosshole-benefits" class="nav-link" data-scroll-target="#sec-crosshole-benefits"><span class="header-section-number">18.7.6</span> Additional Crosshole Advantages</a></li>
+  </ul></li>
+  <li><a href="#sec-depth-summary" id="toc-sec-depth-summary" class="nav-link" data-scroll-target="#sec-depth-summary"><span class="header-section-number">18.8</span> Depth of Investigation Summary</a></li>
+  <li><a href="#sec-crosshole-tradeoffs" id="toc-sec-crosshole-tradeoffs" class="nav-link" data-scroll-target="#sec-crosshole-tradeoffs"><span class="header-section-number">18.9</span> When Crosshole Wins vs.&nbsp;Loses</a></li>
+  <li><a href="#sec-physics-references" id="toc-sec-physics-references" class="nav-link" data-scroll-target="#sec-physics-references"><span class="header-section-number">18.10</span> References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../theory/physics.html">Theory</a></li><li class="breadcrumb-item"><a href="../theory/physics.html"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec-physics-overview" class="level2" data-number="18.1">
+<h2 data-number="18.1" class="anchored" data-anchor-id="sec-physics-overview"><span class="header-section-number">18.1</span> Overview</h2>
+<p>The HIRT system combines two complementary geophysical sensing modalities: Magneto-Inductive Tomography (MIT-3D) and Electrical Resistivity Tomography (ERT-Lite). Understanding the physics underlying each method is essential for proper system deployment, frequency selection, and data interpretation. This section provides a practical, field-level treatment of the relevant physics principles.</p>
+</section>
+<section id="sec-mit-physics" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="sec-mit-physics"><span class="header-section-number">18.2</span> MIT-3D (Low-Frequency Electromagnetic)</h2>
+<section id="sec-mit-principle" class="level3" data-number="18.2.1">
+<h3 data-number="18.2.1" class="anchored" data-anchor-id="sec-mit-principle"><span class="header-section-number">18.2.1</span> Operating Principle</h3>
+<p>MIT-3D uses oscillating magnetic fields to detect conductive anomalies in the subsurface. A transmit (TX) coil drives a stable sinusoidal current at frequencies between 2-50 kHz, generating a primary magnetic field. When this field encounters conductive material—such as metal objects or high-conductivity soil zones—it induces eddy currents within the conductor.</p>
+<p>These eddy currents generate a secondary magnetic field that opposes the primary field. Receive (RX) coils positioned at known distances from the TX coil measure the combined field. The presence of conductive targets manifests as measurable changes in both the <strong>amplitude</strong> and <strong>phase</strong> of the received signal relative to the transmitted waveform.</p>
+</section>
+<section id="sec-frequency-selection" class="level3" data-number="18.2.2">
+<h3 data-number="18.2.2" class="anchored" data-anchor-id="sec-frequency-selection"><span class="header-section-number">18.2.2</span> Frequency Selection</h3>
+<p>Operating frequency determines the trade-off between depth penetration and near-surface sensitivity:</p>
+<ul>
+<li><strong>Lower frequency (2-10 kHz)</strong>: Deeper penetration, better for targets at 2.5-4+ meters</li>
+<li><strong>Higher frequency (20-50 kHz)</strong>: Sharper sensitivity near probes, better for 0.5-1.5 meter targets</li>
+<li><strong>Multi-frequency sweep</strong>: Recommended for unknown target depths; provides spectral discrimination</li>
+</ul>
+<div id="tbl-frequency-selection" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-frequency-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18.1: Target-dependent frequency selection guidelines. Higher frequencies provide sharper near-surface resolution while lower frequencies enable deeper penetration. Longer integration times improve SNR at all frequencies.
+</figcaption>
+<div aria-describedby="tbl-frequency-selection-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Target Depth</th>
+<th>Recommended Frequencies</th>
+<th>Integration Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.5-1.5 m (shallow)</td>
+<td>20-50 kHz</td>
+<td>1-3 sec</td>
+</tr>
+<tr class="even">
+<td>1.5-2.5 m (mid-range)</td>
+<td>10-20 kHz</td>
+<td>3-5 sec</td>
+</tr>
+<tr class="odd">
+<td>2.5-4 m (deep)</td>
+<td>2-10 kHz</td>
+<td>5-15 sec</td>
+</tr>
+<tr class="even">
+<td>&gt;4 m (very deep)</td>
+<td>2-5 kHz</td>
+<td>10-30 sec</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="sec-skin-depth" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="sec-skin-depth"><span class="header-section-number">18.3</span> Electromagnetic Skin Depth</h2>
+<p>Electromagnetic skin depth (<span class="math inline">\(\delta\)</span>) defines how deeply alternating EM fields penetrate into conductive media before being attenuated to 1/e (~37%) of their surface value. This fundamental parameter is given by:</p>
+<p><span id="eq-skin-depth"><span class="math display">\[
+\delta = \sqrt{\frac{2}{\omega \mu \sigma}}
+\tag{18.1}\]</span></span></p>
+<p>where <span class="math inline">\(\omega = 2\pi f\)</span> is the angular frequency, <span class="math inline">\(\mu = \mu_0 \mu_r\)</span> is the magnetic permeability (typically <span class="math inline">\(\mu_0 = 4\pi \times 10^{-7}\)</span> H/m for non-magnetic soils), and <span class="math inline">\(\sigma\)</span> is the electrical conductivity in S/m.</p>
+<p>For practical field calculations, this simplifies to:</p>
+<p><span id="eq-skin-depth-practical"><span class="math display">\[
+\delta \approx 503 \sqrt{\frac{\rho}{f}} \text{ meters}
+\tag{18.2}\]</span></span></p>
+<p>where <span class="math inline">\(\rho\)</span> is resistivity in ohm-meters and <span class="math inline">\(f\)</span> is frequency in Hz. This approximation assumes non-magnetic soil (<span class="math inline">\(\mu_r = 1\)</span>).</p>
+<p><strong>Example:</strong> At 10 kHz in 100 <span class="math inline">\(\Omega \cdot\)</span>m soil: <span class="math inline">\(\delta \approx 503 \sqrt{100/10000} = 503 \times 0.1 = 50.3\)</span> m. This confirms that skin depth is not the limiting factor for HIRT at typical operating frequencies and soil conditions.</p>
+<div id="tbl-skin-depth" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-skin-depth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18.2: Skin depth values for typical soil conductivities across the HIRT operating frequency range. Even in the most conductive soils, skin depth exceeds typical investigation depths at HIRT frequencies.
+</figcaption>
+<div aria-describedby="tbl-skin-depth-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Conductivity (S/m)</th>
+<th>2 kHz</th>
+<th>5 kHz</th>
+<th>10 kHz</th>
+<th>20 kHz</th>
+<th>50 kHz</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.01 (dry sand)</td>
+<td>112 m</td>
+<td>71 m</td>
+<td>50 m</td>
+<td>35 m</td>
+<td>22.5 m</td>
+</tr>
+<tr class="even">
+<td>0.1 (moist sand)</td>
+<td>35.6 m</td>
+<td>22.5 m</td>
+<td>15.9 m</td>
+<td>11.2 m</td>
+<td>7.1 m</td>
+</tr>
+<tr class="odd">
+<td>0.5 (wet clay)</td>
+<td>15.9 m</td>
+<td>10.1 m</td>
+<td>7.1 m</td>
+<td>5.0 m</td>
+<td>3.2 m</td>
+</tr>
+<tr class="even">
+<td>1.0 (saturated clay)</td>
+<td>11.2 m</td>
+<td>7.1 m</td>
+<td>5.0 m</td>
+<td>3.6 m</td>
+<td>2.3 m</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key Insight: Skin Depth vs.&nbsp;Coupling Geometry
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Skin depth alone does NOT limit MIT investigation depth in most field conditions</li>
+<li>Even in saturated clay at 50 kHz, skin depth (2.3 m) exceeds typical probe spacing</li>
+<li>The practical depth limitation is coil coupling geometry (1/r^3 decay), not skin depth</li>
+<li>Effective MIT depth is approximately 1-2x probe spacing in near-field conditions</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="sec-coupling-decay" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="sec-coupling-decay"><span class="header-section-number">18.4</span> MIT Coil Coupling and 1/r^3 Decay</h2>
+<p>In the near-field regime where HIRT operates, the magnetic field coupling between TX and RX coils decays as the cube of the separation distance. This 1/r^3 relationship is the fundamental limitation on MIT investigation depth—not electromagnetic skin depth.</p>
+<p>The magnetic dipole field strength at distance r from a coil is proportional to 1/r^3 for the near-field component (which dominates at distances much less than the wavelength). For a round-trip measurement (TX to target to RX), the sensitivity can decay as fast as 1/r^6 depending on target geometry.</p>
+<p>This rapid decay has important implications for system design:</p>
+<ul>
+<li><strong>Probe spacing</strong>: Maximum useful TX-RX separation is ~3-4 m for typical targets</li>
+<li><strong>Array density</strong>: Dense probe arrays (1-2 m spacing) provide better coverage than sparse arrays</li>
+<li><strong>Signal processing</strong>: High dynamic range ADCs required to capture both strong and weak paths</li>
+<li><strong>Integration time</strong>: Longer measurement integration needed for distant TX-RX pairs</li>
+</ul>
+<section id="sec-snr-optimization" class="level3" data-number="18.4.1">
+<h3 data-number="18.4.1" class="anchored" data-anchor-id="sec-snr-optimization"><span class="header-section-number">18.4.1</span> SNR Optimization</h3>
+<p>Signal-to-noise ratio (SNR) for MIT measurements depends on several controllable factors:</p>
+<p><span id="eq-snr-scaling"><span class="math display">\[
+\text{SNR} \propto D_m^{3/2} \times I \times \sqrt{t_{int}}
+\tag{18.3}\]</span></span></p>
+<p>where <span class="math inline">\(D_m\)</span> is coil diameter, <span class="math inline">\(I\)</span> is transmit current, and <span class="math inline">\(t_{int}\)</span> is integration time.</p>
+<p>Key optimization strategies:</p>
+<ul>
+<li><strong>Coil diameter</strong>: The most important factor—SNR scales as <span class="math inline">\(D_m^{3/2}\)</span>. Doubling coil diameter increases SNR by ~2.8x</li>
+<li><strong>Integration time</strong>: Provides linear improvement with square root of time—4x longer integration yields 2x SNR improvement</li>
+<li><strong>Transmit current</strong>: Linear relationship—doubling current doubles SNR (within thermal limits)</li>
+</ul>
+<p>The depth of investigation (DOI) has a modest relationship with noise floor: DOI <span class="math inline">\(\propto\)</span> noise<span class="math inline">\(^{-0.2}\)</span>. Reducing noise by a factor of 10 extends DOI by approximately 1.6x. This relationship reinforces that geometric factors (probe depth and spacing) remain the primary determinants of investigation depth.</p>
+</section>
+</section>
+<section id="sec-ert-physics" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="sec-ert-physics"><span class="header-section-number">18.5</span> ERT-Lite (Galvanic Method)</h2>
+<section id="sec-ert-principle" class="level3" data-number="18.5.1">
+<h3 data-number="18.5.1" class="anchored" data-anchor-id="sec-ert-principle"><span class="header-section-number">18.5.1</span> Operating Principle</h3>
+<p>Electrical Resistivity Tomography injects electrical current through the subsurface and measures the resulting voltage distribution. Two electrodes inject a known current (typically 0.5-2 mA for safety), while other electrodes measure voltage differences. The ratio V/I, combined with the electrode geometry, yields the apparent resistivity <span class="math inline">\(\rho_a\)</span> of the material between electrodes.</p>
+<p>Unlike MIT, ERT does not respond to metallic targets directly. Instead, it detects <strong>resistivity contrasts</strong> such as disturbed fill, moisture variations, compacted layers, voids, and the boundaries of burial pits. The combination of MIT (metal-sensitive) and ERT (structure-sensitive) provides comprehensive target characterization.</p>
+</section>
+<section id="sec-geometric-factor" class="level3" data-number="18.5.2">
+<h3 data-number="18.5.2" class="anchored" data-anchor-id="sec-geometric-factor"><span class="header-section-number">18.5.2</span> Geometric Factor K</h3>
+<p>The geometric factor K converts measured V/I ratios to apparent resistivity:</p>
+<p><span id="eq-apparent-resistivity"><span class="math display">\[
+\rho_a = K \times \frac{V}{I}
+\tag{18.4}\]</span></span></p>
+<p>For HIRT’s borehole electrode geometry, the geometric factor is approximately:</p>
+<p><span id="eq-geometric-factor"><span class="math display">\[
+K \approx \pi \times L
+\tag{18.5}\]</span></span></p>
+<p>where L is the separation distance between current injection electrodes.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Derivation of K = piL for Crosshole Ring Electrodes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The simplified <span class="math inline">\(K \approx \pi L\)</span> relationship for HIRT assumes:</p>
+<ol type="1">
+<li><strong>Cylindrical symmetry:</strong> Current flows radially outward from ring electrodes into a homogeneous half-space</li>
+<li><strong>Ring electrode approximation:</strong> Each ring acts as a line source at depth, with current density uniform around the ring circumference</li>
+<li><strong>Infinite medium correction:</strong> The <span class="math inline">\(2\pi\)</span> factor for full-space reduces to <span class="math inline">\(\pi\)</span> for practical borehole measurements where current primarily flows laterally through the formation between probes</li>
+<li><strong>Potential electrode at midpoint:</strong> Voltage is measured at the potential electrode(s) located between or adjacent to current electrodes</li>
+</ol>
+<p>For a two-electrode (pole-pole) configuration with current injection at ring A and return at ring B separated by distance L, the potential difference measured at a ring between them follows: <span class="math inline">\(V \approx \frac{I \rho}{\pi L}\)</span>, yielding <span class="math inline">\(K \approx \pi L\)</span>.</p>
+<p>This approximation is valid within +/-15% for typical HIRT geometries (L = 0.5-2.5 m, ring width &lt;&lt; L). More accurate geometric factors can be computed numerically for specific electrode arrangements using finite element modeling.</p>
+</div>
+</div>
+<div id="tbl-geometric-factors" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-geometric-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18.3: ERT geometric factors for HIRT ring electrode configurations. Larger electrode separations provide greater depth of investigation but lower resolution.
+</figcaption>
+<div aria-describedby="tbl-geometric-factors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Configuration</th>
+<th>L (electrode separation)</th>
+<th>K</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A(0.5m) to B(1.5m)</td>
+<td>1.0 m</td>
+<td>3.14 ohm-m</td>
+</tr>
+<tr class="even">
+<td>A(0.5m) to C(2.5m)</td>
+<td>2.0 m</td>
+<td>6.28 ohm-m</td>
+</tr>
+<tr class="odd">
+<td>A(0.5m) to D(3.0m)</td>
+<td>2.5 m</td>
+<td>7.85 ohm-m</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-ert-depth" class="level3" data-number="18.5.3">
+<h3 data-number="18.5.3" class="anchored" data-anchor-id="sec-ert-depth"><span class="header-section-number">18.5.3</span> Depth of Investigation</h3>
+<p>The ERT depth of investigation (DOI) is approximately 1.5x the maximum electrode separation. For HIRT probe configurations:</p>
+<ul>
+<li><strong>1.5 m probes</strong> (rings at 0.5m, 1.5m): DOI = 2-3 m</li>
+<li><strong>3.0 m probes</strong> (rings at 0.5m, 1.5m, 2.5m): DOI = 3-5 m (edge cases to 6 m)</li>
+</ul>
+</section>
+</section>
+<section id="sec-multi-frequency" class="level2" data-number="18.6">
+<h2 data-number="18.6" class="anchored" data-anchor-id="sec-multi-frequency"><span class="header-section-number">18.6</span> Multi-Frequency Response</h2>
+<p>Different subsurface features exhibit characteristic frequency-dependent responses that enable target discrimination. The frequency response of metallic targets depends on both target size and material conductivity: larger targets and higher-conductivity metals (copper, aluminum) show stronger low-frequency responses, while smaller targets require higher frequencies for adequate skin depth penetration into the metal volume. Non-metallic soil disturbances and moisture contrasts show broader, less frequency-dependent signatures that help distinguish them from metal.</p>
+<p>Multi-frequency sweeps enable:</p>
+<ul>
+<li><strong>Target classification</strong>: Metal vs.&nbsp;soil anomaly discrimination based on spectral signature</li>
+<li><strong>Depth estimation</strong>: Lower frequencies see deeper; response vs.&nbsp;frequency constrains depth</li>
+<li><strong>Size estimation</strong>: Larger metal objects have lower characteristic frequencies</li>
+<li><strong>Conductivity mapping</strong>: Frequency response shape indicates soil conductivity distribution</li>
+</ul>
+</section>
+<section id="sec-crosshole-advantage" class="level2" data-number="18.7">
+<h2 data-number="18.7" class="anchored" data-anchor-id="sec-crosshole-advantage"><span class="header-section-number">18.7</span> Why Crosshole Geometry Beats Surface Methods</h2>
+<p>HIRT’s borehole/crosshole tomography provides fundamental physics advantages over surface geophysical methods for targets deeper than approximately 1.5 m. These advantages stem from the geometry of measurement ray paths and the resulting illumination angles.</p>
+<section id="sec-surface-crosshole-comparison" class="level3" data-number="18.7.1">
+<h3 data-number="18.7.1" class="anchored" data-anchor-id="sec-surface-crosshole-comparison"><span class="header-section-number">18.7.1</span> Surface vs.&nbsp;Crosshole: A Medical Analogy</h3>
+<p>The distinction between surface and crosshole geophysics parallels the difference between medical X-ray imaging and CT scanning. A single X-ray provides a 2D projection of 3D anatomy—all structures along the ray path collapse into a single shadow. Computed tomography (CT) surrounds the patient with detectors, acquiring projections from hundreds of angles to reconstruct true 3D anatomy.</p>
+<p><strong>Surface geophysical methods</strong> operate like X-rays: all sensors are above the target, looking downward. They measure the integrated response along a single dominant direction. A target at 2 m depth produces nearly the same surface signature whether it sits at 1.8 m or 2.2 m depth—vertical resolution is inherently poor because all ray paths travel steeply through the target zone.</p>
+<p><strong>Crosshole tomography</strong> operates like CT scanning: probes surround the target volume, acquiring measurements from many angles. A target at 2 m depth is illuminated horizontally, diagonally, and from below by ray paths connecting different probe pairs. This angular diversity enables true 3D reconstruction with isotropic resolution—the ability to distinguish targets separated by similar distances horizontally or vertically.</p>
+<p>This is not merely an improvement in data processing; it is a fundamental physics advantage driven by measurement geometry. You cannot compute tomography from surface data because the ray paths lack angular diversity. Crosshole geometry provides that diversity by design.</p>
+</section>
+<section id="sec-ray-paths" class="level3" data-number="18.7.2">
+<h3 data-number="18.7.2" class="anchored" data-anchor-id="sec-ray-paths"><span class="header-section-number">18.7.2</span> Ray Path Geometry</h3>
+<p><strong>Surface methods</strong> must send energy down to a target and receive the return signal—doubling the path length and exponentially increasing attenuation. Sensitivity decreases as 1/r^2 to 1/r^4 with depth. More critically, nearly all energy travels vertically through the target, providing excellent lateral resolution but poor vertical discrimination.</p>
+<p><strong>Crosshole methods</strong> send signals horizontally through the target volume. Energy travels directly between probes at depth, with sensitivity concentrated precisely where targets are located. This geometry provides 2-5x better resolution than surface methods at depths exceeding 2 m (<em>theoretical advantage based on ray coverage geometry; field validation pending</em>), with approximately isotropic resolution in all three dimensions.</p>
+</section>
+<section id="sec-illumination-angles" class="level3" data-number="18.7.3">
+<h3 data-number="18.7.3" class="anchored" data-anchor-id="sec-illumination-angles"><span class="header-section-number">18.7.3</span> Illumination Angles and Angular Diversity</h3>
+<p>The fundamental advantage of crosshole geometry lies in angular diversity—the range of angles from which energy interrogates the target. Surface methods illuminate targets from a narrow cone of angles (typically 60-80 degrees from vertical), while crosshole methods provide illumination from nearly all directions in the horizontal plane and many angles in the vertical plane.</p>
+<p>Consider a 0.5 m diameter spherical target at 2.5 m depth in a 3-probe HIRT array with 2 m spacing. The target experiences:</p>
+<ul>
+<li><strong>12 unique ray paths</strong> between probe pairs (3 probes * 4 measurement depths * 2 channels = 24 measurement geometries)</li>
+<li><strong>Angular coverage</strong> spanning 180 degrees in horizontal plane</li>
+<li><strong>Vertical angles</strong> from -45 to +45 degrees relative to target center</li>
+</ul>
+<p>This angular diversity directly translates to reconstruction quality. Tomographic inversion requires measurements that sample the target from multiple perspectives. A general rule: resolution improves linearly with the number of independent viewing angles up to approximately 20-30 angles, after which diminishing returns occur.</p>
+<div class="visual-placeholder">
+<p><strong>Figure Concept</strong>: Illumination angle comparison diagram</p>
+<p>A side-by-side comparison showing ray path angles for surface vs.&nbsp;crosshole geometry:</p>
+<p><strong>Left panel (Surface ERT/MIT):</strong> - Show 5-7 surface sensors arranged in a line above ground - Draw ray paths from each sensor down to a target at 2.5 m depth - All rays converge downward in a narrow cone (60-80 deg from vertical) - Color-code rays by angle: steep (red), moderate (orange), shallow (yellow) - Annotate: “All rays from above - poor vertical resolution”</p>
+<p><strong>Right panel (HIRT Crosshole):</strong> - Show 3 probes at 2 m spacing inserted to 3 m depth - Draw ray paths connecting probes at multiple depths through a target at 2.5 m - Include horizontal rays (green), ascending rays (blue), descending rays (purple) - Show angular coverage: 180 deg horizontal, +/- 45 deg vertical - Annotate: “Rays from all directions - isotropic 3D resolution”</p>
+<p><strong>Bottom comparison:</strong> - Small polar plot for each showing angular coverage - Surface: narrow wedge (60-80 deg) - Crosshole: nearly full circle coverage</p>
+<p>Scale: use consistent 1 m grid spacing. Target shown as 0.5 m sphere at 2.5 m depth.</p>
+<p><strong>Type</strong>: diagram</p>
+</div>
+<p>Surface methods concentrate their ray paths in the vertical direction. A Wenner array with 1 m electrode spacing samples the subsurface primarily along near-vertical current paths. The resulting sensitivity pattern is pancake-shaped: excellent lateral resolution but poor depth discrimination. Targets at 2.0 m vs.&nbsp;2.5 m depth may show &lt;10% difference in measured apparent resistivity.</p>
+<p>Crosshole methods distribute ray paths across many angles. The sensitivity pattern is approximately spherical around each probe, with maximum sensitivity along the direct probe-to-probe lines. Targets at 2.0 m vs.&nbsp;2.5 m depth show &gt;50% difference in affected ray paths, enabling confident depth determination.</p>
+</section>
+<section id="sec-resolution-comparison" class="level3" data-number="18.7.4">
+<h3 data-number="18.7.4" class="anchored" data-anchor-id="sec-resolution-comparison"><span class="header-section-number">18.7.4</span> Resolution Comparison: Surface vs.&nbsp;Crosshole</h3>
+<p>The following table quantifies the resolution advantage of crosshole geometry at depth. Resolution is defined as the minimum separation at which two point targets can be distinguished with &gt;80% confidence in inverted models.</p>
+<div id="tbl-resolution-comparison" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-resolution-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18.4: Resolution comparison across geophysical methods at typical HIRT investigation depths. Note that HIRT provides approximately isotropic resolution (similar in all directions), while surface methods show 3-6x worse vertical than lateral resolution.
+</figcaption>
+<div aria-describedby="tbl-resolution-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 22%">
+<col style="width: 25%">
+<col style="width: 26%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Lateral Resolution</th>
+<th>Vertical Resolution</th>
+<th>Resolution at 3 m Depth</th>
+<th>Depth Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Surface Magnetometry</td>
+<td>1-2 m</td>
+<td>Poor (&gt;3 m)</td>
+<td>~2 m lateral</td>
+<td>3-4 m (ferrous only)</td>
+</tr>
+<tr class="even">
+<td>GPR (100 MHz)</td>
+<td>0.3-0.5 m (shallow)</td>
+<td>0.05-0.1 m (shallow)</td>
+<td>&gt;1 m (clay absorbs signal)</td>
+<td>0.5-2 m in clay</td>
+</tr>
+<tr class="odd">
+<td>Surface ERT (Wenner)</td>
+<td>~1x spacing</td>
+<td>~0.5x spacing</td>
+<td>2-3 m lateral</td>
+<td>4-6 m</td>
+</tr>
+<tr class="even">
+<td>EM31/CMD</td>
+<td>1-2 m</td>
+<td>Poor (&gt;3 m)</td>
+<td>~2 m lateral</td>
+<td>3-5 m (conductive)</td>
+</tr>
+<tr class="odd">
+<td><strong>HIRT Crosshole MIT</strong></td>
+<td><strong>0.5-1x spacing</strong></td>
+<td><strong>0.3-0.5x spacing</strong></td>
+<td><strong>0.75-1.5 m (isotropic)</strong></td>
+<td><strong>3-4 m</strong></td>
+</tr>
+<tr class="even">
+<td><strong>HIRT Crosshole ERT</strong></td>
+<td><strong>0.5-1x spacing</strong></td>
+<td><strong>0.3-0.5x spacing</strong></td>
+<td><strong>0.75-1.5 m (isotropic)</strong></td>
+<td><strong>3-5 m</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>The key distinction is <strong>isotropic vs.&nbsp;anisotropic resolution</strong>. Surface methods provide good lateral resolution but poor vertical resolution because all ray paths are steeply inclined. Crosshole methods provide similar resolution in all three dimensions because ray paths sample all orientations.</p>
+</section>
+<section id="sec-crosshole-applications" class="level3" data-number="18.7.5">
+<h3 data-number="18.7.5" class="anchored" data-anchor-id="sec-crosshole-applications"><span class="header-section-number">18.7.5</span> Why This Matters for HIRT Applications</h3>
+<p>The resolution and angular diversity advantages of crosshole geometry directly address the core challenges in HIRT target scenarios.</p>
+<section id="sec-bomb-crater-applications" class="level4" data-number="18.7.5.1">
+<h4 data-number="18.7.5.1" class="anchored" data-anchor-id="sec-bomb-crater-applications"><span class="header-section-number">18.7.5.1</span> Bomb Crater Investigations</h4>
+<p>Unexploded bombs buried at 2-4 m depth in craters backfilled with mixed soil, rubble, and organic debris present multiple challenges:</p>
+<ul>
+<li><p><strong>Vertical stratification</strong>: Craters fill in layers over decades. Surface methods cannot distinguish a target at 2.5 m depth in fill layer 3 from a target at 3.5 m depth in fill layer 5. HIRT’s vertical resolution (0.5-1 m) enables layer-by-layer reconstruction.</p></li>
+<li><p><strong>Multiple targets</strong>: Bomb fragments, shrapnel, vehicle debris, and potentially human remains may cluster within a 2 m radius. Surface magnetometry sees this as a single diffuse anomaly. HIRT resolves individual objects separated by &gt;0.75 m.</p></li>
+<li><p><strong>Non-ferrous detection</strong>: Aluminum aircraft debris lacks magnetic signature but strongly affects MIT measurements. ERT detects the void or disturbed soil around buried objects.</p></li>
+</ul>
+</section>
+<section id="sec-burial-applications" class="level4" data-number="18.7.5.2">
+<h4 data-number="18.7.5.2" class="anchored" data-anchor-id="sec-burial-applications"><span class="header-section-number">18.7.5.2</span> Woodland Burial Detection</h4>
+<p>Clandestine burials in wooded areas at 1-3 m depth:</p>
+<ul>
+<li><p><strong>Surface clutter</strong>: Tree roots, stones, animal burrows, and soil heterogeneity create overwhelming noise in surface measurements. HIRT probes are inserted below the root zone; measurements occur in undisturbed soil below 0.5 m.</p></li>
+<li><p><strong>Depth determination</strong>: Legal and operational decisions depend on accurate depth. “Approximately 2 m” from surface ERT is insufficient. HIRT provides depth estimates with +/- 0.3 m confidence.</p></li>
+<li><p><strong>Disturbance geometry</strong>: The 3D shape of disturbed soil (rectangular pit vs.&nbsp;natural void) aids classification. This requires 3D imaging, which crosshole geometry provides but surface methods cannot.</p></li>
+</ul>
+</section>
+<section id="sec-swamp-applications" class="level4" data-number="18.7.5.3">
+<h4 data-number="18.7.5.3" class="anchored" data-anchor-id="sec-swamp-applications"><span class="header-section-number">18.7.5.3</span> Swamp/Marsh Crash Sites</h4>
+<p>Aircraft wreckage in saturated, highly conductive soils at 2-5 m depth:</p>
+<ul>
+<li><p><strong>GPR failure</strong>: High conductivity limits GPR penetration to &lt;0.5 m. HIRT MIT operates at frequencies (2-10 kHz) where skin depth exceeds 10 m even in saturated soil.</p></li>
+<li><p><strong>Depth penetration</strong>: ERT performance improves with soil conductivity (better current injection). Surface ERT depth limit is ~4 m; HIRT extends this to 5-6 m in favorable conditions.</p></li>
+<li><p><strong>Debris field mapping</strong>: Crash debris scatters over 10-30 m laterally and 3-5 m vertically. True 3D reconstruction is essential for recovery planning. Surface methods provide 2D projections that cannot distinguish a compact debris field at 3 m from a dispersed field spanning 2-4 m depth.</p></li>
+</ul>
+</section>
+</section>
+<section id="sec-crosshole-benefits" class="level3" data-number="18.7.6">
+<h3 data-number="18.7.6" class="anchored" data-anchor-id="sec-crosshole-benefits"><span class="header-section-number">18.7.6</span> Additional Crosshole Advantages</h3>
+<p>Beyond resolution and angular diversity, crosshole methods offer several practical advantages:</p>
+<ul>
+<li><strong>No surface interference</strong>: Measurements occur below near-surface heterogeneity, fill, roots, and cultural noise (fences, vehicles)</li>
+<li><strong>True 3D sampling</strong>: Multiple ray paths at different angles enable tomographic reconstruction—not pseudo-depth estimation from diffraction patterns</li>
+<li><strong>Superior depth discrimination</strong>: Targets at 3 m vs.&nbsp;4 m depth are clearly distinguishable; surface methods show nearly identical responses</li>
+<li><strong>Scalable depth</strong>: Surface method depth is fixed by the instrument design. HIRT investigation depth scales with probe insertion depth (up to physical limits of ~5 m).</li>
+</ul>
+</section>
+</section>
+<section id="sec-depth-summary" class="level2" data-number="18.8">
+<h2 data-number="18.8" class="anchored" data-anchor-id="sec-depth-summary"><span class="header-section-number">18.8</span> Depth of Investigation Summary</h2>
+<p>The effective investigation depth depends on probe configuration, soil conditions, and the measurement technique (MIT vs.&nbsp;ERT). The following table summarizes depth capabilities with associated confidence levels:</p>
+<div id="tbl-depth-summary" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-depth-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;18.5: Depth of investigation summary by configuration and confidence level. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions.
+</figcaption>
+<div aria-describedby="tbl-depth-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Configuration</th>
+<th>MIT Depth</th>
+<th>ERT Depth</th>
+<th>Combined Claim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1.5 m probes, 2 m spacing</td>
+<td>2-3 m</td>
+<td>2-3 m</td>
+<td>2-3 m (HIGH confidence)</td>
+</tr>
+<tr class="even">
+<td>3.0 m probes, 2 m spacing</td>
+<td>3-4 m</td>
+<td>3-5 m</td>
+<td>3-5 m (MEDIUM confidence)</td>
+</tr>
+<tr class="odd">
+<td>Edge cases (conductive soil)</td>
+<td>2-3 m</td>
+<td>4-6 m</td>
+<td>Up to 6 m (LOW confidence)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p><strong>Rule of thumb:</strong> With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT).</p>
+</section>
+<section id="sec-crosshole-tradeoffs" class="level2" data-number="18.9">
+<h2 data-number="18.9" class="anchored" data-anchor-id="sec-crosshole-tradeoffs"><span class="header-section-number">18.9</span> When Crosshole Wins vs.&nbsp;Loses</h2>
+<p>The physics supports strategic use of both surface and crosshole methods. Understanding their respective strengths enables optimal workflow design.</p>
+<p><strong>HIRT crosshole geometry is SUPERIOR for:</strong></p>
+<ul>
+<li>Targets deeper than 1.5-2 m</li>
+<li>3D localization requirements</li>
+<li>Conductive soils where GPR fails</li>
+<li>Distinguishing multiple targets at similar depths</li>
+<li>Non-ferrous (aluminum) target detection</li>
+</ul>
+<p><strong>Surface methods remain SUPERIOR for:</strong></p>
+<ul>
+<li>Rapid large-area screening (10x faster coverage)</li>
+<li>Shallow targets (&lt;1 m) where GPR resolution excels</li>
+<li>Purely ferrous targets (magnetometry)</li>
+<li>Initial site characterization before targeted investigation</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Recommended Workflow
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Stage 1:</strong> Surface screening (magnetometry, GPR, EM31) to identify anomalies quickly over large areas</li>
+<li><strong>Stage 2:</strong> HIRT crosshole follow-up to characterize identified anomalies with superior 3D resolution</li>
+<li>This two-stage approach leverages the strengths of both methods while minimizing deployment time</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="sec-physics-references" class="level2" data-number="18.10">
+<h2 data-number="18.10" class="anchored" data-anchor-id="sec-physics-references"><span class="header-section-number">18.10</span> References</h2>
+<ol type="1">
+<li><p>Wait, J.R. (1951). The magnetic dipole over the horizontally stratified earth. <em>Canadian Journal of Physics</em>, 29(6), 577-592. <a href="https://doi.org/10.1139/p51-061">DOI: 10.1139/p51-061</a></p></li>
+<li><p>Ward, S.H., &amp; Hohmann, G.W. (1988). Electromagnetic theory for geophysical applications. In <em>Electromagnetic Methods in Applied Geophysics</em>, Vol. 1, Theory. Society of Exploration Geophysicists. <a href="https://doi.org/10.1190/1.9781560802631.ch4">DOI: 10.1190/1.9781560802631.ch4</a></p></li>
+<li><p>Telford, W.M., Geldart, L.P., &amp; Sheriff, R.E. (1990). <em>Applied Geophysics</em>, 2nd Edition. Cambridge University Press. <a href="https://doi.org/10.1017/CBO9781139167932">DOI: 10.1017/CBO9781139167932</a></p></li>
+<li><p>Griffiths, D.H., &amp; Barker, R.D. (1993). Two-dimensional resistivity imaging and modelling in areas of complex geology. <em>Journal of Applied Geophysics</em>, 29(3-4), 211-226. <a href="https://doi.org/10.1016/0926-9851(93)90005-J">DOI: 10.1016/0926-9851(93)90005-J</a></p></li>
+<li><p>Butler, D.K. (2001). Potential fields methods for location of unexploded ordnance. <em>The Leading Edge</em>, 20(8), 890-895. <a href="https://doi.org/10.1190/1.1487298">DOI: 10.1190/1.1487298</a></p></li>
+<li><p>Fernandez, J.P., et al.&nbsp;(2010). Realistic subsurface anomaly discrimination using electromagnetic induction and an SVM classifier. <em>EURASIP Journal on Advances in Signal Processing</em>, 2010, Article 6. <a href="https://doi.org/10.1155/2010/616365">DOI: 10.1155/2010/616365</a></p></li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../build-guide/validation.html" class="pagination-link" aria-label="Validation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Validation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../theory/architecture.html" class="pagination-link" aria-label="System Architecture">
+        <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">System Architecture</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Physics Theory"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview {#sec-physics-overview}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>The HIRT system combines two complementary geophysical sensing modalities: Magneto-Inductive Tomography (MIT-3D) and Electrical Resistivity Tomography (ERT-Lite). Understanding the physics underlying each method is essential for proper system deployment, frequency selection, and data interpretation. This section provides a practical, field-level treatment of the relevant physics principles.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## MIT-3D (Low-Frequency Electromagnetic) {#sec-mit-physics}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">### Operating Principle {#sec-mit-principle}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>MIT-3D uses oscillating magnetic fields to detect conductive anomalies in the subsurface. A transmit (TX) coil drives a stable sinusoidal current at frequencies between 2-50 kHz, generating a primary magnetic field. When this field encounters conductive material---such as metal objects or high-conductivity soil zones---it induces eddy currents within the conductor.</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>These eddy currents generate a secondary magnetic field that opposes the primary field. Receive (RX) coils positioned at known distances from the TX coil measure the combined field. The presence of conductive targets manifests as measurable changes in both the **amplitude** and **phase** of the received signal relative to the transmitted waveform.</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-tx-rx-waveforms</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "TX and RX waveform comparison at 10 kHz. The transmitted signal (top) induces a received signal (bottom) that is both attenuated and phase-shifted. The amplitude ratio and phase lag encode information about the conductivity and geometry of subsurface targets along the TX-RX path."</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_tx_rx_waveforms</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_tx_rx_waveforms()</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="fu">### Frequency Selection {#sec-frequency-selection}</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>Operating frequency determines the trade-off between depth penetration and near-surface sensitivity:</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Lower frequency (2-10 kHz)**: Deeper penetration, better for targets at 2.5-4+ meters</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Higher frequency (20-50 kHz)**: Sharper sensitivity near probes, better for 0.5-1.5 meter targets</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Multi-frequency sweep**: Recommended for unknown target depths; provides spectral discrimination</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>| Target Depth | Recommended Frequencies | Integration Time |</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>|--------------|------------------------|------------------|</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>| 0.5-1.5 m (shallow) | 20-50 kHz | 1-3 sec |</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>| 1.5-2.5 m (mid-range) | 10-20 kHz | 3-5 sec |</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>| 2.5-4 m (deep) | 2-10 kHz | 5-15 sec |</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>| &gt;4 m (very deep) | 2-5 kHz | 10-30 sec |</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>: Target-dependent frequency selection guidelines. Higher frequencies provide sharper near-surface resolution while lower frequencies enable deeper penetration. Longer integration times improve SNR at all frequencies. {#tbl-frequency-selection}</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">## Electromagnetic Skin Depth {#sec-skin-depth}</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>Electromagnetic skin depth ($\delta$) defines how deeply alternating EM fields penetrate into conductive media before being attenuated to 1/e (~37%) of their surface value. This fundamental parameter is given by:</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>\delta = \sqrt{\frac{2}{\omega \mu \sigma}}</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>$$ {#eq-skin-depth}</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>where $\omega = 2\pi f$ is the angular frequency, $\mu = \mu_0 \mu_r$ is the magnetic permeability (typically $\mu_0 = 4\pi \times 10^{-7}$ H/m for non-magnetic soils), and $\sigma$ is the electrical conductivity in S/m.</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>For practical field calculations, this simplifies to:</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>\delta \approx 503 \sqrt{\frac{\rho}{f}} \text{ meters}</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>$$ {#eq-skin-depth-practical}</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>where $\rho$ is resistivity in ohm-meters and $f$ is frequency in Hz. This approximation assumes non-magnetic soil ($\mu_r = 1$).</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>**Example:** At 10 kHz in 100 $\Omega \cdot$m soil: $\delta \approx 503 \sqrt{100/10000} = 503 \times 0.1 = 50.3$ m. This confirms that skin depth is not the limiting factor for HIRT at typical operating frequencies and soil conditions.</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>| Conductivity (S/m) | 2 kHz | 5 kHz | 10 kHz | 20 kHz | 50 kHz |</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>|-------------------|-------|-------|--------|--------|--------|</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>| 0.01 (dry sand) | 112 m | 71 m | 50 m | 35 m | 22.5 m |</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>| 0.1 (moist sand) | 35.6 m | 22.5 m | 15.9 m | 11.2 m | 7.1 m |</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>| 0.5 (wet clay) | 15.9 m | 10.1 m | 7.1 m | 5.0 m | 3.2 m |</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>| 1.0 (saturated clay) | 11.2 m | 7.1 m | 5.0 m | 3.6 m | 2.3 m |</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>: Skin depth values for typical soil conductivities across the HIRT operating frequency range. Even in the most conductive soils, skin depth exceeds typical investigation depths at HIRT frequencies. {#tbl-skin-depth}</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-skin-depth</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Electromagnetic skin depth versus frequency for five soil types spanning the conductivity range from dry sand (0.001 S/m) to saline/contaminated soil (1.0 S/m). The green shaded region indicates the HIRT operating range (2-50 kHz). The dashed line marks 10 kHz, a typical operating frequency."</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_skin_depth_plot</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_skin_depth_plot()</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Insight: Skin Depth vs. Coupling Geometry</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Skin depth alone does NOT limit MIT investigation depth in most field conditions</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Even in saturated clay at 50 kHz, skin depth (2.3 m) exceeds typical probe spacing</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The practical depth limitation is coil coupling geometry (1/r^3 decay), not skin depth</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Effective MIT depth is approximately 1-2x probe spacing in near-field conditions</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="fu">## MIT Coil Coupling and 1/r^3 Decay {#sec-coupling-decay}</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>In the near-field regime where HIRT operates, the magnetic field coupling between TX and RX coils decays as the cube of the separation distance. This 1/r^3 relationship is the fundamental limitation on MIT investigation depth---not electromagnetic skin depth.</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>The magnetic dipole field strength at distance r from a coil is proportional to 1/r^3 for the near-field component (which dominates at distances much less than the wavelength). For a round-trip measurement (TX to target to RX), the sensitivity can decay as fast as 1/r^6 depending on target geometry.</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-coupling-decay</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Magnetic coupling decay versus distance. The MIT near-field coupling (1/r^3) decays much faster than ERT geometric spreading (1/r^2). The green shaded region indicates typical HIRT probe spacing (1.5-3.5 m). Signal strength drops below practical detection thresholds beyond ~4-5 m separation."</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_coupling_decay_plot</span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_coupling_decay_plot()</span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>This rapid decay has important implications for system design:</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Probe spacing**: Maximum useful TX-RX separation is ~3-4 m for typical targets</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Array density**: Dense probe arrays (1-2 m spacing) provide better coverage than sparse arrays</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Signal processing**: High dynamic range ADCs required to capture both strong and weak paths</span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Integration time**: Longer measurement integration needed for distant TX-RX pairs</span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="fu">### SNR Optimization {#sec-snr-optimization}</span></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a>Signal-to-noise ratio (SNR) for MIT measurements depends on several controllable factors:</span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>\text{SNR} \propto D_m^{3/2} \times I \times \sqrt{t_{int}}</span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>$$ {#eq-snr-scaling}</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>where $D_m$ is coil diameter, $I$ is transmit current, and $t_{int}$ is integration time.</span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>Key optimization strategies:</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Coil diameter**: The most important factor---SNR scales as $D_m^{3/2}$. Doubling coil diameter increases SNR by ~2.8x</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Integration time**: Provides linear improvement with square root of time---4x longer integration yields 2x SNR improvement</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Transmit current**: Linear relationship---doubling current doubles SNR (within thermal limits)</span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>The depth of investigation (DOI) has a modest relationship with noise floor: DOI $\propto$ noise$^{-0.2}$. Reducing noise by a factor of 10 extends DOI by approximately 1.6x. This relationship reinforces that geometric factors (probe depth and spacing) remain the primary determinants of investigation depth.</span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## ERT-Lite (Galvanic Method) {#sec-ert-physics}</span></span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Operating Principle {#sec-ert-principle}</span></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>Electrical Resistivity Tomography injects electrical current through the subsurface and measures the resulting voltage distribution. Two electrodes inject a known current (typically 0.5-2 mA for safety), while other electrodes measure voltage differences. The ratio V/I, combined with the electrode geometry, yields the apparent resistivity $\rho_a$ of the material between electrodes.</span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>Unlike MIT, ERT does not respond to metallic targets directly. Instead, it detects **resistivity contrasts** such as disturbed fill, moisture variations, compacted layers, voids, and the boundaries of burial pits. The combination of MIT (metal-sensitive) and ERT (structure-sensitive) provides comprehensive target characterization.</span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a><span class="fu">### Geometric Factor K {#sec-geometric-factor}</span></span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>The geometric factor K converts measured V/I ratios to apparent resistivity:</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>\rho_a = K \times \frac{V}{I}</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>$$ {#eq-apparent-resistivity}</span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a>For HIRT's borehole electrode geometry, the geometric factor is approximately:</span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>K \approx \pi \times L</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>$$ {#eq-geometric-factor}</span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>where L is the separation distance between current injection electrodes.</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a><span class="fu">## Derivation of K = piL for Crosshole Ring Electrodes</span></span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a>The simplified $K \approx \pi L$ relationship for HIRT assumes:</span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Cylindrical symmetry:** Current flows radially outward from ring electrodes into a homogeneous half-space</span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Ring electrode approximation:** Each ring acts as a line source at depth, with current density uniform around the ring circumference</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Infinite medium correction:** The $2\pi$ factor for full-space reduces to $\pi$ for practical borehole measurements where current primarily flows laterally through the formation between probes</span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Potential electrode at midpoint:** Voltage is measured at the potential electrode(s) located between or adjacent to current electrodes</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>For a two-electrode (pole-pole) configuration with current injection at ring A and return at ring B separated by distance L, the potential difference measured at a ring between them follows: $V \approx \frac{I \rho}{\pi L}$, yielding $K \approx \pi L$.</span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a>This approximation is valid within +/-15% for typical HIRT geometries (L = 0.5-2.5 m, ring width &lt;&lt; L). More accurate geometric factors can be computed numerically for specific electrode arrangements using finite element modeling.</span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>| Configuration | L (electrode separation) | K |</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>|---------------|-------------------------|---|</span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>| A(0.5m) to B(1.5m) | 1.0 m | 3.14 ohm-m |</span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>| A(0.5m) to C(2.5m) | 2.0 m | 6.28 ohm-m |</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>| A(0.5m) to D(3.0m) | 2.5 m | 7.85 ohm-m |</span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a>: ERT geometric factors for HIRT ring electrode configurations. Larger electrode separations provide greater depth of investigation but lower resolution. {#tbl-geometric-factors}</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ert-geometric</span></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "ERT Wenner array configuration showing current injection electrodes (C1, C2) and potential measurement electrodes (P1, P2). Red curves indicate current flow lines; blue dashed lines show equipotential surfaces. The green ellipse marks the zone of maximum sensitivity. The geometric factor K = 2*pi*a for equal electrode spacing a."</span></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_ert_geometric_factor</span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_ert_geometric_factor()</span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a><span class="fu">### Depth of Investigation {#sec-ert-depth}</span></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a>The ERT depth of investigation (DOI) is approximately 1.5x the maximum electrode separation. For HIRT probe configurations:</span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**1.5 m probes** (rings at 0.5m, 1.5m): DOI = 2-3 m</span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**3.0 m probes** (rings at 0.5m, 1.5m, 2.5m): DOI = 3-5 m (edge cases to 6 m)</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Multi-Frequency Response {#sec-multi-frequency}</span></span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a>Different subsurface features exhibit characteristic frequency-dependent responses that enable target discrimination. The frequency response of metallic targets depends on both target size and material conductivity: larger targets and higher-conductivity metals (copper, aluminum) show stronger low-frequency responses, while smaller targets require higher frequencies for adequate skin depth penetration into the metal volume. Non-metallic soil disturbances and moisture contrasts show broader, less frequency-dependent signatures that help distinguish them from metal.</span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-frequency-response</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Multi-frequency target discrimination. Metal targets (red) show strong response at lower frequencies with characteristic roll-off. Soil disturbances (purple, dashed) exhibit broader frequency response. The combined signal (gray, dotted) can be decomposed through multi-frequency analysis. The green region indicates the HIRT sweep range (2-50 kHz)."</span></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_frequency_response</span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_frequency_response()</span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">5</span>))</span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a>Multi-frequency sweeps enable:</span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Target classification**: Metal vs. soil anomaly discrimination based on spectral signature</span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Depth estimation**: Lower frequencies see deeper; response vs. frequency constrains depth</span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Size estimation**: Larger metal objects have lower characteristic frequencies</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Conductivity mapping**: Frequency response shape indicates soil conductivity distribution</span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Crosshole Geometry Beats Surface Methods {#sec-crosshole-advantage}</span></span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a>HIRT's borehole/crosshole tomography provides fundamental physics advantages over surface geophysical methods for targets deeper than approximately 1.5 m. These advantages stem from the geometry of measurement ray paths and the resulting illumination angles.</span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a><span class="fu">### Surface vs. Crosshole: A Medical Analogy {#sec-surface-crosshole-comparison}</span></span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>The distinction between surface and crosshole geophysics parallels the difference between medical X-ray imaging and CT scanning. A single X-ray provides a 2D projection of 3D anatomy---all structures along the ray path collapse into a single shadow. Computed tomography (CT) surrounds the patient with detectors, acquiring projections from hundreds of angles to reconstruct true 3D anatomy.</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a>**Surface geophysical methods** operate like X-rays: all sensors are above the target, looking downward. They measure the integrated response along a single dominant direction. A target at 2 m depth produces nearly the same surface signature whether it sits at 1.8 m or 2.2 m depth---vertical resolution is inherently poor because all ray paths travel steeply through the target zone.</span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a>**Crosshole tomography** operates like CT scanning: probes surround the target volume, acquiring measurements from many angles. A target at 2 m depth is illuminated horizontally, diagonally, and from below by ray paths connecting different probe pairs. This angular diversity enables true 3D reconstruction with isotropic resolution---the ability to distinguish targets separated by similar distances horizontally or vertically.</span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a>This is not merely an improvement in data processing; it is a fundamental physics advantage driven by measurement geometry. You cannot compute tomography from surface data because the ray paths lack angular diversity. Crosshole geometry provides that diversity by design.</span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ray Path Geometry {#sec-ray-paths}</span></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a>**Surface methods** must send energy down to a target and receive the return signal---doubling the path length and exponentially increasing attenuation. Sensitivity decreases as 1/r^2 to 1/r^4 with depth. More critically, nearly all energy travels vertically through the target, providing excellent lateral resolution but poor vertical discrimination.</span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a>**Crosshole methods** send signals horizontally through the target volume. Energy travels directly between probes at depth, with sensitivity concentrated precisely where targets are located. This geometry provides 2-5x better resolution than surface methods at depths exceeding 2 m (*theoretical advantage based on ray coverage geometry; field validation pending*), with approximately isotropic resolution in all three dimensions.</span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-ray-path-comparison</span></span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Comparison of (a) surface and (b) crosshole ray path geometries. Surface sensors create curved, indirect paths with poor sensitivity at depth. Crosshole probes provide direct, straight paths through the target volume. The checkmark in (b) indicates confident target detection; the question mark in (a) indicates ambiguous response at depth."</span></span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_ray_path_comparison</span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_ray_path_comparison()</span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a><span class="fu">### Illumination Angles and Angular Diversity {#sec-illumination-angles}</span></span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a>The fundamental advantage of crosshole geometry lies in angular diversity---the range of angles from which energy interrogates the target. Surface methods illuminate targets from a narrow cone of angles (typically 60-80 degrees from vertical), while crosshole methods provide illumination from nearly all directions in the horizontal plane and many angles in the vertical plane.</span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a>Consider a 0.5 m diameter spherical target at 2.5 m depth in a 3-probe HIRT array with 2 m spacing. The target experiences:</span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**12 unique ray paths** between probe pairs (3 probes * 4 measurement depths * 2 channels = 24 measurement geometries)</span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Angular coverage** spanning 180 degrees in horizontal plane</span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Vertical angles** from -45 to +45 degrees relative to target center</span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>This angular diversity directly translates to reconstruction quality. Tomographic inversion requires measurements that sample the target from multiple perspectives. A general rule: resolution improves linearly with the number of independent viewing angles up to approximately 20-30 angles, after which diminishing returns occur.</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a>::: {.visual-placeholder}</span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a>**Figure Concept**: Illumination angle comparison diagram</span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a>A side-by-side comparison showing ray path angles for surface vs. crosshole geometry:</span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a>**Left panel (Surface ERT/MIT):**</span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Show 5-7 surface sensors arranged in a line above ground</span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Draw ray paths from each sensor down to a target at 2.5 m depth</span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>All rays converge downward in a narrow cone (60-80 deg from vertical)</span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Color-code rays by angle: steep (red), moderate (orange), shallow (yellow)</span>
+<span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Annotate: "All rays from above - poor vertical resolution"</span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a>**Right panel (HIRT Crosshole):**</span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Show 3 probes at 2 m spacing inserted to 3 m depth</span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Draw ray paths connecting probes at multiple depths through a target at 2.5 m</span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Include horizontal rays (green), ascending rays (blue), descending rays (purple)</span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Show angular coverage: 180 deg horizontal, +/- 45 deg vertical</span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Annotate: "Rays from all directions - isotropic 3D resolution"</span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a>**Bottom comparison:**</span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Small polar plot for each showing angular coverage</span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Surface: narrow wedge (60-80 deg)</span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Crosshole: nearly full circle coverage</span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a>Scale: use consistent 1 m grid spacing. Target shown as 0.5 m sphere at 2.5 m depth.</span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a>**Type**: diagram</span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a>Surface methods concentrate their ray paths in the vertical direction. A Wenner array with 1 m electrode spacing samples the subsurface primarily along near-vertical current paths. The resulting sensitivity pattern is pancake-shaped: excellent lateral resolution but poor depth discrimination. Targets at 2.0 m vs. 2.5 m depth may show &lt;10% difference in measured apparent resistivity.</span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a>Crosshole methods distribute ray paths across many angles. The sensitivity pattern is approximately spherical around each probe, with maximum sensitivity along the direct probe-to-probe lines. Targets at 2.0 m vs. 2.5 m depth show &gt;50% difference in affected ray paths, enabling confident depth determination.</span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a><span class="fu">### Resolution Comparison: Surface vs. Crosshole {#sec-resolution-comparison}</span></span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a>The following table quantifies the resolution advantage of crosshole geometry at depth. Resolution is defined as the minimum separation at which two point targets can be distinguished with &gt;80% confidence in inverted models.</span>
+<span id="cb1-358"><a href="#cb1-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a>| Method | Lateral Resolution | Vertical Resolution | Resolution at 3 m Depth | Depth Limit |</span>
+<span id="cb1-360"><a href="#cb1-360" aria-hidden="true" tabindex="-1"></a>|--------|-------------------|---------------------|----------------------|-------------|</span>
+<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a>| Surface Magnetometry | 1-2 m | Poor (&gt;3 m) | ~2 m lateral | 3-4 m (ferrous only) |</span>
+<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a>| GPR (100 MHz) | 0.3-0.5 m (shallow) | 0.05-0.1 m (shallow) | &gt;1 m (clay absorbs signal) | 0.5-2 m in clay |</span>
+<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a>| Surface ERT (Wenner) | ~1x spacing | ~0.5x spacing | 2-3 m lateral | 4-6 m |</span>
+<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a>| EM31/CMD | 1-2 m | Poor (&gt;3 m) | ~2 m lateral | 3-5 m (conductive) |</span>
+<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a>| **HIRT Crosshole MIT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-4 m** |</span>
+<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a>| **HIRT Crosshole ERT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-5 m** |</span>
+<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a>: Resolution comparison across geophysical methods at typical HIRT investigation depths. Note that HIRT provides approximately isotropic resolution (similar in all directions), while surface methods show 3-6x worse vertical than lateral resolution. {#tbl-resolution-comparison}</span>
+<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a>The key distinction is **isotropic vs. anisotropic resolution**. Surface methods provide good lateral resolution but poor vertical resolution because all ray paths are steeply inclined. Crosshole methods provide similar resolution in all three dimensions because ray paths sample all orientations.</span>
+<span id="cb1-371"><a href="#cb1-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why This Matters for HIRT Applications {#sec-crosshole-applications}</span></span>
+<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a>The resolution and angular diversity advantages of crosshole geometry directly address the core challenges in HIRT target scenarios.</span>
+<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Bomb Crater Investigations {#sec-bomb-crater-applications}</span></span>
+<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a>Unexploded bombs buried at 2-4 m depth in craters backfilled with mixed soil, rubble, and organic debris present multiple challenges:</span>
+<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Vertical stratification**: Craters fill in layers over decades. Surface methods cannot distinguish a target at 2.5 m depth in fill layer 3 from a target at 3.5 m depth in fill layer 5. HIRT's vertical resolution (0.5-1 m) enables layer-by-layer reconstruction.</span>
+<span id="cb1-381"><a href="#cb1-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Multiple targets**: Bomb fragments, shrapnel, vehicle debris, and potentially human remains may cluster within a 2 m radius. Surface magnetometry sees this as a single diffuse anomaly. HIRT resolves individual objects separated by &gt;0.75 m.</span>
+<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Non-ferrous detection**: Aluminum aircraft debris lacks magnetic signature but strongly affects MIT measurements. ERT detects the void or disturbed soil around buried objects.</span>
+<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Woodland Burial Detection {#sec-burial-applications}</span></span>
+<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a>Clandestine burials in wooded areas at 1-3 m depth:</span>
+<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Surface clutter**: Tree roots, stones, animal burrows, and soil heterogeneity create overwhelming noise in surface measurements. HIRT probes are inserted below the root zone; measurements occur in undisturbed soil below 0.5 m.</span>
+<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Depth determination**: Legal and operational decisions depend on accurate depth. "Approximately 2 m" from surface ERT is insufficient. HIRT provides depth estimates with +/- 0.3 m confidence.</span>
+<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Disturbance geometry**: The 3D shape of disturbed soil (rectangular pit vs. natural void) aids classification. This requires 3D imaging, which crosshole geometry provides but surface methods cannot.</span>
+<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Swamp/Marsh Crash Sites {#sec-swamp-applications}</span></span>
+<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a>Aircraft wreckage in saturated, highly conductive soils at 2-5 m depth:</span>
+<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**GPR failure**: High conductivity limits GPR penetration to &lt;0.5 m. HIRT MIT operates at frequencies (2-10 kHz) where skin depth exceeds 10 m even in saturated soil.</span>
+<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Depth penetration**: ERT performance improves with soil conductivity (better current injection). Surface ERT depth limit is ~4 m; HIRT extends this to 5-6 m in favorable conditions.</span>
+<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Debris field mapping**: Crash debris scatters over 10-30 m laterally and 3-5 m vertically. True 3D reconstruction is essential for recovery planning. Surface methods provide 2D projections that cannot distinguish a compact debris field at 3 m from a dispersed field spanning 2-4 m depth.</span>
+<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a><span class="fu">### Additional Crosshole Advantages {#sec-crosshole-benefits}</span></span>
+<span id="cb1-407"><a href="#cb1-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-408"><a href="#cb1-408" aria-hidden="true" tabindex="-1"></a>Beyond resolution and angular diversity, crosshole methods offer several practical advantages:</span>
+<span id="cb1-409"><a href="#cb1-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-410"><a href="#cb1-410" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**No surface interference**: Measurements occur below near-surface heterogeneity, fill, roots, and cultural noise (fences, vehicles)</span>
+<span id="cb1-411"><a href="#cb1-411" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**True 3D sampling**: Multiple ray paths at different angles enable tomographic reconstruction---not pseudo-depth estimation from diffraction patterns</span>
+<span id="cb1-412"><a href="#cb1-412" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Superior depth discrimination**: Targets at 3 m vs. 4 m depth are clearly distinguishable; surface methods show nearly identical responses</span>
+<span id="cb1-413"><a href="#cb1-413" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Scalable depth**: Surface method depth is fixed by the instrument design. HIRT investigation depth scales with probe insertion depth (up to physical limits of ~5 m).</span>
+<span id="cb1-414"><a href="#cb1-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-417"><a href="#cb1-417" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-418"><a href="#cb1-418" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-resolution-depth</span></span>
+<span id="cb1-419"><a href="#cb1-419" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Spatial resolution versus investigation depth. Surface methods (dashed gray) show quadratic degradation of resolution with depth. HIRT crosshole methods (solid green) maintain approximately linear resolution scaling. The red dashed line indicates typical UXB diameter (~0.5 m). The orange shaded region marks typical UXB burial depths (2-4 m)."</span></span>
+<span id="cb1-420"><a href="#cb1-420" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb1-421"><a href="#cb1-421" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb1-422"><a href="#cb1-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-423"><a href="#cb1-423" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys<span class="op">;</span> sys.path.insert(<span class="dv">0</span>, <span class="st">'..'</span>) <span class="cf">if</span> <span class="st">'..'</span> <span class="kw">not</span> <span class="kw">in</span> sys.path <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb1-424"><a href="#cb1-424" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diagrams.physics <span class="im">import</span> create_resolution_depth_plot</span>
+<span id="cb1-425"><a href="#cb1-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-426"><a href="#cb1-426" aria-hidden="true" tabindex="-1"></a>buf <span class="op">=</span> create_resolution_depth_plot()</span>
+<span id="cb1-427"><a href="#cb1-427" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(buf)</span>
+<span id="cb1-428"><a href="#cb1-428" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb1-429"><a href="#cb1-429" aria-hidden="true" tabindex="-1"></a>plt.imshow(img)</span>
+<span id="cb1-430"><a href="#cb1-430" aria-hidden="true" tabindex="-1"></a>plt.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-431"><a href="#cb1-431" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-432"><a href="#cb1-432" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-433"><a href="#cb1-433" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-434"><a href="#cb1-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-435"><a href="#cb1-435" aria-hidden="true" tabindex="-1"></a><span class="fu">## Depth of Investigation Summary {#sec-depth-summary}</span></span>
+<span id="cb1-436"><a href="#cb1-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-437"><a href="#cb1-437" aria-hidden="true" tabindex="-1"></a>The effective investigation depth depends on probe configuration, soil conditions, and the measurement technique (MIT vs. ERT). The following table summarizes depth capabilities with associated confidence levels:</span>
+<span id="cb1-438"><a href="#cb1-438" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-439"><a href="#cb1-439" aria-hidden="true" tabindex="-1"></a>| Configuration | MIT Depth | ERT Depth | Combined Claim |</span>
+<span id="cb1-440"><a href="#cb1-440" aria-hidden="true" tabindex="-1"></a>|---------------|-----------|-----------|----------------|</span>
+<span id="cb1-441"><a href="#cb1-441" aria-hidden="true" tabindex="-1"></a>| 1.5 m probes, 2 m spacing | 2-3 m | 2-3 m | 2-3 m (HIGH confidence) |</span>
+<span id="cb1-442"><a href="#cb1-442" aria-hidden="true" tabindex="-1"></a>| 3.0 m probes, 2 m spacing | 3-4 m | 3-5 m | 3-5 m (MEDIUM confidence) |</span>
+<span id="cb1-443"><a href="#cb1-443" aria-hidden="true" tabindex="-1"></a>| Edge cases (conductive soil) | 2-3 m | 4-6 m | Up to 6 m (LOW confidence) |</span>
+<span id="cb1-444"><a href="#cb1-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-445"><a href="#cb1-445" aria-hidden="true" tabindex="-1"></a>: Depth of investigation summary by configuration and confidence level. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions. {#tbl-depth-summary}</span>
+<span id="cb1-446"><a href="#cb1-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-447"><a href="#cb1-447" aria-hidden="true" tabindex="-1"></a>**Rule of thumb:** With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT).</span>
+<span id="cb1-448"><a href="#cb1-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-449"><a href="#cb1-449" aria-hidden="true" tabindex="-1"></a><span class="fu">## When Crosshole Wins vs. Loses {#sec-crosshole-tradeoffs}</span></span>
+<span id="cb1-450"><a href="#cb1-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-451"><a href="#cb1-451" aria-hidden="true" tabindex="-1"></a>The physics supports strategic use of both surface and crosshole methods. Understanding their respective strengths enables optimal workflow design.</span>
+<span id="cb1-452"><a href="#cb1-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-453"><a href="#cb1-453" aria-hidden="true" tabindex="-1"></a>**HIRT crosshole geometry is SUPERIOR for:**</span>
+<span id="cb1-454"><a href="#cb1-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-455"><a href="#cb1-455" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Targets deeper than 1.5-2 m</span>
+<span id="cb1-456"><a href="#cb1-456" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>3D localization requirements</span>
+<span id="cb1-457"><a href="#cb1-457" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Conductive soils where GPR fails</span>
+<span id="cb1-458"><a href="#cb1-458" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Distinguishing multiple targets at similar depths</span>
+<span id="cb1-459"><a href="#cb1-459" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Non-ferrous (aluminum) target detection</span>
+<span id="cb1-460"><a href="#cb1-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-461"><a href="#cb1-461" aria-hidden="true" tabindex="-1"></a>**Surface methods remain SUPERIOR for:**</span>
+<span id="cb1-462"><a href="#cb1-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-463"><a href="#cb1-463" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Rapid large-area screening (10x faster coverage)</span>
+<span id="cb1-464"><a href="#cb1-464" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Shallow targets (&lt;1 m) where GPR resolution excels</span>
+<span id="cb1-465"><a href="#cb1-465" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Purely ferrous targets (magnetometry)</span>
+<span id="cb1-466"><a href="#cb1-466" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Initial site characterization before targeted investigation</span>
+<span id="cb1-467"><a href="#cb1-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-468"><a href="#cb1-468" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-469"><a href="#cb1-469" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recommended Workflow</span></span>
+<span id="cb1-470"><a href="#cb1-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-471"><a href="#cb1-471" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Stage 1:** Surface screening (magnetometry, GPR, EM31) to identify anomalies quickly over large areas</span>
+<span id="cb1-472"><a href="#cb1-472" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Stage 2:** HIRT crosshole follow-up to characterize identified anomalies with superior 3D resolution</span>
+<span id="cb1-473"><a href="#cb1-473" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>This two-stage approach leverages the strengths of both methods while minimizing deployment time</span>
+<span id="cb1-474"><a href="#cb1-474" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-475"><a href="#cb1-475" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-476"><a href="#cb1-476" aria-hidden="true" tabindex="-1"></a><span class="fu">## References {#sec-physics-references}</span></span>
+<span id="cb1-477"><a href="#cb1-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-478"><a href="#cb1-478" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Wait, J.R. (1951). The magnetic dipole over the horizontally stratified earth. *Canadian Journal of Physics*, 29(6), 577-592. <span class="co">[</span><span class="ot">DOI: 10.1139/p51-061</span><span class="co">](https://doi.org/10.1139/p51-061)</span></span>
+<span id="cb1-479"><a href="#cb1-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-480"><a href="#cb1-480" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Ward, S.H., &amp; Hohmann, G.W. (1988). Electromagnetic theory for geophysical applications. In *Electromagnetic Methods in Applied Geophysics*, Vol. 1, Theory. Society of Exploration Geophysicists. <span class="co">[</span><span class="ot">DOI: 10.1190/1.9781560802631.ch4</span><span class="co">](https://doi.org/10.1190/1.9781560802631.ch4)</span></span>
+<span id="cb1-481"><a href="#cb1-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-482"><a href="#cb1-482" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Telford, W.M., Geldart, L.P., &amp; Sheriff, R.E. (1990). *Applied Geophysics*, 2nd Edition. Cambridge University Press. <span class="co">[</span><span class="ot">DOI: 10.1017/CBO9781139167932</span><span class="co">](https://doi.org/10.1017/CBO9781139167932)</span></span>
+<span id="cb1-483"><a href="#cb1-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-484"><a href="#cb1-484" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Griffiths, D.H., &amp; Barker, R.D. (1993). Two-dimensional resistivity imaging and modelling in areas of complex geology. *Journal of Applied Geophysics*, 29(3-4), 211-226. <span class="co">[</span><span class="ot">DOI: 10.1016/0926-9851(93)90005-J</span><span class="co">]</span>(https://doi.org/10.1016/0926-9851(93)90005-J)</span>
+<span id="cb1-485"><a href="#cb1-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-486"><a href="#cb1-486" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Butler, D.K. (2001). Potential fields methods for location of unexploded ordnance. *The Leading Edge*, 20(8), 890-895. <span class="co">[</span><span class="ot">DOI: 10.1190/1.1487298</span><span class="co">](https://doi.org/10.1190/1.1487298)</span></span>
+<span id="cb1-487"><a href="#cb1-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-488"><a href="#cb1-488" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Fernandez, J.P., et al. (2010). Realistic subsurface anomaly discrimination using electromagnetic induction and an SVM classifier. *EURASIP Journal on Advances in Signal Processing*, 2010, Article 6. <span class="co">[</span><span class="ot">DOI: 10.1155/2010/616365</span><span class="co">](https://doi.org/10.1155/2010/616365)</span></span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

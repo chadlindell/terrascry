@@ -1,0 +1,153 @@
+---
+title: "Regulations and Legal Requirements"
+---
+
+## Overview
+
+This appendix covers legal, regulatory, and ethical requirements for HIRT deployment. For operational safety procedures, see [Getting Started: Safety](../getting-started/safety.qmd).
+
+## "Permit to Dig" Requirements
+
+In jurisdictions such as the UK (under **CIRIA C681**) and EU conflict zones, a "Permit to Dig" is strictly conditional.
+
+**Workflow for HIRT Deployment:**
+
+1. **Detailed Risk Assessment (DRA):** Must be completed by a competent UXO specialist before any site work
+2. **Non-Intrusive Survey:** Surface magnetometry to clear the general area
+3. **Intrusive MagCone/Probe:** Use passive magnetometry to clear the specific probe insertion point to depth
+4. **Certificate:** Obtain a *UXO Clearance Certificate* for the specific coordinate
+5. **Permit Issuance:** The Permit to Dig is issued only after the Clearance Certificate is attached
+
+## Forensic Data Integrity and Chain of Custody
+
+HIRT surveys conducted in support of criminal investigations, human rights documentation, or conflict archaeology must adhere to forensic standards that ensure data integrity and admissibility in legal proceedings.
+
+### Why Chain of Custody Matters
+
+HIRT-derived evidence may support criminal prosecutions, civil litigation, or international tribunals investigating war crimes. Data integrity depends on documented procedures satisfying three core requirements:
+
+**Authenticity**: Proof that data originated from the stated location and time, collected by identified personnel using verified equipment.
+
+**Continuity**: An unbroken record of who handled the data, when transfers occurred, and what actions were performed.
+
+**Integrity**: Verification that data remains unchanged from collection. Cryptographic hashes (MD5, SHA-256) provide mathematical proof.
+
+### Data Collection Protocol
+
+Every forensic HIRT survey must capture comprehensive metadata:
+
+**Survey Identification**: Use format `[DATE]-[SITE]-[OPERATOR]`, e.g., `20260130-KAMPALA-SMITH`
+
+**Temporal Documentation**: Embed UTC timestamps in all data files. Record local time zone offset.
+
+**Operator Credentials**: Record full name, affiliation, and certifications of all personnel.
+
+**Equipment Traceability**: Log serial numbers of all probes, data loggers, GPS units, and calibration standards.
+
+**Instrument Settings**: Record all acquisition parameters including frequencies, current levels, and filter settings.
+
+### Field Documentation
+
+**Site Photography**: Capture wide-angle photographs before probe insertion. Document each probe location. Include scale reference and compass orientation.
+
+**Geolocation Data**: Record GPS coordinates (WGS84) using survey-grade receiver with sub-meter accuracy. Document DOP values.
+
+**Environmental Conditions**: Log weather, soil moisture, and vegetation type.
+
+**Witness Signatures**: In some jurisdictions, forensic surveys require independent witness verification.
+
+**Field Sketches**: Draw scaled diagrams showing probe locations relative to permanent landmarks.
+
+### Data Handling Procedures
+
+**Original File Preservation**: Copy raw data to write-protected media immediately. Never analyze original files.
+
+**Cryptographic Hash Verification**: Compute MD5 and SHA-256 hashes immediately after collection. Verify before any analysis.
+
+**Secure Storage**: Use access-controlled, encrypted storage with audit logging. Maintain three independent copies.
+
+**Access Logging**: Record every access to data files including date, time, user, and actions performed.
+
+### Transfer Protocols
+
+**Physical Media Transfer**: Use chain of custody form. Package in tamper-evident bags with serialized seals.
+
+**Digital Transfer**: Use encrypted protocols (SFTP, secure cloud). Log transfer events with hash verification.
+
+**Third-Party Analysis**: Establish written agreements specifying handling requirements and destruction procedures.
+
+**International Transfer**: Cross-border transfers may trigger export controls and data privacy regulations. Consult legal counsel.
+
+### Reporting Requirements
+
+**Methodology Section**: Describe HIRT measurement principle, configuration, and processing workflow in sufficient detail for independent evaluation.
+
+**Software Documentation**: Identify all software with version numbers and configuration settings.
+
+**Limitations and Uncertainty**: State measurement uncertainties, depth resolution limits, and factors affecting interpretation. Provide confidence levels.
+
+**Operator Qualifications**: Include statement of education, training, and experience.
+
+**Peer Review**: Consider independent review for high-stakes proceedings.
+
+### Chain of Custody Form Template
+
+::: {.callout-note appearance="minimal"}
+## HIRT Data Chain of Custody Form
+
+**Case Identifier:** ___________________________
+**Survey ID:** ___________________________
+**Date of Collection:** ___________________________
+
+---
+
+**Evidence Description:**
+
+- Data file names: ___________________________
+- Number of files: ___________________________
+- Storage media: ___________________________
+- Total data volume: ___________________________
+
+**Hash Values (at time of collection):**
+
+- MD5: ___________________________
+- SHA-256: ___________________________
+
+---
+
+**Transfer Log:**
+
+| Date/Time | Released By (Signature) | Received By (Signature) | Purpose | Location |
+|-----------|------------------------|------------------------|---------|----------|
+| | | | | |
+| | | | | |
+| | | | | |
+
+---
+
+**Special Handling Instructions:**
+_________________________________________________________
+
+**Disposition (Final):**
+Returned to originator [ ]  Permanently archived [ ]  Destroyed [ ]
+
+Date: ___________  Authorized By: ___________________________
+:::
+
+## Applicable Standards
+
+HIRT forensic data handling should align with established standards:
+
+- **ASTM E1492-23**: Standard Practice for Receiving, Documenting, Storing, and Retrieving Evidence in a Forensic Science Laboratory
+- **ISO/IEC 27037:2012**: Guidelines for identification, collection, acquisition, and preservation of digital evidence
+- **SWGDE Best Practices for Computer Forensics** (Scientific Working Group on Digital Evidence)
+- **NIJ Electronic Crime Scene Investigation Guide** (US National Institute of Justice)
+- **IMAS 07.11**: International Mine Action Standards for Land Release
+- **CIRIA C681**: Unexploded Ordnance (UXO) A Guide for the Construction Industry (UK)
+
+## References
+
+1. OSCE Guidelines for Humanitarian Demining Operations (2024). Organization for Security and Co-operation in Europe.
+2. IMAS 07.11: Land Release. International Mine Action Standards, 3rd Edition (2023).
+3. ASTM D7128-18: Standard Guide for Using the Seismic-Reflection Method for Shallow Subsurface Investigation.
+4. US Army Corps of Engineers (2018). Engineering and Design: Ordnance and Explosives Response. EM 200-1-15.

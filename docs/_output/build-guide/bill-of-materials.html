@@ -1,0 +1,2915 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.557">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>HIRT: Hybrid Inductive-Resistivity Tomography - 11&nbsp; Bill of Materials</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../build-guide/mechanical.html" rel="next">
+<link href="../field-guide/troubleshooting.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+<link rel="stylesheet" href="../assets/styles/custom.css">
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html">Build Guide</a></li><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">HIRT: Hybrid Inductive-Resistivity Tomography</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">HIRT Technical Manual</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Getting Started</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/quick-start.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Quick Start</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../getting-started/safety.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Safety</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Field Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/progressive-deployment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Progressive Deployment</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/data-acquisition.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Data Acquisition</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/interpretation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Data Interpretation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Application Scenarios</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../field-guide/troubleshooting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Build Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/bill-of-materials.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/mechanical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mechanical Design</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/electronics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Electronics and Circuits</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/assembly.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Assembly and Wiring</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Testing and Verification</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/calibration.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Calibration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../build-guide/validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Validation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text">Theory</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/physics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Physics Theory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/architecture.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">System Architecture</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/sensor-modalities.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Sensor Modalities</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/inversion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Inversion and Reconstruction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../theory/uncertainty.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Uncertainty and Limitations</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true">
+ <span class="menu-text">Developer Guide</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/contributing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Contributing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/firmware.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Firmware</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/data-formats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Data Formats</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../developer/roadmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Roadmap</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/glossary.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Glossary</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/quick-reference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Quick Reference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/checklists.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Field Checklists</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../appendices/regulations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Regulations and Legal Requirements</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="2">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-bom-overview" id="toc-sec-bom-overview" class="nav-link active" data-scroll-target="#sec-bom-overview"><span class="header-section-number">11.1</span> Overview</a></li>
+  <li><a href="#sec-cost-summary" id="toc-sec-cost-summary" class="nav-link" data-scroll-target="#sec-cost-summary"><span class="header-section-number">11.2</span> Cost Summary</a></li>
+  <li><a href="#system-cost-estimate-20-probe-array" id="toc-system-cost-estimate-20-probe-array" class="nav-link" data-scroll-target="#system-cost-estimate-20-probe-array"><span class="header-section-number">11.3</span> System Cost Estimate (20-Probe Array)</a></li>
+  <li><a href="#cost-per-probe-breakdown" id="toc-cost-per-probe-breakdown" class="nav-link" data-scroll-target="#cost-per-probe-breakdown"><span class="header-section-number">11.4</span> Cost Per Probe Breakdown</a></li>
+  <li><a href="#cost-reduction-options" id="toc-cost-reduction-options" class="nav-link" data-scroll-target="#cost-reduction-options"><span class="header-section-number">11.5</span> Cost Reduction Options</a></li>
+  <li><a href="#sec-per-probe-bom" id="toc-sec-per-probe-bom" class="nav-link" data-scroll-target="#sec-per-probe-bom"><span class="header-section-number">11.6</span> Per-Probe Bill of Materials</a></li>
+  <li><a href="#mechanical-components" id="toc-mechanical-components" class="nav-link" data-scroll-target="#mechanical-components"><span class="header-section-number">11.7</span> Mechanical Components</a></li>
+  <li><a href="#coil-components" id="toc-coil-components" class="nav-link" data-scroll-target="#coil-components"><span class="header-section-number">11.8</span> Coil Components</a></li>
+  <li><a href="#ert-components" id="toc-ert-components" class="nav-link" data-scroll-target="#ert-components"><span class="header-section-number">11.9</span> ERT Components</a></li>
+  <li><a href="#hardware" id="toc-hardware" class="nav-link" data-scroll-target="#hardware"><span class="header-section-number">11.10</span> Hardware</a></li>
+  <li><a href="#cable-and-connectors" id="toc-cable-and-connectors" class="nav-link" data-scroll-target="#cable-and-connectors"><span class="header-section-number">11.11</span> Cable and Connectors</a></li>
+  <li><a href="#active-probe-electronics-optional" id="toc-active-probe-electronics-optional" class="nav-link" data-scroll-target="#active-probe-electronics-optional"><span class="header-section-number">11.12</span> Active Probe Electronics (Optional)</a></li>
+  <li><a href="#sec-hub-bom" id="toc-sec-hub-bom" class="nav-link" data-scroll-target="#sec-hub-bom"><span class="header-section-number">11.13</span> Base Hub Bill of Materials</a></li>
+  <li><a href="#power-system" id="toc-power-system" class="nav-link" data-scroll-target="#power-system"><span class="header-section-number">11.14</span> Power System</a></li>
+  <li><a href="#ert-current-source" id="toc-ert-current-source" class="nav-link" data-scroll-target="#ert-current-source"><span class="header-section-number">11.15</span> ERT Current Source</a></li>
+  <li><a href="#syncclock-distribution" id="toc-syncclock-distribution" class="nav-link" data-scroll-target="#syncclock-distribution"><span class="header-section-number">11.16</span> Sync/Clock Distribution</a></li>
+  <li><a href="#communication" id="toc-communication" class="nav-link" data-scroll-target="#communication"><span class="header-section-number">11.17</span> Communication</a></li>
+  <li><a href="#control" id="toc-control" class="nav-link" data-scroll-target="#control"><span class="header-section-number">11.18</span> Control</a></li>
+  <li><a href="#enclosure-and-connectors" id="toc-enclosure-and-connectors" class="nav-link" data-scroll-target="#enclosure-and-connectors"><span class="header-section-number">11.19</span> Enclosure and Connectors</a></li>
+  <li><a href="#sec-shared-bom" id="toc-sec-shared-bom" class="nav-link" data-scroll-target="#sec-shared-bom"><span class="header-section-number">11.20</span> Shared Equipment Bill of Materials</a></li>
+  <li><a href="#connectors-and-cables" id="toc-connectors-and-cables" class="nav-link" data-scroll-target="#connectors-and-cables"><span class="header-section-number">11.21</span> Connectors and Cables</a></li>
+  <li><a href="#test-equipment-recommended" id="toc-test-equipment-recommended" class="nav-link" data-scroll-target="#test-equipment-recommended"><span class="header-section-number">11.22</span> Test Equipment (Recommended)</a></li>
+  <li><a href="#tools" id="toc-tools" class="nav-link" data-scroll-target="#tools"><span class="header-section-number">11.23</span> Tools</a></li>
+  <li><a href="#consumables" id="toc-consumables" class="nav-link" data-scroll-target="#consumables"><span class="header-section-number">11.24</span> Consumables</a></li>
+  <li><a href="#sec-procurement" id="toc-sec-procurement" class="nav-link" data-scroll-target="#sec-procurement"><span class="header-section-number">11.25</span> Procurement Guide</a></li>
+  <li><a href="#recommended-suppliers" id="toc-recommended-suppliers" class="nav-link" data-scroll-target="#recommended-suppliers"><span class="header-section-number">11.26</span> Recommended Suppliers</a>
+  <ul class="collapse">
+  <li><a href="#electronics" id="toc-electronics" class="nav-link" data-scroll-target="#electronics"><span class="header-section-number">11.26.1</span> Electronics</a></li>
+  <li><a href="#mechanical" id="toc-mechanical" class="nav-link" data-scroll-target="#mechanical"><span class="header-section-number">11.26.2</span> Mechanical</a></li>
+  <li><a href="#d-printing" id="toc-d-printing" class="nav-link" data-scroll-target="#d-printing"><span class="header-section-number">11.26.3</span> 3D Printing</a></li>
+  <li><a href="#pcb-fabrication" id="toc-pcb-fabrication" class="nav-link" data-scroll-target="#pcb-fabrication"><span class="header-section-number">11.26.4</span> PCB Fabrication</a></li>
+  </ul></li>
+  <li><a href="#key-part-numbers-reference" id="toc-key-part-numbers-reference" class="nav-link" data-scroll-target="#key-part-numbers-reference"><span class="header-section-number">11.27</span> Key Part Numbers Reference</a></li>
+  <li><a href="#procurement-tips" id="toc-procurement-tips" class="nav-link" data-scroll-target="#procurement-tips"><span class="header-section-number">11.28</span> Procurement Tips</a></li>
+  <li><a href="#sec-alternatives" id="toc-sec-alternatives" class="nav-link" data-scroll-target="#sec-alternatives"><span class="header-section-number">11.29</span> Alternative Components</a></li>
+  <li><a href="#coil-alternatives" id="toc-coil-alternatives" class="nav-link" data-scroll-target="#coil-alternatives"><span class="header-section-number">11.30</span> Coil Alternatives</a></li>
+  <li><a href="#ert-ring-alternatives" id="toc-ert-ring-alternatives" class="nav-link" data-scroll-target="#ert-ring-alternatives"><span class="header-section-number">11.31</span> ERT Ring Alternatives</a></li>
+  <li><a href="#electronics-alternatives" id="toc-electronics-alternatives" class="nav-link" data-scroll-target="#electronics-alternatives"><span class="header-section-number">11.32</span> Electronics Alternatives</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html">Build Guide</a></li><li class="breadcrumb-item"><a href="../build-guide/bill-of-materials.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Bill of Materials</span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="sec-bom-overview" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="sec-bom-overview"><span class="header-section-number">11.1</span> Overview</h2>
+<p>This section provides comprehensive bills of materials (BOMs) for building the HIRT system, including per-probe components, base hub components, and shared equipment. The micro-probe design (16mm OD, passive probes) minimizes cost while maintaining measurement quality.</p>
+<p>The modular architecture allows builders to scale the system from a minimal single-probe test setup to full 25+ probe arrays. Component selection prioritizes availability, cost-effectiveness, and ease of assembly while meeting performance specifications.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Hardware Documentation Reference
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Detailed, up-to-date BOMs with specific part numbers are maintained in the hardware documentation:</p>
+<ul>
+<li><strong>Probe BOM:</strong> <code>/hardware/bom/probe-bom.md</code> - Per-probe components, costs, and procurement tips</li>
+<li><strong>Base Hub BOM:</strong> <code>/hardware/bom/base-hub-bom.md</code> - Central electronics components with detailed specifications</li>
+<li><strong>Shared Components:</strong> <code>/hardware/bom/shared-components-bom.md</code> - Common components used across multiple assemblies</li>
+<li><strong>Procurement Guide:</strong> <code>/hardware/bom/PROCUREMENT.md</code> - Supplier recommendations and ordering strategies</li>
+</ul>
+<p>The tables in this section summarize the BOMs; refer to the hardware documentation for exact part numbers and current pricing.</p>
+</div>
+</div>
+</section>
+<section id="sec-cost-summary" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="sec-cost-summary"><span class="header-section-number">11.2</span> Cost Summary</h2>
+</section>
+<section id="system-cost-estimate-20-probe-array" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="system-cost-estimate-20-probe-array"><span class="header-section-number">11.3</span> System Cost Estimate (20-Probe Array)</h2>
+<p>The following table presents the estimated cost ranges for a complete 20-probe HIRT system based on 2026 manufacturing projections.</p>
+<div id="tbl-system-cost" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-system-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.1: 20-Probe HIRT System Cost Estimate (2026 Projection)
+</figcaption>
+<div aria-describedby="tbl-system-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Category</th>
+<th>Cost Range</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Probes (20 units)</td>
+<td>$840-1,100</td>
+<td>CNC Delrin/Nylon mechanics</td>
+</tr>
+<tr class="even">
+<td>Electronics (Hubs)</td>
+<td>$450-600</td>
+<td>3x Hubs (active architecture)</td>
+</tr>
+<tr class="odd">
+<td>Cabling</td>
+<td>$300-400</td>
+<td>Trunk + Extensions</td>
+</tr>
+<tr class="even">
+<td>Assembly Labor</td>
+<td>$600-800</td>
+<td>In-house @ $30/hr</td>
+</tr>
+<tr class="odd">
+<td>Contingency</td>
+<td>$300-400</td>
+<td>Buffer for price hikes</td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td><strong>$2,150-2,850</strong></td>
+<td><strong>~$125 per probe</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+2026 Supply Chain Alert: Semiconductor Price Hike
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Critical:</strong> Analog Devices (ADI) has announced a <strong>10-30% price increase</strong> effective February 1, 2026. This affects key components including the AD8421, AD9837, and AD7124. Builders are strongly advised to procure these silicon components immediately to lock in current pricing.</p>
+</div>
+</div>
+<div id="cell-fig-cost-breakdown" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-cost-breakdown" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cost-breakdown-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bill-of-materials_files/figure-html/fig-cost-breakdown-output-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cost-breakdown-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.1: Cost distribution for a 25-probe HIRT system showing the relative investment in each component category. Probes represent the largest expense due to quantity.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cost-per-probe-breakdown" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="cost-per-probe-breakdown"><span class="header-section-number">11.4</span> Cost Per Probe Breakdown</h2>
+<p>Each passive probe consists of mechanical, sensing, and interconnection components. The following breakdown shows typical costs for a single probe unit.</p>
+<div id="tbl-probe-cost" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-probe-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.2: Per-Probe Cost Breakdown (Passive Design)
+</figcaption>
+<div aria-describedby="tbl-probe-cost-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mechanical (rod, tip, coupler)</td>
+<td>$35-55</td>
+</tr>
+<tr class="even">
+<td>ERT (rings, collars)</td>
+<td>$5-10</td>
+</tr>
+<tr class="odd">
+<td>Coils (ferrite, wire)</td>
+<td>$10-15</td>
+</tr>
+<tr class="even">
+<td>Short Cable (1m)</td>
+<td>$10-15</td>
+</tr>
+<tr class="odd">
+<td>Hardware (epoxy, o-rings)</td>
+<td>$5-10</td>
+</tr>
+<tr class="even">
+<td><strong>Total per probe</strong></td>
+<td><strong>$70-120</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="cost-reduction-options" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="cost-reduction-options"><span class="header-section-number">11.5</span> Cost Reduction Options</h2>
+<ul>
+<li><strong>Bulk ordering:</strong> 20%+ savings on quantities &gt;50 units</li>
+<li><strong>Local sourcing:</strong> Reduce shipping costs for common components</li>
+<li><strong>Simpler design:</strong> Passive probes vs active for significant savings</li>
+<li><strong>DIY coils:</strong> Wind your own coils vs purchasing pre-wound</li>
+<li><strong>Generic parts:</strong> Use non-branded components where precision is not critical</li>
+</ul>
+<div id="cell-fig-component-categories" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-component-categories" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-component-categories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bill-of-materials_files/figure-html/fig-component-categories-output-1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-component-categories-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11.2: HIRT component categories showing the relationship between per-probe components, base hub electronics, shared equipment, and optional active probe upgrades.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-per-probe-bom" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="sec-per-probe-bom"><span class="header-section-number">11.6</span> Per-Probe Bill of Materials</h2>
+</section>
+<section id="mechanical-components" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="mechanical-components"><span class="header-section-number">11.7</span> Mechanical Components</h2>
+<div id="tbl-mechanical" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-mechanical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.3: Per-Probe Mechanical Components (CNC/Volume Estimates)
+</figcaption>
+<div aria-describedby="tbl-mechanical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost (100 qty)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ROD1</td>
+<td>Fiberglass Tube</td>
+<td>16mm OD x 12mm ID x 1.5m</td>
+<td>1.5</td>
+<td>$10.00</td>
+</tr>
+<tr class="even">
+<td>TIP1</td>
+<td>Probe Tip</td>
+<td>CNC Delrin (Acetal)</td>
+<td>1</td>
+<td>$3.80-5.50</td>
+</tr>
+<tr class="odd">
+<td>CPL1</td>
+<td>Rod Coupler</td>
+<td>CNC Nylon 6/6</td>
+<td>1</td>
+<td>$4.20-6.00</td>
+</tr>
+<tr class="even">
+<td>JB1</td>
+<td>Junction Box</td>
+<td>3D printed PETG / CNC</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="coil-components" class="level2" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="coil-components"><span class="header-section-number">11.8</span> Coil Components</h2>
+<div id="tbl-coils" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-coils-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.4: Per-Probe Coil Components
+</figcaption>
+<div aria-describedby="tbl-coils-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td>Ferrite Rod</td>
+<td>6-8mm x 40-80mm MnZn</td>
+<td>1-2</td>
+<td>$2-5</td>
+</tr>
+<tr class="even">
+<td>W1</td>
+<td>Magnet Wire</td>
+<td>34-38 AWG, 50m</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="ert-components" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="ert-components"><span class="header-section-number">11.9</span> ERT Components</h2>
+<div id="tbl-ert" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ert-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.5: Per-Probe ERT Components
+</figcaption>
+<div aria-describedby="tbl-ert-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R1-R3</td>
+<td>ERT Rings</td>
+<td>Stainless steel 3-5mm bands</td>
+<td>2-3</td>
+<td>$1-2 ea</td>
+</tr>
+<tr class="even">
+<td>C1-C3</td>
+<td>Ring Collars</td>
+<td>3D printed PETG</td>
+<td>2-3</td>
+<td>$0.50 ea</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="hardware" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="hardware"><span class="header-section-number">11.10</span> Hardware</h2>
+<div id="tbl-hardware" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-hardware-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.6: Per-Probe Hardware
+</figcaption>
+<div aria-describedby="tbl-hardware-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>HW1</td>
+<td>O-Rings</td>
+<td>M12 size, nitrile</td>
+<td>4</td>
+<td>$0.50 ea</td>
+</tr>
+<tr class="even">
+<td>HW2</td>
+<td>Epoxy</td>
+<td>2-part structural</td>
+<td>-</td>
+<td>$5/probe</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="cable-and-connectors" class="level2" data-number="11.11">
+<h2 data-number="11.11" class="anchored" data-anchor-id="cable-and-connectors"><span class="header-section-number">11.11</span> Cable and Connectors</h2>
+<div id="tbl-cables" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.7: Per-Probe Cable and Connectors
+</figcaption>
+<div aria-describedby="tbl-cables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CBL1</td>
+<td>Shielded Cable</td>
+<td>6-conductor, 3-5m</td>
+<td>1</td>
+<td>$10-15</td>
+</tr>
+<tr class="even">
+<td>CON1</td>
+<td>Connector</td>
+<td>12-pin Phoenix</td>
+<td>1</td>
+<td>$5-8</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Total Per Passive Probe
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Estimated cost: ~$60-100 per passive probe</li>
+<li>Assembly time: 2-4 hours per probe</li>
+<li>Required skills: Basic soldering, 3D printing, mechanical assembly</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="active-probe-electronics-optional" class="level2" data-number="11.12">
+<h2 data-number="11.12" class="anchored" data-anchor-id="active-probe-electronics-optional"><span class="header-section-number">11.12</span> Active Probe Electronics (Optional)</h2>
+<p>For applications requiring higher performance, active probes with in-probe electronics can be built. These include signal generation, amplification, and digitization circuitry.</p>
+<div id="tbl-active" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-active-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.8: Active Probe Electronics (Optional Add-on)
+</figcaption>
+<div aria-describedby="tbl-active-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U1</td>
+<td>MCU</td>
+<td>ESP32-WROOM-32</td>
+<td>1</td>
+<td>$5-8</td>
+</tr>
+<tr class="even">
+<td>U2</td>
+<td>DDS</td>
+<td>AD9833BRMZ</td>
+<td>1</td>
+<td>$8-12</td>
+</tr>
+<tr class="odd">
+<td>U3</td>
+<td>TX Op-Amp</td>
+<td>OPA454AIDDAR</td>
+<td>1</td>
+<td>$6-10</td>
+</tr>
+<tr class="even">
+<td>U4</td>
+<td>RX Preamp</td>
+<td>AD620ARZ</td>
+<td>1</td>
+<td>$6-10</td>
+</tr>
+<tr class="odd">
+<td>U5</td>
+<td>Inst Amp</td>
+<td>INA128PAG4</td>
+<td>1</td>
+<td>$6-10</td>
+</tr>
+<tr class="even">
+<td>U6</td>
+<td>ADC</td>
+<td>ADS1256IDBR</td>
+<td>1</td>
+<td>$10-15</td>
+</tr>
+<tr class="odd">
+<td>U7</td>
+<td>Mux</td>
+<td>CD4051BE</td>
+<td>1</td>
+<td>$1-2</td>
+</tr>
+<tr class="even">
+<td>U8</td>
+<td>LDO</td>
+<td>AMS1117-3.3</td>
+<td>1</td>
+<td>$0.50</td>
+</tr>
+<tr class="odd">
+<td>PCB</td>
+<td>Custom PCB</td>
+<td>-</td>
+<td>1</td>
+<td>$5-10</td>
+</tr>
+<tr class="even">
+<td>-</td>
+<td>Passives</td>
+<td>Resistors, caps</td>
+<td>-</td>
+<td>$5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Additional cost per active probe: ~$50-80. Active probes provide improved signal-to-noise ratio and reduced cable effects but require more complex assembly.</p>
+</div>
+</div>
+</section>
+<section id="sec-hub-bom" class="level2" data-number="11.13">
+<h2 data-number="11.13" class="anchored" data-anchor-id="sec-hub-bom"><span class="header-section-number">11.13</span> Base Hub Bill of Materials</h2>
+<p>The base hub provides power distribution, synchronization, and data collection for all connected probes. One hub supports up to 25 probes.</p>
+</section>
+<section id="power-system" class="level2" data-number="11.14">
+<h2 data-number="11.14" class="anchored" data-anchor-id="power-system"><span class="header-section-number">11.14</span> Power System</h2>
+<div id="tbl-power" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-power-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.9: Base Hub Power System Components
+</figcaption>
+<div aria-describedby="tbl-power-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BAT1</td>
+<td>Battery</td>
+<td>12V 12Ah LiFePO4</td>
+<td>1</td>
+<td>$60-100</td>
+</tr>
+<tr class="even">
+<td>F1</td>
+<td>Fuse Holder</td>
+<td>0287005.PXCN</td>
+<td>1</td>
+<td>$3</td>
+</tr>
+<tr class="odd">
+<td>F2</td>
+<td>Fuse</td>
+<td>5A fast-blow</td>
+<td>5</td>
+<td>$1 ea</td>
+</tr>
+<tr class="even">
+<td>REG1</td>
+<td>5V Regulator</td>
+<td>LM2596 Module</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+<tr class="odd">
+<td>REG2</td>
+<td>3.3V Regulator</td>
+<td>AMS1117-3.3</td>
+<td>1</td>
+<td>$0.50</td>
+</tr>
+<tr class="even">
+<td>SW1</td>
+<td>Power Switch</td>
+<td>DPST 10A</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+<tr class="odd">
+<td>TB1</td>
+<td>Terminal Block</td>
+<td>Multi-position</td>
+<td>1</td>
+<td>$10-15</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="ert-current-source" class="level2" data-number="11.15">
+<h2 data-number="11.15" class="anchored" data-anchor-id="ert-current-source"><span class="header-section-number">11.15</span> ERT Current Source</h2>
+<div id="tbl-ert-source" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ert-source-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.10: ERT Current Source Components
+</figcaption>
+<div aria-describedby="tbl-ert-source-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U1</td>
+<td>Voltage Ref</td>
+<td>REF5025AIDGKR</td>
+<td>1</td>
+<td>$4-6</td>
+</tr>
+<tr class="even">
+<td>U2</td>
+<td>Op-Amp</td>
+<td>OPA277PAG4</td>
+<td>1</td>
+<td>$4-6</td>
+</tr>
+<tr class="odd">
+<td>U3</td>
+<td>Inst Amp</td>
+<td>INA128PAG4</td>
+<td>1</td>
+<td>$6-10</td>
+</tr>
+<tr class="even">
+<td>K1</td>
+<td>Relay</td>
+<td>G5V-2-H1</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+<tr class="odd">
+<td>R1-R4</td>
+<td>Precision R</td>
+<td>0.1% various</td>
+<td>10</td>
+<td>$0.50 ea</td>
+</tr>
+<tr class="even">
+<td>R5</td>
+<td>Sense R</td>
+<td>10 ohm 0.1%</td>
+<td>1</td>
+<td>$1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="syncclock-distribution" class="level2" data-number="11.16">
+<h2 data-number="11.16" class="anchored" data-anchor-id="syncclock-distribution"><span class="header-section-number">11.16</span> Sync/Clock Distribution</h2>
+<div id="tbl-sync" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sync-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.11: Sync/Clock Distribution Components
+</figcaption>
+<div aria-describedby="tbl-sync-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Y1</td>
+<td>Oscillator</td>
+<td>ECS-100-10-30B-TR</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+<tr class="even">
+<td>U1-U3</td>
+<td>Buffer</td>
+<td>SN74HC244N</td>
+<td>3</td>
+<td>$1 ea</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="communication" class="level2" data-number="11.17">
+<h2 data-number="11.17" class="anchored" data-anchor-id="communication"><span class="header-section-number">11.17</span> Communication</h2>
+<div id="tbl-comm" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-comm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.12: Communication Interface Components
+</figcaption>
+<div aria-describedby="tbl-comm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U1</td>
+<td>RS485</td>
+<td>MAX485ESA+</td>
+<td>1</td>
+<td>$2-4</td>
+</tr>
+<tr class="even">
+<td>U2</td>
+<td>USB-Serial</td>
+<td>CP2102 Module</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+<tr class="odd">
+<td>J1</td>
+<td>RJ45 Jack</td>
+<td>-</td>
+<td>1</td>
+<td>$2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="control" class="level2" data-number="11.18">
+<h2 data-number="11.18" class="anchored" data-anchor-id="control"><span class="header-section-number">11.18</span> Control</h2>
+<div id="tbl-control" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-control-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.13: Control System Components
+</figcaption>
+<div aria-describedby="tbl-control-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Part Number</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U1</td>
+<td>MCU</td>
+<td>ESP32 DevKit</td>
+<td>1</td>
+<td>$8-12</td>
+</tr>
+<tr class="even">
+<td>U2</td>
+<td>ADC</td>
+<td>ADS1256IDBR</td>
+<td>1</td>
+<td>$10-15</td>
+</tr>
+<tr class="odd">
+<td>SD1</td>
+<td>SD Card</td>
+<td>Micro SD module</td>
+<td>1</td>
+<td>$3-5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="enclosure-and-connectors" class="level2" data-number="11.19">
+<h2 data-number="11.19" class="anchored" data-anchor-id="enclosure-and-connectors"><span class="header-section-number">11.19</span> Enclosure and Connectors</h2>
+<div id="tbl-enclosure" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-enclosure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.14: Enclosure and Connector Components
+</figcaption>
+<div aria-describedby="tbl-enclosure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ENC1</td>
+<td>Enclosure</td>
+<td>IP65 200x150x100mm</td>
+<td>1</td>
+<td>$30-50</td>
+</tr>
+<tr class="even">
+<td>PG1-PG20</td>
+<td>Cable Glands</td>
+<td>PG11 or M20</td>
+<td>20</td>
+<td>$1 ea</td>
+</tr>
+<tr class="odd">
+<td>CON1-CON20</td>
+<td>Probe Connectors</td>
+<td>12-pin Phoenix</td>
+<td>20</td>
+<td>$5 ea</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Total Base Hub Cost (2026 Estimate)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>PCBA:</strong> ~$150-185 per hub (Low volume run, 4-layer PCB)</li>
+<li><strong>Total Unit Cost:</strong> ~$200-250 including enclosure</li>
+<li><strong>Optimization:</strong> Shrinking PCB to &lt;100x100mm can save ~$10/board on prototype runs.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="sec-shared-bom" class="level2" data-number="11.20">
+<h2 data-number="11.20" class="anchored" data-anchor-id="sec-shared-bom"><span class="header-section-number">11.20</span> Shared Equipment Bill of Materials</h2>
+</section>
+<section id="connectors-and-cables" class="level2" data-number="11.21">
+<h2 data-number="11.21" class="anchored" data-anchor-id="connectors-and-cables"><span class="header-section-number">11.21</span> Connectors and Cables</h2>
+<div id="tbl-shared-cables" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-shared-cables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.15: Shared Cables and Connectors
+</figcaption>
+<div aria-describedby="tbl-shared-cables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Ref</th>
+<th>Component</th>
+<th>Description</th>
+<th>Qty</th>
+<th>Unit Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CBL1</td>
+<td>Probe Cable</td>
+<td>Belden 3066A 12-pair, 5m</td>
+<td>20</td>
+<td>$15 ea</td>
+</tr>
+<tr class="even">
+<td>CBL2</td>
+<td>Power Cable</td>
+<td>14 AWG 2-conductor</td>
+<td>10m</td>
+<td>$10</td>
+</tr>
+<tr class="odd">
+<td>CON1</td>
+<td>Phoenix Headers</td>
+<td>12-pos pluggable</td>
+<td>20</td>
+<td>$5 ea</td>
+</tr>
+<tr class="even">
+<td>CON2</td>
+<td>DC Jack</td>
+<td>5.5x2.1mm panel</td>
+<td>1</td>
+<td>$2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="test-equipment-recommended" class="level2" data-number="11.22">
+<h2 data-number="11.22" class="anchored" data-anchor-id="test-equipment-recommended"><span class="header-section-number">11.22</span> Test Equipment (Recommended)</h2>
+<div id="tbl-test-equip" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-test-equip-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.16: Recommended Test Equipment
+</figcaption>
+<div aria-describedby="tbl-test-equip-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Description</th>
+<th>Est. Cost</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>DMM</td>
+<td>Digital Multimeter</td>
+<td>$50-100</td>
+<td>Fluke or equivalent</td>
+</tr>
+<tr class="even">
+<td>LCR</td>
+<td>LCR Meter</td>
+<td>$100-300</td>
+<td>For coil testing</td>
+</tr>
+<tr class="odd">
+<td>Scope</td>
+<td>Oscilloscope</td>
+<td>$300-500</td>
+<td>2-ch, 50MHz min</td>
+</tr>
+<tr class="even">
+<td>PS</td>
+<td>Bench Power Supply</td>
+<td>$50-100</td>
+<td>Adjustable, current limit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="tools" class="level2" data-number="11.23">
+<h2 data-number="11.23" class="anchored" data-anchor-id="tools"><span class="header-section-number">11.23</span> Tools</h2>
+<div id="tbl-tools" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-tools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.17: Required Tools
+</figcaption>
+<div aria-describedby="tbl-tools-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Description</th>
+<th>Est. Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Soldering</td>
+<td>Iron + solder</td>
+<td>$50-100</td>
+</tr>
+<tr class="even">
+<td>Tap/Die</td>
+<td>M12x1.75 set</td>
+<td>$30-50</td>
+</tr>
+<tr class="odd">
+<td>Crimpers</td>
+<td>For connectors</td>
+<td>$30-50</td>
+</tr>
+<tr class="even">
+<td>Heat Gun</td>
+<td>For shrink tubing</td>
+<td>$30-50</td>
+</tr>
+<tr class="odd">
+<td>Hand Tools</td>
+<td>Screwdrivers, pliers</td>
+<td>$50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="consumables" class="level2" data-number="11.24">
+<h2 data-number="11.24" class="anchored" data-anchor-id="consumables"><span class="header-section-number">11.24</span> Consumables</h2>
+<div id="tbl-consumables" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-consumables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.18: Consumables
+</figcaption>
+<div aria-describedby="tbl-consumables-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Description</th>
+<th>Est. Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Solder</td>
+<td>60/40 or lead-free</td>
+<td>$15</td>
+</tr>
+<tr class="even">
+<td>Flux</td>
+<td>Rosin flux</td>
+<td>$10</td>
+</tr>
+<tr class="odd">
+<td>Heat Shrink</td>
+<td>Assorted sizes</td>
+<td>$15</td>
+</tr>
+<tr class="even">
+<td>Epoxy</td>
+<td>2-part structural</td>
+<td>$20</td>
+</tr>
+<tr class="odd">
+<td>Cable Ties</td>
+<td>Assorted</td>
+<td>$10</td>
+</tr>
+<tr class="even">
+<td>IPA</td>
+<td>Isopropyl alcohol</td>
+<td>$10</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="sec-procurement" class="level2" data-number="11.25">
+<h2 data-number="11.25" class="anchored" data-anchor-id="sec-procurement"><span class="header-section-number">11.25</span> Procurement Guide</h2>
+</section>
+<section id="recommended-suppliers" class="level2" data-number="11.26">
+<h2 data-number="11.26" class="anchored" data-anchor-id="recommended-suppliers"><span class="header-section-number">11.26</span> Recommended Suppliers</h2>
+<section id="electronics" class="level3" data-number="11.26.1">
+<h3 data-number="11.26.1" class="anchored" data-anchor-id="electronics"><span class="header-section-number">11.26.1</span> Electronics</h3>
+<ul>
+<li><strong>DigiKey</strong> (www.digikey.com) - Wide selection, fast shipping</li>
+<li><strong>Mouser</strong> (www.mouser.com) - Good for precision components</li>
+<li><strong>Newark</strong> (www.newark.com) - Alternative source</li>
+</ul>
+</section>
+<section id="mechanical" class="level3" data-number="11.26.2">
+<h3 data-number="11.26.2" class="anchored" data-anchor-id="mechanical"><span class="header-section-number">11.26.2</span> Mechanical</h3>
+<ul>
+<li><strong>McMaster-Carr</strong> (www.mcmaster.com) - Hardware, tubing</li>
+<li><strong>Grainger</strong> (www.grainger.com) - Industrial supplies</li>
+<li><strong>Amazon</strong> - General supplies</li>
+</ul>
+</section>
+<section id="d-printing" class="level3" data-number="11.26.3">
+<h3 data-number="11.26.3" class="anchored" data-anchor-id="d-printing"><span class="header-section-number">11.26.3</span> 3D Printing</h3>
+<ul>
+<li>Local print shop</li>
+<li><strong>Shapeways</strong> (www.shapeways.com) - Online service</li>
+<li><strong>JLCPCB</strong> (www.jlcpcb.com) - Also offers 3D printing</li>
+</ul>
+</section>
+<section id="pcb-fabrication" class="level3" data-number="11.26.4">
+<h3 data-number="11.26.4" class="anchored" data-anchor-id="pcb-fabrication"><span class="header-section-number">11.26.4</span> PCB Fabrication</h3>
+<ul>
+<li><strong>JLCPCB</strong> (www.jlcpcb.com) - Low cost, fast</li>
+<li><strong>PCBWay</strong> (www.pcbway.com) - Good quality</li>
+<li><strong>OSH Park</strong> (oshpark.com) - US-based, quality</li>
+</ul>
+</section>
+</section>
+<section id="key-part-numbers-reference" class="level2" data-number="11.27">
+<h2 data-number="11.27" class="anchored" data-anchor-id="key-part-numbers-reference"><span class="header-section-number">11.27</span> Key Part Numbers Reference</h2>
+<div id="tbl-part-numbers" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-part-numbers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.19: Key Part Numbers for Major Suppliers
+</figcaption>
+<div aria-describedby="tbl-part-numbers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>DigiKey PN</th>
+<th>Mouser PN</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AD9833BRMZ</td>
+<td>AD9833BRMZ-REEL</td>
+<td>584-AD9833BRMZ</td>
+</tr>
+<tr class="even">
+<td>AD620ARZ</td>
+<td>AD620ARZ-ND</td>
+<td>584-AD620ARZ</td>
+</tr>
+<tr class="odd">
+<td>INA128PAG4</td>
+<td>INA128PAG4-ND</td>
+<td>595-INA128PAG4</td>
+</tr>
+<tr class="even">
+<td>ADS1256IDBR</td>
+<td>ADS1256IDBR-ND</td>
+<td>595-ADS1256IDBR</td>
+</tr>
+<tr class="odd">
+<td>OPA454AIDDAR</td>
+<td>OPA454AIDDAR-ND</td>
+<td>595-OPA454AIDDAR</td>
+</tr>
+<tr class="even">
+<td>REF5025AIDGKR</td>
+<td>REF5025AIDGKR-ND</td>
+<td>595-REF5025AIDGKR</td>
+</tr>
+<tr class="odd">
+<td>ESP32-WROOM-32</td>
+<td>1904-1009-1-ND</td>
+<td>356-ESP32-WROOM-32</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="procurement-tips" class="level2" data-number="11.28">
+<h2 data-number="11.28" class="anchored" data-anchor-id="procurement-tips"><span class="header-section-number">11.28</span> Procurement Tips</h2>
+<ol type="1">
+<li><strong>Order extras:</strong> Add 10-20% for spares and mistakes</li>
+<li><strong>Check MOQ:</strong> Some parts have minimum order quantities</li>
+<li><strong>Lead times:</strong> Check availability before ordering</li>
+<li><strong>Substitutes:</strong> Have backup part numbers identified</li>
+<li><strong>Consolidate:</strong> Combine orders to reduce shipping costs</li>
+</ol>
+</section>
+<section id="sec-alternatives" class="level2" data-number="11.29">
+<h2 data-number="11.29" class="anchored" data-anchor-id="sec-alternatives"><span class="header-section-number">11.29</span> Alternative Components</h2>
+<p>The following tables provide alternative component options for situations where primary components are unavailable or when different performance characteristics are desired.</p>
+</section>
+<section id="coil-alternatives" class="level2" data-number="11.30">
+<h2 data-number="11.30" class="anchored" data-anchor-id="coil-alternatives"><span class="header-section-number">11.30</span> Coil Alternatives</h2>
+<div id="tbl-coil-alt" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-coil-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.20: Coil Component Alternatives
+</figcaption>
+<div aria-describedby="tbl-coil-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Original</th>
+<th>Alternative</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>6-8mm ferrite rod</td>
+<td>10mm rod</td>
+<td>Larger = more signal, larger diameter</td>
+</tr>
+<tr class="even">
+<td>30 AWG magnet wire</td>
+<td>28-34 AWG</td>
+<td>Trade-off: turns vs resistance</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="ert-ring-alternatives" class="level2" data-number="11.31">
+<h2 data-number="11.31" class="anchored" data-anchor-id="ert-ring-alternatives"><span class="header-section-number">11.31</span> ERT Ring Alternatives</h2>
+<div id="tbl-ert-alt" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ert-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.21: ERT Ring Alternatives
+</figcaption>
+<div aria-describedby="tbl-ert-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Original</th>
+<th>Alternative</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stainless steel band</td>
+<td>Copper tape</td>
+<td>Lower cost, easier to work with</td>
+</tr>
+<tr class="even">
+<td>3D printed collar</td>
+<td>Heat shrink tube</td>
+<td>Simpler mounting</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="electronics-alternatives" class="level2" data-number="11.32">
+<h2 data-number="11.32" class="anchored" data-anchor-id="electronics-alternatives"><span class="header-section-number">11.32</span> Electronics Alternatives</h2>
+<div id="tbl-elec-alt" class="quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-elec-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;11.22: Electronics Alternatives
+</figcaption>
+<div aria-describedby="tbl-elec-alt-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Original</th>
+<th>Alternative</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AD9833 DDS</td>
+<td>Si5351</td>
+<td>More outputs, different interface</td>
+</tr>
+<tr class="even">
+<td>AD620 preamp</td>
+<td>INA217</td>
+<td>Different specifications</td>
+</tr>
+<tr class="odd">
+<td>ADS1256 ADC</td>
+<td>ADS1115</td>
+<td>Lower resolution, lower cost</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For assembly procedures, see <a href="assembly.html#sec-assembly-overview" class="quarto-xref"><span>Section 14.1</span></a>. For mechanical specifications, see <a href="mechanical.html#sec-mech-overview" class="quarto-xref"><span>Section 12.1</span></a>. For electronics schematics, see <a href="electronics.html#sec-electronics-overview" class="quarto-xref"><span>Section 13.1</span></a>.</p>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../field-guide/troubleshooting.html" class="pagination-link" aria-label="Troubleshooting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Troubleshooting</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../build-guide/mechanical.html" class="pagination-link" aria-label="Mechanical Design">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mechanical Design</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Bill of Materials"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview {#sec-bom-overview}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>This section provides comprehensive bills of materials (BOMs) for building the HIRT system, including per-probe components, base hub components, and shared equipment. The micro-probe design (16mm OD, passive probes) minimizes cost while maintaining measurement quality.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>The modular architecture allows builders to scale the system from a minimal single-probe test setup to full 25+ probe arrays. Component selection prioritizes availability, cost-effectiveness, and ease of assembly while meeting performance specifications.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hardware Documentation Reference</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Detailed, up-to-date BOMs with specific part numbers are maintained in the hardware documentation:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Probe BOM:** <span class="in">`/hardware/bom/probe-bom.md`</span> - Per-probe components, costs, and procurement tips</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Base Hub BOM:** <span class="in">`/hardware/bom/base-hub-bom.md`</span> - Central electronics components with detailed specifications</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Shared Components:** <span class="in">`/hardware/bom/shared-components-bom.md`</span> - Common components used across multiple assemblies</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Procurement Guide:** <span class="in">`/hardware/bom/PROCUREMENT.md`</span> - Supplier recommendations and ordering strategies</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>The tables in this section summarize the BOMs; refer to the hardware documentation for exact part numbers and current pricing.</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cost Summary {#sec-cost-summary}</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## System Cost Estimate (20-Probe Array)</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>The following table presents the estimated cost ranges for a complete 20-probe HIRT system based on 2026 manufacturing projections.</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>| Category | Cost Range | Notes |</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>|----------|------------|-------|</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>| Probes (20 units) | $840-1,100 | CNC Delrin/Nylon mechanics |</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>| Electronics (Hubs) | $450-600 | 3x Hubs (active architecture) |</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>| Cabling | $300-400 | Trunk + Extensions |</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>| Assembly Labor | $600-800 | In-house @ $30/hr |</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>| Contingency | $300-400 | Buffer for price hikes |</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>| **Total** | **$2,150-2,850** | **~$125 per probe** |</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>: 20-Probe HIRT System Cost Estimate (2026 Projection) {#tbl-system-cost}</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2026 Supply Chain Alert: Semiconductor Price Hike</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>**Critical:** Analog Devices (ADI) has announced a **10-30% price increase** effective February 1, 2026. This affects key components including the AD8421, AD9837, and AD7124. Builders are strongly advised to procure these silicon components immediately to lock in current pricing.</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-cost-breakdown</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Cost distribution for a 25-probe HIRT system showing the relative investment in each component category. Probes represent the largest expense due to quantity."</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost categories with mid-range estimates</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>categories <span class="op">=</span> [<span class="st">'Probes</span><span class="ch">\n</span><span class="st">(25 units)'</span>, <span class="st">'Base Hub'</span>, <span class="st">'Cables/</span><span class="ch">\n</span><span class="st">Connectors'</span>,</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>              <span class="st">'Tools/</span><span class="ch">\n</span><span class="st">Equipment'</span>, <span class="st">'Consumables'</span>]</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>costs <span class="op">=</span> [<span class="dv">2000</span>, <span class="dv">375</span>, <span class="dv">500</span>, <span class="dv">750</span>, <span class="dv">150</span>]</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> <span class="bu">sum</span>(costs)</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Colors</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'#3182ce'</span>, <span class="st">'#38a169'</span>, <span class="st">'#ed8936'</span>, <span class="st">'#63b3ed'</span>, <span class="st">'#805ad5'</span>]</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Explode the largest segment slightly</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>explode <span class="op">=</span> (<span class="fl">0.05</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Create pie chart</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>wedges, texts, autotexts <span class="op">=</span> ax.pie(</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    costs,</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    explode<span class="op">=</span>explode,</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>categories,</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    colors<span class="op">=</span>colors,</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    autopct<span class="op">=</span><span class="kw">lambda</span> pct: <span class="ss">f'$</span><span class="sc">{</span><span class="bu">int</span>(pct<span class="op">/</span><span class="dv">100</span><span class="op">*</span>total)<span class="sc">:,}</span><span class="ch">\n</span><span class="ss">(</span><span class="sc">{</span>pct<span class="sc">:.1f}</span><span class="ss">%)'</span>,</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    startangle<span class="op">=</span><span class="dv">90</span>,</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    pctdistance<span class="op">=</span><span class="fl">0.65</span>,</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    labeldistance<span class="op">=</span><span class="fl">1.15</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a><span class="co"># Style the text</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> text <span class="kw">in</span> texts:</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    text.set_fontsize(<span class="dv">9</span>)</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    text.set_fontweight(<span class="st">'bold'</span>)</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> autotext <span class="kw">in</span> autotexts:</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    autotext.set_fontsize(<span class="dv">8</span>)</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    autotext.set_color(<span class="st">'white'</span>)</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    autotext.set_fontweight(<span class="st">'bold'</span>)</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Add center circle for donut effect</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>center_circle <span class="op">=</span> plt.Circle((<span class="dv">0</span>, <span class="dv">0</span>), <span class="fl">0.35</span>, fc<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>ax.add_patch(center_circle)</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="co"># Add total in center</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">0</span>, <span class="fl">0.05</span>, <span class="st">'Total'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>, fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">0</span>, <span class="op">-</span><span class="fl">0.12</span>, <span class="st">'~$3,775'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>)</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'25-Probe HIRT System Cost Distribution'</span>, fontsize<span class="op">=</span><span class="dv">12</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, pad<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cost Per Probe Breakdown</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>Each passive probe consists of mechanical, sensing, and interconnection components. The following breakdown shows typical costs for a single probe unit.</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>| Component | Cost |</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>|-----------|------|</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>| Mechanical (rod, tip, coupler) | $35-55 |</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>| ERT (rings, collars) | $5-10 |</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>| Coils (ferrite, wire) | $10-15 |</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>| Short Cable (1m) | $10-15 |</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>| Hardware (epoxy, o-rings) | $5-10 |</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>| **Total per probe** | **$70-120** |</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>: Per-Probe Cost Breakdown (Passive Design) {#tbl-probe-cost}</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cost Reduction Options</span></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Bulk ordering:** 20%+ savings on quantities &gt;50 units</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Local sourcing:** Reduce shipping costs for common components</span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Simpler design:** Passive probes vs active for significant savings</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**DIY coils:** Wind your own coils vs purchasing pre-wound</span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Generic parts:** Use non-branded components where precision is not critical</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-component-categories</span></span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "HIRT component categories showing the relationship between per-probe components, base hub electronics, shared equipment, and optional active probe upgrades."</span></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| code-fold: true</span></span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib.patches <span class="im">import</span> FancyBboxPatch, Rectangle</span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="dv">0</span>, <span class="dv">10</span>)</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a>ax.set_aspect(<span class="st">'equal'</span>)</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a>ax.axis(<span class="st">'off'</span>)</span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a><span class="co"># Title</span></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>, <span class="fl">7.5</span>, <span class="st">'HIRT Component Categories'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a>        fontsize<span class="op">=</span><span class="dv">14</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'#2c5282'</span>)</span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="co"># Define category boxes</span></span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a>categories <span class="op">=</span> [</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a>        <span class="st">'name'</span>: <span class="st">'Per-Probe</span><span class="ch">\n</span><span class="st">Components'</span>,</span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a>        <span class="st">'x'</span>: <span class="fl">1.5</span>, <span class="st">'y'</span>: <span class="fl">5.5</span>, <span class="st">'width'</span>: <span class="dv">3</span>, <span class="st">'height'</span>: <span class="fl">1.8</span>,</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'#3182ce'</span>,</span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a>        <span class="st">'items'</span>: [<span class="st">'Mechanical (rod, tip)'</span>, <span class="st">'Coils (ferrite, wire)'</span>,</span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'ERT rings/collars'</span>, <span class="st">'Cable/connector'</span>]</span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a>        <span class="st">'name'</span>: <span class="st">'Base Hub</span><span class="ch">\n</span><span class="st">Components'</span>,</span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>        <span class="st">'x'</span>: <span class="fl">5.5</span>, <span class="st">'y'</span>: <span class="fl">5.5</span>, <span class="st">'width'</span>: <span class="dv">3</span>, <span class="st">'height'</span>: <span class="fl">1.8</span>,</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'#38a169'</span>,</span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>        <span class="st">'items'</span>: [<span class="st">'Power system'</span>, <span class="st">'ERT current source'</span>,</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'Sync/clock'</span>, <span class="st">'Control MCU'</span>]</span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>        <span class="st">'name'</span>: <span class="st">'Shared</span><span class="ch">\n</span><span class="st">Equipment'</span>,</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a>        <span class="st">'x'</span>: <span class="fl">1.5</span>, <span class="st">'y'</span>: <span class="fl">2.5</span>, <span class="st">'width'</span>: <span class="dv">3</span>, <span class="st">'height'</span>: <span class="fl">1.8</span>,</span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'#63b3ed'</span>,</span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a>        <span class="st">'items'</span>: [<span class="st">'Test equipment'</span>, <span class="st">'Tools'</span>,</span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'Consumables'</span>, <span class="st">'Bulk cables'</span>]</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a>    {</span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>        <span class="st">'name'</span>: <span class="st">'Optional</span><span class="ch">\n</span><span class="st">Active Electronics'</span>,</span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a>        <span class="st">'x'</span>: <span class="fl">5.5</span>, <span class="st">'y'</span>: <span class="fl">2.5</span>, <span class="st">'width'</span>: <span class="dv">3</span>, <span class="st">'height'</span>: <span class="fl">1.8</span>,</span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>        <span class="st">'color'</span>: <span class="st">'#ed8936'</span>,</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>        <span class="st">'items'</span>: [<span class="st">'MCU (ESP32)'</span>, <span class="st">'DDS signal gen'</span>,</span>
+<span id="cb1-177"><a href="#cb1-177" aria-hidden="true" tabindex="-1"></a>                 <span class="st">'Preamp/ADC'</span>, <span class="st">'Custom PCB'</span>]</span>
+<span id="cb1-178"><a href="#cb1-178" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-179"><a href="#cb1-179" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-180"><a href="#cb1-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-181"><a href="#cb1-181" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> cat <span class="kw">in</span> categories:</span>
+<span id="cb1-182"><a href="#cb1-182" aria-hidden="true" tabindex="-1"></a>    box <span class="op">=</span> FancyBboxPatch(</span>
+<span id="cb1-183"><a href="#cb1-183" aria-hidden="true" tabindex="-1"></a>        (cat[<span class="st">'x'</span>], cat[<span class="st">'y'</span>] <span class="op">-</span> cat[<span class="st">'height'</span>]<span class="op">/</span><span class="dv">2</span>),</span>
+<span id="cb1-184"><a href="#cb1-184" aria-hidden="true" tabindex="-1"></a>        cat[<span class="st">'width'</span>], cat[<span class="st">'height'</span>],</span>
+<span id="cb1-185"><a href="#cb1-185" aria-hidden="true" tabindex="-1"></a>        boxstyle<span class="op">=</span><span class="st">"round,pad=0.05,rounding_size=0.15"</span>,</span>
+<span id="cb1-186"><a href="#cb1-186" aria-hidden="true" tabindex="-1"></a>        facecolor<span class="op">=</span>cat[<span class="st">'color'</span>],</span>
+<span id="cb1-187"><a href="#cb1-187" aria-hidden="true" tabindex="-1"></a>        edgecolor<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb1-188"><a href="#cb1-188" aria-hidden="true" tabindex="-1"></a>        linewidth<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb1-189"><a href="#cb1-189" aria-hidden="true" tabindex="-1"></a>        alpha<span class="op">=</span><span class="fl">0.9</span></span>
+<span id="cb1-190"><a href="#cb1-190" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-191"><a href="#cb1-191" aria-hidden="true" tabindex="-1"></a>    ax.add_patch(box)</span>
+<span id="cb1-192"><a href="#cb1-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-193"><a href="#cb1-193" aria-hidden="true" tabindex="-1"></a>    ax.text(cat[<span class="st">'x'</span>] <span class="op">+</span> cat[<span class="st">'width'</span>]<span class="op">/</span><span class="dv">2</span>, cat[<span class="st">'y'</span>] <span class="op">+</span> <span class="fl">0.5</span>,</span>
+<span id="cb1-194"><a href="#cb1-194" aria-hidden="true" tabindex="-1"></a>            cat[<span class="st">'name'</span>], ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb1-195"><a href="#cb1-195" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">10</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'white'</span>)</span>
+<span id="cb1-196"><a href="#cb1-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-197"><a href="#cb1-197" aria-hidden="true" tabindex="-1"></a>    item_text <span class="op">=</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span>.join([<span class="ss">f'  </span><span class="sc">{</span>item<span class="sc">}</span><span class="ss">'</span> <span class="cf">for</span> item <span class="kw">in</span> cat[<span class="st">'items'</span>]])</span>
+<span id="cb1-198"><a href="#cb1-198" aria-hidden="true" tabindex="-1"></a>    ax.text(cat[<span class="st">'x'</span>] <span class="op">+</span> <span class="fl">0.15</span>, cat[<span class="st">'y'</span>] <span class="op">-</span> <span class="fl">0.1</span>, item_text,</span>
+<span id="cb1-199"><a href="#cb1-199" aria-hidden="true" tabindex="-1"></a>            ha<span class="op">=</span><span class="st">'left'</span>, va<span class="op">=</span><span class="st">'top'</span>, fontsize<span class="op">=</span><span class="dv">7</span>, color<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb1-200"><a href="#cb1-200" aria-hidden="true" tabindex="-1"></a>            linespacing<span class="op">=</span><span class="fl">1.3</span>)</span>
+<span id="cb1-201"><a href="#cb1-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-202"><a href="#cb1-202" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost annotations</span></span>
+<span id="cb1-203"><a href="#cb1-203" aria-hidden="true" tabindex="-1"></a>cost_info <span class="op">=</span> [</span>
+<span id="cb1-204"><a href="#cb1-204" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">1.5</span>, <span class="fl">4.7</span>, <span class="st">'$60-100</span><span class="ch">\n</span><span class="st">per probe'</span>),</span>
+<span id="cb1-205"><a href="#cb1-205" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">5.5</span>, <span class="fl">4.7</span>, <span class="st">'$300-450</span><span class="ch">\n</span><span class="st">total'</span>),</span>
+<span id="cb1-206"><a href="#cb1-206" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">1.5</span>, <span class="fl">1.7</span>, <span class="st">'$500-1,000</span><span class="ch">\n</span><span class="st">one-time'</span>),</span>
+<span id="cb1-207"><a href="#cb1-207" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">5.5</span>, <span class="fl">1.7</span>, <span class="st">'+$50-80</span><span class="ch">\n</span><span class="st">per probe'</span>)</span>
+<span id="cb1-208"><a href="#cb1-208" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-209"><a href="#cb1-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-210"><a href="#cb1-210" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x, y, text <span class="kw">in</span> cost_info:</span>
+<span id="cb1-211"><a href="#cb1-211" aria-hidden="true" tabindex="-1"></a>    ax.text(x <span class="op">+</span> <span class="fl">1.5</span>, y, text, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'top'</span>,</span>
+<span id="cb1-212"><a href="#cb1-212" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">8</span>, fontweight<span class="op">=</span><span class="st">'bold'</span>, color<span class="op">=</span><span class="st">'#2c5282'</span>,</span>
+<span id="cb1-213"><a href="#cb1-213" aria-hidden="true" tabindex="-1"></a>            bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">'round,pad=0.3'</span>, facecolor<span class="op">=</span><span class="st">'white'</span>,</span>
+<span id="cb1-214"><a href="#cb1-214" aria-hidden="true" tabindex="-1"></a>                     edgecolor<span class="op">=</span><span class="st">'#a0aec0'</span>, alpha<span class="op">=</span><span class="fl">0.9</span>))</span>
+<span id="cb1-215"><a href="#cb1-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-216"><a href="#cb1-216" aria-hidden="true" tabindex="-1"></a><span class="co"># Connection arrows</span></span>
+<span id="cb1-217"><a href="#cb1-217" aria-hidden="true" tabindex="-1"></a>ax.annotate(<span class="st">''</span>, xy<span class="op">=</span>(<span class="fl">5.5</span>, <span class="fl">5.5</span>), xytext<span class="op">=</span>(<span class="fl">4.5</span>, <span class="fl">5.5</span>),</span>
+<span id="cb1-218"><a href="#cb1-218" aria-hidden="true" tabindex="-1"></a>            arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'&lt;-&gt;'</span>, color<span class="op">=</span><span class="st">'#4a5568'</span>, lw<span class="op">=</span><span class="dv">2</span>))</span>
+<span id="cb1-219"><a href="#cb1-219" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>, <span class="fl">5.9</span>, <span class="st">'Connects via</span><span class="ch">\n</span><span class="st">cables'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'bottom'</span>, fontsize<span class="op">=</span><span class="dv">7</span>,</span>
+<span id="cb1-220"><a href="#cb1-220" aria-hidden="true" tabindex="-1"></a>        color<span class="op">=</span><span class="st">'#4a5568'</span>)</span>
+<span id="cb1-221"><a href="#cb1-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-222"><a href="#cb1-222" aria-hidden="true" tabindex="-1"></a><span class="co"># Legend</span></span>
+<span id="cb1-223"><a href="#cb1-223" aria-hidden="true" tabindex="-1"></a>ax.text(<span class="dv">5</span>, <span class="fl">0.5</span>,</span>
+<span id="cb1-224"><a href="#cb1-224" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Passive probes: Lower cost, simpler assembly, recommended for most applications</span><span class="ch">\n</span><span class="st">'</span></span>
+<span id="cb1-225"><a href="#cb1-225" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Active probes: Higher performance, more complex, for demanding applications'</span>,</span>
+<span id="cb1-226"><a href="#cb1-226" aria-hidden="true" tabindex="-1"></a>        ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'center'</span>, fontsize<span class="op">=</span><span class="dv">8</span>, style<span class="op">=</span><span class="st">'italic'</span>, color<span class="op">=</span><span class="st">'#718096'</span>,</span>
+<span id="cb1-227"><a href="#cb1-227" aria-hidden="true" tabindex="-1"></a>        bbox<span class="op">=</span><span class="bu">dict</span>(boxstyle<span class="op">=</span><span class="st">'round,pad=0.5'</span>, facecolor<span class="op">=</span><span class="st">'#f7fafc'</span>, edgecolor<span class="op">=</span><span class="st">'none'</span>))</span>
+<span id="cb1-228"><a href="#cb1-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-229"><a href="#cb1-229" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-230"><a href="#cb1-230" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-231"><a href="#cb1-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb1-232"><a href="#cb1-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-233"><a href="#cb1-233" aria-hidden="true" tabindex="-1"></a><span class="fu">## Per-Probe Bill of Materials {#sec-per-probe-bom}</span></span>
+<span id="cb1-234"><a href="#cb1-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-235"><a href="#cb1-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mechanical Components</span></span>
+<span id="cb1-236"><a href="#cb1-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-237"><a href="#cb1-237" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost (100 qty) |</span>
+<span id="cb1-238"><a href="#cb1-238" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|---------------------|</span>
+<span id="cb1-239"><a href="#cb1-239" aria-hidden="true" tabindex="-1"></a>| ROD1 | Fiberglass Tube | 16mm OD x 12mm ID x 1.5m | 1.5 | $10.00 |</span>
+<span id="cb1-240"><a href="#cb1-240" aria-hidden="true" tabindex="-1"></a>| TIP1 | Probe Tip | CNC Delrin (Acetal) | 1 | $3.80-5.50 |</span>
+<span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a>| CPL1 | Rod Coupler | CNC Nylon 6/6 | 1 | $4.20-6.00 |</span>
+<span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a>| JB1 | Junction Box | 3D printed PETG / CNC | 1 | $3-5 |</span>
+<span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>: Per-Probe Mechanical Components (CNC/Volume Estimates) {#tbl-mechanical}</span>
+<span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="fu">## Coil Components</span></span>
+<span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-248"><a href="#cb1-248" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-249"><a href="#cb1-249" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-250"><a href="#cb1-250" aria-hidden="true" tabindex="-1"></a>| L1 | Ferrite Rod | 6-8mm x 40-80mm MnZn | 1-2 | $2-5 |</span>
+<span id="cb1-251"><a href="#cb1-251" aria-hidden="true" tabindex="-1"></a>| W1 | Magnet Wire | 34-38 AWG, 50m | 1 | $3-5 |</span>
+<span id="cb1-252"><a href="#cb1-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-253"><a href="#cb1-253" aria-hidden="true" tabindex="-1"></a>: Per-Probe Coil Components {#tbl-coils}</span>
+<span id="cb1-254"><a href="#cb1-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-255"><a href="#cb1-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## ERT Components</span></span>
+<span id="cb1-256"><a href="#cb1-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-257"><a href="#cb1-257" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-258"><a href="#cb1-258" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-259"><a href="#cb1-259" aria-hidden="true" tabindex="-1"></a>| R1-R3 | ERT Rings | Stainless steel 3-5mm bands | 2-3 | $1-2 ea |</span>
+<span id="cb1-260"><a href="#cb1-260" aria-hidden="true" tabindex="-1"></a>| C1-C3 | Ring Collars | 3D printed PETG | 2-3 | $0.50 ea |</span>
+<span id="cb1-261"><a href="#cb1-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-262"><a href="#cb1-262" aria-hidden="true" tabindex="-1"></a>: Per-Probe ERT Components {#tbl-ert}</span>
+<span id="cb1-263"><a href="#cb1-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-264"><a href="#cb1-264" aria-hidden="true" tabindex="-1"></a><span class="fu">## Hardware</span></span>
+<span id="cb1-265"><a href="#cb1-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-266"><a href="#cb1-266" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-267"><a href="#cb1-267" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-268"><a href="#cb1-268" aria-hidden="true" tabindex="-1"></a>| HW1 | O-Rings | M12 size, nitrile | 4 | $0.50 ea |</span>
+<span id="cb1-269"><a href="#cb1-269" aria-hidden="true" tabindex="-1"></a>| HW2 | Epoxy | 2-part structural | - | $5/probe |</span>
+<span id="cb1-270"><a href="#cb1-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-271"><a href="#cb1-271" aria-hidden="true" tabindex="-1"></a>: Per-Probe Hardware {#tbl-hardware}</span>
+<span id="cb1-272"><a href="#cb1-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-273"><a href="#cb1-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Cable and Connectors</span></span>
+<span id="cb1-274"><a href="#cb1-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-275"><a href="#cb1-275" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a>| CBL1 | Shielded Cable | 6-conductor, 3-5m | 1 | $10-15 |</span>
+<span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a>| CON1 | Connector | 12-pin Phoenix | 1 | $5-8 |</span>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-280"><a href="#cb1-280" aria-hidden="true" tabindex="-1"></a>: Per-Probe Cable and Connectors {#tbl-cables}</span>
+<span id="cb1-281"><a href="#cb1-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-282"><a href="#cb1-282" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-283"><a href="#cb1-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Total Per Passive Probe</span></span>
+<span id="cb1-284"><a href="#cb1-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-285"><a href="#cb1-285" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Estimated cost: ~$60-100 per passive probe</span>
+<span id="cb1-286"><a href="#cb1-286" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Assembly time: 2-4 hours per probe</span>
+<span id="cb1-287"><a href="#cb1-287" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Required skills: Basic soldering, 3D printing, mechanical assembly</span>
+<span id="cb1-288"><a href="#cb1-288" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-289"><a href="#cb1-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-290"><a href="#cb1-290" aria-hidden="true" tabindex="-1"></a><span class="fu">## Active Probe Electronics (Optional)</span></span>
+<span id="cb1-291"><a href="#cb1-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-292"><a href="#cb1-292" aria-hidden="true" tabindex="-1"></a>For applications requiring higher performance, active probes with in-probe electronics can be built. These include signal generation, amplification, and digitization circuitry.</span>
+<span id="cb1-293"><a href="#cb1-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-294"><a href="#cb1-294" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-295"><a href="#cb1-295" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-296"><a href="#cb1-296" aria-hidden="true" tabindex="-1"></a>| U1 | MCU | ESP32-WROOM-32 | 1 | $5-8 |</span>
+<span id="cb1-297"><a href="#cb1-297" aria-hidden="true" tabindex="-1"></a>| U2 | DDS | AD9833BRMZ | 1 | $8-12 |</span>
+<span id="cb1-298"><a href="#cb1-298" aria-hidden="true" tabindex="-1"></a>| U3 | TX Op-Amp | OPA454AIDDAR | 1 | $6-10 |</span>
+<span id="cb1-299"><a href="#cb1-299" aria-hidden="true" tabindex="-1"></a>| U4 | RX Preamp | AD620ARZ | 1 | $6-10 |</span>
+<span id="cb1-300"><a href="#cb1-300" aria-hidden="true" tabindex="-1"></a>| U5 | Inst Amp | INA128PAG4 | 1 | $6-10 |</span>
+<span id="cb1-301"><a href="#cb1-301" aria-hidden="true" tabindex="-1"></a>| U6 | ADC | ADS1256IDBR | 1 | $10-15 |</span>
+<span id="cb1-302"><a href="#cb1-302" aria-hidden="true" tabindex="-1"></a>| U7 | Mux | CD4051BE | 1 | $1-2 |</span>
+<span id="cb1-303"><a href="#cb1-303" aria-hidden="true" tabindex="-1"></a>| U8 | LDO | AMS1117-3.3 | 1 | $0.50 |</span>
+<span id="cb1-304"><a href="#cb1-304" aria-hidden="true" tabindex="-1"></a>| PCB | Custom PCB | - | 1 | $5-10 |</span>
+<span id="cb1-305"><a href="#cb1-305" aria-hidden="true" tabindex="-1"></a>| - | Passives | Resistors, caps | - | $5 |</span>
+<span id="cb1-306"><a href="#cb1-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-307"><a href="#cb1-307" aria-hidden="true" tabindex="-1"></a>: Active Probe Electronics (Optional Add-on) {#tbl-active}</span>
+<span id="cb1-308"><a href="#cb1-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-309"><a href="#cb1-309" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-310"><a href="#cb1-310" aria-hidden="true" tabindex="-1"></a>Additional cost per active probe: ~$50-80. Active probes provide improved signal-to-noise ratio and reduced cable effects but require more complex assembly.</span>
+<span id="cb1-311"><a href="#cb1-311" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-312"><a href="#cb1-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-313"><a href="#cb1-313" aria-hidden="true" tabindex="-1"></a><span class="fu">## Base Hub Bill of Materials {#sec-hub-bom}</span></span>
+<span id="cb1-314"><a href="#cb1-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-315"><a href="#cb1-315" aria-hidden="true" tabindex="-1"></a>The base hub provides power distribution, synchronization, and data collection for all connected probes. One hub supports up to 25 probes.</span>
+<span id="cb1-316"><a href="#cb1-316" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-317"><a href="#cb1-317" aria-hidden="true" tabindex="-1"></a><span class="fu">## Power System</span></span>
+<span id="cb1-318"><a href="#cb1-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-319"><a href="#cb1-319" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-320"><a href="#cb1-320" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-321"><a href="#cb1-321" aria-hidden="true" tabindex="-1"></a>| BAT1 | Battery | 12V 12Ah LiFePO4 | 1 | $60-100 |</span>
+<span id="cb1-322"><a href="#cb1-322" aria-hidden="true" tabindex="-1"></a>| F1 | Fuse Holder | 0287005.PXCN | 1 | $3 |</span>
+<span id="cb1-323"><a href="#cb1-323" aria-hidden="true" tabindex="-1"></a>| F2 | Fuse | 5A fast-blow | 5 | $1 ea |</span>
+<span id="cb1-324"><a href="#cb1-324" aria-hidden="true" tabindex="-1"></a>| REG1 | 5V Regulator | LM2596 Module | 1 | $3-5 |</span>
+<span id="cb1-325"><a href="#cb1-325" aria-hidden="true" tabindex="-1"></a>| REG2 | 3.3V Regulator | AMS1117-3.3 | 1 | $0.50 |</span>
+<span id="cb1-326"><a href="#cb1-326" aria-hidden="true" tabindex="-1"></a>| SW1 | Power Switch | DPST 10A | 1 | $3-5 |</span>
+<span id="cb1-327"><a href="#cb1-327" aria-hidden="true" tabindex="-1"></a>| TB1 | Terminal Block | Multi-position | 1 | $10-15 |</span>
+<span id="cb1-328"><a href="#cb1-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-329"><a href="#cb1-329" aria-hidden="true" tabindex="-1"></a>: Base Hub Power System Components {#tbl-power}</span>
+<span id="cb1-330"><a href="#cb1-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-331"><a href="#cb1-331" aria-hidden="true" tabindex="-1"></a><span class="fu">## ERT Current Source</span></span>
+<span id="cb1-332"><a href="#cb1-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-333"><a href="#cb1-333" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-334"><a href="#cb1-334" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-335"><a href="#cb1-335" aria-hidden="true" tabindex="-1"></a>| U1 | Voltage Ref | REF5025AIDGKR | 1 | $4-6 |</span>
+<span id="cb1-336"><a href="#cb1-336" aria-hidden="true" tabindex="-1"></a>| U2 | Op-Amp | OPA277PAG4 | 1 | $4-6 |</span>
+<span id="cb1-337"><a href="#cb1-337" aria-hidden="true" tabindex="-1"></a>| U3 | Inst Amp | INA128PAG4 | 1 | $6-10 |</span>
+<span id="cb1-338"><a href="#cb1-338" aria-hidden="true" tabindex="-1"></a>| K1 | Relay | G5V-2-H1 | 1 | $3-5 |</span>
+<span id="cb1-339"><a href="#cb1-339" aria-hidden="true" tabindex="-1"></a>| R1-R4 | Precision R | 0.1% various | 10 | $0.50 ea |</span>
+<span id="cb1-340"><a href="#cb1-340" aria-hidden="true" tabindex="-1"></a>| R5 | Sense R | 10 ohm 0.1% | 1 | $1 |</span>
+<span id="cb1-341"><a href="#cb1-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-342"><a href="#cb1-342" aria-hidden="true" tabindex="-1"></a>: ERT Current Source Components {#tbl-ert-source}</span>
+<span id="cb1-343"><a href="#cb1-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-344"><a href="#cb1-344" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sync/Clock Distribution</span></span>
+<span id="cb1-345"><a href="#cb1-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-346"><a href="#cb1-346" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-347"><a href="#cb1-347" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-348"><a href="#cb1-348" aria-hidden="true" tabindex="-1"></a>| Y1 | Oscillator | ECS-100-10-30B-TR | 1 | $3-5 |</span>
+<span id="cb1-349"><a href="#cb1-349" aria-hidden="true" tabindex="-1"></a>| U1-U3 | Buffer | SN74HC244N | 3 | $1 ea |</span>
+<span id="cb1-350"><a href="#cb1-350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a>: Sync/Clock Distribution Components {#tbl-sync}</span>
+<span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a><span class="fu">## Communication</span></span>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-357"><a href="#cb1-357" aria-hidden="true" tabindex="-1"></a>| U1 | RS485 | MAX485ESA+ | 1 | $2-4 |</span>
+<span id="cb1-358"><a href="#cb1-358" aria-hidden="true" tabindex="-1"></a>| U2 | USB-Serial | CP2102 Module | 1 | $3-5 |</span>
+<span id="cb1-359"><a href="#cb1-359" aria-hidden="true" tabindex="-1"></a>| J1 | RJ45 Jack | - | 1 | $2 |</span>
+<span id="cb1-360"><a href="#cb1-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-361"><a href="#cb1-361" aria-hidden="true" tabindex="-1"></a>: Communication Interface Components {#tbl-comm}</span>
+<span id="cb1-362"><a href="#cb1-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-363"><a href="#cb1-363" aria-hidden="true" tabindex="-1"></a><span class="fu">## Control</span></span>
+<span id="cb1-364"><a href="#cb1-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-365"><a href="#cb1-365" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Part Number | Qty | Unit Cost |</span>
+<span id="cb1-366"><a href="#cb1-366" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-367"><a href="#cb1-367" aria-hidden="true" tabindex="-1"></a>| U1 | MCU | ESP32 DevKit | 1 | $8-12 |</span>
+<span id="cb1-368"><a href="#cb1-368" aria-hidden="true" tabindex="-1"></a>| U2 | ADC | ADS1256IDBR | 1 | $10-15 |</span>
+<span id="cb1-369"><a href="#cb1-369" aria-hidden="true" tabindex="-1"></a>| SD1 | SD Card | Micro SD module | 1 | $3-5 |</span>
+<span id="cb1-370"><a href="#cb1-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-371"><a href="#cb1-371" aria-hidden="true" tabindex="-1"></a>: Control System Components {#tbl-control}</span>
+<span id="cb1-372"><a href="#cb1-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-373"><a href="#cb1-373" aria-hidden="true" tabindex="-1"></a><span class="fu">## Enclosure and Connectors</span></span>
+<span id="cb1-374"><a href="#cb1-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-375"><a href="#cb1-375" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-377"><a href="#cb1-377" aria-hidden="true" tabindex="-1"></a>| ENC1 | Enclosure | IP65 200x150x100mm | 1 | $30-50 |</span>
+<span id="cb1-378"><a href="#cb1-378" aria-hidden="true" tabindex="-1"></a>| PG1-PG20 | Cable Glands | PG11 or M20 | 20 | $1 ea |</span>
+<span id="cb1-379"><a href="#cb1-379" aria-hidden="true" tabindex="-1"></a>| CON1-CON20 | Probe Connectors | 12-pin Phoenix | 20 | $5 ea |</span>
+<span id="cb1-380"><a href="#cb1-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-381"><a href="#cb1-381" aria-hidden="true" tabindex="-1"></a>: Enclosure and Connector Components {#tbl-enclosure}</span>
+<span id="cb1-382"><a href="#cb1-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-383"><a href="#cb1-383" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-384"><a href="#cb1-384" aria-hidden="true" tabindex="-1"></a><span class="fu">## Total Base Hub Cost (2026 Estimate)</span></span>
+<span id="cb1-385"><a href="#cb1-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-386"><a href="#cb1-386" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PCBA:** ~$150-185 per hub (Low volume run, 4-layer PCB)</span>
+<span id="cb1-387"><a href="#cb1-387" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Total Unit Cost:** ~$200-250 including enclosure</span>
+<span id="cb1-388"><a href="#cb1-388" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Optimization:** Shrinking PCB to &lt;100x100mm can save ~$10/board on prototype runs.</span>
+<span id="cb1-389"><a href="#cb1-389" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-390"><a href="#cb1-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-391"><a href="#cb1-391" aria-hidden="true" tabindex="-1"></a><span class="fu">## Shared Equipment Bill of Materials {#sec-shared-bom}</span></span>
+<span id="cb1-392"><a href="#cb1-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-393"><a href="#cb1-393" aria-hidden="true" tabindex="-1"></a><span class="fu">## Connectors and Cables</span></span>
+<span id="cb1-394"><a href="#cb1-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-395"><a href="#cb1-395" aria-hidden="true" tabindex="-1"></a>| Ref | Component | Description | Qty | Unit Cost |</span>
+<span id="cb1-396"><a href="#cb1-396" aria-hidden="true" tabindex="-1"></a>|-----|-----------|-------------|-----|-----------|</span>
+<span id="cb1-397"><a href="#cb1-397" aria-hidden="true" tabindex="-1"></a>| CBL1 | Probe Cable | Belden 3066A 12-pair, 5m | 20 | $15 ea |</span>
+<span id="cb1-398"><a href="#cb1-398" aria-hidden="true" tabindex="-1"></a>| CBL2 | Power Cable | 14 AWG 2-conductor | 10m | $10 |</span>
+<span id="cb1-399"><a href="#cb1-399" aria-hidden="true" tabindex="-1"></a>| CON1 | Phoenix Headers | 12-pos pluggable | 20 | $5 ea |</span>
+<span id="cb1-400"><a href="#cb1-400" aria-hidden="true" tabindex="-1"></a>| CON2 | DC Jack | 5.5x2.1mm panel | 1 | $2 |</span>
+<span id="cb1-401"><a href="#cb1-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-402"><a href="#cb1-402" aria-hidden="true" tabindex="-1"></a>: Shared Cables and Connectors {#tbl-shared-cables}</span>
+<span id="cb1-403"><a href="#cb1-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-404"><a href="#cb1-404" aria-hidden="true" tabindex="-1"></a><span class="fu">## Test Equipment (Recommended)</span></span>
+<span id="cb1-405"><a href="#cb1-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-406"><a href="#cb1-406" aria-hidden="true" tabindex="-1"></a>| Item | Description | Est. Cost | Notes |</span>
+<span id="cb1-407"><a href="#cb1-407" aria-hidden="true" tabindex="-1"></a>|------|-------------|-----------|-------|</span>
+<span id="cb1-408"><a href="#cb1-408" aria-hidden="true" tabindex="-1"></a>| DMM | Digital Multimeter | $50-100 | Fluke or equivalent |</span>
+<span id="cb1-409"><a href="#cb1-409" aria-hidden="true" tabindex="-1"></a>| LCR | LCR Meter | $100-300 | For coil testing |</span>
+<span id="cb1-410"><a href="#cb1-410" aria-hidden="true" tabindex="-1"></a>| Scope | Oscilloscope | $300-500 | 2-ch, 50MHz min |</span>
+<span id="cb1-411"><a href="#cb1-411" aria-hidden="true" tabindex="-1"></a>| PS | Bench Power Supply | $50-100 | Adjustable, current limit |</span>
+<span id="cb1-412"><a href="#cb1-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-413"><a href="#cb1-413" aria-hidden="true" tabindex="-1"></a>: Recommended Test Equipment {#tbl-test-equip}</span>
+<span id="cb1-414"><a href="#cb1-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-415"><a href="#cb1-415" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tools</span></span>
+<span id="cb1-416"><a href="#cb1-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-417"><a href="#cb1-417" aria-hidden="true" tabindex="-1"></a>| Item | Description | Est. Cost |</span>
+<span id="cb1-418"><a href="#cb1-418" aria-hidden="true" tabindex="-1"></a>|------|-------------|-----------|</span>
+<span id="cb1-419"><a href="#cb1-419" aria-hidden="true" tabindex="-1"></a>| Soldering | Iron + solder | $50-100 |</span>
+<span id="cb1-420"><a href="#cb1-420" aria-hidden="true" tabindex="-1"></a>| Tap/Die | M12x1.75 set | $30-50 |</span>
+<span id="cb1-421"><a href="#cb1-421" aria-hidden="true" tabindex="-1"></a>| Crimpers | For connectors | $30-50 |</span>
+<span id="cb1-422"><a href="#cb1-422" aria-hidden="true" tabindex="-1"></a>| Heat Gun | For shrink tubing | $30-50 |</span>
+<span id="cb1-423"><a href="#cb1-423" aria-hidden="true" tabindex="-1"></a>| Hand Tools | Screwdrivers, pliers | $50 |</span>
+<span id="cb1-424"><a href="#cb1-424" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-425"><a href="#cb1-425" aria-hidden="true" tabindex="-1"></a>: Required Tools {#tbl-tools}</span>
+<span id="cb1-426"><a href="#cb1-426" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-427"><a href="#cb1-427" aria-hidden="true" tabindex="-1"></a><span class="fu">## Consumables</span></span>
+<span id="cb1-428"><a href="#cb1-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-429"><a href="#cb1-429" aria-hidden="true" tabindex="-1"></a>| Item | Description | Est. Cost |</span>
+<span id="cb1-430"><a href="#cb1-430" aria-hidden="true" tabindex="-1"></a>|------|-------------|-----------|</span>
+<span id="cb1-431"><a href="#cb1-431" aria-hidden="true" tabindex="-1"></a>| Solder | 60/40 or lead-free | $15 |</span>
+<span id="cb1-432"><a href="#cb1-432" aria-hidden="true" tabindex="-1"></a>| Flux | Rosin flux | $10 |</span>
+<span id="cb1-433"><a href="#cb1-433" aria-hidden="true" tabindex="-1"></a>| Heat Shrink | Assorted sizes | $15 |</span>
+<span id="cb1-434"><a href="#cb1-434" aria-hidden="true" tabindex="-1"></a>| Epoxy | 2-part structural | $20 |</span>
+<span id="cb1-435"><a href="#cb1-435" aria-hidden="true" tabindex="-1"></a>| Cable Ties | Assorted | $10 |</span>
+<span id="cb1-436"><a href="#cb1-436" aria-hidden="true" tabindex="-1"></a>| IPA | Isopropyl alcohol | $10 |</span>
+<span id="cb1-437"><a href="#cb1-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-438"><a href="#cb1-438" aria-hidden="true" tabindex="-1"></a>: Consumables {#tbl-consumables}</span>
+<span id="cb1-439"><a href="#cb1-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-440"><a href="#cb1-440" aria-hidden="true" tabindex="-1"></a><span class="fu">## Procurement Guide {#sec-procurement}</span></span>
+<span id="cb1-441"><a href="#cb1-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-442"><a href="#cb1-442" aria-hidden="true" tabindex="-1"></a><span class="fu">## Recommended Suppliers</span></span>
+<span id="cb1-443"><a href="#cb1-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-444"><a href="#cb1-444" aria-hidden="true" tabindex="-1"></a><span class="fu">### Electronics</span></span>
+<span id="cb1-445"><a href="#cb1-445" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-446"><a href="#cb1-446" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**DigiKey** (www.digikey.com) - Wide selection, fast shipping</span>
+<span id="cb1-447"><a href="#cb1-447" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Mouser** (www.mouser.com) - Good for precision components</span>
+<span id="cb1-448"><a href="#cb1-448" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Newark** (www.newark.com) - Alternative source</span>
+<span id="cb1-449"><a href="#cb1-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-450"><a href="#cb1-450" aria-hidden="true" tabindex="-1"></a><span class="fu">### Mechanical</span></span>
+<span id="cb1-451"><a href="#cb1-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-452"><a href="#cb1-452" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**McMaster-Carr** (www.mcmaster.com) - Hardware, tubing</span>
+<span id="cb1-453"><a href="#cb1-453" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Grainger** (www.grainger.com) - Industrial supplies</span>
+<span id="cb1-454"><a href="#cb1-454" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Amazon** - General supplies</span>
+<span id="cb1-455"><a href="#cb1-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-456"><a href="#cb1-456" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3D Printing</span></span>
+<span id="cb1-457"><a href="#cb1-457" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-458"><a href="#cb1-458" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Local print shop</span>
+<span id="cb1-459"><a href="#cb1-459" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Shapeways** (www.shapeways.com) - Online service</span>
+<span id="cb1-460"><a href="#cb1-460" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**JLCPCB** (www.jlcpcb.com) - Also offers 3D printing</span>
+<span id="cb1-461"><a href="#cb1-461" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-462"><a href="#cb1-462" aria-hidden="true" tabindex="-1"></a><span class="fu">### PCB Fabrication</span></span>
+<span id="cb1-463"><a href="#cb1-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-464"><a href="#cb1-464" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**JLCPCB** (www.jlcpcb.com) - Low cost, fast</span>
+<span id="cb1-465"><a href="#cb1-465" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**PCBWay** (www.pcbway.com) - Good quality</span>
+<span id="cb1-466"><a href="#cb1-466" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**OSH Park** (oshpark.com) - US-based, quality</span>
+<span id="cb1-467"><a href="#cb1-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-468"><a href="#cb1-468" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Part Numbers Reference</span></span>
+<span id="cb1-469"><a href="#cb1-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-470"><a href="#cb1-470" aria-hidden="true" tabindex="-1"></a>| Component | DigiKey PN | Mouser PN |</span>
+<span id="cb1-471"><a href="#cb1-471" aria-hidden="true" tabindex="-1"></a>|-----------|------------|-----------|</span>
+<span id="cb1-472"><a href="#cb1-472" aria-hidden="true" tabindex="-1"></a>| AD9833BRMZ | AD9833BRMZ-REEL | 584-AD9833BRMZ |</span>
+<span id="cb1-473"><a href="#cb1-473" aria-hidden="true" tabindex="-1"></a>| AD620ARZ | AD620ARZ-ND | 584-AD620ARZ |</span>
+<span id="cb1-474"><a href="#cb1-474" aria-hidden="true" tabindex="-1"></a>| INA128PAG4 | INA128PAG4-ND | 595-INA128PAG4 |</span>
+<span id="cb1-475"><a href="#cb1-475" aria-hidden="true" tabindex="-1"></a>| ADS1256IDBR | ADS1256IDBR-ND | 595-ADS1256IDBR |</span>
+<span id="cb1-476"><a href="#cb1-476" aria-hidden="true" tabindex="-1"></a>| OPA454AIDDAR | OPA454AIDDAR-ND | 595-OPA454AIDDAR |</span>
+<span id="cb1-477"><a href="#cb1-477" aria-hidden="true" tabindex="-1"></a>| REF5025AIDGKR | REF5025AIDGKR-ND | 595-REF5025AIDGKR |</span>
+<span id="cb1-478"><a href="#cb1-478" aria-hidden="true" tabindex="-1"></a>| ESP32-WROOM-32 | 1904-1009-1-ND | 356-ESP32-WROOM-32 |</span>
+<span id="cb1-479"><a href="#cb1-479" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-480"><a href="#cb1-480" aria-hidden="true" tabindex="-1"></a>: Key Part Numbers for Major Suppliers {#tbl-part-numbers}</span>
+<span id="cb1-481"><a href="#cb1-481" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-482"><a href="#cb1-482" aria-hidden="true" tabindex="-1"></a><span class="fu">## Procurement Tips</span></span>
+<span id="cb1-483"><a href="#cb1-483" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-484"><a href="#cb1-484" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Order extras:** Add 10-20% for spares and mistakes</span>
+<span id="cb1-485"><a href="#cb1-485" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Check MOQ:** Some parts have minimum order quantities</span>
+<span id="cb1-486"><a href="#cb1-486" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Lead times:** Check availability before ordering</span>
+<span id="cb1-487"><a href="#cb1-487" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Substitutes:** Have backup part numbers identified</span>
+<span id="cb1-488"><a href="#cb1-488" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**Consolidate:** Combine orders to reduce shipping costs</span>
+<span id="cb1-489"><a href="#cb1-489" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-490"><a href="#cb1-490" aria-hidden="true" tabindex="-1"></a><span class="fu">## Alternative Components {#sec-alternatives}</span></span>
+<span id="cb1-491"><a href="#cb1-491" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-492"><a href="#cb1-492" aria-hidden="true" tabindex="-1"></a>The following tables provide alternative component options for situations where primary components are unavailable or when different performance characteristics are desired.</span>
+<span id="cb1-493"><a href="#cb1-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-494"><a href="#cb1-494" aria-hidden="true" tabindex="-1"></a><span class="fu">## Coil Alternatives</span></span>
+<span id="cb1-495"><a href="#cb1-495" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-496"><a href="#cb1-496" aria-hidden="true" tabindex="-1"></a>| Original | Alternative | Notes |</span>
+<span id="cb1-497"><a href="#cb1-497" aria-hidden="true" tabindex="-1"></a>|----------|-------------|-------|</span>
+<span id="cb1-498"><a href="#cb1-498" aria-hidden="true" tabindex="-1"></a>| 6-8mm ferrite rod | 10mm rod | Larger = more signal, larger diameter |</span>
+<span id="cb1-499"><a href="#cb1-499" aria-hidden="true" tabindex="-1"></a>| 30 AWG magnet wire | 28-34 AWG | Trade-off: turns vs resistance |</span>
+<span id="cb1-500"><a href="#cb1-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-501"><a href="#cb1-501" aria-hidden="true" tabindex="-1"></a>: Coil Component Alternatives {#tbl-coil-alt}</span>
+<span id="cb1-502"><a href="#cb1-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-503"><a href="#cb1-503" aria-hidden="true" tabindex="-1"></a><span class="fu">## ERT Ring Alternatives</span></span>
+<span id="cb1-504"><a href="#cb1-504" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-505"><a href="#cb1-505" aria-hidden="true" tabindex="-1"></a>| Original | Alternative | Notes |</span>
+<span id="cb1-506"><a href="#cb1-506" aria-hidden="true" tabindex="-1"></a>|----------|-------------|-------|</span>
+<span id="cb1-507"><a href="#cb1-507" aria-hidden="true" tabindex="-1"></a>| Stainless steel band | Copper tape | Lower cost, easier to work with |</span>
+<span id="cb1-508"><a href="#cb1-508" aria-hidden="true" tabindex="-1"></a>| 3D printed collar | Heat shrink tube | Simpler mounting |</span>
+<span id="cb1-509"><a href="#cb1-509" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-510"><a href="#cb1-510" aria-hidden="true" tabindex="-1"></a>: ERT Ring Alternatives {#tbl-ert-alt}</span>
+<span id="cb1-511"><a href="#cb1-511" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-512"><a href="#cb1-512" aria-hidden="true" tabindex="-1"></a><span class="fu">## Electronics Alternatives</span></span>
+<span id="cb1-513"><a href="#cb1-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-514"><a href="#cb1-514" aria-hidden="true" tabindex="-1"></a>| Original | Alternative | Notes |</span>
+<span id="cb1-515"><a href="#cb1-515" aria-hidden="true" tabindex="-1"></a>|----------|-------------|-------|</span>
+<span id="cb1-516"><a href="#cb1-516" aria-hidden="true" tabindex="-1"></a>| AD9833 DDS | Si5351 | More outputs, different interface |</span>
+<span id="cb1-517"><a href="#cb1-517" aria-hidden="true" tabindex="-1"></a>| AD620 preamp | INA217 | Different specifications |</span>
+<span id="cb1-518"><a href="#cb1-518" aria-hidden="true" tabindex="-1"></a>| ADS1256 ADC | ADS1115 | Lower resolution, lower cost |</span>
+<span id="cb1-519"><a href="#cb1-519" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-520"><a href="#cb1-520" aria-hidden="true" tabindex="-1"></a>: Electronics Alternatives {#tbl-elec-alt}</span>
+<span id="cb1-521"><a href="#cb1-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-522"><a href="#cb1-522" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-523"><a href="#cb1-523" aria-hidden="true" tabindex="-1"></a>For assembly procedures, see @sec-assembly-overview. For mechanical specifications, see @sec-mech-overview. For electronics schematics, see @sec-electronics-overview.</span>
+<span id="cb1-524"><a href="#cb1-524" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

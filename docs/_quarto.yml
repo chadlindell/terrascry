@@ -1,0 +1,259 @@
+# HIRT Technical Manual - Quarto Project Configuration
+# Generates both print-quality PDF and web-ready HTML from single source
+# Build: quarto render
+
+project:
+  type: book
+  output-dir: _output
+
+book:
+  title: "HIRT: Hybrid Inductive-Resistivity Tomography"
+  subtitle: "Technical Manual"
+  author: "HIRT Development Team"
+  date: today
+
+  # Navigation
+  sidebar:
+    style: docked
+    search: true
+    collapse-level: 2
+
+  # Page navigation
+  page-navigation: true
+
+  # Chapters organized by onion model (Field Ops → Build → Theory → Developer)
+  chapters:
+    - index.qmd
+    - part: "Getting Started"
+      chapters:
+        - getting-started/overview.qmd
+        - getting-started/quick-start.qmd
+        - getting-started/safety.qmd
+    - part: "Field Guide"
+      chapters:
+        - field-guide/deployment.qmd
+        - field-guide/progressive-deployment.qmd
+        - field-guide/data-acquisition.qmd
+        - field-guide/interpretation.qmd
+        - field-guide/scenarios.qmd
+        - field-guide/troubleshooting.qmd
+    - part: "Build Guide"
+      chapters:
+        - build-guide/bill-of-materials.qmd
+        - build-guide/mechanical.qmd
+        - build-guide/electronics.qmd
+        - build-guide/assembly.qmd
+        - build-guide/testing.qmd
+        - build-guide/calibration.qmd
+        - build-guide/validation.qmd
+    - part: "Theory"
+      chapters:
+        - theory/physics.qmd
+        - theory/architecture.qmd
+        - theory/sensor-modalities.qmd
+        - theory/inversion.qmd
+        - theory/uncertainty.qmd
+    - part: "Developer Guide"
+      chapters:
+        - developer/contributing.qmd
+        - developer/firmware.qmd
+        - developer/data-formats.qmd
+        - developer/roadmap.qmd
+    - part: "Appendices"
+      chapters:
+        - appendices/glossary.qmd
+        - appendices/quick-reference.qmd
+        - appendices/checklists.qmd
+        - appendices/regulations.qmd
+
+# PDF Output Configuration - Professional Technical Manual Style
+format:
+  pdf:
+    documentclass: scrartcl
+    classoption: [10pt, headings=normal]
+    top-level-division: section
+    papersize: letter
+    margin-left: 0.6in
+    margin-right: 0.6in
+    margin-top: 0.7in
+    margin-bottom: 0.7in
+    fontsize: 10pt
+    linestretch: 1.0
+    toc: true
+    toc-depth: 2
+    toc-title: "Contents"
+    number-sections: true
+    number-depth: 3
+    colorlinks: true
+    linkcolor: "black"
+    urlcolor: "blue"
+    citecolor: "black"
+    link-citations: true
+    pdf-engine: pdflatex
+    include-in-header:
+      text: |
+        % Unicode support for special characters
+        \usepackage[utf8]{inputenc}
+        \usepackage{textcomp}
+        \usepackage{newunicodechar}
+        \DeclareUnicodeCharacter{00B5}{\ensuremath{\mu}}
+        \DeclareUnicodeCharacter{00B0}{\ensuremath{{}^\circ}}
+        \DeclareUnicodeCharacter{00D7}{\ensuremath{\times}}
+        \DeclareUnicodeCharacter{00B1}{\ensuremath{\pm}}
+        \DeclareUnicodeCharacter{2264}{\ensuremath{\leq}}
+        \DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+        \DeclareUnicodeCharacter{2248}{\ensuremath{\approx}}
+        \DeclareUnicodeCharacter{221A}{\ensuremath{\sqrt{}}}
+        \DeclareUnicodeCharacter{03A9}{\ensuremath{\Omega}}
+        \DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
+        \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+        \DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}}
+        \DeclareUnicodeCharacter{2193}{\ensuremath{\downarrow}}
+        \DeclareUnicodeCharacter{2191}{\ensuremath{\uparrow}}
+        \DeclareUnicodeCharacter{2605}{\ensuremath{\star}}
+        \DeclareUnicodeCharacter{25BC}{\ensuremath{\blacktriangledown}}
+        \DeclareUnicodeCharacter{25B6}{\ensuremath{\blacktriangleright}}
+        \DeclareUnicodeCharacter{00FC}{\"{u}}
+        \DeclareUnicodeCharacter{00E4}{\"{a}}
+        \DeclareUnicodeCharacter{00F6}{\"{o}}
+        \DeclareUnicodeCharacter{00C9}{\'{E}}
+        \DeclareUnicodeCharacter{2014}{---}
+        \DeclareUnicodeCharacter{2013}{--}
+        \DeclareUnicodeCharacter{00B7}{\ensuremath{\cdot}}
+
+        % Professional header/footer
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhf{}
+        \fancyhead[LE,RO]{\thepage}
+        \fancyhead[RE]{\small\itshape HIRT Technical Manual}
+        \fancyhead[LO]{\small\itshape\leftmark}
+        \renewcommand{\headrulewidth}{0.4pt}
+        \renewcommand{\footrulewidth}{0pt}
+
+        % Compact figure spacing
+        \setlength{\intextsep}{4pt plus 2pt minus 2pt}
+        \setlength{\floatsep}{4pt plus 2pt minus 2pt}
+        \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+        \setlength{\abovecaptionskip}{4pt}
+        \setlength{\belowcaptionskip}{2pt}
+
+        % Float placement
+        \renewcommand{\floatpagefraction}{0.8}
+        \renewcommand{\topfraction}{0.85}
+        \renewcommand{\bottomfraction}{0.85}
+        \renewcommand{\textfraction}{0.15}
+
+        % Equation spacing
+        \setlength{\abovedisplayskip}{6pt plus 2pt minus 2pt}
+        \setlength{\belowdisplayskip}{6pt plus 2pt minus 2pt}
+        \setlength{\abovedisplayshortskip}{3pt plus 1pt minus 1pt}
+        \setlength{\belowdisplayshortskip}{3pt plus 1pt minus 1pt}
+
+        % Paragraph spacing - no indent, small skip
+        \setlength{\parindent}{0pt}
+        \setlength{\parskip}{4pt plus 1pt minus 1pt}
+
+        % Compact lists
+        \usepackage{enumitem}
+        \setlist{nosep, topsep=2pt, partopsep=0pt, parsep=1pt, itemsep=1pt, leftmargin=1.5em}
+
+        % Table spacing
+        \renewcommand{\arraystretch}{1.1}
+
+        % Prevent orphans/widows
+        \widowpenalty=10000
+        \clubpenalty=10000
+        \raggedbottom
+
+        % KOMA-Script section heading formatting
+        \RedeclareSectionCommand[
+          beforeskip=12pt,
+          afterskip=6pt,
+          font=\Large\bfseries
+        ]{section}
+        \RedeclareSectionCommand[
+          beforeskip=10pt,
+          afterskip=4pt,
+          font=\large\bfseries
+        ]{subsection}
+        \RedeclareSectionCommand[
+          beforeskip=8pt,
+          afterskip=3pt,
+          font=\normalsize\bfseries
+        ]{subsubsection}
+
+        % Compact TOC for article class
+        \usepackage{tocloft}
+        \setlength{\cftbeforesecskip}{2pt}
+        \setlength{\cftbeforesubsecskip}{1pt}
+        \renewcommand{\cftsecfont}{\normalsize\bfseries}
+        \renewcommand{\cftsubsecfont}{\small}
+        \renewcommand{\cftsubsubsecfont}{\small}
+
+        % Caption styling - smaller, italic
+        \usepackage[font=small,labelfont=bf,textfont=it]{caption}
+
+        % Reduce space around callouts/boxes
+        \setlength{\topsep}{2pt}
+        \setlength{\partopsep}{0pt}
+
+  # HTML Output Configuration
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    css: assets/styles/custom.css
+    toc: true
+    toc-depth: 3
+    toc-expand: 2
+    number-sections: true
+    code-fold: true
+    code-tools: true
+    code-copy: true
+    code-overflow: wrap
+    # Links
+    link-external-icon: true
+    link-external-newwindow: true
+    # Appearance
+    fig-responsive: true
+    smooth-scroll: true
+    anchor-sections: true
+    # Footer
+    page-footer:
+      left: "HIRT Technical Manual v3.0"
+      center: ""
+      right: "Built with Quarto"
+
+# Code Execution Settings
+execute:
+  echo: false
+  warning: false
+  message: false
+  cache: true
+  freeze: auto
+
+# Python Environment
+jupyter: python3
+
+# Figure Defaults
+fig-width: 8
+fig-height: 5
+fig-dpi: 200
+fig-format: png
+fig-align: center
+
+# Cross-Reference Settings
+crossref:
+  fig-prefix: "Figure"
+  tbl-prefix: "Table"
+  eq-prefix: "Equation"
+  sec-prefix: "Section"
+  chapters: true
+
+# Language
+lang: en
+
+# Bibliography (if needed later)
+# bibliography: references.bib
+# csl: ieee.csl

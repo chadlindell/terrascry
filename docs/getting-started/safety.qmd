@@ -1,0 +1,161 @@
+---
+title: "Safety"
+---
+
+## Overview
+
+HIRT deployment at sensitive archaeological, forensic, or humanitarian demining sites requires strict adherence to safety protocols. This section provides essential safety guidance for field operations. For detailed legal and regulatory requirements, see [Appendix: Regulations](../appendices/regulations.qmd).
+
+## General Field Safety
+
+All HIRT field operations must adhere to these general safety practices:
+
+- Maintain clear communication protocols between all team members
+- Use appropriate personal protective equipment (PPE) for site conditions
+- Have emergency contact information readily available and posted
+- Follow local environmental regulations for equipment deployment
+- Respect site boundaries and access restrictions at all times
+- Conduct daily equipment safety checks before deployment
+- Maintain first aid kit and emergency supplies on site
+
+## Human Remains Protocol
+
+HIRT surveys at sites potentially containing human remains must be treated as **forensic/archaeological contexts**:
+
+- Obtain all **permits and permissions** before deployment
+- Follow jurisdictional requirements (heritage boards, war graves authorities)
+- Maintain proper chain of custody for any findings
+- Document all activities thoroughly with photographs and written records
+- Coordinate with relevant authorities before, during, and after surveys
+
+## UXO Risk Assessment
+
+::: {.callout-warning}
+## CRITICAL WARNING
+
+- WWII sites can contain live ordnance
+- Standard insertion methodology is DANGEROUS at UXO sites
+- Never drive or hammer probes until area is cleared by qualified EOD/UXO professionals
+:::
+
+### Pre-Survey Requirements
+
+Before any HIRT deployment at a suspected UXO site:
+
+1. Coordinate with explosive ordnance disposal (EOD) teams
+2. Obtain professional EOD sweep clearance for the survey area
+3. Follow established UXO clearance protocols for the jurisdiction
+4. Maintain safe standoff distances during all operations
+5. Establish clear emergency evacuation procedures
+
+### Active Signal Safety (HERO Protocols)
+
+The HIRT system operates in the 2-50 kHz range, classifying it as an active emitter under **HERO (Hazards of Electromagnetic Radiation to Ordnance)** standards.
+
+**The Risk:** The 2-50 kHz AC signal can induce eddy currents in **Electro-Explosive Devices (EEDs)** found in some German and Allied bombs.
+
+**Required Protocol:**
+
+1. **Treat as HERO UNSAFE:** Until specific ordnance types are ruled out, assume the probe's electromagnetic field can trigger EEDs
+2. **Passive Scan First:** Use magnetometer sensors *passively* (MIT transmitter OFF) to scan the look-ahead buffer (1.5-2.0 meters)
+3. **Clearance:** Only activate the MIT transmitter once the immediate volume is confirmed clear of ferrous anomalies
+
+### Required Safety Measures for UXO Sites
+
+| Protocol | Action |
+|----------|--------|
+| Pre-survey EOD clearance | Professional EOD sweep before ANY insertion |
+| Safe standoff perimeter | Minimum 100m exclusion zone during insertion |
+| Soft insertion only | Hand auger or water-jet only (NO hammering) |
+| Conductivity pre-check | Check soil conductivity before deep insertion |
+| Personnel limits | Minimum personnel in hazard zone |
+| Communications | Constant radio contact with safe zone |
+
+: Required safety measures for UXO site operations {#tbl-safety-measures}
+
+### Critical Problems with Standard Procedures
+
+The standard HIRT insertion methodology presents unacceptable risks at UXO sites:
+
+- **Mechanical trigger risk:** Driving a steel rod into ground containing potential ordnance could trigger detonation
+- **No risk analysis:** Standard procedures lack risk analysis for probe insertion near UXB
+- **Electrical interaction:** ERT current injection could theoretically interact with sensitive fuzes
+
+## Conductivity Threshold Monitoring
+
+Research indicates that conductivity >6,000 uS/cm at WWII bomb craters signals chemical activation risk. HIRT's ERT-Lite system provides continuous conductivity monitoring capability.
+
+### Safety Thresholds
+
+| Conductivity | Status | Action |
+|--------------|--------|--------|
+| <3,000 uS/cm | GREEN (Safe) | Normal operations |
+| 3,000-5,500 uS/cm | YELLOW (Caution) | Increased monitoring, limit insertion depth |
+| >5,500 uS/cm | RED (Halt) | STOP all insertion, evacuate to safe zone, consult EOD |
+
+: Conductivity safety thresholds for UXO site operations {#tbl-conductivity-thresholds}
+
+### Time-Lapse Monitoring Schedule
+
+For extended UXO site investigations:
+
+| Phase | Timing | Metrics | Action |
+|-------|--------|---------|--------|
+| Baseline | Day 0 | Full MIT + ERT survey | Establish reference values |
+| Early detection | Day 7-14 | Conductivity only | Alert if >10% change |
+| Long-term | Monthly | Full ERT | Track redox boundary evolution |
+| Pre-excavation | 24-48h before | Full survey | Final safety check |
+
+: Recommended time-lapse monitoring schedule {#tbl-monitoring-schedule}
+
+## Rim-Only Deployment
+
+For craters with suspected UXB at center, deploy probes **around the perimeter only**. This maintains survey geometry while avoiding direct insertion over suspected ordnance.
+
+::: {.callout-note}
+## HIRT Early Warning Capability
+
+- Volumetric 3D resistivity (vs. single-point measurements)
+- Gradient detection identifies active redox boundaries
+- Non-magnetic operation safe near UXB
+- "Set Once; Measure Many" enables time-lapse without repeated insertion
+:::
+
+## Minimal Intrusion Principles
+
+HIRT operations should always prioritize minimal site disturbance:
+
+- Prefer **rim/perimeter probing** over direct insertion into suspected areas
+- Use **shallow depths** when possible to achieve survey objectives
+- Employ **pilot holes** to minimize ground disturbance volume
+- **Avoid inserting probes into suspected burial voids** without explicit authorization
+- Document all probe insertion points and depths for site records
+
+## Field Safety Checklist
+
+Complete this checklist before commencing any HIRT survey at a UXO-suspected site. All critical items (marked with *) are mandatory.
+
+| Item | Critical | Status |
+|------|----------|--------|
+| * EOD professional clearance obtained | Yes | [ ] |
+| * Emergency evacuation plan established | Yes | [ ] |
+| * Radio communication verified | Yes | [ ] |
+| * Safe zone perimeter marked (100m+) | Yes | [ ] |
+| Weather conditions acceptable | No | [ ] |
+| * Conductivity baseline <3000 uS/cm | Yes | [ ] |
+| Equipment safety check complete | No | [ ] |
+| * Minimum personnel in hazard zone | Yes | [ ] |
+| Site documentation prepared | No | [ ] |
+| * EOD contact on standby | Yes | [ ] |
+
+: UXO site safety checklist {#tbl-safety-checklist}
+
+## Summary: Recommended Protocol
+
+For UXO sites requiring time-lapse monitoring:
+
+1. Baseline ERT survey of crater perimeter (Day 0)
+2. Weekly monitoring of conductivity trends
+3. Alert threshold set at >10% change from baseline
+4. Halt excavation immediately at >5,500 uS/cm
+5. Consult EOD team for any anomalous readings

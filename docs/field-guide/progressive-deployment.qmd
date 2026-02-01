@@ -1,0 +1,425 @@
+---
+title: "Progressive Deployment"
+---
+
+## Overview
+
+Progressive deployment is an **advanced workflow** that starts with shallow probe insertion and extends depth incrementally based on data analysis. This approach reduces risk, conserves resources, and enables data-driven decision making about where additional depth is warranted.
+
+::: {.callout-note}
+## When to Use Progressive Deployment
+
+This is an advanced technique for experienced operators. New users should first master **standard fixed-depth deployment** (see [Deployment](deployment.qmd)) before attempting progressive workflows.
+
+**Best suited for:**
+- Large area reconnaissance where full-depth coverage is impractical
+- Sites with suspected UXO where minimizing ground disturbance is critical
+- Challenging soil conditions where depth achievement is uncertain
+- Research applications requiring depth-resolved data
+:::
+
+## Philosophy and Rationale
+
+### Why Progressive Approach Works
+
+Traditional geophysical surveys commit to a single deployment depth across the entire grid. This creates inefficiency: some areas may be over-sampled (features are shallow), while others are under-sampled (features are deeper than probes reach).
+
+Progressive deployment addresses this by:
+
+1. **Collecting data before committing resources** - Shallow survey reveals where deeper investigation is needed
+2. **Reducing mechanical risk** - Fewer deep insertions means less chance of hitting obstructions
+3. **Enabling adaptive sampling** - Focus effort where anomalies indicate potential targets
+4. **Preserving site integrity** - Minimize ground disturbance in sensitive areas
+
+### Data-Driven Depth Decisions
+
+After each phase, operators analyze data to answer:
+
+- **Where are anomalies detected?** --> Extend depth in those areas
+- **Where is background homogeneous?** --> Shallow data may be sufficient
+- **What depth do anomalies appear?** --> Plan next extension accordingly
+- **Are there indications of deeper features?** --> Continue extension
+
+This transforms deployment from a single large commitment into an iterative refinement process.
+
+## Four-Phase Workflow
+
+```
+Phase A          Phase B          Phase C          Phase D
+Shallow Survey --> Review Data --> Selective Extend --> Full Depth
+   (0.5-1.0m)                     (1.5-2.5m)       (2.5-3.0m)
+     |               |                |               |
+     v               v                v               v
+ Coverage map   Decision tree    Target areas     Complete data
+```
+
+### Phase A: Shallow Survey (0.5-1.0 m)
+
+**Objective:** Establish baseline coverage and identify areas of interest.
+
+**Procedure:**
+
+1. Deploy probes to shallow depth (0.5-1.0 m) across entire grid
+2. Acquire MIT and ERT data at all frequencies/patterns
+3. Document any insertion difficulties (mark for later attention)
+4. Generate preliminary tomograms
+5. Export coverage quality metrics
+
+**Duration:** 60-90 minutes for 4×4 grid (probe insertion faster at shallow depth)
+
+**Data Products:**
+
+- Shallow depth slice tomograms
+- Coverage quality map
+- Anomaly detection summary (depth-limited)
+
+**Decision Point:** After Phase A data review, categorize each grid cell:
+
+| Category | Shallow Result | Action |
+|----------|----------------|--------|
+| Clear | No anomalies | May be complete (depends on target depth expectations) |
+| Anomaly detected | MIT and/or ERT signal | Extend to Phase C |
+| Ambiguous | Weak or edge signals | Consider extension or adjacent coverage |
+| Insertion problem | Probe didn't reach depth | Attempt different position or water-jet assist |
+
+### Phase B: Data Assessment
+
+**Objective:** Review Phase A results to guide selective extension.
+
+**Analysis Steps:**
+
+1. **Generate depth slices** at 0.25 m intervals through shallow volume
+2. **Identify anomalies** using standard classification criteria
+3. **Assess background** uniformity and noise levels
+4. **Map priority zones** for deeper investigation
+5. **Plan extension sequence** (order of probe deepening)
+
+**Key Questions:**
+
+- Do detected anomalies suggest targets at shallow depth (complete) or indicators of deeper features (extend)?
+- Which anomalies have highest investigation priority?
+- Are there coverage gaps that need lateral infill before depth extension?
+- What is the expected depth range for targets based on site context?
+
+**Output:** Prioritized list of probes for depth extension, with target depths.
+
+### Phase C: Selective Extension (1.5-2.5 m)
+
+**Objective:** Extend probes to intermediate depth in priority zones only.
+
+**Procedure:**
+
+1. Leave non-priority probes at shallow depth (they continue to provide data)
+2. For each priority probe (in sequence):
+   a. Disconnect cable from zone hub
+   b. Add rod segment(s) to reach target depth
+   c. Advance probe using appropriate method
+   d. Reconnect cable, verify connection
+3. Acquire new measurement cycle (full array, all depths)
+4. Reassess anomalies with improved depth coverage
+
+**Critical Technique:** In-place extension (see @sec-in-place-extension below)
+
+**Duration:** 15-30 minutes per probe extended (depends on soil conditions)
+
+**Decision Point:** After Phase C data:
+
+| Result | Action |
+|--------|--------|
+| Target localized at intermediate depth | May be complete; plan excavation |
+| Anomaly continues deeper | Proceed to Phase D (full depth) |
+| Anomaly resolved as natural feature | No further extension needed |
+| New anomalies revealed | Assess for additional extension |
+
+### Phase D: Full Depth Survey (2.5-3.0 m)
+
+**Objective:** Achieve maximum depth at selected positions for complete characterization.
+
+**Procedure:**
+
+1. Extend remaining priority probes to full depth
+2. Consider extending adjacent probes for improved deep coverage
+3. Acquire final measurement cycle
+4. Generate complete depth-resolved tomograms
+
+**Final Data Products:**
+
+- Multi-depth tomogram stack
+- Target localization with depth estimate
+- Coverage quality assessment
+- Recommendations for excavation
+
+## In-Place Extension Procedure {#sec-in-place-extension}
+
+The modular M12 connector system enables depth extension without removing the probe from the ground.
+
+### Equipment Required
+
+- Additional rod segments
+- M12 extension cables
+- Soft mallet (for final seating only)
+- Insertion tool (push handle or hydraulic assist)
+
+### Step-by-Step Procedure
+
+**Step 1: Prepare Extension**
+
+- Disconnect probe cable from zone hub
+- Inspect connector for debris or damage
+- Have extension segment ready with fresh O-ring
+
+**Step 2: Connect New Segment**
+
+- Align connector (key-way orientation)
+- Hand-tighten M12 connection
+- Verify cable routing won't snag during push
+
+**Step 3: Advance Probe**
+
+- Apply steady downward pressure
+- Use push handle or hydraulic assist
+- **DO NOT hammer** (UXO safety, connector damage risk)
+- Advance until new segment shoulder is at grade
+
+**Step 4: Verify and Reconnect**
+
+- Check that connector remained secure during push
+- Reconnect cable to zone hub
+- Run quick check (probe responds to ping)
+- Note achieved depth in field log
+
+### Connector Contamination Prevention
+
+::: {.callout-warning}
+## Critical: Protect Connectors
+
+The M12 connectors are the most vulnerable component during in-place extension. Soil contamination can cause:
+
+- Electrical contact failure
+- Water ingress on later submersion
+- Mechanical binding during future disconnection
+
+**Prevention measures:**
+
+- Cap disconnected connectors immediately
+- Keep connection point above ground level during push
+- Clean connector faces before each reconnection
+- Carry spare O-rings and cleaning supplies
+:::
+
+### Cable Slack Management
+
+When extending probes in place, the cable must have sufficient slack to accommodate the additional depth without tension on the connector.
+
+**Planning for Slack:**
+
+| Final Depth | Minimum Cable Slack | Recommendation |
+|-------------|---------------------|----------------|
+| 1.5 m | 0.5 m | Standard cable adequate |
+| 2.5 m | 1.0 m | Coil excess near zone hub |
+| 3.0 m | 1.5 m | Use extended cables |
+
+**Slack Management Technique:**
+
+1. Before Phase A, deploy with excess cable coiled at surface
+2. As probes extend, feed slack into the hole
+3. Never allow cable tension during push operation
+4. After extension, route cable neatly to zone hub
+
+## Push System Integration
+
+For depths beyond what hand-pushing can achieve, integrate with mechanical push systems.
+
+### Strategy A: Two-Pass Method
+
+**Concept:** Leave sensor probe at shallow depth; use separate push tool for deeper pilot hole.
+
+1. Create pilot hole with hydraulic push system (no sensors)
+2. Extract push tool
+3. Insert sensor probe into prepared hole
+4. Probe slides easily into pre-formed hole
+
+**Advantages:**
+
+- Sensor probes never subjected to high push force
+- Can use expendable pilot rods for difficult soils
+- Pilot hole can be slightly oversized for easy insertion
+
+**Disadvantages:**
+
+- Requires two insertions per position
+- Hole may collapse in unstable soils
+- Alignment between pilot hole and probe
+
+### Strategy B: Direct Push
+
+**Concept:** Push sensor probe directly with hydraulic assistance.
+
+1. Sensor probe attached to push system head
+2. Apply steady hydraulic force
+3. Advance probe to target depth in single operation
+
+**Advantages:**
+
+- Single insertion operation
+- No alignment issues
+- Works in collapsing soils
+
+**Disadvantages:**
+
+- Subjects sensors to push force
+- Requires robust connector design
+- Push force transmitted through probe body
+
+### HMIS System Specifications
+
+For sites requiring mechanical push assistance, the HIRT Modular Insertion System (HMIS) provides a purpose-built solution.
+
+| Specification | Value |
+|---------------|-------|
+| Push force | 8-10 kN maximum |
+| Weight | 75-100 kg total system |
+| Stroke | 1.5 m (single operation) |
+| Power | Battery (48V) or 12V vehicle |
+| Anchoring | 4× helical ground anchors |
+| Control | 50 m tethered remote |
+| Transport | 2-person carry, fits in SUV |
+
+**Estimated Cost:** $6,200-11,300 complete system
+
+See research documentation: `research/deployment/probe-insertion-methods-summary.md`
+
+## UXO Safety Protocols
+
+Progressive deployment at UXO-suspected sites requires additional safety measures.
+
+### Magnetometer Clearance at Each Depth
+
+Before extending to each new depth, verify the look-ahead zone is clear of ferromagnetic anomalies.
+
+**Procedure:**
+
+1. Use MIT channel in passive mode (TX off) if available
+2. Or use separate fluxgate magnetometer probe
+3. Clear volume: 1.5-2.0 m below current probe tip
+4. Abort threshold: >100 nT anomaly within look-ahead zone
+
+### Abort Thresholds by Depth
+
+| Depth | Magnetic Threshold | ERT Threshold | Action |
+|-------|-------------------|---------------|--------|
+| 0-1.0 m | 100 nT | 5,500 µS/cm | Caution, may proceed |
+| 1.0-2.0 m | 50 nT | 4,000 µS/cm | Pause, assess |
+| >2.0 m | 25 nT | 3,000 µS/cm | Stop, consult EOD |
+
+### Two-Pass Clearance Sequence
+
+For maximum safety at high-risk sites:
+
+1. **Pass 1 (Shallow):** Deploy entire grid to 0.5 m
+   - Clear look-ahead before each probe
+   - Generate shallow anomaly map
+
+2. **Assessment:** Review map with EOD specialist
+   - Identify clear zones for extension
+   - Mark exclusion zones around anomalies
+
+3. **Pass 2 (Deep):** Extend only in cleared zones
+   - Re-clear look-ahead before each extension
+   - Maintain standoff from exclusion zones
+
+## Progressive Depth Profile
+
+The following diagram illustrates how progressive deployment builds depth coverage incrementally:
+
+::: {.visual-placeholder}
+**Figure Concept**: Progressive Deployment Depth Profile
+
+Cross-section view showing probe array at four stages:
+
+**Panel 1 (Phase A):**
+- All probes at 1.0 m depth (uniform shallow)
+- Sensitivity zone indicated as ellipses between probes
+- Annotation: "Full lateral coverage, limited depth"
+
+**Panel 2 (Phase C - selective):**
+- Some probes extended to 2.0 m (where anomalies detected)
+- Other probes remain at 1.0 m
+- Deeper sensitivity zones at extended positions
+- Annotation: "Targeted depth where needed"
+
+**Panel 3 (Phase D - complete):**
+- Priority probes at 3.0 m
+- Adjacent probes at 2.0 m
+- Background probes at 1.0 m
+- Full depth sensitivity at target
+- Annotation: "Maximum depth at target, efficient coverage elsewhere"
+
+**Panel 4 (Comparison with fixed-depth):**
+- All probes at 3.0 m (traditional approach)
+- Annotation: "Standard approach: same effort everywhere"
+- Arrow comparing total insertion work
+
+Show surface, probes as vertical lines with electrode rings, target location, ground layers.
+
+**Type**: cross-section
+:::
+
+## When Progressive Deployment Is NOT Appropriate
+
+Progressive deployment adds complexity. Consider fixed-depth deployment when:
+
+- **Survey area is small** (4×4 or smaller) - overhead doesn't justify savings
+- **Target depth is known** - no benefit from shallow reconnaissance
+- **Time is limited** - multiple passes take longer than single deep deployment
+- **Soil is easy** - if full depth is achievable quickly, just do it
+- **Reporting requires uniform coverage** - some protocols mandate consistent depth
+
+## Summary: Progressive Deployment Decision Tree
+
+```
+START: Survey Planning
+          |
+          v
+    Large area (>25 probes)?
+     +-- No --> Standard fixed-depth deployment
+     |
+     Yes
+     |
+     v
+    Depth uncertainty?
+     +-- No --> Standard fixed-depth deployment
+     |
+     Yes
+     |
+     v
+    UXO concerns?
+     +-- Yes --> Progressive with clearance protocol
+     |
+     No
+     |
+     v
+    Soil variability?
+     +-- Yes --> Progressive recommended
+     |
+     No
+     |
+     v
+    Consider based on cost/benefit
+```
+
+## Best Practices
+
+1. **Plan cable slack before deployment** - It's much harder to add later
+2. **Protect connectors religiously** - One contaminated connector can ruin a survey
+3. **Document actual depths** - Phase B decisions depend on accurate records
+4. **Don't skip Phase B** - The data review is what makes progressive deployment worthwhile
+5. **Have backup push capability** - If hand-push fails, you need options
+6. **Train on easy sites first** - Master the technique before high-stakes deployments
+
+## Related Documentation
+
+- [Deployment](deployment.qmd) - Standard fixed-depth procedures
+- [Safety](../getting-started/safety.qmd) - UXO safety protocols
+- [Troubleshooting](troubleshooting.qmd) - Insertion problem solving
+- [Research: Probe Insertion Methods](../../research/deployment/probe-insertion-methods-summary.md) - Full research summary

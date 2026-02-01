@@ -1,0 +1,192 @@
+---
+title: "Data Interpretation"
+---
+
+## Overview {#sec-interpretation-overview}
+
+This section provides practical guidance on interpreting HIRT field data, including what each measurement method detects, how to classify anomalies, and how to prioritize investigation targets. For the mathematical foundations and inversion algorithms, see [Theory: Inversion](../theory/inversion.qmd).
+
+Effective interpretation requires understanding both the physics of the measurements and the geological/archaeological context of the survey site.
+
+## What HIRT Detects
+
+### MIT (Magneto-Inductive Tomography) Detection
+
+The MIT-3D channel responds to materials with electrical conductivity and/or magnetic permeability:
+
+- **Metal objects:** Strong response to aluminum, steel, and iron
+- **Conductive regions:** Moderate response to saline water, clay layers
+- **Eddy current anomalies:** Metallic wreckage produces characteristic signatures
+- Phase lag indicates conductivity; amplitude indicates size/distance
+- Higher frequencies provide better near-surface sensitivity
+
+### ERT (Electrical Resistivity) Detection
+
+The ERT-Lite channel responds to variations in bulk electrical resistivity:
+
+- **Disturbed fill:** Different compaction and moisture than native soil
+- **Moisture variations:** Wet zones appear as low resistivity
+- **Crater walls:** Clear boundaries between fill and native soil
+- **Voids:** Air-filled spaces show very high resistivity
+- Depth slices reveal layering and lateral extent of features
+
+## Anomaly Classification
+
+MIT and ERT respond differently to various subsurface features. Understanding these response characteristics enables accurate classification of detected anomalies.
+
+| Target Type | MIT Response | ERT Response | Examples |
+|-------------|--------------|--------------|----------|
+| Metal Objects | Strong | Weak/None | Engine parts, wreckage, artifacts |
+| Conductive Soil | Moderate | Moderate | Wet clay, saline zones, contamination |
+| Disturbed Fill | Weak | Strong | Crater fill, grave shafts, backfill |
+| Voids/Air | None | Strong (high-R) | Cavities, collapsed zones, air pockets |
+| Moisture Zones | Weak | Strong (low-R) | Water table, wet pockets, seepage |
+
+: Anomaly classification by target type {#tbl-anomaly-classification}
+
+**Key insight:** Combine MIT + ERT for complete picture. A metallic target in disturbed fill shows both strong MIT response AND ERT contrast—this is a high-priority combination.
+
+## Combined Interpretation Strategy
+
+Effective HIRT interpretation combines MIT and ERT results with site context and historical information.
+
+### Decision Tree for Prioritization
+
+1. **Verify data quality** - Check reciprocity, noise levels
+2. **Identify MIT anomalies** - Strong, moderate, or absent?
+3. **Identify ERT anomalies** - Resistivity higher or lower than background?
+4. **Correlate locations** - Do MIT and ERT anomalies coincide?
+5. **Classify target** - Metal, fill, void, or natural feature?
+6. **Assign priority** - Based on combined evidence and site context
+
+### Priority Levels
+
+| Priority | Criteria | Action |
+|----------|----------|--------|
+| **HIGH** | Metal + Disturbed fill (both channels) | Immediate investigation |
+| **MEDIUM** | Metal OR fill only (one channel) | Further characterization |
+| **LOW** | Minor anomalies, weak signals | Document for reference |
+| **NATURAL** | ERT-only, no MIT, natural geometry | Likely root mass, clay lens |
+
+: Investigation priority levels {#tbl-priority-levels}
+
+## Example Interpretation Scenarios
+
+### Scenario 1: Bomb Crater Investigation
+
+- **MIT:** Metal parts detected near crater base (aluminum/steel fragments)
+- **ERT:** Fill bowl geometry visible, wet pockets at base, clear crater walls
+- **Interpretation:** Classic impact crater with retained metallic debris
+
+### Scenario 2: Woods Burial Search
+
+- **MIT:** Small metallic clusters (buckles, dog tags, buttons)
+- **ERT:** Rectangular disturbed zone with different moisture profile
+- **Interpretation:** Possible grave shaft requiring careful investigation
+
+### Scenario 3: Aircraft Wreckage
+
+- **MIT:** Large conductive masses (engine block, landing gear)
+- **ERT:** Disturbed ground pattern, possible fuel contamination zones
+- **Interpretation:** Significant wreckage concentration warranting excavation
+
+## Target Signature Catalogue
+
+### Metallic Object Signatures (MIT-3D)
+
+**Ferrous Metal (Iron/Steel):** Aircraft engines, landing gear, bomb casings, and steel artifacts produce the strongest MIT responses. The combination of high electrical conductivity and magnetic permeability creates intense eddy currents and magnetic field distortion.
+
+**Non-Ferrous Metal (Aluminum, Brass, Copper):** Aircraft structural components, ammunition casings, and decorative artifacts produce moderate MIT responses. These materials lack magnetic permeability but still support eddy currents.
+
+**Size vs Depth Relationship:** Target detectability follows an approximate cube-law. A 10 cm artifact detectable at 1 m depth becomes nearly invisible at 2 m depth. For planning, assume minimum detectable size scales linearly with depth.
+
+### Soil Disturbance Signatures (ERT-Lite)
+
+**Backfilled Excavation:** Bomb craters, trenches, and excavations refilled with soil show characteristic resistivity patterns. The backfill is typically less compacted, creating larger pore spaces that retain more moisture. This produces a low-resistivity anomaly.
+
+**Void/Cavity:** Air-filled spaces produce high-resistivity anomalies. Air has effectively infinite resistivity, so even a small void creates a distinct signature.
+
+**Decomposition Products:** Organic decomposition releases conductive fluids that reduce resistivity. Burial sites often show a moderate low-resistivity zone with elongated geometry.
+
+### Combined Signatures (Dual-Channel Fusion)
+
+**Bomb Crater with Metallic Debris:** Clear bowl-shaped ERT disturbance with strong MIT responses concentrated near the crater base or scattered throughout the fill. Excavation priority is HIGH.
+
+**Burial with Metal Artifacts:** Modest rectangular ERT disturbance (grave shaft geometry) with small, discrete MIT anomalies aligned with the shaft. The presence of metal increases identification confidence.
+
+**Natural Features Mimicking Targets:** Tree root masses, clay lenses, and natural soil heterogeneity can produce ERT anomalies. The key discriminator is the MIT channel: natural features almost never produce metal responses.
+
+## False Positives to Watch For
+
+| False Positive | Distinguishing Features |
+|----------------|------------------------|
+| Utility pipes | Linear geometry, often straight lines |
+| Natural mineralization | Diffuse, regional trends (not localized) |
+| Root masses | Branching/networked pattern in ERT, no MIT response |
+| Perched water table | Laterally extensive, consistent depth across survey |
+
+: Common false positive sources {#tbl-false-positives}
+
+## Data Quality Indicators
+
+### Good Data Characteristics
+
+- Consistent reciprocity (A-to-B approximately equals B-to-A)
+- Smooth spatial variations without erratic jumps
+- Expected depth sensitivity matching configuration
+- Stable baseline measurements over survey duration
+
+::: {.callout-warning}
+## Problematic Data Warning Signs
+
+- Poor reciprocity indicates coupling problems or calibration drift
+- Noisy/spiky readings suggest connection issues or EMI
+- No depth sensitivity may indicate inadequate spacing or frequency
+- Inconsistent repeats require checking timebase and connectors
+:::
+
+## Detection Limits
+
+Understanding what HIRT *cannot* detect is as important as understanding what it can detect.
+
+### Typical Anomaly Sizes
+
+| Target Type | Typical Size | Expected Response |
+|-------------|--------------|-------------------|
+| Large metal (engine) | 1-3 m | Strong MIT response |
+| Small metal (artifacts) | 0.1-0.5 m | Weaker MIT, requires tight spacing |
+| Grave shaft | 0.5-1.5 m wide | Clear ERT contrast |
+| Crater fill | 10-15 m diameter | ERT shows boundaries clearly |
+
+: Typical anomaly sizes and expected responses {#tbl-anomaly-sizes}
+
+### Minimum Detectable Sizes
+
+- **MIT:** Can detect ~0.1m metal at 1-2m depth (size dependent)
+- **ERT:** Can resolve ~0.5m features at 1-2m depth
+- **Depth:** Practical limit 2-4m typical with 3m probes (5-6m in optimal conditions)
+
+::: {.callout-important}
+## What "No Anomaly" Actually Means
+
+A survey showing no anomalies indicates "no statistically significant deviation from background within detection limits"—NOT "definitely clear of targets." Small objects, deep targets, or low-contrast features may be present but undetectable.
+:::
+
+## Post-Survey Workflow
+
+1. **QA/QC:** Verify data quality and reciprocity
+2. **Inversion:** Reconstruct 3D models using appropriate algorithms
+3. **Fusion:** Combine MIT and ERT results for complete picture
+4. **Visualization:** Generate depth slices and 3D isosurfaces
+5. **Interpretation:** Correlate anomalies with site context
+6. **Reporting:** Document findings with confidence assessments
+7. **Planning:** Recommend excavation priorities and methods
+
+::: {.callout-note}
+## Key Interpretation Principles
+
+- Always combine MIT and ERT for complete subsurface picture
+- Consider site history and expected target characteristics
+- Use confidence levels to guide excavation prioritization
+- Document interpretation rationale for future reference
+:::

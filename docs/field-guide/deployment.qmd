@@ -1,0 +1,1137 @@
+---
+title: "Deployment"
+---
+
+## Overview {#sec-field-overview}
+
+This section provides comprehensive procedures for deploying and operating the HIRT (Hybrid Inductive-Resistivity Tomography) system in the field, from pre-deployment planning through data backup. The HIRT system combines Magnetic Induction Tomography (MIT) and Electrical Resistivity Tomography (ERT) measurements using a modular array of subsurface probes to achieve high-resolution imaging of buried targets.
+
+## Pre-Deployment Planning {#sec-pre-deployment}
+
+### Site Assessment (Day Before)
+
+Thorough preparation is critical to successful field operations. Before deployment, conduct a comprehensive site assessment covering the following aspects:
+
+1. **Review site conditions:** Evaluate soil type and moisture levels, identify presence of utilities or obstructions, and establish access routes and staging areas.
+2. **Check equipment:** Verify all probes are tested and calibrated, ensure base hub battery is charged (>80%), verify cable continuity, and confirm data logger/tablet is configured.
+3. **Verify permits and permissions:** Confirm site access authorization, excavation permits (if required), and archaeological survey approval.
+
+### Equipment Checklist
+
+| Category | Item | Quantity | Notes |
+|----------|------|----------|-------|
+| Essential | Probes (tested) | 20-24 | Full functional test |
+| Essential | Base hub/control unit | 1 | Battery >80% |
+| Essential | Connection cables | 3-5 m each | Verified continuity |
+| Essential | Fiberglass survey stakes | As needed | For marking |
+| Essential | Measuring tape | 30 m min | Metric markings |
+| Essential | Field tablet/laptop | 1 | Configured with software |
+| Essential | Tool kit | 1 | Wrenches, screwdrivers, multimeter |
+| Optional | GPS unit | 1 | Sub-meter accuracy preferred |
+| Optional | Weather station | 1 | Temperature, humidity |
+| Optional | Backup battery | 1 | 12V compatible |
+
+: Field equipment checklist for HIRT deployment {#tbl-equipment-checklist}
+
+## Site Assessment and Grid Design {#sec-grid-design}
+
+Grid design is fundamental to survey success. The grid geometry determines spatial resolution, depth sensitivity, and survey efficiency. Standard configurations are provided below, with adjustments based on site-specific requirements.
+
+| Configuration | Grid Size | Spacing | Probes | Application |
+|---------------|-----------|---------|--------|-------------|
+| Standard | 10 x 10 m | 2.0 m | 20-24 | General surveys |
+| Small | 8 x 8 m | 1.5 m | 12-16 | Woodland/confined areas |
+| Large | 15 x 15 m | 2.5 m | 30-36 | Crater sites, open areas |
+| High Resolution | 6 x 6 m | 1.0 m | 36 | Detailed anomaly mapping |
+
+: Standard grid configurations for different survey scenarios {#tbl-grid-configs}
+
+```{python}
+#| label: fig-grid-layout
+#| fig-cap: "Standard 10x10 m grid layout with 2 m probe spacing showing zone groupings for sequential deployment. Probes are numbered 1-25 in row-major order."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Rectangle
+import numpy as np
+
+# Color palette
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+}
+
+rows, cols, spacing = 5, 5, 2.0
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+total_width = (cols - 1) * spacing
+total_height = (rows - 1) * spacing
+
+ax.set_xlim(-2, total_width + 2)
+ax.set_ylim(-2, total_height + 2)
+ax.set_aspect('equal')
+
+# Draw probe positions
+probe_num = 1
+for i in range(rows):
+    for j in range(cols):
+        x = j * spacing
+        y = i * spacing
+
+        # Zone coloring
+        zone = (i // 2) * ((cols + 1) // 2) + (j // 2)
+        zone_colors = [COLORS['accent'], COLORS['success'],
+                      COLORS['orange'], COLORS['purple'],
+                      COLORS['warning'], COLORS['gray_med']]
+        color = zone_colors[zone % len(zone_colors)]
+
+        # Probe marker
+        ax.add_patch(Circle((x, y), 0.3, facecolor=color,
+                           edgecolor='black', lw=1, zorder=10))
+        ax.text(x, y, str(probe_num), ha='center', va='center',
+               fontsize=7, color='white', fontweight='bold', zorder=11)
+        probe_num += 1
+
+# Grid lines
+for i in range(rows):
+    ax.axhline(i * spacing, color=COLORS['gray_light'], linestyle=':', alpha=0.5)
+for j in range(cols):
+    ax.axvline(j * spacing, color=COLORS['gray_light'], linestyle=':', alpha=0.5)
+
+# Zone boxes
+zone_num = 1
+for zi in range(0, rows, 2):
+    for zj in range(0, cols, 2):
+        x0 = zj * spacing - 0.5
+        y0 = zi * spacing - 0.5
+        w = min(2, cols - zj) * spacing
+        h = min(2, rows - zi) * spacing
+        ax.add_patch(Rectangle((x0, y0), w, h,
+                               facecolor='none', edgecolor=COLORS['gray_dark'],
+                               linestyle='--', lw=1.5, zorder=5))
+        ax.text(x0 + 0.2, y0 + h - 0.3, f'Zone {zone_num}',
+               fontsize=7, color=COLORS['gray_dark'])
+        zone_num += 1
+
+# Dimension annotations
+ax.annotate('', xy=(spacing, -1.2), xytext=(0, -1.2),
+           arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+ax.text(spacing/2, -1.5, f'{spacing}m spacing', ha='center', fontsize=9)
+
+ax.annotate('', xy=(total_width + 1.2, total_height), xytext=(total_width + 1.2, 0),
+           arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+ax.text(total_width + 1.5, total_height/2, f'{total_height}m', va='center',
+       fontsize=9, rotation=90)
+
+# Legend
+ax.text(total_width/2, total_height + 1.5,
+       f'{rows}x{cols} Grid ({rows*cols} probes, {spacing}m spacing)',
+       ha='center', fontsize=11, fontweight='bold', color=COLORS['primary'])
+
+ax.set_xlabel('Distance (m)', fontsize=10)
+ax.set_ylabel('Distance (m)', fontsize=10)
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Grid Setup Steps
+
+1. **Establish baseline:** Set reference point (0,0) with survey stake, align baseline with site grid (N-S or as specified), and mark corners with bright flags.
+2. **Mark probe positions:** Measure spacing intervals along baseline, extend perpendicular rows, and mark each position with small stake or flag.
+3. **Verify geometry:** Cross-measure diagonals (should match within 5 cm) and record any deviations in field notes.
+
+## Probe Installation {#sec-probe-installation}
+
+Proper probe installation is critical for obtaining quality data. Insertion depth and technique vary with soil conditions and target depth requirements.
+
+| Scenario | Target Depth | Insertion Depth | Notes |
+|----------|--------------|-----------------|-------|
+| Woodland survey | 1-2 m | 1.5 m | Standard for shallow targets |
+| Crater survey | 2-4 m | 3.0 m | Extended depth for crater fill |
+| Reconnaissance | 0.5-1 m | 1.0 m | Rapid screening mode |
+
+: Recommended insertion depths by survey scenario {#tbl-insertion-depths}
+
+```{python}
+#| label: fig-insertion-procedure
+#| fig-cap: "Probe insertion procedure showing the four-step process: (1) pilot hole creation with hand auger, (2) first segment insertion, (3) segment connection at thread joint, and (4) completed installation with junction box and cable routing."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Circle, Rectangle
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'success': '#38a169',
+    'orange': '#ed8936',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'ground_tan': '#d4a373',
+}
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 5))
+
+steps = [
+    ('1. Pilot Hole', 'auger'),
+    ('2. First Segment', 'insert1'),
+    ('3. Connect Segment', 'connect'),
+    ('4. Full Insertion', 'complete'),
+]
+
+for ax, (title, step) in zip(axes, steps):
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-4, 2)
+    ax.set_aspect('equal')
+
+    # Ground surface
+    ax.axhline(0, color='#654321', lw=2)
+    ax.fill_between([-2, 2], [0, 0], [-4, -4], color=COLORS['ground_tan'], alpha=0.3)
+
+    if step == 'auger':
+        # Hand auger
+        ax.add_patch(Rectangle((-0.15, -1.5), 0.3, 2.5,
+                               facecolor=COLORS['gray_dark'], edgecolor='black', lw=1))
+        ax.text(0, 1.3, 'Hand\nAuger', ha='center', fontsize=8)
+        # Hole
+        ax.add_patch(Rectangle((-0.2, -1.5), 0.4, 1.5,
+                               facecolor='white', edgecolor=COLORS['gray_med']))
+
+    elif step == 'insert1':
+        # First segment being inserted
+        ax.add_patch(Rectangle((-0.15, -1.5), 0.3, 2.0,
+                               facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+        # Arrow showing insertion
+        ax.annotate('', xy=(0, -1.5), xytext=(0, 0.5),
+                   arrowprops=dict(arrowstyle='->', color=COLORS['success'], lw=2))
+
+    elif step == 'connect':
+        # Bottom segment in ground
+        ax.add_patch(Rectangle((-0.15, -2.5), 0.3, 1.5,
+                               facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+        # Top segment being connected
+        ax.add_patch(Rectangle((-0.15, -0.5), 0.3, 1.5,
+                               facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+        # Thread connection point
+        ax.add_patch(Circle((0, -1.0), 0.2, facecolor=COLORS['orange'],
+                           edgecolor='black', lw=1))
+        ax.annotate('Thread\nJoint', xy=(0, -1.0), xytext=(1.0, -0.5),
+                   fontsize=7, arrowprops=dict(arrowstyle='->', color=COLORS['orange']))
+
+    elif step == 'complete':
+        # Full probe in ground
+        ax.add_patch(Rectangle((-0.15, -3.5), 0.3, 3.7,
+                               facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+        # Junction box
+        ax.add_patch(FancyBboxPatch((-0.3, 0.2), 0.6, 0.4, boxstyle="round,pad=0.02",
+                                    facecolor=COLORS['gray_dark'], edgecolor='black'))
+        # Cable
+        ax.plot([0.3, 1.5], [0.4, 0.4], color=COLORS['gray_dark'], lw=2)
+        ax.text(1.6, 0.4, 'To\nHub', fontsize=7, va='center')
+
+    ax.set_title(title, fontsize=10, fontweight='bold', color=COLORS['primary'])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+#| label: fig-soil-decision-tree
+#| fig-cap: "Soil type insertion decision tree. The procedure adapts based on soil hardness, water table depth, and presence of obstructions. Key principle: never hammer probes; use maximum hand pressure only."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Polygon
+
+COLORS = {
+    'primary': '#1a365d',
+    'gray_med': '#718096',
+    'light_green': '#c6f6d5',
+    'light_blue': '#ebf8ff',
+    'light_orange': '#feebc8',
+}
+
+def draw_terminal(ax, x, y, width, height, text, color='white'):
+    patch = FancyBboxPatch((x - width/2, y - height/2), width, height,
+                           boxstyle="round,pad=0.3",
+                           facecolor=color, edgecolor='black', linewidth=1.5)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=9, fontweight='bold')
+
+def draw_decision_diamond(ax, x, y, size, text, color='white'):
+    half = size / 2
+    points = [(x, y + half), (x + half, y), (x, y - half), (x - half, y)]
+    patch = Polygon(points, facecolor=color, edgecolor='black', linewidth=1)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=7)
+
+def draw_process_box(ax, x, y, width, height, text, color='white'):
+    patch = FancyBboxPatch((x - width/2, y - height/2), width, height,
+                           boxstyle="round,pad=0.02",
+                           facecolor=color, edgecolor='black', linewidth=1)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=8, wrap=True)
+
+def draw_flow_arrow(ax, start, end, label=None, color='black'):
+    ax.annotate('', xy=end, xytext=start,
+               arrowprops=dict(arrowstyle='->', color=color, lw=1.5))
+    if label:
+        mid_x = (start[0] + end[0]) / 2
+        mid_y = (start[1] + end[1]) / 2
+        ax.text(mid_x + 0.1, mid_y, label, fontsize=7, color=color)
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Start
+draw_terminal(ax, 5, 7.5, 2, 0.5, 'START', COLORS['light_green'])
+
+# First decision: Soil hardness
+draw_decision_diamond(ax, 5, 6, 1.5, 'Soil\nHard?', COLORS['light_blue'])
+draw_flow_arrow(ax, (5, 7.25), (5, 6.75))
+
+# Hard soil path
+draw_flow_arrow(ax, (5.75, 6), (7.5, 6), 'Yes')
+draw_process_box(ax, 8.5, 6, 1.8, 0.8, 'Use hand\nauger\n(18mm)', COLORS['light_orange'])
+
+# Soft soil path
+draw_flow_arrow(ax, (5, 5.25), (5, 4.5), 'No')
+draw_decision_diamond(ax, 5, 4, 1.5, 'Water\nTable?', COLORS['light_blue'])
+
+# High water table
+draw_flow_arrow(ax, (5.75, 4), (7.5, 4), 'High')
+draw_process_box(ax, 8.5, 4, 1.8, 0.8, 'Direct push\n(wet method)', COLORS['light_orange'])
+
+# Low water table
+draw_flow_arrow(ax, (5, 3.25), (5, 2.5), 'Low')
+draw_decision_diamond(ax, 5, 2, 1.5, 'Stones/\nRoots?', COLORS['light_blue'])
+
+# With obstructions
+draw_flow_arrow(ax, (5.75, 2), (7.5, 2), 'Yes')
+draw_process_box(ax, 8.5, 2, 1.8, 0.8, 'Careful\nauger +\nprobe', COLORS['light_orange'])
+
+# Clear path
+draw_flow_arrow(ax, (5, 1.25), (5, 0.5))
+draw_process_box(ax, 5, 0.5, 2.0, 0.6, 'Direct push\nonly', COLORS['light_green'])
+
+# Convergence arrows to success
+for y in [6, 4, 2]:
+    draw_flow_arrow(ax, (8.5, y - 0.4), (8.5, 0.7), '')
+
+# Success terminal
+draw_terminal(ax, 8.5, 0.5, 1.8, 0.5, 'INSERT', COLORS['light_green'])
+
+# Title
+ax.text(5, 7.9, 'Soil Insertion Decision Tree', ha='center',
+       fontsize=11, fontweight='bold', color=COLORS['primary'])
+
+# Notes
+ax.text(1.5, 1.5, 'NOTES:\n- Never hammer probes\n- Max force: hand pressure\n- If blocked, relocate',
+       fontsize=7, va='top', bbox=dict(boxstyle='round', facecolor='white',
+                                      edgecolor=COLORS['gray_med']))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Insertion Methods by Soil Type
+
+#### Sandy/Loose Soil
+
+- May push probe directly without pilot hole
+- Use water jet if available for deeper insertion
+- Watch for collapse of hole walls during insertion
+
+#### Clay/Compact Soil
+
+- Pre-drill pilot hole using 18 mm hand auger
+- May need to enlarge hole slightly for probe diameter
+- Allow settling time (5-10 min) before measurement
+
+#### Rocky/Mixed Soil
+
+- Use auger with care to avoid damage
+- Note rock contact locations in field log
+- May need to relocate probe position slightly
+
+::: {.callout-note}
+## Cable Routing Guidelines
+
+- Route cables radially from base hub placed at grid center or edge
+- Route cables along grid lines to avoid tangling
+- Use cable clips or ties to secure at 1 m intervals
+- Leave 0.5 m slack at each probe connection for strain relief
+:::
+
+### Cable Length and Signal Integrity {#sec-cable-length-guidance}
+
+The HIRT system uses **passive probes** with all active electronics in the central hub. This architecture offers cost and reliability advantages but requires attention to cable length effects on MIT receive signals, which operate in the microvolt range.
+
+**The Signal Integrity Challenge:** MIT RX coils produce signals of approximately 1 µV at the probe. These signals must travel through the probe cable (3-5 m) and trunk cable (variable length to hub) before reaching the preamplifier. Cable capacitance creates a low-pass filter effect, and longer cables increase susceptibility to electromagnetic interference (EMI) pickup.
+
+| Trunk Cable Length | Signal Degradation | EMI Susceptibility | Recommendation |
+|-------------------|-------------------|-------------------|----------------|
+| <5 m | <10% | Low | Passive probes OK |
+| 5-10 m | 10-25% | Moderate | Passive probes OK with shielding |
+| 10-15 m | 25-40% | High | Consider active probe option |
+| >15 m | >40% | Very High | Active probes recommended |
+
+: Cable length impact on MIT signal integrity. {#tbl-cable-length}
+
+**Cable Capacitance Effect:** Typical shielded cable has capacitance of approximately 100 pF/m. A 20 m cable run creates ~2 nF capacitive load. At 20 kHz operating frequency, this represents an impedance of ~4 k-ohm---significant for microvolt-level signals driving typical coil source impedances.
+
+**Practical Guidelines:**
+
+- **Standard deployments (10 m total cable run):** Passive probes provide adequate SNR with no additional measures beyond standard shielded cable
+- **Extended deployments (10-15 m):** Use low-capacitance cable, minimize parallel cable runs, ensure single-point shield grounding
+- **Large-area surveys (>15 m):** Consider the **optional active probe** configuration (adds $50-80/probe) which places a unity-gain buffer at the probe, driving the cable with a low-impedance source
+
+::: {.callout-tip}
+## Field Tip: Testing Cable Length Impact
+
+Before committing to a large deployment, verify acceptable SNR at your planned cable lengths. Set up a single probe at the maximum expected distance from the hub and measure noise floor with TX disabled. If the noise exceeds 500 nV RMS, consider active probes or repositioning the hub closer to the probe array.
+:::
+
+## Cable Management and Field Logistics {#sec-cable-management}
+
+Managing cable harnesses for 16-24 probes in field conditions represents one of the most underestimated challenges of multi-probe geophysical surveys. Poor cable management leads to tangling, connection errors, tripping hazards, and wasted time during deployment and recovery. The following systematic approach transforms cable logistics from a frustration into a repeatable, efficient procedure.
+
+### The Cable Challenge
+
+A standard 20-probe HIRT deployment involves 20 individual 3-5 meter cables, creating 60-100 meters of total cable length that must be routed, connected, and managed across uneven terrain. In wet or muddy conditions, cables become heavy and prone to picking up debris. Without a systematic approach, deployment can devolve into "cable spaghetti" where identifying connections becomes guesswork and extraction takes twice as long as installation.
+
+The key principle is that **systematic deployment prevents chaotic recovery**. Investing 10 minutes in organized cable routing saves 30 minutes during extraction and dramatically reduces connection errors.
+
+### Labeling System
+
+Implement a dual-coded labeling system that provides both visual (color) and alphanumeric (label) identification:
+
+**Color Coding by Zone**: Divide the probe array into 4-6 zones based on spatial grouping (e.g., North, South, East, West for square grids). Assign each zone a color using colored heat-shrink tubing or tape applied near both cable ends. This allows rapid visual identification from a distance and helps operators route bundles correctly.
+
+Common zone color schemes:
+- North (blue), South (red), East (green), West (yellow)
+- Quadrants: Q1 (blue), Q2 (green), Q3 (yellow), Q4 (red)
+- Sequential zones: Z1 (blue), Z2 (green), Z3 (orange), Z4 (purple)
+
+**Numbered Labels**: Apply waterproof numbered labels (printed on heat-shrink tubing or laminated paper) at both ends of each cable. Use probe numbering that matches your grid layout (e.g., P01, P02, ... P20). Verify that labels remain legible after exposure to mud, rain, and handling.
+
+::: {.callout-tip}
+## Field Tip: Label Durability
+
+Print labels on waterproof laser-printable heat-shrink tubing (e.g., 3:1 ratio polyolefin) and apply with a heat gun. This creates permanent, abrasion-resistant labels that survive multiple field deployments. Alternatively, laminate paper labels and secure with clear heat-shrink as an outer layer.
+:::
+
+### Deployment Sequence
+
+Deploy probes and cables in a systematic order rather than randomly inserting probes wherever convenient. Two effective patterns are:
+
+**Spoke Pattern (Radial Deployment)**: Place the base hub at grid center or edge. Deploy probes moving outward from hub in radial spokes, laying cables as you go. This naturally organizes cables by direction and minimizes crossing.
+
+1. Start with probes nearest the hub
+2. Work outward along each cardinal direction (N, S, E, W)
+3. Fill in intermediate positions between spokes
+4. Each cable follows a direct radial path to hub
+
+**Sequential Row/Column Deployment**: For rectangular grids, deploy row-by-row or column-by-column. This works well when the hub is positioned along one edge.
+
+1. Deploy entire first row/column with cable bundle
+2. Move to next parallel row/column
+3. Keep cable bundles parallel and organized by row
+4. Hub receives all cables from one side
+
+Regardless of pattern, the key is **consistency**. The same deployment sequence should be followed for extraction, simplifying identification and reducing the chance of leaving equipment behind.
+
+### Cable Routing and Management
+
+**Slack Management**: Keep excess cable coiled at the probe end, not at the hub. This prevents a tangled mass at the central connection point and makes individual probe adjustments easier. Use 2-3 loose coils secured with a single velcro tie at each probe location.
+
+**Elevated Routing in Wet Conditions**: In muddy or waterlogged sites, elevate cables above ground level using survey stakes or improvised supports. This prevents cables from sinking into mud, reduces debris pickup, and makes extraction far cleaner. Position stakes at 2-3 meter intervals and secure cables with velcro ties or clips.
+
+**Avoid Crossing Cables**: Design your routing pattern to minimize cable crossings. Where crossings are unavoidable, mark the intersection with a small flag or bright tie so operators know to untangle in reverse order during extraction.
+
+**Bundle Parallel Runs**: When multiple cables follow the same path (common in spoke patterns), bundle them together with velcro ties every 2 meters. This prevents individual cables from wandering and reduces tangling. Do not use zip ties (difficult to remove for adjustment) or excessive tension (damages insulation).
+
+### Connection Protocol
+
+Follow a systematic connection sequence to reduce errors and enable quick troubleshooting:
+
+1. **Dry-fit First**: Before inserting probes, lay out all cables and verify labeling is correct. Match probe numbers to grid positions on paper.
+
+2. **Verify Continuity**: Before burial or full insertion, use a multimeter to quick-check resistance across cable ends (should read low ohms for good connections, open circuit for breaks).
+
+3. **Connect in Order**: Plug cables into the base hub in sequential order (P01, P02, P03...). This makes troubleshooting far easier than random connection order. Mark each port on the hub with corresponding probe numbers.
+
+4. **Quick Resistance Check**: After all connections are made, run a rapid resistance check across all probe pairs. This catches connector issues before beginning lengthy measurement sequences.
+
+::: {.callout-tip}
+## Field Tip: Connection Error Prevention
+
+Take a photo of the fully connected base hub showing all cable labels plugged into their ports. If a cable becomes dislodged during the survey, this photo provides instant verification of correct reconnection without consulting field notes.
+:::
+
+### Teardown and Recovery Procedure
+
+Systematic teardown in reverse order of deployment prevents cable tangling and ensures no equipment is left behind:
+
+1. **Disconnect in Reverse Order**: Unplug cables from hub in reverse sequence (P20, P19, P18...). Coil each cable immediately upon disconnection before moving to the next.
+
+2. **Over-Under Coiling Method**: Use the over-under coiling technique to prevent cable twisting. Alternate hand orientation with each loop: one loop with palm up, next loop with palm down. This creates a flat coil that unrolls without kinking.
+
+3. **Inspect During Coiling**: As each cable is coiled, visually inspect for damage: nicks in insulation, bent connector pins, strained strain relief. Mark damaged cables for immediate repair before next deployment.
+
+4. **Extract Probes Last**: Remove cables first, then extract probes. This prevents accidentally pulling on connected cables during probe extraction, which can damage connectors or pull cables into mud.
+
+5. **Clean Before Storage**: Wipe cables clean with a damp cloth while coiling. Removing mud and debris in the field is far easier than cleaning dried, caked-on soil in the lab.
+
+### Storage and Transport
+
+Proper storage prevents connector damage, cable tangling, and corrosion between field sessions:
+
+**Individual Cable Bags or Spools**: Store each cable in a separate bag (ziplock or mesh) or on a small spool. Label the bag/spool with the cable number. This prevents tangling during transport and makes setup at the next site faster.
+
+**Dry Storage**: Never store cables while wet or damp. Moisture trapped in connector housings promotes corrosion of pins and sockets. If cables get wet in the field, hang them to dry before coiling for storage.
+
+**Connector Protection**: Use dust caps on all connectors during storage. For DIY systems, 3D-printed caps or simple plastic bags secured with rubber bands prevent dirt intrusion and pin damage.
+
+**Transport Organization**: Use a dedicated cable bag, bin, or foam-lined case with compartments. Organize cables by zone (matching field deployment zones) so setup at the next site follows a familiar pattern.
+
+::: {.callout-tip}
+## Field Tip: Pre-Deployment Prep
+
+Before leaving for a survey, lay out all cables in deployment order at the lab. This verifies you have the correct number, labels are legible, and connectors are clean. Taking 15 minutes for this check prevents discovering missing or damaged cables after probes are already in the ground.
+:::
+
+### Quick Reference: Cable Management Checklist
+
+**Pre-Deployment**:
+- [ ] All cables labeled with zone color and probe number
+- [ ] Labels legible and waterproof
+- [ ] Connectors inspected and clean
+- [ ] Correct count verified (match number of probes)
+
+**Deployment**:
+- [ ] Systematic deployment pattern chosen (spoke or sequential)
+- [ ] Slack coiled at probe end, not hub
+- [ ] Cables elevated in wet conditions
+- [ ] Parallel runs bundled with velcro ties
+- [ ] Connections verified before measurement
+
+**Recovery**:
+- [ ] Disconnect in reverse order
+- [ ] Over-under coiling method used
+- [ ] Visual inspection during coiling
+- [ ] Cables cleaned before storage
+- [ ] All cables accounted for (count matches deployment)
+
+**Storage**:
+- [ ] Individual bags or spools
+- [ ] Connectors protected with caps
+- [ ] Dry storage environment
+- [ ] Organized by zone for next deployment
+
+## Handling Field Obstructions {#sec-field-obstructions}
+
+Real-world field conditions rarely permit idealized grid placement. Tree roots, rocks, standing water, and buried utilities require adaptive deployment strategies. The key principle is that **inversion algorithms use actual sensor positions**---accurate documentation of where probes are matters more than achieving perfect grid geometry.
+
+### When to Relocate vs Skip
+
+| Situation | Recommended Action | Notes |
+|-----------|-------------------|-------|
+| Small root/rock at surface | Offset probe 10-30 cm | Record actual position |
+| Large obstruction (tree, boulder) | Skip position entirely | Document in survey notes |
+| Standing water/soft ground | Relocate to firm ground | May need wider offset |
+| Buried utility (confirmed) | Skip with 1 m clearance | Safety priority |
+| Partial insertion possible | Insert to achievable depth | Record actual depth |
+
+: Decision guidance for probe placement around obstructions {#tbl-obstruction-decisions}
+
+### Partial Depth Insertion
+
+When a probe cannot reach full target depth due to subsurface obstructions (rock, dense clay, buried debris), partial insertion remains valuable:
+
+1. **Record the actual tip depth** in survey geometry file (see @sec-survey-geometry-format)
+2. **Note the obstruction type** in field log (rock, clay, unknown)
+3. **Sensors above the obstruction remain valid** for measurements
+4. **Exclude sensors below tip depth** during inversion processing
+5. **Consider progressive deployment**: Start shallow (1 m), assess data, then extend depths in clear areas
+
+::: {.callout-note}
+## Partial Probes Are Still Useful
+
+A probe reaching only 2 m instead of 3 m still provides valid measurements for the upper sensors. The inversion mesh simply excludes electrode positions below the actual tip depth. This is far better than no probe at all.
+:::
+
+### Position Measurement Procedures {#sec-position-measurement}
+
+Accurate position recording enables proper inversion geometry. Three levels of precision are available depending on site requirements:
+
+#### Level 1: Tape Measure (Standard)
+
+For most surveys, tape measure positioning relative to grid origin provides adequate precision:
+
+1. **Establish grid origin** at a marked reference point (survey stake, corner post)
+2. **Measure X offset** along the primary baseline direction
+3. **Measure Y offset** perpendicular to baseline
+4. **Record to nearest 5 cm** (sufficient for ~2 m probe spacing)
+5. **Note direction convention** (e.g., X = East, Y = North)
+
+#### Level 2: Total Station (High Precision)
+
+For surveys requiring cm-level accuracy or complex topography:
+
+1. Set up total station with backsight to known point
+2. Record each probe position as Easting, Northing, Elevation
+3. Export coordinates to survey geometry file
+4. Include surface elevation for topographic correction
+
+#### Level 3: RTK-GPS (Absolute Coordinates)
+
+For integration with GIS or multi-day surveys:
+
+1. Establish RTK base station or connect to CORS network
+2. Record WGS84 coordinates for each probe position
+3. Include surface elevation (Z_surface)
+4. Transform to local grid if needed for inversion software
+
+### Surface Elevation Recording {#sec-surface-elevation}
+
+When ground surface varies across the survey area (slopes, undulating terrain, crater edges), record surface elevation at each probe position:
+
+| Surface Variation | Action Required | Impact on Inversion |
+|-------------------|-----------------|---------------------|
+| < 20 cm across grid | Record as flat (Z=0) | Negligible |
+| 20-50 cm variation | Relative elevations | Minor mesh adjustment |
+| > 50 cm variation | Full topographic survey | Required for accuracy |
+
+: Surface elevation recording requirements {#tbl-surface-elevation}
+
+For significant topography, record:
+
+- **z_surface_m**: Ground surface elevation relative to lowest point (or absolute)
+- **z_tip_m**: Probe tip depth below local surface (always negative)
+- The absolute tip position is then: z_surface_m + z_tip_m
+
+### Photograph Documentation
+
+Supplement numerical records with photographs showing:
+
+- Overview of deployed grid with numbered markers visible
+- Close-up of any offset or skipped positions with obstruction
+- Reference scale in frame (survey stake with depth markings)
+- GPS screenshot if using handheld unit
+
+## System Setup and Power-Up {#sec-system-setup}
+
+After probe installation, systematic setup and verification ensures reliable data acquisition. Follow the power-up sequence carefully to avoid equipment damage and verify all connections before beginning measurements.
+
+### Power-Up Sequence
+
+1. **Connect all cables:** Verify each probe is connected to the base hub, check cable routing for kinks or tension points.
+2. **Power on base hub:** Turn main power switch ON, wait for initialization (10-15 seconds), and verify power LED is solid green.
+3. **Verify probe communication:** Run diagnostic scan, verify all probes report status, and note any non-responsive probes for troubleshooting.
+4. **Initialize measurement system:** Start field software, load site configuration, and verify probe array geometry matches field deployment.
+
+## MIT Measurement Protocol {#sec-mit-protocol}
+
+Magnetic Induction Tomography measurements detect conductive anomalies through electromagnetic coupling. Each probe sequentially transmits while all others receive, building a complete response matrix at multiple frequencies.
+
+```{python}
+#| label: fig-measurement-sequence
+#| fig-cap: "Measurement sequence timeline showing interleaved MIT scanning and ERT measurement cycles. MIT scans sweep through frequencies (2-50 kHz) while ERT measurements occur during multiplexer switching intervals."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+COLORS = {
+    'primary': '#1a365d',
+    'success': '#38a169',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'accent': '#3182ce',
+}
+
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 5)
+ax.axis('off')
+
+# Timeline base
+ax.plot([1, 9], [2.5, 2.5], 'k-', lw=2)
+
+# Time markers
+times = [1, 3, 5, 7, 9]
+labels = ['0s', '30s', '60s', '90s', '120s']
+for t, label in zip(times, labels):
+    ax.plot([t, t], [2.3, 2.7], 'k-', lw=2)
+    ax.text(t, 2.0, label, ha='center', fontsize=8)
+
+# MIT measurement blocks
+mit_times = [(1.2, 2.5), (3.2, 4.5), (5.2, 6.5), (7.2, 8.5)]
+for start, end in mit_times:
+    ax.add_patch(Rectangle((start, 3.0), end-start, 0.6,
+                           facecolor=COLORS['success'], edgecolor='black', lw=1))
+ax.text(1.5, 3.8, 'MIT Scan', fontsize=8, color=COLORS['success'])
+
+# Frequency sweep indicator
+ax.annotate('2->50 kHz', xy=(2.0, 3.3), xytext=(2.0, 4.2),
+           fontsize=7, ha='center', color=COLORS['success'],
+           arrowprops=dict(arrowstyle='->', color=COLORS['success']))
+
+# ERT measurement blocks
+ert_times = [(2.5, 3.0), (4.5, 5.0), (6.5, 7.0)]
+for start, end in ert_times:
+    ax.add_patch(Rectangle((start, 1.5), end-start, 0.6,
+                           facecolor=COLORS['orange'], edgecolor='black', lw=1))
+ax.text(2.5, 0.9, 'ERT Measure', fontsize=8, color=COLORS['orange'])
+
+# Multiplexer switching
+for t in [3.0, 5.0, 7.0]:
+    ax.annotate('', xy=(t, 2.7), xytext=(t, 3.0),
+               arrowprops=dict(arrowstyle='->', color=COLORS['purple'], lw=1.5))
+    ax.annotate('', xy=(t, 2.3), xytext=(t, 2.1),
+               arrowprops=dict(arrowstyle='->', color=COLORS['purple'], lw=1.5))
+ax.text(5.0, 1.2, 'MUX Switch', fontsize=7, ha='center', color=COLORS['purple'])
+
+# Probe pairs indicator
+probe_labels = ['P1-P2', 'P2-P3', 'P3-P4', 'P4-P5']
+for i, (start, end) in enumerate(mit_times):
+    if i < len(probe_labels):
+        ax.text((start+end)/2, 3.75, probe_labels[i], ha='center',
+               fontsize=7, color='white', fontweight='bold')
+
+# Title
+ax.text(5, 4.7, 'Measurement Sequence Timeline (One Cycle)',
+       ha='center', fontsize=11, fontweight='bold', color=COLORS['primary'])
+
+# Legend
+legend_y = 0.3
+ax.add_patch(Rectangle((1.5, legend_y), 0.4, 0.3, facecolor=COLORS['success']))
+ax.text(2.0, legend_y + 0.15, 'MIT Scan', fontsize=8, va='center')
+ax.add_patch(Rectangle((4.0, legend_y), 0.4, 0.3, facecolor=COLORS['orange']))
+ax.text(4.5, legend_y + 0.15, 'ERT Measure', fontsize=8, va='center')
+
+plt.tight_layout()
+plt.show()
+```
+
+### Frequency Selection
+
+| Frequency | Penetration | Primary Use |
+|-----------|-------------|-------------|
+| 2 kHz | Deep (3-4 m) | Deep target detection, high conductivity |
+| 5 kHz | Medium-deep | General subsurface mapping |
+| 10 kHz | Medium | Balanced depth/resolution |
+| 20 kHz | Shallow-medium | Enhanced resolution |
+| 50 kHz | Shallow (<1 m) | Near-surface detail, small targets |
+
+: MIT frequency selection guide for different survey objectives {#tbl-frequency-guide}
+
+### Timing
+
+- Full matrix measurement: all TX-RX pairs at single frequency (3-5 minutes)
+- Multi-frequency sweep: complete matrix at all frequencies (30-45 minutes)
+- Typical survey cycle: 10-15 minutes per complete scan at primary frequency
+
+## ERT Measurement Protocol {#sec-ert-protocol}
+
+Electrical Resistivity Tomography measurements inject DC current across probe pairs while measuring voltage at all other electrodes. Multiple injection patterns provide complementary sensitivity for robust inversion.
+
+```{python}
+#| label: fig-ert-patterns
+#| fig-cap: "ERT injection pattern options. (a) Wenner-Alpha: symmetric ABMN spacing for uniform sensitivity. (b) Dipole-Dipole: separated current and voltage dipoles for lateral resolution. (c) Pole-Dipole: remote current electrode for deep penetration."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+
+COLORS = {
+    'primary': '#1a365d',
+    'accent': '#3182ce',
+    'warning': '#c53030',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'ground_tan': '#d4a373',
+}
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+
+patterns = [
+    ('Wenner-Alpha', [(0, 3), (1, 2)], 'ABMN spacing = 1:1:1'),
+    ('Dipole-Dipole', [(0, 1), (2, 3)], 'AB and MN separated'),
+    ('Pole-Dipole', [(0, None), (2, 3)], 'Remote current electrode'),
+]
+
+for ax, (name, pairs, desc) in zip(axes, patterns):
+    ax.set_xlim(-1, 5)
+    ax.set_ylim(-1, 3)
+    ax.set_aspect('equal')
+
+    # Ground line
+    ax.axhline(1, color='#654321', lw=2)
+    ax.fill_between([-1, 5], [1, 1], [-1, -1], color=COLORS['ground_tan'], alpha=0.3)
+
+    # Electrode positions
+    positions = [0.5, 1.5, 2.5, 3.5]
+    labels = ['A', 'B', 'M', 'N']
+
+    for i, (pos, label) in enumerate(zip(positions, labels)):
+        is_current = label in ['A', 'B']
+        color = COLORS['warning'] if is_current else COLORS['accent']
+
+        # Skip if remote electrode
+        if pairs[0][1] is None and label == 'B':
+            ax.text(pos, 1.4, '(remote)', fontsize=7, ha='center',
+                   color=COLORS['gray_med'])
+            continue
+
+        ax.add_patch(Circle((pos, 1), 0.2, facecolor=color,
+                           edgecolor='black', lw=1))
+        ax.text(pos, 1, label, ha='center', va='center',
+               fontsize=9, color='white', fontweight='bold')
+
+    # Connection lines
+    for pair, color in [(pairs[0], COLORS['warning']), (pairs[1], COLORS['accent'])]:
+        if pair[0] is not None and pair[1] is not None:
+            x1, x2 = positions[pair[0]], positions[pair[1]]
+            ax.plot([x1, x2], [2.0, 2.0], color=color, lw=2)
+            ax.plot([x1, x1], [1.2, 2.0], color=color, lw=1)
+            ax.plot([x2, x2], [1.2, 2.0], color=color, lw=1)
+
+    # Current flow indication
+    ax.annotate('', xy=(positions[pairs[0][0]] + 0.5, 0.3),
+               xytext=(positions[pairs[0][0]], 0.3),
+               arrowprops=dict(arrowstyle='->', color=COLORS['warning'], lw=1.5))
+
+    ax.set_title(name, fontsize=10, fontweight='bold', color=COLORS['primary'])
+    ax.text(2, -0.5, desc, ha='center', fontsize=8, color=COLORS['gray_dark'])
+    ax.axis('off')
+
+# Legend
+fig.text(0.5, 0.02, 'Red = Current injection (A,B)  |  Blue = Voltage measurement (M,N)',
+        ha='center', fontsize=9, color=COLORS['gray_dark'])
+
+plt.tight_layout()
+plt.subplots_adjust(bottom=0.12)
+plt.show()
+```
+
+### ERT Configuration Parameters
+
+| Parameter | Standard Value | Range | Notes |
+|-----------|----------------|-------|-------|
+| Current level | 1.0 mA | 0.5-2.0 mA | Adjust for noise floor |
+| Integration time | 2 s | 1-5 s | Longer for noisy sites |
+| Polarity reversal | Every 1 s | 0.5-2 s | Reduces electrode polarization |
+| Stacking | 4 cycles | 2-8 | More for weak signals |
+
+: ERT measurement configuration parameters {#tbl-ert-config}
+
+## "Set Once, Measure Many" Workflow {#sec-field-workflow}
+
+The HIRT operational philosophy emphasizes thorough probe placement followed by comprehensive measurement. This approach maximizes data quality and enables redundancy checks while minimizing handling of deployed equipment.
+
+```{python}
+#| label: fig-survey-workflow
+#| fig-cap: "Complete field survey workflow showing four phases: Planning (site reconnaissance, grid design, equipment check), Deployment (marking, insertion, cabling), Acquisition (system test, survey execution, QC checks), and Recovery (backup, extraction, restoration)."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
+
+COLORS = {
+    'primary': '#1a365d',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'light_green': '#c6f6d5',
+    'light_blue': '#ebf8ff',
+    'light_orange': '#feebc8',
+    'light_purple': '#e9d8fd',
+}
+
+def draw_flow_arrow(ax, start, end, color='black'):
+    ax.annotate('', xy=end, xytext=start,
+               arrowprops=dict(arrowstyle='->', color=color, lw=1.5))
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Phases with vertical layout
+phases = [
+    ('PLANNING', 7.5, [
+        'Site reconnaissance',
+        'Grid design',
+        'Equipment check'
+    ], COLORS['light_blue']),
+    ('DEPLOYMENT', 5.5, [
+        'Mark positions',
+        'Insert probes',
+        'Connect cables'
+    ], COLORS['light_green']),
+    ('ACQUISITION', 3.5, [
+        'System test',
+        'Run survey',
+        'QC checks'
+    ], COLORS['light_orange']),
+    ('RECOVERY', 1.5, [
+        'Data backup',
+        'Remove probes',
+        'Site restoration'
+    ], COLORS['light_purple']),
+]
+
+for phase_name, y, steps, color in phases:
+    # Phase header
+    ax.add_patch(FancyBboxPatch((0.5, y - 0.3), 2.5, 0.6,
+                                boxstyle="round,pad=0.02",
+                                facecolor=color, edgecolor='black', lw=1.5))
+    ax.text(1.75, y, phase_name, ha='center', va='center',
+           fontsize=10, fontweight='bold')
+
+    # Steps
+    for i, step in enumerate(steps):
+        x = 4.5 + i * 2
+        ax.add_patch(FancyBboxPatch((x - 0.8, y - 0.25), 1.6, 0.5,
+                                    boxstyle="round,pad=0.02",
+                                    facecolor='white', edgecolor=color, lw=1))
+        ax.text(x, y, step, ha='center', va='center', fontsize=7)
+
+        # Arrow to next step
+        if i < len(steps) - 1:
+            draw_flow_arrow(ax, (x + 0.8, y), (x + 1.2, y), color=color)
+
+# Phase transitions
+for i in range(len(phases) - 1):
+    draw_flow_arrow(ax, (1.75, phases[i][1] - 0.3),
+                   (1.75, phases[i+1][1] + 0.3), color=COLORS['gray_dark'])
+
+# Time estimates
+ax.text(9.5, 7.5, '~1-2h', fontsize=8, color=COLORS['gray_med'])
+ax.text(9.5, 5.5, '~2-4h', fontsize=8, color=COLORS['gray_med'])
+ax.text(9.5, 3.5, '~1-2h', fontsize=8, color=COLORS['gray_med'])
+ax.text(9.5, 1.5, '~1h', fontsize=8, color=COLORS['gray_med'])
+
+# Title
+ax.text(5, 8, 'Field Survey Workflow', ha='center',
+       fontsize=11, fontweight='bold', color=COLORS['primary'])
+
+plt.tight_layout()
+plt.show()
+```
+
+### Workflow Steps
+
+1. **Install All Probes:** Deploy complete array, mark with numbered flags, record GPS coordinates and insertion depths.
+2. **Background Scan:** Perform short MIT and ERT scan outside suspected zone to establish baseline/control measurements.
+3. **MIT Sweep:** Complete full TX-RX matrix at all frequencies before moving probes.
+4. **ERT Patterns:** Execute all injection patterns with multiple baselines for redundancy.
+5. **Quality Control:** Repeat 5-10% of TX-RX pairs, verify reciprocity (A-B approximately equals B-A), document any anomalies.
+6. **Extract and Move:** Carefully extract probes, shift to next section with one-column overlap for data continuity.
+
+## Quality Checks {#sec-field-quality-checks}
+
+Real-time quality assessment during data acquisition prevents costly re-surveys. Monitor the following indicators throughout the measurement process:
+
+### Good Data Indicators
+
+- Consistent reciprocity: TX(A)-RX(B) matches TX(B)-RX(A) within 5%
+- Smooth spatial variations without abrupt discontinuities
+- Expected depth sensitivity decay with increasing offset
+- Stable baseline measurements throughout survey
+
+::: {.callout-warning}
+## Problematic Data Indicators
+
+- Poor reciprocity (>10% difference) - check coupling, recalibrate
+- Noisy/spiky readings - check connections, improve shielding
+- No depth sensitivity - verify spacing, adjust frequency
+- Inconsistent repeats - check timebase synchronization, connector integrity
+:::
+
+## Deployment Scenarios {#sec-deployment-scenarios}
+
+Different site conditions require adapted deployment strategies. The following scenarios illustrate common configurations optimized for specific survey objectives.
+
+```{python}
+#| label: fig-deployment-scenarios
+#| fig-cap: "Deployment scenario configurations. (a) Square Array: uniform coverage for general surveys (25 probes). (b) Perimeter Only: ring deployment around known target zone for minimal disturbance (16 probes). (c) Dense Center: enhanced resolution over target with perimeter context (21 probes)."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Ellipse
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'warning': '#c53030',
+    'ground_tan': '#d4a373',
+}
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 4.5))
+
+scenarios = [
+    ('(a) Square Array', 'square'),
+    ('(b) Perimeter Only', 'perimeter'),
+    ('(c) Dense Center', 'dense_center'),
+]
+
+for ax, (title, pattern) in zip(axes, scenarios):
+    ax.set_xlim(-1, 9)
+    ax.set_ylim(-1, 9)
+    ax.set_aspect('equal')
+
+    # Grid background
+    ax.fill_between([-1, 9], [-1, -1], [9, 9], color=COLORS['ground_tan'], alpha=0.2)
+
+    # Probe positions based on pattern
+    if pattern == 'square':
+        positions = [(i*2, j*2) for i in range(5) for j in range(5)]
+    elif pattern == 'perimeter':
+        positions = (
+            [(0, j*2) for j in range(5)] +  # Left
+            [(8, j*2) for j in range(5)] +  # Right
+            [(i*2, 0) for i in range(1, 4)] +  # Bottom
+            [(i*2, 8) for i in range(1, 4)]    # Top
+        )
+    else:  # dense_center
+        # Outer ring
+        positions = [(0, j*2) for j in range(5)] + [(8, j*2) for j in range(5)]
+        positions += [(i*2, 0) for i in range(1, 4)] + [(i*2, 8) for i in range(1, 4)]
+        # Inner dense
+        positions += [(3, 3), (5, 3), (3, 5), (5, 5), (4, 4)]
+
+    # Draw probes
+    for i, (x, y) in enumerate(positions):
+        ax.add_patch(Circle((x, y), 0.35, facecolor=COLORS['secondary'],
+                           edgecolor='black', lw=1))
+
+    # Target zone for perimeter and dense
+    if pattern in ['perimeter', 'dense_center']:
+        ax.add_patch(Ellipse((4, 4), 4, 4, facecolor=COLORS['warning'],
+                            alpha=0.2, edgecolor=COLORS['warning'], linestyle='--'))
+        ax.text(4, 4, 'Target\nZone', ha='center', va='center',
+               fontsize=8, color=COLORS['warning'])
+
+    # Scale bar
+    ax.plot([0, 2], [-0.5, -0.5], 'k-', lw=2)
+    ax.text(1, -0.8, '2m', ha='center', fontsize=8)
+
+    ax.set_title(title, fontsize=10, fontweight='bold', color=COLORS['primary'])
+    ax.set_xlabel(f'{len(positions)} probes', fontsize=9)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Minimal-Intrusion Variants
+
+#### Rim-Only Deployment
+
+- Place ring of probes around suspected feature edge
+- Add select probes angled inward for cross-coverage
+- Reduces ground disturbance in sensitive archaeological contexts
+- Provides adequate coverage with proper geometric factor correction
+
+#### Shallow Mode
+
+- Insert probes to 1 m or less
+- Use wider spacing (2-3 m) to compensate
+- Rely on lower frequencies (2-5 kHz) for deeper field penetration
+- Suitable for extremely sensitive sites or regulatory constraints
+
+## Time Estimates {#sec-time-estimates}
+
+| Activity | Duration | Team Size | Notes |
+|----------|----------|-----------|-------|
+| Setup (probe insertion) | 30-60 min | 2-3 | Varies with soil |
+| MIT sweep (all frequencies) | 30-45 min | 1 | Automated |
+| ERT patterns | 15-30 min | 1 | Multiple configurations |
+| QC checks | 10-15 min | 1 | Repeat measurements |
+| Extraction | 15-30 min | 2-3 | Care required |
+| **Total per section** | **2-3 hours** | 2-3 | 10x10 m, 20 probes |
+
+: Time estimates for standard 10x10 m section survey {#tbl-time-estimates}
+
+## Shutdown and Data Backup {#sec-shutdown}
+
+### Safe Shutdown Procedure
+
+1. **Complete final measurement:** Take final data set and verify data is saved.
+2. **Power down:** Stop measurement software, power off base hub, disconnect cables from probes.
+3. **Extract probes:** Pull gently with straight vertical motion, do not twist excessively, note any stuck probes.
+4. **Site restoration:** Fill probe holes as required by permit, remove all markers and equipment, photograph final site condition.
+
+### Probe Extraction Tips
+
+::: {.callout-note}
+## Stuck Probe Recovery
+
+- Work probe back and forth gently with slow oscillation
+- Add water around probe shaft to lubricate soil interface
+- Use extraction handle tool if available
+- Do not use excessive force - risk of probe damage
+- For collapsed holes, allow water to soften soil before retry
+:::
+
+### Data Backup Procedure
+
+1. **Download data:** Connect tablet/laptop to base hub, download all raw data files, verify file sizes are non-zero.
+2. **Backup to multiple locations:** Copy to laptop hard drive, copy to USB drive, upload to cloud storage if connectivity available.
+3. **Data organization:** Use consistent naming (SITE_DATE_SCAN#.dat), create folder per site/day, include field notes file.
+4. **Verify backups:** Open files in viewer software, check data completeness, note any missing or corrupted files immediately.
+
+## Safety Reminders {#sec-field-safety}
+
+::: {.callout-warning}
+## Field Safety Checklist
+
+- Always inform someone of your field location and expected return time
+- Stay hydrated and take regular breaks, especially in hot conditions
+- Be aware of wildlife, terrain hazards, and site-specific dangers
+- Follow all site-specific safety rules and permit requirements
+- Keep first aid kit accessible and know location of nearest medical facility
+- For UXO sites: EOD clearance required, soft insertion tools only, 100 m exclusion zone
+:::
+
+## Equipment Maintenance and Storage {#sec-maintenance}
+
+### Post-Survey Cleaning
+
+- **Rods:** Wipe down with damp cloth to remove soil and clay. Do not use solvents.
+- **Threads:** Clean M12 threads with a soft brush (toothbrush). Grit in threads causes seizing.
+- **Connectors:** Inspect for dirt. Use compressed air or contact cleaner if needed.
+- **Cables:** Wipe clean while coiling. Check for nicks in insulation.
+
+### Storage
+
+- **Batteries:** Store LiFePO4 batteries at 50-60% charge if unused for >1 month.
+- **O-Rings:** Lightly grease O-rings with silicone grease to prevent drying.
+- **Coiling:** Use 'over-under' coiling method to prevent cable twisting.
+- **Environment:** Store in dry, cool location to prevent mold or thermal cycling damage.
+
+---
+
+*For quick reference procedures, see @sec-quick-reference-overview. For troubleshooting guidance, see @sec-troubleshooting-overview. For calibration procedures, see @sec-calibration-overview.*

@@ -1,0 +1,177 @@
+# HIRT Documentation CI Workflow
+# Renders Quarto documentation and publishes to GitHub Pages
+
+name: Render and Deploy Documentation
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/quarto-render.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+  workflow_dispatch:  # Allow manual trigger
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install matplotlib numpy pillow jupyter
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.4.550'
+
+      - name: Render Quarto Project
+        run: |
+          cd docs
+          quarto render --to html 2>&1 | tee ../render.log
+
+      - name: Check for errors
+        run: |
+          if grep -i "error" render.log; then
+            echo "::warning::Errors found in render output"
+          fi
+          if grep -i "unable to resolve" render.log; then
+            echo "::warning::Unresolved cross-references found"
+          fi
+
+      - name: Upload artifact for Pages
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/_output
+
+      - name: Upload render log
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-log
+          path: render.log
+          retention-days: 7
+
+  # Link checking job
+  link-check:
+    runs-on: ubuntu-latest
+    needs: render
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install matplotlib numpy pillow jupyter
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render for link check
+        run: |
+          cd docs
+          quarto render --to html
+
+      - name: Check internal links
+        run: |
+          cd docs/_output
+          # Find all HTML files and check for broken internal links
+          find . -name "*.html" -exec grep -l 'href="[^"]*"' {} \; | while read file; do
+            grep -oP 'href="\K[^"]+(?=")' "$file" | grep -v '^http' | grep -v '^#' | while read link; do
+              # Remove anchor from link
+              base_link=$(echo "$link" | sed 's/#.*//')
+              if [ -n "$base_link" ]; then
+                dir=$(dirname "$file")
+                target="$dir/$base_link"
+                if [ ! -f "$target" ] && [ ! -f "${target}.html" ]; then
+                  echo "Broken link in $file: $link"
+                fi
+              fi
+            done
+          done
+
+  # Deploy to GitHub Pages (only on push to main)
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: render
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # PDF rendering job (runs on release or manual trigger)
+  render-pdf:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install matplotlib numpy pillow jupyter
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: '1.4.550'
+
+      - name: Install TinyTeX
+        run: |
+          quarto install tinytex
+
+      - name: Render PDF
+        run: |
+          cd docs
+          quarto render --to pdf
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hirt-technical-manual-pdf
+          path: docs/_output/*.pdf
+          retention-days: 30
