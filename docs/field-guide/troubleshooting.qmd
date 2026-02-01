@@ -6,6 +6,14 @@ title: "Troubleshooting"
 
 This section provides diagnostic approaches and solutions for common issues encountered during HIRT field operations. Systematic troubleshooting ensures minimal downtime and maximum data quality during surveys.
 
+::: {.callout-tip}
+## How to Use This Section
+
+**In the field:** Use the quick reference tables and diagnostic flowcharts for rapid problem identification. The tables are designed for scanning under time pressure.
+
+**For deeper understanding:** Read the "Understanding..." narrative sections to learn why issues occur and how to prevent them in future surveys.
+:::
+
 ## Diagnostic Approach {#sec-diagnostic-approach}
 
 ### System Check Procedure {#sec-system-check}
@@ -189,6 +197,16 @@ plt.show()
 
 ## MIT Troubleshooting {#sec-mit-troubleshooting}
 
+### Understanding MIT Signal Path Issues
+
+The MIT channel relies on detecting extremely weak secondary magnetic fields - typically in the nanovolt range at the receiver coil. This signal must survive a journey through 3-5 meters of probe cable and additional trunk cabling before reaching the preamplifier. Along this path, several factors conspire against signal integrity.
+
+**The dynamic range challenge:** When the transmitter coil energizes, it creates a strong primary field that dominates the measurement environment. The receiver must detect tiny perturbations caused by eddy currents in buried conductors - a signal that may be 80-100 dB weaker than the primary field. This explains why proper coil orientation, careful gain staging, and adequate TX/RX separation are critical.
+
+**Cable effects:** Every meter of cable adds capacitance that acts as a low-pass filter, attenuating high-frequency components. Longer cables also increase susceptibility to electromagnetic interference (EMI) pickup from power lines, vehicles, and radio transmitters. The twisted-pair and shielding specifications exist precisely to combat these effects.
+
+**Ground loops:** Multiple ground connections create parasitic current paths that inject noise directly into the signal chain. The single-point grounding strategy at the Hub eliminates these loops, but field modifications or damaged cables can inadvertently create new ground paths.
+
 ### RX Saturation on Nearby Probes {#sec-rx-saturation}
 
 **Symptoms:** Amplitude readings maxed out on nearby probes, phase readings erratic or stuck, effects only visible on probes close to TX.
@@ -230,6 +248,18 @@ plt.show()
 4. **Check targets:** Verify expected target depths are realistic for configuration
 
 ## ERT Troubleshooting {#sec-ert-troubleshooting}
+
+### Understanding ERT Contact and Current Flow
+
+Electrical resistivity measurements depend fundamentally on establishing reliable electrical contact between the metal electrode rings and the surrounding soil. Unlike MIT which uses inductive coupling through air, ERT requires actual galvanic contact - current must physically flow from the electrode into the soil matrix.
+
+**The contact resistance problem:** When current flows from a metal electrode into soil, it encounters a transition zone where the current density is extremely high. This zone, typically only millimeters thick, often dominates the total resistance in the measurement circuit. Dry soil, air gaps, or organic debris around the electrode can increase contact resistance by orders of magnitude, making measurements unreliable or impossible.
+
+**Polarization effects:** When DC current flows through an electrode-soil interface, electrochemical reactions occur. Ions accumulate at the electrode surface, creating a counter-voltage that opposes the applied current. This "polarization potential" builds up over time and can completely obscure the subsurface signal. The solution is to use alternating current (AC) or periodically reverse polarity, allowing the accumulated ions to disperse.
+
+**Soil moisture dependence:** Soil conducts electricity primarily through the water filling its pore spaces. The dissolved ions in this pore water carry the current. Completely dry soil is essentially an insulator. This is why pre-moistening electrode holes and using conductive gels dramatically improves contact - you're providing the conductive medium the current needs.
+
+**Current channeling:** In heterogeneous soils, current preferentially flows through the most conductive paths. A buried pipe, wet clay lens, or metal debris can "short circuit" your measurement, causing all current to flow through this preferential path rather than sampling the volume you intend to measure.
 
 ### Unstable ERT Voltages {#sec-unstable-ert}
 
@@ -334,6 +364,16 @@ plt.show()
 
 ## Power Issues {#sec-power-issues}
 
+### Understanding the Power Distribution Architecture
+
+The HIRT system distributes power from a central battery through the Hub to all connected probes via the trunk cable. This architecture creates both advantages (centralized power management, no individual probe batteries) and vulnerabilities (single-point failures can affect the entire system).
+
+**Voltage requirements:** The system operates at 12V nominal, with probes designed to function across a 10.5-14.5V range. Below 10.5V, the analog front-end loses regulation and measurements become unreliable. The 12.0V threshold in the troubleshooting procedures provides margin before this occurs.
+
+**Fuse protection:** A fuse in the power path protects against short circuits that could damage the Hub or create fire hazards. Fuses can also blow from cumulative stress - multiple small overcurrent events that don't individually trip but gradually weaken the fuse element. A marginal fuse may work intermittently, creating confusing symptoms.
+
+**Cable resistance:** Long trunk cables accumulate resistance that causes voltage drop under load. A 20-meter trunk cable with marginal conductor size might deliver only 11V to distant probes when the full system is active, even though the Hub shows 12.5V. This explains why probes at the end of long runs may behave erratically while closer probes work fine.
+
 ### Probe Not Responding {#sec-probe-not-responding}
 
 **Symptoms:** No LED indicator, no communication with base hub, probe not detected in diagnostic scan.
@@ -390,6 +430,16 @@ plt.show()
 4. Re-initialize sync before continuing
 
 ## Environmental Factors {#sec-environmental-factors}
+
+### Understanding Environmental Influences
+
+Field instruments operate in conditions far removed from the controlled laboratory environment where they were calibrated. Temperature swings, humidity, precipitation, and electromagnetic interference all affect measurement quality in ways that can be subtle or severe.
+
+**Thermal drift:** Electronic components change their characteristics with temperature. Resistors drift, capacitors change value, and semiconductor junctions shift their operating points. Most critically, the analog signal chain - from coil inductance through amplifier gain to ADC reference voltage - experiences coordinated drift that can masquerade as real subsurface changes. The 15-minute warmup period allows thermal equilibrium to establish within the enclosure, after which drift rates become predictable and slow.
+
+**Moisture ingress:** Water is the enemy of electronics. Even without visible flooding, humidity can condense inside enclosures as temperatures drop, depositing conductive films on circuit boards. The IP67 rating provides protection during normal operation, but repeated seal compression, UV degradation of gaskets, and mechanical damage from handling gradually compromise protection. Regular seal inspection and desiccant replacement prevent insidious moisture damage.
+
+**EMI environment:** The electromagnetic environment varies dramatically between sites. Urban areas near power distribution, active construction sites, and locations near broadcast transmitters present challenges that remote field sites do not. The symptoms often appear as elevated noise floors or periodic interference patterns synchronized with power line frequencies (50/60 Hz and harmonics).
 
 ### Temperature Effects {#sec-temperature-effects}
 
@@ -514,7 +564,8 @@ If full abort is not necessary, consider these alternatives:
 ::: {.callout-note}
 ## Related Sections
 
-- For detailed operating procedures, see **Section 10: Field Operations**
-- For data format specifications, see **Section 11: Data Recording**
-- For calibration procedures, see **Section 9: Calibration**
+- For detailed operating procedures, see [Deployment](deployment.qmd)
+- For data format specifications, see [Data Formats](../developer/data-formats.qmd)
+- For calibration procedures, see [Calibration](../build-guide/calibration.qmd)
+- For testing procedures, see [Testing](../build-guide/testing.qmd)
 :::

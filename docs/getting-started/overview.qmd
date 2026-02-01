@@ -70,7 +70,7 @@ HIRT is optimized for three primary application scenarios, each with specific co
 
 ```{python}
 #| label: fig-capabilities
-#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters. Cost savings of 95%+ make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
+#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters (modeled estimate). Cost savings of 95%+ (estimated) make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
 #| fig-width: 10
 #| fig-height: 4.5
 
@@ -124,7 +124,7 @@ plt.show()
 
 **When Surface Methods Remain Superior:** Rapid large-area screening (10x faster), shallow targets (<1m) where GPR resolution excels, purely ferrous targets (magnetometry), and initial site characterization before targeted investigation.
 
-**Technical Limitations:** Smaller coil area results in ~19 dB SNR loss compared to commercial systems (compensated by longer integration times). Survey time increases 5-10x compared to commercial systems. Requires post-processing software for 3D reconstruction. Limited depth performance in highly conductive soils.
+**Technical Limitations:** Smaller coil area results in ~19 dB SNR loss compared to commercial systems (*modeled*; compensated by longer integration times). Survey time increases 5-10x compared to commercial systems (*estimated*). Requires post-processing software for 3D reconstruction. Limited depth performance in highly conductive soils.
 
 ## Optimal Workflow {#sec-workflow}
 
@@ -189,6 +189,6 @@ plt.show()
 | Tools & Misc | $50 | $50 | Assembly tools |
 | **Total** | **$1,800** | **$3,900** | **95%+ vs commercial** |
 
-: HIRT system cost breakdown {#tbl-cost-breakdown}
+: HIRT system cost breakdown (*estimated*, 2024 component pricing) {#tbl-cost-breakdown}
 
 This cost structure places professional-grade subsurface imaging capabilities within reach of university research groups, non-profit humanitarian organizations, and archaeological teams that could not otherwise afford crosshole tomography.

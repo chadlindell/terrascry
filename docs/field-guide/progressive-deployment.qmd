@@ -42,15 +42,46 @@ After each phase, operators analyze data to answer:
 
 This transforms deployment from a single large commitment into an iterative refinement process.
 
+```{python}
+#| label: fig-depth-profile-comparison
+#| fig-cap: "Comparison of fixed-depth vs progressive deployment strategies. Progressive deployment concentrates effort where targets are located, while fixed-depth provides uniform coverage regardless of subsurface features."
+#| fig-width: 12
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_depth_profile_comparison
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_depth_profile_comparison()
+img = Image.open(buf)
+plt.figure(figsize=(12, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ## Four-Phase Workflow
 
-```
-Phase A          Phase B          Phase C          Phase D
-Shallow Survey --> Review Data --> Selective Extend --> Full Depth
-   (0.5-1.0m)                     (1.5-2.5m)       (2.5-3.0m)
-     |               |                |               |
-     v               v                v               v
- Coverage map   Decision tree    Target areas     Complete data
+```{python}
+#| label: fig-progressive-workflow
+#| fig-cap: "Four-phase progressive deployment workflow. Each phase builds on data from the previous phase, enabling informed decisions about where to invest additional depth."
+#| fig-width: 12
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_progressive_workflow
+from PIL import Image
+
+buf = create_progressive_workflow()
+img = Image.open(buf)
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
 ```
 
 ### Phase A: Shallow Survey (0.5-1.0 m)
@@ -293,6 +324,26 @@ See research documentation: `research/deployment/probe-insertion-methods-summary
 
 Progressive deployment at UXO-suspected sites requires additional safety measures.
 
+```{python}
+#| label: fig-uxo-clearance-protocol
+#| fig-cap: "Two-pass UXO clearance protocol for progressive deployment. Magnetometer sweep precedes each depth extension to verify the look-ahead zone is clear of ferromagnetic anomalies."
+#| fig-width: 10
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_uxo_clearance_protocol
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_uxo_clearance_protocol()
+img = Image.open(buf)
+plt.figure(figsize=(10, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ### Magnetometer Clearance at Each Depth
 
 Before extending to each new depth, verify the look-ahead zone is clear of ferromagnetic anomalies.
@@ -377,35 +428,24 @@ Progressive deployment adds complexity. Consider fixed-depth deployment when:
 
 ## Summary: Progressive Deployment Decision Tree
 
-```
-START: Survey Planning
-          |
-          v
-    Large area (>25 probes)?
-     +-- No --> Standard fixed-depth deployment
-     |
-     Yes
-     |
-     v
-    Depth uncertainty?
-     +-- No --> Standard fixed-depth deployment
-     |
-     Yes
-     |
-     v
-    UXO concerns?
-     +-- Yes --> Progressive with clearance protocol
-     |
-     No
-     |
-     v
-    Soil variability?
-     +-- Yes --> Progressive recommended
-     |
-     No
-     |
-     v
-    Consider based on cost/benefit
+```{python}
+#| label: fig-deployment-decision-tree
+#| fig-cap: "Decision tree for choosing between standard fixed-depth and progressive deployment strategies. Start at top and follow the decision path based on site conditions."
+#| fig-width: 10
+#| fig-height: 8
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_deployment_decision_tree
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_deployment_decision_tree()
+img = Image.open(buf)
+plt.figure(figsize=(10, 8))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
 ```
 
 ## Best Practices
