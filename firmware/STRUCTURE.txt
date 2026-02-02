@@ -1,0 +1,253 @@
+Pathfinder Firmware Directory Structure
+========================================
+
+firmware/
+│
+├── platformio.ini              # PlatformIO project configuration
+│                               # - Board: Arduino Nano (ATmega328P)
+│                               # - Libraries: ADS1X15, TinyGPSPlus, SdFat
+│                               # - Build flags and upload settings
+│
+├── include/
+│   └── config.h                # User-configurable parameters
+│                               # - Pin assignments (I2C, SPI, GPIO)
+│                               # - Sample rate and timing
+│                               # - ADC settings (gain, data rate)
+│                               # - Beeper and LED configuration
+│                               # - Channel mapping for sensors
+│                               # - Debug output settings
+│
+├── src/
+│   └── main.cpp                # Main firmware source code
+│                               # - Hardware initialization
+│                               # - Data acquisition loop
+│                               # - GPS parsing and logging
+│                               # - CSV file management
+│                               # - User interface (LED, beeper)
+│
+├── tools/
+│   ├── visualize_data.py       # Python visualization script
+│   │                           # Usage: python visualize_data.py PATH0001.CSV
+│   │                           # Features: time series, maps, histograms
+│   │
+│   ├── example_data.csv        # Sample data for testing tools
+│   │                           # 10 samples with realistic values
+│   │
+│   ├── requirements.txt        # Python dependencies
+│   │                           # - pandas (data handling)
+│   │                           # - matplotlib (plotting)
+│   │
+│   └── README.md               # Tools documentation
+│                               # - Installation instructions
+│                               # - Usage examples
+│                               # - Processing templates
+│
+├── Documentation Files:
+│
+├── INDEX.md                    # Documentation navigation guide
+│                               # - Quick links to all docs
+│                               # - Typical workflow overview
+│                               # - Resource references
+│
+├── README.md                   # Build and upload instructions
+│                               # - Installing PlatformIO
+│                               # - Uploading firmware
+│                               # - Configuration guide
+│                               # - Data format specification
+│                               # - Troubleshooting
+│
+├── WIRING.md                   # Complete hardware assembly guide
+│                               # - Power distribution
+│                               # - I2C bus (ADS1115 addressing)
+│                               # - Sensor connections
+│                               # - GPS and SD card wiring
+│                               # - LED and beeper circuits
+│                               # - Assembly checklist
+│
+├── CALIBRATION.md              # Calibration procedures
+│                               # - Level 1: Offset calibration
+│                               # - Level 2: Noise floor
+│                               # - Level 3: Dynamic response
+│                               # - Level 4: Inter-pair consistency
+│                               # - Level 5: GPS accuracy
+│                               # - Post-processing corrections
+│
+├── QUICK_START.md              # Field operations reference card
+│                               # - Pre-flight checklist
+│                               # - Status LED meanings
+│                               # - Survey technique
+│                               # - Data download
+│                               # - Quick troubleshooting
+│
+├── SUMMARY.md                  # Implementation summary
+│                               # - Feature list
+│                               # - Code quality metrics
+│                               # - Design decisions
+│                               # - Testing recommendations
+│
+├── STRUCTURE.txt               # This file
+│                               # - Directory tree
+│                               # - File descriptions
+│
+└── .gitignore                  # Version control exclusions
+                                # - PlatformIO build artifacts
+                                # - Editor temporary files
+
+Build Artifacts (auto-generated, git-ignored):
+├── .pio/                       # PlatformIO build directory
+│   ├── build/                  # Compiled binaries
+│   └── libdeps/                # Downloaded libraries
+│
+└── .vscode/                    # VS Code configuration
+    └── c_cpp_properties.json   # IntelliSense settings
+
+Documentation Statistics:
+=========================
+- INDEX.md:        ~400 lines (navigation and overview)
+- README.md:       ~350 lines (build and upload)
+- WIRING.md:       ~450 lines (hardware assembly)
+- CALIBRATION.md:  ~350 lines (calibration procedures)
+- QUICK_START.md:  ~150 lines (field reference)
+- SUMMARY.md:      ~300 lines (implementation details)
+- tools/README.md: ~100 lines (tools documentation)
+
+Total Documentation: ~2,100 lines
+
+Source Code Statistics:
+========================
+- main.cpp:      ~450 lines (functional code + comments)
+- config.h:      ~200 lines (configuration parameters)
+- visualize_data.py: ~250 lines (visualization tool)
+
+Total Code: ~900 lines
+
+Key Features by File:
+=====================
+
+platformio.ini:
+  - Arduino Nano configuration
+  - Automatic library dependency management
+  - Build optimization flags
+  - Serial port configuration
+
+config.h:
+  - Pin assignments for all peripherals
+  - ADC configuration (gain, data rate)
+  - Sample rate and timing parameters
+  - Channel mapping for 4 gradiometer pairs
+  - Debug output control
+  - CSV header definition
+
+main.cpp:
+  - ADS1115 dual-module management
+  - GPS NMEA sentence parsing
+  - SD card CSV logging with auto-increment filenames
+  - Gradient calculation (bottom - top)
+  - Pace beeper timing
+  - Status LED patterns (error, no GPS, logging)
+  - Serial debug output
+
+visualize_data.py:
+  - Time series plotting (all pairs or individual)
+  - Spatial map generation (GPS-tagged data)
+  - Histogram distributions
+  - Statistical summary output
+  - Command-line interface
+
+Workflow Overview:
+==================
+
+1. Assembly Phase:
+   WIRING.md → Physical hardware assembly
+
+2. Programming Phase:
+   README.md → Firmware upload
+
+3. Calibration Phase:
+   CALIBRATION.md → System validation
+
+4. Operation Phase:
+   QUICK_START.md → Field surveys
+
+5. Processing Phase:
+   tools/visualize_data.py → Data analysis
+
+Quick Reference:
+================
+
+Build firmware:
+  $ cd firmware/
+  $ pio run
+
+Upload to Arduino:
+  $ pio run --target upload
+
+Serial monitor:
+  $ pio device monitor
+
+Visualize data:
+  $ python tools/visualize_data.py PATH0001.CSV
+
+Check I2C devices:
+  Use Arduino I2C scanner sketch to verify:
+  - 0x48 (ADS1115 module 1)
+  - 0x49 (ADS1115 module 2)
+
+CSV Format:
+  timestamp,lat,lon,
+  g1_top,g1_bot,g1_grad,
+  g2_top,g2_bot,g2_grad,
+  g3_top,g3_bot,g3_grad,
+  g4_top,g4_bot,g4_grad
+
+Status LED Patterns:
+  Fast blink (100ms)  = Error (SD card failure)
+  Medium blink (500ms) = No GPS lock
+  Slow blink (2s)      = Normal logging
+
+Beeper:
+  1 beep per second = 1 m/s walking pace
+
+Hardware Connections Summary:
+==============================
+
+Power:
+  7.4V LiPo → 5V regulator → All modules + Arduino
+
+I2C Bus (A4=SDA, A5=SCL):
+  Arduino ← ADS1115 #1 (ADDR→GND = 0x48)
+          ← ADS1115 #2 (ADDR→VDD = 0x49)
+
+SPI Bus (SD Card):
+  D10 = CS, D11 = MOSI, D12 = MISO, D13 = SCK
+
+GPS (Software Serial):
+  D4 = RX (← GPS TX)
+  D3 = TX (unused for NEO-6M)
+
+User Interface:
+  D2 = Status LED (+ 220Ω resistor)
+  D9 = Beeper
+
+Sensor Channels:
+  ADS1#1: A0=Pair1-Top, A1=Pair1-Bot, A2=Pair2-Top, A3=Pair2-Bot
+  ADS1#2: A0=Pair3-Top, A1=Pair3-Bot, A2=Pair4-Top, A3=Pair4-Bot
+
+Memory Usage (Estimated):
+==========================
+Flash: 18KB / 32KB (56%)
+RAM:   1.2KB / 2KB (60%)
+
+Performance:
+============
+Sample Rate: 10 Hz nominal (configurable up to ~50 Hz)
+GPS Update:  1 Hz (NEO-6M standard)
+Battery:     ~16 hours with 2000mAh LiPo
+Coverage:    5,400 m²/hour (4-pair, 1.5m swath)
+
+License:
+========
+[Specify your license - e.g., MIT, GPL-3.0, Apache-2.0]
+
+Last Updated: 2026-02-02
+Firmware Version: 1.0
