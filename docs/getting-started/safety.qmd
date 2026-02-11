@@ -60,6 +60,75 @@ The HIRT system operates in the 2-50 kHz range, classifying it as an active emit
 2. **Passive Scan First:** Use magnetometer sensors *passively* (MIT transmitter OFF) to scan the look-ahead buffer (1.5-2.0 meters)
 3. **Clearance:** Only activate the MIT transmitter once the immediate volume is confirmed clear of ferrous anomalies
 
+### HERO Safety Analysis {#sec-hero-analysis}
+
+This section provides the technical justification for HERO protocols when operating HIRT's active MIT channel at UXO-contaminated sites.
+
+#### Why 2-50 kHz Poses Risk
+
+While most WWII magnetic influence mines targeted quasi-static magnetic signatures (DC to ~10 Hz), the HIRT operating frequency range (2-50 kHz) presents specific hazards:
+
+1. **Eddy Current Induction:** Frequencies below 100 kHz induce eddy currents in conductive materials. If UXO contains an EED (electric bridge-wire detonator), the AC magnetic field can induce current in the firing circuit.
+
+2. **Resonance Effects:** If the firing circuit wiring acts as an antenna resonant to the 2-50 kHz wavelength (or harmonics), the induced current could exceed the "No-Fire" threshold, potentially causing detonation.
+
+3. **Modern Electronic Fuzes:** Post-WWII ordnance with electronic fuzes is highly susceptible to EMI in the kHz range.
+
+#### NATO HERO Standard
+
+US Navy and NATO HERO standards govern electromagnetic emissions near ordnance. The critical requirement:
+
+> **Induced currents must remain 16.5 dB below the Maximum No-Fire Current (MNFC)** of the most susceptible ordnance.
+
+This 16.5 dB margin (approximately 7:1 current ratio) provides safety against component variation, environmental factors, and measurement uncertainty.
+
+#### Mathematical Basis for Field Strength Limits
+
+The induced EMF in a loop of area $A$ exposed to a time-varying magnetic field is:
+
+$$\mathcal{E} = -\frac{d\Phi_B}{dt} = -A \frac{dB}{dt}$$
+
+For a sinusoidal field at frequency $f$:
+
+$$\mathcal{E}_{peak} = 2\pi f \cdot A \cdot B_{peak}$$
+
+The induced current in a firing circuit with resistance $R$ and inductance $L$ is:
+
+$$I_{induced} = \frac{\mathcal{E}}{|Z|} = \frac{2\pi f \cdot A \cdot B_{peak}}{\sqrt{R^2 + (2\pi f L)^2}}$$
+
+For HERO compliance, this must satisfy:
+
+$$I_{induced} < \frac{MNFC}{10^{16.5/20}} \approx \frac{MNFC}{6.7}$$
+
+Since the specific ordnance type (and thus MNFC) is unknown during HIRT surveys, the conservative approach is to minimize field strength until the probe path is cleared.
+
+#### Passive vs Active Survey Method Comparison
+
+| Feature | Passive Magnetometer | Active HIRT/MIT (2-50 kHz) |
+|---------|---------------------|---------------------------|
+| **Primary Use** | Detection of ferrous mass (Iron/Steel) | Conductivity mapping / Material discrimination |
+| **Regulatory Risk** | Low (Passive sensor) | **High (Active Emitter)** |
+| **Safety Constraint** | Look-ahead buffer (2 m) | **HERO Safety Distance** + Look-ahead |
+| **Fuze Trigger Risk** | Negligible | **Possible** (Induced currents in EEDs) |
+| **UXO Clearance Status** | Accepted for UXO sign-off | Supplementary (requires safety proof) |
+| **Aluminum Detection** | No | Yes |
+
+: Comparison of passive magnetometry vs active MIT for UXO surveys {#tbl-hero-comparison}
+
+::: {.callout-important}
+## Mandatory Consultation
+
+Before deploying HIRT's active MIT channel at any UXO-suspected site, **consult with qualified UXO authorities** (EOD professionals, UXO consultants, or regulatory bodies). They can assess whether specific ordnance types present at the site are susceptible to the 2-50 kHz frequency range and specify appropriate standoff distances or operational restrictions.
+
+HIRT's MIT channel should be treated as **HERO UNSAFE by default** until site-specific clearance is obtained.
+:::
+
+#### References
+
+- CIRIA C681 (2009) and C785 (2019): UK UXO risk management standards
+- NATO AASTP-1: Manual of NATO Safety Principles for the Storage of Military Ammunition and Explosives
+- MIL-HDBK-240: Hazards of Electromagnetic Radiation to Ordnance (HERO)
+
 ### Required Safety Measures for UXO Sites
 
 | Protocol | Action |

@@ -1,14 +1,21 @@
 # HIRT Project Status
 
-*Last updated: 2026-02-01*
+*Last updated: 2026-02-11*
 
 ## Current Focus
 
-**Documentation restructure complete - Technical Manual ready for review**
+**Repository cleanup complete - ready for Phase 2 (prototype validation)**
 
-The documentation has been completely restructured from "whitepaper" to "Technical Manual" format following the onion model architecture (Field Ops -> Build Guide -> Theory -> Developer).
+The documentation has been restructured, build artifacts excluded from tracking, and the repository is in a clean, maintainable state.
 
 ## Recent Accomplishments
+
+### 2026-02-11: Repository Cleanup
+- Updated `.gitignore` to exclude Quarto build output, Jupyter caches, and site libraries
+- Removed ~103 build artifact files from git tracking (still on disk)
+- Rewrote README.md for current Technical Manual structure
+- Updated research backlog with accurate file references (18 research documents across 4 directories)
+- Cleaned up stale branches (dev, feature/research-2026-02-01, claude/review-last-task-t0wom)
 
 ### 2026-02-01: Major Documentation Restructure
 - Renamed from "whitepaper" to "docs" (HIRT Technical Manual)
@@ -44,9 +51,11 @@ The documentation has been completely restructured from "whitepaper" to "Technic
 | HTML generation | Complete | Full site at `docs/_output/` |
 | PDF generation | Complete | 2.5 MB Technical Manual |
 | CI/CD workflow | Complete | `.github/workflows/quarto-render.yml` |
-| Troubleshooting hybrid rewrite | Pending | Plan Phase 3 |
-| Performance claim qualifications | Pending | Plan Phase 3 |
-| Progressive deployment diagrams | Pending | Plan Phase 4 |
+| Repository cleanup | Complete | Build artifacts untracked, README updated |
+| Troubleshooting hybrid rewrite | Pending | Keep tables, add narrative context |
+| Performance claim qualifications | Pending | Add (Measured)/(Modeled)/(Target) labels |
+| Progressive deployment diagrams | Pending | 5-6 new diagrams needed |
+| Research backlog integration | Pending | 18 documents to review and integrate |
 
 ## Blockers
 
@@ -54,10 +63,10 @@ None currently.
 
 ## Next Steps
 
-1. **Troubleshooting rewrite** - Apply hybrid approach (keep tables, add narrative context)
-2. **Performance qualifications** - Add (Measured)/(Modeled)/(Target) labels throughout
-3. **Progressive deployment diagrams** - Create 5-6 new diagrams
-4. **Update CLAUDE.md** - Update paths and structure references
+1. **Integrate research findings** - Review 18 research documents and integrate key findings into relevant Technical Manual sections
+2. **Troubleshooting rewrite** - Apply hybrid approach (keep tables, add narrative context)
+3. **Performance qualifications** - Add (Measured)/(Modeled)/(Target) labels throughout
+4. **Progressive deployment diagrams** - Create 5-6 new diagrams
 5. **Field validation** - Plan first prototype tests
 
 ## Quick Reference
@@ -120,8 +129,8 @@ docs/
 
 ## Session Notes
 
-Documentation restructure complete. Old whitepaper archived to `_archive/whitepaper-pre-rewrite-20260201/`.
+Repository cleanup complete. Ready for Phase 2: research integration and remaining documentation polish.
 
 ---
 
-*Next session: Hybrid troubleshooting rewrite, performance claim qualifications*
+*Next session: Integrate research findings, troubleshooting hybrid rewrite*

@@ -106,6 +106,13 @@ CABLE_GLAND_BOSS_LEN = 15.0; // Length of cable gland boss
 //          "male_cap_single", "sensor_body_single", "probe_tip_single",
 //          "junction_cap_single", "complete_system", "blanks_array"
 //          Add "_oversize" suffix for die/tap chasing version (e.g., "mixed_system_array_oversize")
+//
+// Visualization options (for documentation renders):
+//          "exploded_view"      - Parts separated with 20mm gaps
+//          "cross_section"      - Half-section showing internal wire channel
+//          "isometric_assembled" - Tight assembly for "what you're building"
+//          "deployment_array"   - 4 probes with ground plane and hub
+//          "component_callout"  - Single sensor body with annotation markers
 part = "all";
 
 // Thread oversize for die/tap chasing (0 = print-ready, 0.3 = chase with die/tap)
@@ -944,6 +951,232 @@ module print_array_mixed(use_blanks=false) {
 
 
 // =============================================================================
+// VISUALIZATION MODULES (for documentation renders)
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// EXPLODED VIEW (20mm gaps for clear part separation)
+// Shows all components with vertical alignment and larger gaps
+// -----------------------------------------------------------------------------
+module exploded_view() {
+    gap = 20;  // Larger gap for clear visualization
+
+    // Calculate component heights
+    cap_height = ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN;
+
+    // Bottom to top stack (probe tip at bottom, junction cap at top)
+    // Probe tip (at origin)
+    color("DarkSlateGray")
+    translate([0, 0, 0]) probe_tip();
+
+    // Male cap (inverted, above tip)
+    color("SteelBlue")
+    translate([0, 0, TIP_LENGTH + gap])
+        rotate([180, 0, 0])
+            translate([0, 0, -cap_height])
+                male_rod_cap();
+
+    // Sensor body 1
+    color("ForestGreen")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap])
+        sensor_body_dual();
+
+    // Male cap (above sensor 1)
+    color("SteelBlue")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap])
+        male_rod_cap();
+
+    // Male cap (inverted, above previous)
+    color("SteelBlue")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap])
+        rotate([180, 0, 0])
+            translate([0, 0, -cap_height])
+                male_rod_cap();
+
+    // Sensor body 2
+    color("ForestGreen")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap + cap_height + gap])
+        sensor_body_dual();
+
+    // Male cap (above sensor 2)
+    color("SteelBlue")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap + cap_height + gap + SENSOR_BODY_LEN + gap])
+        male_rod_cap();
+
+    // Junction cap (at top)
+    color("DimGray")
+    translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap])
+        junction_cap();
+}
+
+// -----------------------------------------------------------------------------
+// CROSS SECTION VIEW (half-section showing internal details)
+// Cuts through center to show wire channel, threads, and internal features
+// -----------------------------------------------------------------------------
+module cross_section_view() {
+    // Assembled probe (same as complete_system but with smaller gaps)
+    gap = 2;  // Small gap to show thread engagement area
+    cap_height = ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN;
+
+    difference() {
+        union() {
+            // Probe tip (at origin)
+            color("DarkSlateGray")
+            translate([0, 0, 0]) probe_tip();
+
+            // Male cap (inverted)
+            color("SteelBlue")
+            translate([0, 0, TIP_LENGTH + gap])
+                rotate([180, 0, 0])
+                    translate([0, 0, -cap_height])
+                        male_rod_cap();
+
+            // Sensor body
+            color("ForestGreen")
+            translate([0, 0, TIP_LENGTH + gap + cap_height + gap])
+                sensor_body_dual();
+
+            // Male cap
+            color("SteelBlue")
+            translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap])
+                male_rod_cap();
+
+            // Junction cap
+            color("DimGray")
+            translate([0, 0, TIP_LENGTH + gap + cap_height + gap + SENSOR_BODY_LEN + gap + cap_height + gap])
+                junction_cap();
+        }
+
+        // Cutting plane - remove half
+        translate([0, -50, -10])
+            cube([100, 50, 300]);
+    }
+}
+
+// -----------------------------------------------------------------------------
+// ISOMETRIC ASSEMBLED VIEW (tight assembly for "what you're building")
+// Camera-ready view showing complete assembled probe
+// -----------------------------------------------------------------------------
+module isometric_assembled() {
+    // Tight assembly with realistic thread engagement
+    engagement = 10;  // Thread engagement depth
+    cap_height = ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN;
+
+    // Calculate Z positions accounting for thread engagement
+    z_tip = 0;
+    z_cap1 = TIP_LENGTH - engagement;
+    z_sensor1 = z_cap1 + cap_height - engagement;
+    z_cap2 = z_sensor1 + SENSOR_BODY_LEN - engagement;
+    z_cap3 = z_cap2 + cap_height - engagement;
+    z_sensor2 = z_cap3 + cap_height - engagement;
+    z_cap4 = z_sensor2 + SENSOR_BODY_LEN - engagement;
+    z_junction = z_cap4 + cap_height - engagement;
+
+    // Bottom to top stack
+    color("DarkSlateGray") translate([0, 0, z_tip]) probe_tip();
+    color("SteelBlue") translate([0, 0, z_cap1]) rotate([180, 0, 0]) translate([0, 0, -cap_height]) male_rod_cap();
+    color("ForestGreen") translate([0, 0, z_sensor1]) sensor_body_dual();
+    color("SteelBlue") translate([0, 0, z_cap2]) male_rod_cap();
+    color("SteelBlue") translate([0, 0, z_cap3]) rotate([180, 0, 0]) translate([0, 0, -cap_height]) male_rod_cap();
+    color("ForestGreen") translate([0, 0, z_sensor2]) sensor_body_dual();
+    color("SteelBlue") translate([0, 0, z_cap4]) male_rod_cap();
+    color("DimGray") translate([0, 0, z_junction]) junction_cap();
+}
+
+// -----------------------------------------------------------------------------
+// DEPLOYMENT ARRAY (4 probes with ground plane)
+// Shows typical field deployment configuration
+// -----------------------------------------------------------------------------
+module deployment_array() {
+    probe_spacing = 100;  // 100mm = 10cm grid spacing (scaled)
+    ground_size = 300;
+    probe_depth = 150;  // Visual probe depth below ground
+
+    // Ground plane
+    color("SaddleBrown", 0.7)
+    translate([-ground_size/2, -ground_size/2, 0])
+        cube([ground_size, ground_size, 5]);
+
+    // Surface texture (grass suggestion)
+    color("DarkOliveGreen", 0.5)
+    translate([-ground_size/2, -ground_size/2, 5])
+        cube([ground_size, ground_size, 1]);
+
+    // 2x2 grid of probes
+    for (x = [-probe_spacing/2, probe_spacing/2]) {
+        for (y = [-probe_spacing/2, probe_spacing/2]) {
+            translate([x, y, -probe_depth]) {
+                // Simplified probe representation for array view
+                color("Navy")
+                cylinder(d=ROD_OD, h=probe_depth + 30, $fn=32);
+
+                // Junction cap at surface
+                color("DimGray")
+                translate([0, 0, probe_depth])
+                    junction_cap();
+            }
+        }
+    }
+
+    // Cable suggestion (from probes to hub)
+    color("Black", 0.6)
+    for (x = [-probe_spacing/2, probe_spacing/2]) {
+        for (y = [-probe_spacing/2, probe_spacing/2]) {
+            translate([x, y, 6]) {
+                // Cable running to center
+                hull() {
+                    cylinder(d=3, h=2, $fn=16);
+                    translate([-x*0.8, -y*0.8, 0]) cylinder(d=3, h=2, $fn=16);
+                }
+            }
+        }
+    }
+
+    // Central hub suggestion
+    color("Gray")
+    translate([0, 0, 6])
+        cube([40, 30, 15], center=true);
+
+    color("DarkGray")
+    translate([0, 0, 14])
+        cube([35, 25, 5], center=true);
+}
+
+// -----------------------------------------------------------------------------
+// COMPONENT CALLOUT VIEW (single sensor body with annotation points)
+// For creating annotated diagrams in post-processing
+// -----------------------------------------------------------------------------
+module component_callout_view() {
+    // Large sensor body for detail view
+    scale([2, 2, 2]) {
+        sensor_body_dual();
+
+        // Callout marker points (small spheres at key features)
+        // These can be used as anchor points for annotations
+
+        // Top socket
+        color("Red") translate([ROD_OD/2 + 2, 0, SENSOR_BODY_LEN - 5]) sphere(r=1, $fn=16);
+
+        // Bottom socket
+        color("Red") translate([ROD_OD/2 + 2, 0, 5]) sphere(r=1, $fn=16);
+
+        // ERT groove (at 1/4 position in sensor zone)
+        sensor_zone_start = THREAD_HOLE_DEPTH;
+        sensor_zone_len = SENSOR_BODY_LEN - 2*THREAD_HOLE_DEPTH;
+        ert_center = sensor_zone_start + sensor_zone_len/4;
+        color("Orange") translate([ROD_OD/2 + 2, 0, ert_center]) sphere(r=1, $fn=16);
+
+        // MIT zone (at 3/4 position in sensor zone)
+        mit_center = sensor_zone_start + sensor_zone_len*3/4;
+        color("Green") translate([ROD_OD/2 + 2, 0, mit_center]) sphere(r=1, $fn=16);
+
+        // Center channel
+        color("Blue") translate([0, ROD_OD/2 + 2, SENSOR_BODY_LEN/2]) sphere(r=1, $fn=16);
+    }
+}
+
+
+// =============================================================================
 // RENDER LOGIC
 // =============================================================================
 
@@ -1003,6 +1236,17 @@ if (part == "male_cap_array") {
         rotate([180,0,0]) male_rod_cap();
     translate([0, 0, -JUNCTION_CAP_LEN - 5 - (ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN) - 5 - SENSOR_BODY_LEN - 5 - (ROD_INSERT_DEPTH + FLANGE_THICKNESS + THREAD_LEN) - 5])
         rotate([180,0,0]) probe_tip();
+// Visualization modules for documentation
+} else if (part == "exploded_view") {
+    exploded_view();
+} else if (part == "cross_section") {
+    cross_section_view();
+} else if (part == "isometric_assembled") {
+    isometric_assembled();
+} else if (part == "deployment_array") {
+    deployment_array();
+} else if (part == "component_callout") {
+    component_callout_view();
 // Legacy render options
 } else if (part == "male_array") {
     print_array_mixed(false);

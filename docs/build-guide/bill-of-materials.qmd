@@ -358,23 +358,26 @@ The base hub provides power distribution, synchronization, and data collection f
 
 ## Control
 
-| Ref | Component | Part Number | Qty | Unit Cost |
-|-----|-----------|-------------|-----|-----------|
-| U1 | MCU | ESP32 DevKit | 1 | $8-12 |
-| U2 | ADC | ADS1256IDBR | 1 | $10-15 |
-| SD1 | SD Card | Micro SD module | 1 | $3-5 |
+| Ref | Component | Part Number | Qty | Unit Cost | Rev |
+|-----|-----------|-------------|-----|-----------|-----|
+| U1 | MCU | ESP32 DevKit | 1 | $8-12 | A/B |
+| U2 | ADC | **AD7124-8BRUZ** | 1 | $12-18 | **B** |
+| U2 | ADC (Legacy) | ADS1256IDBR | 1 | $10-15 | A |
+| SD1 | SD Card | Micro SD module | 1 | $3-5 | A/B |
 
-: Control System Components {#tbl-control}
+: Control System Components (Rev B uses AD7124-8) {#tbl-control}
 
 ## Enclosure and Connectors
 
-| Ref | Component | Description | Qty | Unit Cost |
-|-----|-----------|-------------|-----|-----------|
-| ENC1 | Enclosure | IP65 200x150x100mm | 1 | $30-50 |
-| PG1-PG20 | Cable Glands | PG11 or M20 | 20 | $1 ea |
-| CON1-CON20 | Probe Connectors | 12-pin Phoenix | 20 | $5 ea |
+| Ref | Component | Description | Qty | Unit Cost | Rev |
+|-----|-----------|-------------|-----|-----------|-----|
+| ENC1 | Enclosure | IP65 200x150x100mm | 1 | $30-50 | A/B |
+| PG1-PG20 | Cable Glands | PG11 or M20 | 20 | $1 ea | A/B |
+| CON1-CON20 | Probe Connectors | 12-pin Phoenix | 20 | $5 ea | A/B |
+| CON-HUB | Hub Connector | **Weipu SP29 (26-pin)** | 2 | $15-25 ea | **B** |
+| CON-HUB | Hub Connector (Legacy) | DB25 | 2 | $5 ea | A |
 
-: Enclosure and Connector Components {#tbl-enclosure}
+: Enclosure and Connector Components (Rev B uses Weipu SP29 IP68) {#tbl-enclosure}
 
 ::: {.callout-note}
 ## Total Base Hub Cost (2026 Estimate)
@@ -463,17 +466,37 @@ The base hub provides power distribution, synchronization, and data collection f
 
 ## Key Part Numbers Reference
 
-| Component | DigiKey PN | Mouser PN |
-|-----------|------------|-----------|
-| AD9833BRMZ | AD9833BRMZ-REEL | 584-AD9833BRMZ |
-| AD620ARZ | AD620ARZ-ND | 584-AD620ARZ |
-| INA128PAG4 | INA128PAG4-ND | 595-INA128PAG4 |
-| ADS1256IDBR | ADS1256IDBR-ND | 595-ADS1256IDBR |
-| OPA454AIDDAR | OPA454AIDDAR-ND | 595-OPA454AIDDAR |
-| REF5025AIDGKR | REF5025AIDGKR-ND | 595-REF5025AIDGKR |
-| ESP32-WROOM-32 | 1904-1009-1-ND | 356-ESP32-WROOM-32 |
+### Rev B Components (Recommended)
 
-: Key Part Numbers for Major Suppliers {#tbl-part-numbers}
+| Component | DigiKey PN | Mouser PN | Notes |
+|-----------|------------|-----------|-------|
+| AD9833BRMZ | AD9833BRMZ-REEL | 584-AD9833BRMZ | DDS |
+| **AD7124-8BRUZ** | AD7124-8BRUZ-ND | 584-AD7124-8BRUZ | **Primary ADC (Rev B)** |
+| AD8421BRZ | AD8421BRZ-ND | 584-AD8421BRZ | RX preamp |
+| INA188ID | INA188ID-ND | 595-INA188ID | Zero-drift preamp (optional) |
+| INA128PAG4 | INA128PAG4-ND | 595-INA128PAG4 | Gain stage |
+| OPA454AIDDAR | OPA454AIDDAR-ND | 595-OPA454AIDDAR | TX driver |
+| REF5025AIDGKR | REF5025AIDGKR-ND | 595-REF5025AIDGKR | Voltage reference |
+| ESP32-WROOM-32 | 1904-1009-1-ND | 356-ESP32-WROOM-32 | MCU |
+| Weipu SP29-26 | N/A | N/A | Order direct from Weipu or AliExpress |
+
+: Key Part Numbers for Rev B Build {#tbl-part-numbers}
+
+### Legacy Components (Rev A)
+
+| Component | DigiKey PN | Mouser PN | Notes |
+|-----------|------------|-----------|-------|
+| ADS1256IDBR | ADS1256IDBR-ND | 595-ADS1256IDBR | Legacy ADC (Rev A) |
+| AD620ARZ | AD620ARZ-ND | 584-AD620ARZ | Legacy preamp (Rev A) |
+| DB25 Connector | Various | Various | Legacy hub connector |
+
+: Legacy Part Numbers (Rev A - Not Recommended for New Builds) {#tbl-part-numbers-legacy}
+
+::: {.callout-warning}
+## Component Revision Notice
+
+**New builds should use Rev B components.** The AD7124-8 and Weipu SP29 provide significant improvements in power efficiency, integration, and field reliability. Legacy components are documented for maintenance of existing systems only.
+:::
 
 ## Procurement Tips
 
@@ -507,11 +530,14 @@ The following tables provide alternative component options for situations where 
 
 ## Electronics Alternatives
 
-| Original | Alternative | Notes |
-|----------|-------------|-------|
+| Original (Rev B) | Alternative | Notes |
+|------------------|-------------|-------|
+| AD7124-8 ADC | ADS1261 | TI ecosystem, similar integration |
+| AD7124-8 ADC | ADS1256 | Legacy option, requires more external components |
+| AD8421 preamp | INA188 | Zero-drift, better DC stability, higher broadband noise |
+| AD9833 DDS | AD9837 | Smaller footprint (LFCSP), lower power (8.5 mW) |
 | AD9833 DDS | Si5351 | More outputs, different interface |
-| AD620 preamp | INA217 | Different specifications |
-| ADS1256 ADC | ADS1115 | Lower resolution, lower cost |
+| Weipu SP29 | CNLINKO LP-24 | Snap-lock (faster), 24 pins only |
 
 : Electronics Alternatives {#tbl-elec-alt}
 

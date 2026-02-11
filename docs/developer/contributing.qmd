@@ -170,6 +170,12 @@ Contributors are recognized in:
 - Tag your issue with "question" for general inquiries
 - For sensitive matters, contact the maintainers directly
 
+## Acknowledgements
+
+HIRT's documentation structure follows patterns established by the [OhmPi project](https://ohmpi.org/), whose peer-reviewed open-hardware publication in HardwareX demonstrated that open-source geophysical instrumentation can achieve rigorous scientific standards. We are grateful to the OhmPi team for paving the way.
+
+The layered "onion model" documentation approach—from field operations through build guides to deep theory—enables users with different needs to engage at appropriate levels without requiring full technical depth.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the same license as the project (see repository for details).

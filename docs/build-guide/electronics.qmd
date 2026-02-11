@@ -134,6 +134,21 @@ The receiver front-end utilizes the **Analog Devices AD8421**. This high-speed i
 
 : RX Preamplifier Specifications. {#tbl-preamp-specs}
 
+### Zero-Drift Alternative: INA188 {#sec-ina188-alternative}
+
+For applications prioritizing DC stability over AC noise floor, the **Texas Instruments INA188** provides a zero-drift alternative to the AD8421.
+
+| Parameter | AD8421 | INA188 | Trade-off |
+|-----------|--------|--------|-----------|
+| Noise Floor | **3 nV/$\sqrt{\mathrm{Hz}}$** | 12 nV/$\sqrt{\mathrm{Hz}}$ | AD8421 superior for AC |
+| Offset Drift | 0.6 µV/°C | **0.2 µV/°C** | INA188 superior for DC |
+| 1/f Noise | Present | **Eliminated** | INA188 better at DC |
+| Supply Current | 2.0 mA | 1.4 mA | Similar |
+
+: AD8421 vs INA188 comparison. {#tbl-preamp-comparison}
+
+**Recommendation:** For HIRT's MIT operating range (2-50 kHz), the AD8421's ultra-low broadband noise provides better SNR than the INA188's zero-drift architecture. Use the INA188 only if your application requires DC-accurate measurements or operates below 100 Hz.
+
 ### Noise Floor Measurement Conditions {#sec-noise-conditions}
 
 The AD8421's specified noise floor of **3 nV/$\sqrt{\mathrm{Hz}}$** is achieved under specific measurement conditions. Field performance depends on several factors:
@@ -312,7 +327,7 @@ plt.show()
 
 ```{python}
 #| label: fig-adc-interface
-#| fig-cap: "ADS1256 ADC interface showing differential analog inputs for MIT and ERT signals, SPI connection to MCU, and reference voltage. The 24-bit resolution and internal PGA provide excellent dynamic range."
+#| fig-cap: "AD7124-8 ADC interface showing differential analog inputs for MIT and ERT signals, SPI connection to MCU, and integrated reference. The integrated AFE, 24-bit resolution, and three power modes provide excellent dynamic range with minimal external components."
 #| fig-width: 9
 #| fig-height: 5
 #| code-fold: true
@@ -331,16 +346,27 @@ plt.tight_layout()
 plt.show()
 ```
 
-| Parameter | ADS1256 Specification |
+The HIRT Rev B design uses the **Analog Devices AD7124-8** as the primary ADC. This integrated Analog Front End (AFE) dramatically reduces external component count compared to the legacy ADS1256, while providing superior power management for field deployment.
+
+| Parameter | AD7124-8 Specification |
 |-----------|----------------------|
 | Resolution | 24 bits |
-| Sample Rate | 30 kSPS maximum |
-| Noise | 0.6 uV RMS (at 100 SPS) |
+| Sample Rate | Up to 19.2 kSPS |
+| Noise | 24 nV RMS (at low output rates) |
 | Interface | SPI |
-| Internal PGA | 1, 2, 4, 8, 16, 32, 64x |
-| Input Channels | 8 single-ended or 4 differential |
+| Integrated Features | Rail-to-rail buffer, PGA (1-128x), reference buffers |
+| Power Modes | Full (970 µA), Mid (660 µA), **Low (255 µA)** |
+| Input Channels | 8 differential or 15 single-ended |
 
-: ADS1256 ADC Specifications. {#tbl-adc-specs}
+: AD7124-8 ADC Specifications (Rev B Primary). {#tbl-adc-specs}
+
+**Migration Note (Rev A to Rev B):** The AD7124-8 replaces the ADS1256 as the recommended ADC. Key advantages:
+
+- **Integrated AFE:** Internal rail-to-rail buffer and reference buffers eliminate ~6 external components
+- **Power efficiency:** Low-power mode (~255 µA) vs ADS1256 (~36 mW) enables significantly longer battery life
+- **Comparable noise:** 24 nV RMS achievable with fewer external noise sources
+
+The ADS1256 remains documented for legacy builds (see [Legacy Components](#sec-legacy-components)).
 
 ## Multiplexer Switching {#sec-multiplexer}
 
@@ -496,19 +522,23 @@ plt.show()
 
 ## Key Component Summary {#sec-components}
 
-| Component | Part Number | Function | Package |
-|-----------|-------------|----------|---------|
-| DDS | AD9833BRMZ | Signal generator | MSOP-10 |
-| TX Driver | OPA454AIDDAR | Coil driver | SOIC-8 |
-| Preamp | AD8421BRZ | RX preamplifier | SOIC-8 |
-| Inst Amp | INA128PAG4 | Gain stage | DIP-8 |
-| ADC | ADS1256IDBR | 24-bit ADC | SSOP-28 |
-| Multiplexer | CD74HC4067M | 16-channel mux | SOIC-24 |
-| MCU | ESP32-WROOM-32 | Controller | Module |
-| V-Reference | REF5025AIDGKR | 2.5V reference | SOIC-8 |
-| LDO | AMS1117-3.3 | 3.3V regulator | SOT-223 |
+| Component | Part Number | Function | Package | Rev |
+|-----------|-------------|----------|---------|-----|
+| DDS | AD9833BRMZ | Signal generator | MSOP-10 | A/B |
+| TX Driver | OPA454AIDDAR | Coil driver | SOIC-8 | A/B |
+| Preamp | AD8421BRZ | RX preamplifier | SOIC-8 | A/B |
+| Preamp (Alt) | INA188ID | Zero-drift preamp | SOIC-8 | B |
+| Inst Amp | INA128PAG4 | Gain stage | DIP-8 | A/B |
+| ADC | **AD7124-8BRUZ** | 24-bit integrated AFE | TQFP-32 | **B** |
+| ADC (Legacy) | ADS1256IDBR | 24-bit ADC | SSOP-28 | A |
+| Multiplexer | CD74HC4067M | 16-channel mux | SOIC-24 | A/B |
+| MCU | ESP32-WROOM-32 | Controller | Module | A/B |
+| V-Reference | REF5025AIDGKR | 2.5V reference | SOIC-8 | A/B |
+| LDO | AMS1117-3.3 | 3.3V regulator | SOT-223 | A/B |
+| Connector | **Weipu SP29-26** | IP68 hub connector | Circular | **B** |
+| Connector (Legacy) | DB25 | Hub connector | D-Sub | A |
 
-: Key IC Components. {#tbl-components}
+: Key IC Components (Rev B highlighted in bold). {#tbl-components}
 
 ## Connector Pinouts (Probe-to-Zone) {#sec-pinouts}
 
@@ -570,6 +600,58 @@ Builders can test hardware subsystems (coils, ERT source, ADC) using bench equip
 | ADC errors | SPI timing | Reduce SPI clock speed, check DRDY timing |
 
 : Common Issues and Solutions. {#tbl-troubleshooting}
+
+## Interconnect Modernization {#sec-interconnect}
+
+The Rev B design replaces the legacy DB25 connectors with **Weipu SP29 (26-pin)** IP68-rated circular connectors. This addresses field reliability issues with non-waterproof D-Sub interfaces.
+
+### Weipu SP29 Specifications
+
+| Parameter | Specification |
+|-----------|---------------|
+| Pin Count | 26 pins (matches DB25 + 1 spare) |
+| IP Rating | **IP68** (waterproof, dust-tight) |
+| Coupling | Threaded (vibration-resistant) |
+| Panel Cutout | 29 mm |
+| Current Rating | 5 A per contact |
+| Shell Material | Nylon66 (rugged, cost-effective) |
+| Termination | Solder |
+
+: Weipu SP29 connector specifications. {#tbl-sp29-specs}
+
+**Migration Note:** The SP29's 26-pin configuration directly accommodates all 25 DB25 signals with one spare pin for future expansion. The threaded coupling provides a secure, watertight seal superior to the DB25's thumbscrew retention.
+
+### Alternative: CNLINKO LP-24
+
+For applications requiring faster connection/disconnection, the CNLINKO LP-24 with snap-lock mechanism is acceptable but provides only 24 pins (requires reducing conductor count by one).
+
+## Legacy Components (Deprecated) {#sec-legacy-components}
+
+The following components are documented for historical builds and maintenance of Rev A systems. **New builds should use Rev B components.**
+
+### ADS1256 (Legacy ADC)
+
+| Parameter | ADS1256 Specification |
+|-----------|----------------------|
+| Resolution | 24 bits |
+| Sample Rate | 30 kSPS maximum |
+| Noise | 0.6 µV RMS (at 100 SPS) |
+| Interface | SPI |
+| Internal PGA | 1, 2, 4, 8, 16, 32, 64x |
+| Input Channels | 8 single-ended or 4 differential |
+| Power | ~36 mW typical |
+
+: ADS1256 ADC Specifications (Legacy - Not Recommended for New Builds). {#tbl-adc-legacy}
+
+::: {.callout-warning}
+## Legacy Component - Not Maintained
+
+The ADS1256 requires significant external circuitry (reference buffers, input drivers) to achieve datasheet performance, increasing PCB footprint and power budget. New builds should use the AD7124-8, which integrates these functions and offers superior power efficiency.
+:::
+
+### DB25 Connector (Legacy Interconnect)
+
+The DB25 connector is not waterproof and is prone to corrosion in field environments. Rev B replaces this with the Weipu SP29 IP68 connector. Existing systems can continue using DB25 but should add environmental protection (conformal coating, protective caps) for field use.
 
 ## References {#sec-electronics-references}
 

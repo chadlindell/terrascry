@@ -660,6 +660,7 @@ from . import executive_summary
 from . import architecture
 from . import testing
 from . import calibration
+from . import assembly_3d
 
 
 # Export all colors and functions
@@ -704,4 +705,5 @@ __all__ = [
     'architecture',
     'testing',
     'calibration',
+    'assembly_3d',
 ]

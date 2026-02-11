@@ -27,17 +27,17 @@ HIRT uses insertable probes in crosshole geometry to image the subsurface with t
 
 ## Getting Started
 
-### Read the Whitepaper
+### Read the Technical Manual
 ```bash
-cd whitepaper && quarto preview
+cd docs && quarto preview
 ```
-The whitepaper is the single source of truth for all technical documentation.
+The Technical Manual is the single source of truth for all technical documentation.
 
 ### Quick Links
 
 | Resource | Location |
 |----------|----------|
-| Technical Whitepaper | `whitepaper/` |
+| Technical Manual | `docs/` |
 | Bill of Materials | `hardware/bom/` |
 | CAD Files (OpenSCAD) | `hardware/cad/` |
 | Circuit Schematics | `hardware/schematics/` |
@@ -49,18 +49,24 @@ The whitepaper is the single source of truth for all technical documentation.
 HIRT/
 ├── VISION.md          # Project goals and constraints
 ├── STATUS.md          # Current state and active work
-├── OUTLINE.md         # Whitepaper section status
+├── OUTLINE.md         # Documentation section status
 ├── CLAUDE.md          # Style guide for documentation
 │
-├── whitepaper/        # Technical whitepaper (Quarto)
-│   ├── sections/      # 20 chapters
-│   ├── diagrams/      # Python diagram generators
-│   └── _output/       # Generated HTML and PDF
+├── docs/              # Technical Manual (Quarto)
+│   ├── index.qmd              # Task map landing page
+│   ├── getting-started/       # Onboarding (overview, quick-start, safety)
+│   ├── field-guide/           # Operations (deployment, data, troubleshooting)
+│   ├── build-guide/           # Construction (BOM, mechanical, electronics)
+│   ├── theory/                # Technical depth (physics, inversion, sensors)
+│   ├── developer/             # Contributors (firmware, data-formats, roadmap)
+│   ├── appendices/            # Reference (glossary, checklists, regulations)
+│   └── diagrams/              # Python diagram generators
 │
 ├── research/          # Research by topic
 │   ├── deployment/    # Probe insertion methods
 │   ├── electronics/   # Modernization research
-│   └── regulatory/    # Legal/compliance
+│   ├── regulatory/    # Legal/compliance
+│   └── literature/    # Prior art and comparable projects
 │
 ├── hardware/          # Hardware documentation
 │   ├── bom/          # Bills of materials
@@ -79,14 +85,17 @@ Requires [Quarto](https://quarto.org/) and Python 3.
 # Install Python dependencies
 pip install matplotlib numpy pillow
 
-# Render whitepaper to HTML and PDF
-cd whitepaper && quarto render
+# Render Technical Manual to HTML and PDF
+cd docs && quarto render
 
 # Preview with live reload
-cd whitepaper && quarto preview
+cd docs && quarto preview
 
-# Export to LaTeX
-cd whitepaper && quarto render --to latex
+# Render HTML only
+cd docs && quarto render --to html
+
+# Render PDF only
+cd docs && quarto render --to pdf
 ```
 
 ## Warnings
@@ -101,7 +110,7 @@ cd whitepaper && quarto render --to latex
 
 | Component | Status |
 |-----------|--------|
-| Whitepaper | Complete (20 sections, HTML + PDF) |
+| Technical Manual | Complete (30 sections, HTML + PDF) |
 | Hardware Design | Complete (schematics, CAD, BOM) |
 | Research | Ongoing (see `research/`) |
 | Software | Future development |
@@ -112,4 +121,4 @@ Open source - license to be determined.
 
 ## Contributing
 
-Contributions, improvements, and field testing results are welcome. See `CLAUDE.md` for documentation style guide.
+Contributions, improvements, and field testing results are welcome. See `docs/developer/contributing.qmd` for contribution guidelines and `CLAUDE.md` for documentation style guide.

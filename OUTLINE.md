@@ -215,10 +215,13 @@ This document tracks the status and requirements for each documentation section.
 - [x] Glossary covers key technical terms
 - [x] Documentation restructured to onion model (v3.0)
 - [x] GitHub Actions CI workflow created
+- [x] Build artifacts excluded from git tracking
+- [x] README updated for Technical Manual structure
 - [ ] Troubleshooting hybrid rewrite (keep tables + add narrative)
 - [ ] Performance claim qualifications throughout
 - [ ] Progressive deployment diagrams (5-6 new)
 - [ ] Research backlog reviewed and integrated
+- [ ] Research findings integrated into relevant sections
 
 ---
 

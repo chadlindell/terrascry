@@ -10,7 +10,7 @@ This technical manual provides complete documentation for building, operating, a
 
 ## Who Is This Manual For?
 
-This documentation follows an "onion model"—start from the layer that matches your needs:
+This documentation follows an "onion model" architecture (inspired by the [OhmPi project](https://ohmpi.org/))—start from the layer that matches your needs:
 
 ### Field Operators
 

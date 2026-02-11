@@ -151,6 +151,136 @@ plt.show()
 2. **Mark probe positions:** Measure spacing intervals along baseline, extend perpendicular rows, and mark each position with small stake or flag.
 3. **Verify geometry:** Cross-measure diagonals (should match within 5 cm) and record any deviations in field notes.
 
+## Probe Insertion Methods {#sec-probe-insertion-methods}
+
+Creating 12-16 mm diameter boreholes to 2-3 m depth requires careful method selection, particularly at UXO-suspected sites where percussion and vibration must be avoided. This section documents the tiered approach developed through comprehensive research into field-deployable insertion techniques.
+
+### Method Selection Criteria
+
+| Requirement | Specification |
+|-------------|---------------|
+| Hole diameter | 12-16 mm (18-20 mm with clearance) |
+| Depth | 2-3 meters |
+| Holes per survey | 20-50 per grid |
+| UXO Safety | **NO percussion, NO vibration** |
+| Grid size | Typically 10x10 m |
+
+: Probe insertion requirements {#tbl-insertion-requirements}
+
+### Tier 1: Water-Assisted Static Push ($1,500-2,500) {#sec-tier1-insertion}
+
+**Best for:** Initial deployment, difficult access sites, budget-constrained operations
+
+The water-assisted static push method combines water jetting to create pilot holes with static push for probe insertion. This is the **recommended starting point** for most HIRT deployments.
+
+| Aspect | Specification |
+|--------|---------------|
+| Equipment | Hand-operated lance + portable pump |
+| Cost | $1,500-2,500 complete system |
+| Training | 1-2 hours |
+| Crew | 2 persons |
+| UXO Safety | **SAFE** - no percussion, no vibration |
+| Production | 20-40 holes/day |
+
+: Tier 1 method specifications {#tbl-tier1-specs}
+
+**Equipment List:**
+
+- Honda WH20 or equivalent pump (~$1,000)
+- 3.5 m stainless steel jetting lance (~$150)
+- Fire hose 25 m with fittings (~$150)
+- 1,000 L IBC water tank (~$150)
+- Bentonite slurry supplies (~$50)
+
+**Technique:** Hybrid jetting + push
+
+1. Water jet creates 20 mm pilot hole to full depth
+2. Fill with bentonite slurry for hole stability
+3. Insert 16 mm probe into pre-formed, slurry-lubricated hole
+4. Minimal force required due to lubrication
+
+### Tier 2: Lightweight Hydraulic Rig / HMIS ($8,000-15,000) {#sec-tier2-insertion}
+
+**Best for:** Standard operations, 25-40 holes/day throughput requirements
+
+The HMIS (HIRT Modular Insertion System) is a purpose-built lightweight rig optimized for HIRT probe deployment.
+
+| Aspect | Specification |
+|--------|---------------|
+| Push force | 8-10 kN (adequate for most soils) |
+| Weight | 75-100 kg total system |
+| Stroke | 1.5 m (single stroke) |
+| Power | Battery (48V, 10Ah) or 12V vehicle |
+| Anchoring | 4x helical ground anchors |
+| Control | 50 m tethered remote (UXO safety) |
+| Transport | 2-person carry, fits in SUV |
+| Production | 25-40 holes/day |
+
+: Tier 2 HMIS specifications {#tbl-tier2-specs}
+
+**System Components:**
+
+- Aluminum frame with screw anchor mounts ($1,500-2,500)
+- 10 kN hydraulic cylinder, 1.5 m stroke ($800-1,500)
+- Battery hydraulic pump ($1,500-2,500)
+- 4x helical ground anchors ($400-800)
+- Control electronics and 50 m tether ($800-1,600)
+- Probe guide and holder ($200-400)
+
+### Tier 3: Remote-Controlled Excavator ($60,000-95,000) {#sec-tier3-insertion}
+
+**Best for:** High-risk UXO sites requiring 100-300 m standoff distance
+
+For surveys at sites with elevated UXO risk, remote-controlled operation removes personnel from the hazard zone entirely.
+
+| Aspect | Specification |
+|--------|---------------|
+| Equipment | 1-2 ton mini excavator + remote kit + custom attachment |
+| Standoff | 100-300 m remote operation |
+| Cost | $60,000-95,000 |
+| Crew | 1 operator + 1 spotter |
+| Production | 15-30 holes/day |
+
+: Tier 3 remote system specifications {#tbl-tier3-specs}
+
+**Configuration:**
+
+- Used mini excavator (1-2 ton class): $15-30K
+- Stanley ROC remote control kit: $15-25K
+- Custom probe insertion attachment: $10-20K
+- Probe magazine (10-15 probes): $5-10K
+- Integration and testing: $10-15K
+
+### Method Selection by Scenario
+
+| Scenario | Primary Method | Backup Method | Notes |
+|----------|---------------|---------------|-------|
+| Initial testing/development | Tier 1 (Water jet) | Hand auger | Validate before investing |
+| Low-risk sites | Tier 2 (HMIS) | Tier 1 (Water jet) | Maximize throughput |
+| Standard operations | Tier 2 (HMIS) | Tier 1 (Water jet) | Best cost/capability |
+| **High-risk UXO sites** | **Tier 3 (Remote)** | Tier 2 + 50m tether | Personnel safety priority |
+| High-volume surveys | Tier 2 (HMIS) | Commercial CPT contract | Consider rental |
+| Difficult access | Tier 1 (Water jet) | Hand auger | Portability priority |
+
+: Method selection by scenario {#tbl-method-selection}
+
+### Cost Comparison by Survey Size
+
+| Method | 20-Hole Survey | 50-Hole Survey | Notes |
+|--------|----------------|----------------|-------|
+| Tier 1 (Water jet) | $200-400 | $400-750 | Consumables only |
+| Tier 2 (HMIS) | $400-800 | $800-1,500 | After equipment amortization |
+| Tier 3 (Remote) | $1,500-3,000 | $3,000-5,000 | Operator time + fuel |
+| Commercial CPT contract | $4,000-8,000 | $10,000-15,000 | Third-party service |
+
+: Operational cost comparison per survey {#tbl-cost-comparison}
+
+::: {.callout-note}
+## UXO Safety Note
+
+All three tiers use **static push only**---no percussion or vibration. This is the industry-standard approach for intrusive surveys at UXO-suspected sites, as established by CIRIA C681/C785 and used by commercial magnetometer-cone (MagCone) operations.
+:::
+
 ## Probe Installation {#sec-probe-installation}
 
 Proper probe installation is critical for obtaining quality data. Insertion depth and technique vary with soil conditions and target depth requirements.

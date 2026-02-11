@@ -313,5 +313,18 @@ HIRT data can be processed with standard open-source inversion frameworks:
 - **pyGIMLi (Python):** Excellent crosshole ERT support, joint inversion
 - **EIDORS (Matlab/Octave):** MIT reconstruction, biomedical heritage
 - **ResIPy (Python):** User-friendly ERT inversion wrapper
+- **bh_tomo (MATLAB, GNU license):** Specifically designed for borehole/crosshole tomography. Provides ray-path computation (straight and curved), crosshole geometry handling, and constrained inversion with anisotropy support. Directly applicable to HIRT's crosshole ERT channel. [GitHub](https://github.com/groupeLIAMG/bh_tomo)
+
+### Crosshole-Specific Software
+
+For HIRT's crosshole geometry, **bh_tomo** from the LIAMG group (Ecole Polytechnique de Montreal) deserves special mention. Unlike general-purpose inversion packages that were designed primarily for surface arrays, bh_tomo was built from the ground up for borehole/crosshole tomography. Key features relevant to HIRT:
+
+- **Ray-path computation:** Handles both straight-ray and curved-ray (refraction) geometries
+- **Crosshole geometry:** Native support for the source-receiver configurations used in crosshole surveys
+- **Tomographic inversion:** SIRT, LSQR, and constrained inversion methods
+- **Anisotropy support:** Can model directional property variations
+- **Data types:** Supports both traveltime (seismic/radar) and amplitude datasets
+
+While bh_tomo was originally developed for georadar and seismic crosshole tomography, its algorithms for handling crosshole geometry and ray-based inversion are directly transferable to ERT data processing.
 
 See [Developer: Data Formats](../developer/data-formats.qmd) for file format specifications.

@@ -192,3 +192,20 @@ plt.show()
 : HIRT system cost breakdown (*estimated*, 2024 component pricing) {#tbl-cost-breakdown}
 
 This cost structure places professional-grade subsurface imaging capabilities within reach of university research groups, non-profit humanitarian organizations, and archaeological teams that could not otherwise afford crosshole tomography.
+
+## Related Work {#sec-related-work}
+
+HIRT exists within a growing ecosystem of open-source geophysical instrumentation. While several excellent projects have democratized specific sensing modalities, HIRT fills a unique gap: no existing open-source project combines magneto-inductive tomography with electrical resistivity in an integrated crosshole system.
+
+The table below positions HIRT relative to comparable open-hardware projects:
+
+| Project | Modality | Open Hardware | Peer Review | Estimated Cost |
+|---------|----------|---------------|-------------|----------------|
+| **HIRT** | MIT + ERT crosshole | Yes | Target: HardwareX | <$3,000 |
+| OhmPi | ERT (surface) | Yes | HardwareX 2020 | <$500 |
+| OpenEIT | EIT (biomedical) | Yes | Partial | ~$300 |
+| Cheap-G | Gravimetry | Yes | HardwareX 2021 | ~$1,000 |
+
+: Comparison of open-source geophysical/tomographic hardware {#tbl-related-work}
+
+HIRT's architecture and documentation structure draw inspiration from the OhmPi project, which demonstrated that rigorous open-source hardware documentation can meet peer-review standards while remaining accessible to diverse users. We acknowledge OhmPi's pioneering work in establishing patterns for open geophysical hardware that others can build upon.

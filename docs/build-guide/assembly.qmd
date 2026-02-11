@@ -19,6 +19,75 @@ Detailed assembly drawings and wiring diagrams are maintained in the hardware do
 These hardware docs contain the most current assembly procedures and are updated as the design evolves.
 :::
 
+## Probe Assembly Overview {#sec-probe-overview}
+
+The HIRT probe is a modular stack of 3D-printed components connected by M12x1.75 threads. The assembly comprises four main component types: probe tip, male rod caps, sensor bodies, and junction cap. Fiberglass rod segments (50cm or 100cm) bridge between sensor bodies to achieve the desired probe depth.
+
+```{python}
+#| label: fig-probe-exploded
+#| fig-cap: "Exploded view of probe assembly showing component stacking order. Components connect via M12x1.75 threads with O-ring seals at each joint. Fiberglass rod segments bridge between sensor bodies. Assembly proceeds from bottom (tip) upward."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_probe_assembly_exploded
+from IPython.display import display, Image
+
+buf = create_probe_assembly_exploded()
+display(Image(data=buf.getvalue()))
+```
+
+::: {#fig-cad-views layout-ncol=2}
+
+![Exploded view from CAD](../assets/images/assembly/probe_exploded.png){#fig-cad-exploded}
+
+![Assembled probe](../assets/images/assembly/probe_assembled.png){#fig-cad-assembled}
+
+3D CAD renders showing the probe in exploded and assembled configurations. Color coding: green = sensor bodies, blue = male rod caps, dark gray = probe tip and junction cap.
+:::
+
+The sensor body is the key component, housing both the MIT coil winding zone and ERT electrode groove. Each sensor body has female M12 sockets on both ends, allowing it to receive male rod caps from adjacent fiberglass segments.
+
+```{python}
+#| label: fig-sensor-detail
+#| fig-cap: "Cross-section of sensor body showing internal features: dual female thread sockets (25mm depth each), ERT ring groove at 1/4 position, MIT coil winding zone at 3/4 position, and 6mm center wire channel."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_sensor_body_detail
+from IPython.display import display, Image
+
+buf = create_sensor_body_detail()
+display(Image(data=buf.getvalue()))
+```
+
+## Thread Engagement {#sec-thread-engagement}
+
+Proper thread engagement is critical for both mechanical strength and waterproofing. The M12x1.75 ISO metric threads provide approximately 6 full threads of engagement at the minimum 10mm depth.
+
+```{python}
+#| label: fig-thread-engagement
+#| fig-cap: "Thread engagement detail showing male rod cap threading into sensor body socket. Minimum engagement of 10mm (6 threads) required. O-ring seal compresses at thread shoulder."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_thread_engagement_detail
+from IPython.display import display, Image
+
+buf = create_thread_engagement_detail()
+display(Image(data=buf.getvalue()))
+```
+
+![Cross-section view from CAD showing internal thread engagement, wire channel, and component interfaces.](../assets/images/assembly/probe_cross_section.png){#fig-cad-cross-section width=70%}
+
+::: {.callout-important}
+## Thread Assembly Guidelines
+
+- **Hand-tighten only**: Finger-tight plus 1/4 turn maximum
+- **O-ring required**: 10mm ID x 1.5mm cross-section at each joint
+- **Thread sealant**: Apply Loctite 567 or equivalent to male threads
+- **Verify engagement**: Minimum 10mm (6 full threads) before sealing
+:::
+
 ## Parts List {#sec-parts-list}
 
 ### Printed Parts (PETG/ASA)
@@ -80,11 +149,13 @@ The HIRT system uses a hierarchical wiring architecture designed to manage the c
 ```{python}
 #| label: fig-zone-architecture
 #| fig-cap: "Zone wiring architecture showing probe groupings, zone boxes, and trunk cable routing to the central hub. Each zone aggregates 4 probes through a passive junction box."
+#| code-fold: true
 
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, Circle, Rectangle
 import numpy as np
+from io import BytesIO
+from IPython.display import display, Image as IPImage
 
 # Color palette
 COLORS = {
@@ -154,7 +225,11 @@ ax.text(5, 0.2, 'Zone Wiring Architecture', ha='center',
        fontsize=11, fontweight='bold', color=COLORS['primary'])
 
 plt.tight_layout()
-plt.show()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
 ```
 
 ### System Topology
@@ -170,6 +245,10 @@ The zone architecture divides the probe array into manageable groups of 4 probes
 ```{python}
 #| label: fig-wiring-harness
 #| fig-cap: "Wiring harness architecture from probe sensors through junction box and zone box to the main hub. The multi-conductor shielded cable (2-4mm diameter) carries all sensor signals."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
 
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.set_xlim(0, 10)
@@ -258,7 +337,11 @@ for i, (label, color) in enumerate(legend_items):
     ax.text(lx + 0.4, legend_y + 0.1, label, fontsize=7, va='center')
 
 plt.tight_layout()
-plt.show()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
 ```
 
 ### Connector Pinout Reference
@@ -268,6 +351,10 @@ The system uses 12-pin Phoenix Contact connectors (part number 1757248) or equiv
 ```{python}
 #| label: fig-connector-pinout
 #| fig-cap: "12-pin Phoenix connector pinout showing signal assignments and recommended wire colors. Pins 1-4 carry MIT coil differential pairs, pins 6-8 carry ERT electrode signals."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
 
 fig, ax = plt.subplots(figsize=(9, 6))
 ax.set_xlim(0, 9)
@@ -378,7 +465,11 @@ for i, note in enumerate(notes):
     ax.text(0.3, 0.5 - i * 0.25, note, fontsize=7, color=COLORS['gray_dark'])
 
 plt.tight_layout()
-plt.show()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
 ```
 
 ## Assembly Procedures {#sec-assembly-procedures}
@@ -409,8 +500,11 @@ Assembly proceeds from the bottom (tip) and works upward. Each joint uses thread
 ```{python}
 #| label: fig-field-assembly-sequence
 #| fig-cap: "Six-step assembly sequence: (1) Prepare probe tip, (2) Thread cable through first segment, (3) Add sensor module, (4) Seat O-ring on thread shoulder, (5) Stack additional segments, (6) Install top cap with cable strain relief."
+#| code-fold: true
 
 from matplotlib.patches import Polygon
+from io import BytesIO
+from IPython.display import display, Image as IPImage
 
 fig, axes = plt.subplots(2, 3, figsize=(11, 7))
 
@@ -510,7 +604,11 @@ for ax, (title, step) in zip(axes.flat, steps):
         ax.text(-1.0, 0.6, 'Test all\nconnections', ha='center', fontsize=6)
 
 plt.tight_layout()
-plt.show()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
 ```
 
 ## Base Hub Assembly {#sec-base-hub-assembly}
@@ -520,6 +618,10 @@ The base hub houses all electronics in a weatherproof enclosure. The internal la
 ```{python}
 #| label: fig-base-hub-stack
 #| fig-cap: "Base hub internal stack layout showing the layered architecture from power shelf at bottom to weatherproof cover at top. The backplane PCB contains all analog and digital circuits."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
 
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.set_xlim(0, 10)
@@ -590,7 +692,11 @@ for i in range(6):
                            facecolor=COLORS['gray_med'], edgecolor='black', lw=0.5))
 
 plt.tight_layout()
-plt.show()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
 ```
 
 ### Backplane Functional Zones
@@ -686,6 +792,27 @@ plt.show()
 - Test fit with mating part before committing
 - Apply light lubricant before final assembly
 :::
+
+## Deployment Configuration {#sec-deployment-config}
+
+A typical HIRT survey uses 4-20 probes arranged in a grid pattern. The probe spacing depends on the target depth and desired resolution. For most archaeological and forensic applications, 0.5-1.0 meter spacing provides adequate coverage.
+
+```{python}
+#| label: fig-deployment-scene
+#| fig-cap: "Top view of typical deployment configuration showing 4 probes in a 1-meter grid with cables running to the central hub. Probe spacing is adjustable based on survey requirements."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_deployment_scene
+from IPython.display import display, Image
+
+buf = create_deployment_scene()
+display(Image(data=buf.getvalue()))
+```
+
+![3D CAD render of deployment array showing 4 probes inserted into ground with cables running to central hub. Junction caps are visible at ground surface.](../assets/images/assembly/deployment_array.png){#fig-cad-deployment width=80%}
+
+Each probe connects to the central hub via a multi-conductor shielded cable. The zone wiring architecture groups probes into zones of 4, reducing cable management complexity at the hub.
 
 ## Post-Assembly {#sec-post-assembly}
 
