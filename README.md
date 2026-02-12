@@ -41,4 +41,4 @@ The name "Pathfinder" honors the 15th Air Force crews who flew missions over Ble
 
 ## License
 
-Open source hardware and software (license TBD).
+Hardware: [CERN-OHL-S v2.0](https://ohwr.org/cern_ohl_s_v2.txt) | Firmware/Software: [MIT](LICENSE)

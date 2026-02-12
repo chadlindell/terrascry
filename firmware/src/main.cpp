@@ -1,21 +1,24 @@
 /**
  * Pathfinder Gradiometer Firmware
  *
- * 4-pair fluxgate gradiometer with GPS logging for archaeological/forensic reconnaissance.
+ * Modular fluxgate gradiometer with GPS logging for archaeological/forensic
+ * reconnaissance. Supports 1-4 sensor pairs across handheld, backpack,
+ * and drone platforms.
  *
  * Hardware:
  * - Arduino Nano
- * - 2x ADS1115 16-bit ADC (I2C addresses 0x48, 0x49)
- * - 8x Fluxgate sensors (4 pairs: top/bottom)
- * - NEO-6M GPS module
+ * - 1-2x ADS1115 16-bit ADC (I2C addresses 0x48, 0x49)
+ * - 2-8 Fluxgate sensors (1-4 pairs: top/bottom)
+ * - NEO-6M or ZED-F9P GPS module
  * - SD card module (SPI)
- * - Piezo beeper for pace marking
+ * - Piezo beeper for pace marking (handheld/backpack only)
  *
  * Data Format:
- * CSV with columns: timestamp,lat,lon,g1_top,g1_bot,g1_grad,...(4 pairs)
+ * CSV with columns: timestamp,lat,lon,[fix_quality,hdop,altitude,]
+ *                   g1_top,g1_bot,g1_grad,...(NUM_SENSOR_PAIRS pairs)
  *
  * Author: Pathfinder Project
- * License: Open Source (specify your license)
+ * License: MIT (see LICENSE in project root)
  */
 
 #include <Arduino.h>
@@ -26,13 +29,19 @@
 #include <SoftwareSerial.h>
 #include "config.h"
 
+#if ENABLE_WATCHDOG
+#include <avr/wdt.h>
+#endif
+
 // ============================================================================
 // GLOBAL OBJECTS
 // ============================================================================
 
-// ADC objects for two ADS1115 modules
+// ADC objects
 Adafruit_ADS1115 ads1;  // Address 0x48 - Pairs 1 and 2
+#if NEEDS_ADC2
 Adafruit_ADS1115 ads2;  // Address 0x49 - Pairs 3 and 4
+#endif
 
 // GPS objects
 SoftwareSerial gpsSerial(GPS_RX_PIN, GPS_TX_PIN);
@@ -50,24 +59,34 @@ struct GradiometerReading {
     uint32_t timestamp_ms;
     double latitude;
     double longitude;
-    int16_t g1_top, g1_bot, g1_grad;
-    int16_t g2_top, g2_bot, g2_grad;
-    int16_t g3_top, g3_bot, g3_grad;
-    int16_t g4_top, g4_bot, g4_grad;
+    int16_t top[NUM_SENSOR_PAIRS];
+    int16_t bot[NUM_SENSOR_PAIRS];
+    int16_t grad[NUM_SENSOR_PAIRS];
 };
 
 // Timing state
 unsigned long lastSampleTime = 0;
 unsigned long lastBeepTime = 0;
 unsigned long lastBlinkTime = 0;
-unsigned long lastFlushTime = 0;
 unsigned long sampleCount = 0;
+
+// Non-blocking beeper state
+bool beeping = false;
+unsigned long beepStartTime = 0;
 
 // System state
 bool sdCardReady = false;
 bool gpsLocked = false;
 bool ledState = false;
+bool adc1Ready = false;
+#if NEEDS_ADC2
+bool adc2Ready = false;
+#endif
 char logFileName[16];
+
+// Error tracking
+uint16_t sdWriteErrors = 0;
+uint16_t adcSaturationCount = 0;
 
 // ============================================================================
 // FUNCTION DECLARATIONS
@@ -78,25 +97,55 @@ void setupADCs();
 void setupGPS();
 void setupSD();
 void createLogFile();
+void writeCSVHeader();
 void readGradiometers(GradiometerReading &reading);
 void logReading(const GradiometerReading &reading);
 void updateBeeper();
 void updateStatusLED();
 void printDebugInfo(const GradiometerReading &reading);
+void checkSaturation(int16_t value);
+void reopenLogFile();
+bool anyAdcReady();
+
+// ============================================================================
+// HELPER
+// ============================================================================
+
+bool anyAdcReady() {
+    #if NEEDS_ADC2
+    return adc1Ready || adc2Ready;
+    #else
+    return adc1Ready;
+    #endif
+}
 
 // ============================================================================
 // SETUP
 // ============================================================================
 
 void setup() {
-    // Initialize serial for debugging
-    #if SERIAL_DEBUG
-    Serial.begin(SERIAL_BAUD);
-    while (!Serial && millis() < 3000); // Wait up to 3 seconds for serial
-    Serial.println(F("Pathfinder Gradiometer Starting..."));
+    #if ENABLE_WATCHDOG
+    wdt_disable();
     #endif
 
-    // Setup hardware
+    #if SERIAL_DEBUG
+    Serial.begin(SERIAL_BAUD);
+    while (!Serial && millis() < 3000);
+    Serial.println(F("Pathfinder Gradiometer v" FIRMWARE_VERSION " (" FIRMWARE_DATE ")"));
+    #ifdef PLATFORM_DRONE
+    Serial.println(F("Platform: DRONE"));
+    #elif defined(PLATFORM_BACKPACK)
+    Serial.println(F("Platform: BACKPACK"));
+    #else
+    Serial.println(F("Platform: HANDHELD"));
+    #endif
+    Serial.print(F("Sensor pairs: "));
+    Serial.println(NUM_SENSOR_PAIRS);
+    #if GPS_LOG_QUALITY
+    Serial.println(F("GPS quality logging: ON"));
+    #endif
+    #endif
+
     setupPins();
     setupADCs();
     setupGPS();
@@ -108,14 +157,27 @@ void setup() {
     Serial.print(F("Sample rate: "));
     Serial.print(SAMPLE_RATE_HZ);
     Serial.println(F(" Hz"));
-    Serial.print(F("Log file: "));
-    Serial.println(logFileName);
+    if (sdCardReady) {
+        Serial.print(F("Log file: "));
+        Serial.println(logFileName);
+    }
+    Serial.print(F("ADC1: "));
+    Serial.println(adc1Ready ? F("OK") : F("FAILED"));
+    #if NEEDS_ADC2
+    Serial.print(F("ADC2: "));
+    Serial.println(adc2Ready ? F("OK") : F("FAILED"));
+    #endif
     #endif
 
-    // Initial beep to signal ready
+    #if ENABLE_BEEPER
     digitalWrite(BEEPER_PIN, HIGH);
     delay(200);
     digitalWrite(BEEPER_PIN, LOW);
+    #endif
+
+    #if ENABLE_WATCHDOG
+    wdt_enable(WDTO_4S);
+    #endif
 }
 
 // ============================================================================
@@ -123,6 +185,10 @@ void setup() {
 // ============================================================================
 
 void loop() {
+    #if ENABLE_WATCHDOG
+    wdt_reset();
+    #endif
+
     unsigned long currentTime = millis();
 
     // Update GPS data (call frequently to process NMEA sentences)
@@ -130,7 +196,6 @@ void loop() {
         gps.encode(gpsSerial.read());
     }
 
-    // Check if GPS has valid fix
     gpsLocked = gps.location.isValid() && gps.location.age() < 2000;
 
     // Acquire data at configured sample rate
@@ -138,11 +203,9 @@ void loop() {
     if (currentTime - lastSampleTime >= sampleInterval) {
         lastSampleTime = currentTime;
 
-        // Read all gradiometer channels
         GradiometerReading reading;
         readGradiometers(reading);
 
-        // Get GPS coordinates (or 0,0 if no fix)
         if (gpsLocked) {
             reading.latitude = gps.location.lat();
             reading.longitude = gps.location.lng();
@@ -151,18 +214,15 @@ void loop() {
             reading.longitude = 0.0;
         }
 
-        // Log to SD card
         if (sdCardReady) {
             logReading(reading);
             sampleCount++;
 
-            // Flush to SD card periodically
             if (sampleCount % SD_FLUSH_INTERVAL == 0) {
                 logFile.flush();
             }
         }
 
-        // Print debug info
         #if SERIAL_DEBUG
         if (sampleCount % DEBUG_PRINT_INTERVAL == 0) {
             printDebugInfo(reading);
@@ -170,10 +230,10 @@ void loop() {
         #endif
     }
 
-    // Update pace beeper
+    #if ENABLE_BEEPER
     updateBeeper();
+    #endif
 
-    // Update status LED
     updateStatusLED();
 }
 
@@ -182,9 +242,11 @@ void loop() {
 // ============================================================================
 
 void setupPins() {
+    #if ENABLE_BEEPER
     pinMode(BEEPER_PIN, OUTPUT);
-    pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(BEEPER_PIN, LOW);
+    #endif
+    pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(STATUS_LED_PIN, LOW);
 
     #if SERIAL_DEBUG
@@ -193,42 +255,45 @@ void setupPins() {
 }
 
 void setupADCs() {
-    // Initialize I2C
     Wire.begin();
 
-    // Configure ADS1115 module 1
-    if (!ads1.begin(ADS1115_ADDR_1)) {
+    // ADC1 serves pairs 1-2 (always needed)
+    if (ads1.begin(ADS1115_ADDR_1)) {
+        ads1.setGain(ADC_GAIN);
+        ads1.setDataRate(ADC_DATA_RATE);
+        adc1Ready = true;
         #if SERIAL_DEBUG
-        Serial.println(F("ERROR: ADS1115 #1 (0x48) not found!"));
+        Serial.println(F("ADS1115 #1 (0x48) OK"));
         #endif
-        while (1) {
-            // Blink error pattern
-            digitalWrite(STATUS_LED_PIN, !digitalRead(STATUS_LED_PIN));
-            delay(BLINK_ERROR);
-        }
+    } else {
+        adc1Ready = false;
+        #if SERIAL_DEBUG
+        Serial.println(F("WARNING: ADS1115 #1 (0x48) not found"));
+        #endif
     }
 
-    // Configure ADS1115 module 2
-    if (!ads2.begin(ADS1115_ADDR_2)) {
+    // ADC2 serves pairs 3-4 (only needed for 3+ pairs)
+    #if NEEDS_ADC2
+    if (ads2.begin(ADS1115_ADDR_2)) {
+        ads2.setGain(ADC_GAIN);
+        ads2.setDataRate(ADC_DATA_RATE);
+        adc2Ready = true;
         #if SERIAL_DEBUG
-        Serial.println(F("ERROR: ADS1115 #2 (0x49) not found!"));
+        Serial.println(F("ADS1115 #2 (0x49) OK"));
         #endif
-        while (1) {
-            // Blink error pattern
-            digitalWrite(STATUS_LED_PIN, !digitalRead(STATUS_LED_PIN));
-            delay(BLINK_ERROR);
-        }
+    } else {
+        adc2Ready = false;
+        #if SERIAL_DEBUG
+        Serial.println(F("WARNING: ADS1115 #2 (0x49) not found"));
+        #endif
     }
-
-    // Set gain and data rate
-    ads1.setGain(ADC_GAIN);
-    ads1.setDataRate(ADC_DATA_RATE);
-    ads2.setGain(ADC_GAIN);
-    ads2.setDataRate(ADC_DATA_RATE);
-
-    #if SERIAL_DEBUG
-    Serial.println(F("ADS1115 modules configured"));
     #endif
+
+    if (!anyAdcReady()) {
+        #if SERIAL_DEBUG
+        Serial.println(F("ERROR: No ADCs found! GPS/diagnostic mode only."));
+        #endif
+    }
 }
 
 void setupGPS() {
@@ -238,7 +303,6 @@ void setupGPS() {
     Serial.print(F("GPS initialized at "));
     Serial.print(GPS_BAUD);
     Serial.println(F(" baud"));
-    Serial.println(F("Waiting for GPS fix..."));
     #endif
 }
 
@@ -254,25 +318,46 @@ void setupSD() {
     }
 
     sdCardReady = true;
-
     #if SERIAL_DEBUG
     Serial.println(F("SD card ready"));
     #endif
 }
 
+void writeCSVHeader() {
+    // Build header dynamically based on NUM_SENSOR_PAIRS and GPS_LOG_QUALITY
+    logFile.print(F("timestamp,lat,lon"));
+
+    #if GPS_LOG_QUALITY
+    logFile.print(F(",fix_quality,hdop,altitude"));
+    #endif
+
+    for (uint8_t i = 0; i < NUM_SENSOR_PAIRS; i++) {
+        logFile.print(F(",g"));
+        logFile.print(i + 1);
+        logFile.print(F("_top,g"));
+        logFile.print(i + 1);
+        logFile.print(F("_bot,g"));
+        logFile.print(i + 1);
+        logFile.print(F("_grad"));
+    }
+    logFile.println();
+}
+
 void createLogFile() {
     if (!sdCardReady) return;
 
-    // Find next available filename: PATH0001.CSV, PATH0002.CSV, etc.
     for (uint16_t i = 1; i < 10000; i++) {
         snprintf(logFileName, sizeof(logFileName), "%s%04d%s",
                  LOG_FILE_PREFIX, i, LOG_FILE_EXTENSION);
 
         if (!sd.exists(logFileName)) {
-            // File doesn't exist, use this name
             if (logFile.open(logFileName, O_CREAT | O_WRITE | O_EXCL)) {
-                // Write CSV header
-                logFile.println(F(CSV_HEADER));
+                // Firmware version comment
+                logFile.print(F("# Pathfinder v" FIRMWARE_VERSION
+                                " (" FIRMWARE_DATE ") pairs="));
+                logFile.println(NUM_SENSOR_PAIRS);
+                // CSV header
+                writeCSVHeader();
                 logFile.flush();
 
                 #if SERIAL_DEBUG
@@ -294,71 +379,109 @@ void createLogFile() {
 // DATA ACQUISITION FUNCTIONS
 // ============================================================================
 
+void checkSaturation(int16_t value) {
+    if (value > ADC_SATURATION_THRESHOLD || value < -ADC_SATURATION_THRESHOLD) {
+        adcSaturationCount++;
+        #if SERIAL_DEBUG
+        if (adcSaturationCount % 10 == 1) {
+            Serial.print(F("WARNING: ADC saturation (count="));
+            Serial.print(adcSaturationCount);
+            Serial.println(')');
+        }
+        #endif
+    }
+}
+
 void readGradiometers(GradiometerReading &reading) {
     reading.timestamp_ms = millis();
 
-    // Read pair 1 (ADS1 channels 0 and 1)
-    reading.g1_top = ads1.readADC_SingleEnded(PAIR1_TOP_CHANNEL);
-    reading.g1_bot = ads1.readADC_SingleEnded(PAIR1_BOT_CHANNEL);
-    reading.g1_grad = reading.g1_bot - reading.g1_top;
+    for (uint8_t i = 0; i < NUM_SENSOR_PAIRS; i++) {
+        // Determine which ADC and whether it's ready
+        bool adcOk;
+        Adafruit_ADS1115 *adc;
 
-    // Read pair 2 (ADS1 channels 2 and 3)
-    reading.g2_top = ads1.readADC_SingleEnded(PAIR2_TOP_CHANNEL);
-    reading.g2_bot = ads1.readADC_SingleEnded(PAIR2_BOT_CHANNEL);
-    reading.g2_grad = reading.g2_bot - reading.g2_top;
+        if (PAIR_ADC[i] == 1) {
+            adc = &ads1;
+            adcOk = adc1Ready;
+        } else {
+            #if NEEDS_ADC2
+            adc = &ads2;
+            adcOk = adc2Ready;
+            #else
+            adcOk = false;
+            adc = &ads1; // unused, but avoids uninitialized warning
+            #endif
+        }
 
-    // Read pair 3 (ADS2 channels 0 and 1)
-    reading.g3_top = ads2.readADC_SingleEnded(PAIR3_TOP_CHANNEL);
-    reading.g3_bot = ads2.readADC_SingleEnded(PAIR3_BOT_CHANNEL);
-    reading.g3_grad = reading.g3_bot - reading.g3_top;
+        if (adcOk) {
+            reading.top[i]  = adc->readADC_SingleEnded(PAIR_TOP_CH[i]);
+            reading.bot[i]  = adc->readADC_SingleEnded(PAIR_BOT_CH[i]);
+            reading.grad[i] = reading.bot[i] - reading.top[i];
+            checkSaturation(reading.top[i]);
+            checkSaturation(reading.bot[i]);
+        } else {
+            reading.top[i] = 0;
+            reading.bot[i] = 0;
+            reading.grad[i] = 0;
+        }
+    }
+}
 
-    // Read pair 4 (ADS2 channels 2 and 3)
-    reading.g4_top = ads2.readADC_SingleEnded(PAIR4_TOP_CHANNEL);
-    reading.g4_bot = ads2.readADC_SingleEnded(PAIR4_BOT_CHANNEL);
-    reading.g4_grad = reading.g4_bot - reading.g4_top;
+void reopenLogFile() {
+    logFile.close();
+    if (logFile.open(logFileName, O_WRITE | O_AT_END)) {
+        sdCardReady = true;
+        sdWriteErrors = 0;
+        #if SERIAL_DEBUG
+        Serial.println(F("SD card: file re-opened"));
+        #endif
+    } else {
+        sdCardReady = false;
+        #if SERIAL_DEBUG
+        Serial.println(F("SD card: re-open failed"));
+        #endif
+    }
 }
 
 void logReading(const GradiometerReading &reading) {
     if (!sdCardReady) return;
 
-    // Format: timestamp,lat,lon,g1_top,g1_bot,g1_grad,...
     logFile.print(reading.timestamp_ms);
     logFile.print(',');
-    logFile.print(reading.latitude, 7);  // 7 decimal places (~1 cm precision)
+    logFile.print(reading.latitude, 7);
     logFile.print(',');
     logFile.print(reading.longitude, 7);
-    logFile.print(',');
 
-    // Pair 1
-    logFile.print(reading.g1_top);
+    #if GPS_LOG_QUALITY
     logFile.print(',');
-    logFile.print(reading.g1_bot);
+    logFile.print(gps.location.isValid() ? 1 : 0);
     logFile.print(',');
-    logFile.print(reading.g1_grad);
+    logFile.print(gps.hdop.isValid() ? gps.hdop.hdop() : 99.9, 1);
     logFile.print(',');
+    logFile.print(gps.altitude.isValid() ? gps.altitude.meters() : 0.0, 1);
+    #endif
 
-    // Pair 2
-    logFile.print(reading.g2_top);
-    logFile.print(',');
-    logFile.print(reading.g2_bot);
-    logFile.print(',');
-    logFile.print(reading.g2_grad);
-    logFile.print(',');
+    for (uint8_t i = 0; i < NUM_SENSOR_PAIRS; i++) {
+        logFile.print(',');
+        logFile.print(reading.top[i]);
+        logFile.print(',');
+        logFile.print(reading.bot[i]);
+        logFile.print(',');
+        logFile.print(reading.grad[i]);
+    }
 
-    // Pair 3
-    logFile.print(reading.g3_top);
-    logFile.print(',');
-    logFile.print(reading.g3_bot);
-    logFile.print(',');
-    logFile.print(reading.g3_grad);
-    logFile.print(',');
-
-    // Pair 4
-    logFile.print(reading.g4_top);
-    logFile.print(',');
-    logFile.print(reading.g4_bot);
-    logFile.print(',');
-    logFile.println(reading.g4_grad);
+    if (!logFile.println()) {
+        sdWriteErrors++;
+        #if SERIAL_DEBUG
+        Serial.print(F("SD write error #"));
+        Serial.println(sdWriteErrors);
+        #endif
+        if (sdWriteErrors >= SD_RETRY_THRESHOLD) {
+            reopenLogFile();
+        }
+    } else {
+        if (sdWriteErrors > 0) sdWriteErrors = 0;
+    }
 }
 
 // ============================================================================
@@ -368,12 +491,19 @@ void logReading(const GradiometerReading &reading) {
 void updateBeeper() {
     unsigned long currentTime = millis();
 
-    // Generate beep at configured interval
+    if (beeping) {
+        if (currentTime - beepStartTime >= BEEP_DURATION_MS) {
+            digitalWrite(BEEPER_PIN, LOW);
+            beeping = false;
+        }
+        return;
+    }
+
     if (currentTime - lastBeepTime >= BEEP_INTERVAL_MS) {
         lastBeepTime = currentTime;
+        beepStartTime = currentTime;
         digitalWrite(BEEPER_PIN, HIGH);
-        delay(BEEP_DURATION_MS);
-        digitalWrite(BEEPER_PIN, LOW);
+        beeping = true;
     }
 }
 
@@ -381,8 +511,9 @@ void updateStatusLED() {
     unsigned long currentTime = millis();
     unsigned long blinkInterval;
 
-    // Select blink pattern based on system state
-    if (!sdCardReady) {
+    if (!anyAdcReady()) {
+        blinkInterval = BLINK_ERROR / 2;
+    } else if (!sdCardReady) {
         blinkInterval = BLINK_ERROR;
     } else if (!gpsLocked) {
         blinkInterval = BLINK_NO_GPS;
@@ -390,7 +521,6 @@ void updateStatusLED() {
         blinkInterval = BLINK_LOGGING;
     }
 
-    // Toggle LED at appropriate rate
     if (currentTime - lastBlinkTime >= blinkInterval) {
         lastBlinkTime = currentTime;
         ledState = !ledState;
@@ -400,23 +530,32 @@ void updateStatusLED() {
 
 void printDebugInfo(const GradiometerReading &reading) {
     #if SERIAL_DEBUG
-    Serial.print(F("Sample: "));
+    Serial.print(F("S:"));
     Serial.print(sampleCount);
-    Serial.print(F(" | GPS: "));
+    Serial.print(F(" GPS:"));
     if (gpsLocked) {
         Serial.print(reading.latitude, 6);
-        Serial.print(F(","));
+        Serial.print(',');
         Serial.print(reading.longitude, 6);
     } else {
-        Serial.print(F("NO FIX"));
+        Serial.print(F("--"));
     }
-    Serial.print(F(" | G1: "));
-    Serial.print(reading.g1_grad);
-    Serial.print(F(" | G2: "));
-    Serial.print(reading.g2_grad);
-    Serial.print(F(" | G3: "));
-    Serial.print(reading.g3_grad);
-    Serial.print(F(" | G4: "));
-    Serial.println(reading.g4_grad);
+
+    for (uint8_t i = 0; i < NUM_SENSOR_PAIRS; i++) {
+        Serial.print(F(" G"));
+        Serial.print(i + 1);
+        Serial.print(':');
+        Serial.print(reading.grad[i]);
+    }
+
+    if (sdWriteErrors > 0) {
+        Serial.print(F(" SD_ERR:"));
+        Serial.print(sdWriteErrors);
+    }
+    if (adcSaturationCount > 0) {
+        Serial.print(F(" SAT:"));
+        Serial.print(adcSaturationCount);
+    }
+    Serial.println();
     #endif
 }

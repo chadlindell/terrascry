@@ -37,15 +37,15 @@ The Pathfinder main board integrates:
                     |   Arduino Nano      |            |   Peripheral 5V Rail|
                     |   ATmega328P        |            +----------+----------+
                     |                     |                       |
-                    | D13 [o]----LED-----+                       |
+                    | D13 [o]---SCK-------+----+---> SD Card     |
+                    | D12 [o]---MISO------+    |     CLK          |
+                    | D11 [o]---MOSI------+    |     DI/DO        |
+                    |                     |    |                  |
+                    | D10 [o]---CS--------+----+---> SD Card CS   |
                     |                     |                       |
-                    | D11 [o]---PWM-------+--> BUZZER <----------+
+                    | D9  [o]---BEEP------+--> BUZZER <----------+
                     |                     |      |                |
-                    | D10 [o]   (SS)      |      GND              |
-                    |                     |                       |
-                    | D9  [o]---MOSI------+----+                 |
-                    | D8  [o]---MISO------+    |                 |
-                    | D7  [o]---SCK-------+    |                 |
+                    | D2  [o]---LED-------+      GND              |
                     |                     |    |                 |
                     | D4  [o]---RX--------+----+---> GPS (NEO-6M)
                     | D3  [o]---TX--------+    |     TX/RX       |
@@ -53,9 +53,9 @@ The Pathfinder main board integrates:
                     | A4  [o]---SDA-------+----+---> GND
                     | A5  [o]---SCL-------+    |                 |
                     |                     |    |                 |
-                    | GND [o]-------------+----+---> SD Card     |
-                    | VIN [o] (not used)  |    |     MOSI/MISO   |
-                    | 5V  [o]-------------+----+---> SCK/SS      |
+                    | GND [o]-------------+----+                 |
+                    | VIN [o] (not used)  |    |                 |
+                    | 5V  [o]-------------+----+                 |
                     +---------------------+    |     VCC <-------+
                                                |     GND          |
                                                |                  |
@@ -95,18 +95,18 @@ The Pathfinder main board integrates:
 
 | Pin | Function | Connection | Notes |
 |-----|----------|------------|-------|
-| D13 | Status LED | LED + 220R to GND | Built-in LED also available |
-| D12 | SD_CS | SD Card CS | SPI Chip Select |
-| D11 | BUZZER_PWM | Buzzer + MOSFET | 2 kHz tone for pace beeper |
-| D10 | (Reserved) | - | Future expansion |
-| D9 | SD_MOSI | SD Card MOSI | SPI data out |
-| D8 | SD_MISO | SD Card MISO | SPI data in |
-| D7 | SD_SCK | SD Card SCK | SPI clock |
+| D13 | SPI SCK | SD Card CLK | Hardware SPI clock (fixed) |
+| D12 | SPI MISO | SD Card DO | Hardware SPI data in (fixed) |
+| D11 | SPI MOSI | SD Card DI | Hardware SPI data out (fixed) |
+| D10 | SD_CS | SD Card CS | SPI Chip Select |
+| D9 | BEEPER | Buzzer + MOSFET | Pace beeper output |
+| D8 | (Reserved) | - | Future expansion |
+| D7 | (Reserved) | - | Future expansion |
 | D6 | (Reserved) | - | Future expansion |
 | D5 | (Reserved) | - | Future expansion |
 | D4 | GPS_RX | NEO-6M TX | Arduino receives GPS data |
 | D3 | GPS_TX | NEO-6M RX | Arduino transmits to GPS |
-| D2 | (Reserved) | - | Future: Start button |
+| D2 | STATUS_LED | LED + 220R to GND | Status indicator |
 
 ### Analog Pins
 
@@ -200,7 +200,9 @@ Each fluxgate sensor requires:
 
 ## Power Budget Calculation
 
-### Power Consumption Analysis
+### Power Consumption Analysis (Modeled)
+
+Full system including sensors and all peripherals:
 
 | Component | Voltage | Current (typ) | Current (max) | Notes |
 |-----------|---------|---------------|---------------|-------|
@@ -210,9 +212,11 @@ Each fluxgate sensor requires:
 | NEO-6M GPS | 5V | 45 mA | 67 mA | During acquisition |
 | SD Card | 5V | 50 mA | 100 mA | During write |
 | Status LED | 5V | 10 mA | 20 mA | Via 220R resistor |
-| Buzzer | 5V | 20 mA | 50 mA | PWM driven, intermittent |
+| Buzzer | 5V | 20 mA | 50 mA | Intermittent, duty cycle ~5% |
 | Fluxgates (8x) | 5V | 160 mA | 240 mA | Estimated 20-30 mA each |
-| **Total** | | **305 mA** | **519 mA** | |
+| **Total (full system)** | | **305 mA** | **519 mA** | **(Modeled)** |
+
+**Note**: Electronics-only (no fluxgate sensors) draws ~145 mA typical / ~279 mA max. MCU + peripherals (no sensors, no SD writes) draws ~120 mA typical. All figures are datasheet estimates, not bench-measured.
 
 ### 5V Regulator Requirements
 
@@ -259,7 +263,7 @@ Common GND for all components
 ### Status LED Circuit
 
 ```
-D13 ---[220R]---LED(+)---(-)--- GND
+D2 ---[220R]---LED(+)---(-)--- GND
 
 LED: Red, 5mm, 2V forward drop
 Current: (5V - 2V) / 220R = 13.6 mA
@@ -268,7 +272,7 @@ Current: (5V - 2V) / 220R = 13.6 mA
 ### Buzzer Driver Circuit
 
 ```
-D11 (PWM) ---[10k]---+---[MOSFET Gate]
+D9 ---[10k]---+---[MOSFET Gate]
                      |
                     [10k to GND]
 
@@ -294,10 +298,10 @@ Baud rate: 9600 (default) or 115200
 ### SD Card SPI Connection
 
 ```
-Arduino D12 (CS)   ---> SD CS
-Arduino D9 (MOSI)  ---> SD MOSI/DI
-Arduino D8 (MISO)  <--- SD MISO/DO
-Arduino D7 (SCK)   ---> SD SCK/CLK
+Arduino D10 (CS)   ---> SD CS
+Arduino D11 (MOSI) ---> SD MOSI/DI    (hardware SPI, fixed)
+Arduino D12 (MISO) <--- SD MISO/DO    (hardware SPI, fixed)
+Arduino D13 (SCK)  ---> SD SCK/CLK    (hardware SPI, fixed)
 5V                 ---> SD VCC
 GND                ---> SD GND
 
@@ -382,35 +386,27 @@ Option 3: DB9/DB15 multi-pin connector (professional, bulky)
 For use in Arduino sketch:
 
 ```cpp
-// Digital pins
-#define PIN_LED         13
-#define PIN_SD_CS       12
-#define PIN_BUZZER      11
-#define PIN_GPS_RX      4
-#define PIN_GPS_TX      3
+// User interface pins
+#define STATUS_LED_PIN  2     // Status indicator LED
+#define BEEPER_PIN      9     // Piezo buzzer or speaker
 
-// SPI pins (hardware SPI on Nano)
-#define PIN_SD_MOSI     9
-#define PIN_SD_MISO     8
-#define PIN_SD_SCK      7
+// GPS UART pins (SoftwareSerial)
+#define GPS_RX_PIN      4     // Connect to GPS TX
+#define GPS_TX_PIN      3     // Connect to GPS RX
 
-// I2C pins (hardware I2C on Nano)
-#define PIN_I2C_SDA     A4
-#define PIN_I2C_SCL     A5
+// SD Card SPI (hardware SPI on Nano: MOSI=11, MISO=12, SCK=13)
+#define SD_CS_PIN       10    // Chip Select
+
+// I2C pins (hardware I2C on Nano: SDA=A4, SCL=A5)
 
 // I2C addresses
-#define ADDR_ADS1115_1  0x48  // Pairs 1-2
-#define ADDR_ADS1115_2  0x49  // Pairs 3-4
+#define ADS1115_ADDR_1  0x48  // Pairs 1-2
+#define ADS1115_ADDR_2  0x49  // Pairs 3-4
 
 // ADS1115 channel mapping
-#define CH_P1_TOP       0  // ADC1 channel 0
-#define CH_P1_BOT       1  // ADC1 channel 1
-#define CH_P2_TOP       2  // ADC1 channel 2
-#define CH_P2_BOT       3  // ADC1 channel 3
-#define CH_P3_TOP       0  // ADC2 channel 0
-#define CH_P3_BOT       1  // ADC2 channel 1
-#define CH_P4_TOP       2  // ADC2 channel 2
-#define CH_P4_BOT       3  // ADC2 channel 3
+// Module 1 (0x48): Pairs 1-2
+// Module 2 (0x49): Pairs 3-4
+// Each module: A0=Top, A1=Bot for first pair; A2=Top, A3=Bot for second pair
 ```
 
 ## Revision History

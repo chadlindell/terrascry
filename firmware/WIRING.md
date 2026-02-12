@@ -19,7 +19,7 @@ The system consists of:
 ### Power Supply Requirements
 
 - **System voltage**: 5V regulated
-- **Total current**: ~150 mA typical, 200 mA peak
+- **Total current**: ~150 mA typical, 200 mA peak (Modeled, electronics only — excludes fluxgate sensors)
 - **Battery**: 7.4V 2S LiPo (2000+ mAh recommended)
 - **Regulator**: 5V buck converter or 7805 linear regulator
 

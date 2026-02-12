@@ -294,19 +294,21 @@ Higher rates reduce per-sample noise averaging. Balance speed vs. quality.
 
 ### Battery Life Estimate
 
-At 10 Hz sample rate:
+At 10 Hz sample rate (Modeled, MCU + peripherals only — excludes fluxgate sensors):
 - Arduino Nano: ~60 mA
 - ADS1115 (2x): ~2 mA
 - GPS module: ~40 mA
 - SD writes: ~20 mA average
-- **Total**: ~120 mA
+- **MCU + peripherals**: ~120 mA
+- **Full system with 8 fluxgates**: ~305 mA typical (see `hardware/schematics/main-board.md`)
 
-With 2000 mAh LiPo @ 7.4V:
-- Runtime: ~16 hours continuous
+With 2000 mAh LiPo @ 7.4V (80% regulator efficiency):
+- MCU + peripherals only: ~13 hours
+- Full system: ~5.2 hours
 
 ## License
 
-Specify your open-source license here (e.g., MIT, GPL, Apache 2.0).
+MIT License. See [LICENSE](../LICENSE) in the project root.
 
 ## Contributing
 
