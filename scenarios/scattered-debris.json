@@ -1,0 +1,91 @@
+{
+  "name": "Scattered Aircraft Debris",
+  "description": "Multiple ferrous fragments at varying depths, simulating scattered aircraft wreckage. Tests multi-target discrimination.",
+  "earth_field": [0.0, 20e-6, 45e-6],
+  "terrain": {
+    "x_extent": [0.0, 30.0],
+    "y_extent": [0.0, 30.0],
+    "surface_elevation": 0.0,
+    "layers": [
+      {
+        "name": "Topsoil",
+        "z_top": 0.0,
+        "z_bottom": -0.3,
+        "conductivity": 0.05,
+        "relative_permittivity": 15.0,
+        "color": "#4A3728"
+      },
+      {
+        "name": "Clay loam",
+        "z_top": -0.3,
+        "z_bottom": -6.0,
+        "conductivity": 0.1,
+        "relative_permittivity": 20.0,
+        "color": "#6B5B4E"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "name": "Engine block fragment",
+      "position": [12.0, 15.0, -1.5],
+      "type": "ferrous_sphere",
+      "radius": 0.15,
+      "susceptibility": 500.0,
+      "conductivity": 5e6,
+      "metadata": {"description": "Large engine fragment, strongly magnetic"}
+    },
+    {
+      "name": "Wing spar section",
+      "position": [18.0, 12.0, -0.8],
+      "type": "ferrous_sphere",
+      "radius": 0.08,
+      "susceptibility": 200.0,
+      "conductivity": 3e6,
+      "metadata": {"description": "Structural steel from wing"}
+    },
+    {
+      "name": "Small fastener cluster",
+      "position": [8.0, 20.0, -0.3],
+      "type": "ferrous_sphere",
+      "radius": 0.02,
+      "susceptibility": 800.0,
+      "conductivity": 1e6,
+      "metadata": {"description": "Cluster of bolts and rivets, shallow"}
+    },
+    {
+      "name": "Landing gear strut",
+      "position": [22.0, 22.0, -2.5],
+      "type": "ferrous_sphere",
+      "radius": 0.10,
+      "susceptibility": 1000.0,
+      "conductivity": 5e6,
+      "metadata": {"description": "Heavy steel strut, deeply buried"}
+    },
+    {
+      "name": "Instrument panel fragment",
+      "position": [15.0, 8.0, -0.5],
+      "type": "ferrous_sphere",
+      "radius": 0.04,
+      "susceptibility": 300.0,
+      "conductivity": 2e6,
+      "metadata": {"description": "Small panel fragment with mixed metals"}
+    },
+    {
+      "name": "Propeller blade tip",
+      "position": [25.0, 16.0, -1.2],
+      "type": "ferrous_sphere",
+      "radius": 0.06,
+      "susceptibility": 600.0,
+      "conductivity": 4e6,
+      "metadata": {"description": "Forged steel propeller fragment"}
+    }
+  ],
+  "metadata": {
+    "author": "GeoSim",
+    "category": "multi-target",
+    "difficulty": "intermediate",
+    "reference": "HIRT roadmap.qmd - scattered aircraft debris scenario",
+    "notes": "Tests ability to resolve multiple targets at different depths and sizes."
+  }
+}

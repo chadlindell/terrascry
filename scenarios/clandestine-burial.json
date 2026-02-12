@@ -1,0 +1,66 @@
+{
+  "name": "Clandestine Burial",
+  "description": "Simulates a forensic search scenario: disturbed soil fill in a grave shaft with associated metallic objects. Based on HIRT validation scenario.",
+  "earth_field": [0.0, 20e-6, 45e-6],
+  "terrain": {
+    "x_extent": [0.0, 15.0],
+    "y_extent": [0.0, 15.0],
+    "surface_elevation": 0.0,
+    "layers": [
+      {
+        "name": "Topsoil",
+        "z_top": 0.0,
+        "z_bottom": -0.2,
+        "conductivity": 0.05,
+        "relative_permittivity": 15.0,
+        "color": "#4A3728"
+      },
+      {
+        "name": "Clay",
+        "z_top": -0.2,
+        "z_bottom": -4.0,
+        "conductivity": 0.2,
+        "relative_permittivity": 25.0,
+        "susceptibility": 0.001,
+        "color": "#6B4E3D"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "name": "Belt buckle",
+      "position": [7.5, 7.5, -0.9],
+      "type": "ferrous_sphere",
+      "radius": 0.02,
+      "susceptibility": 500.0,
+      "conductivity": 1e6,
+      "metadata": {"description": "Steel belt buckle at 0.9m depth"}
+    },
+    {
+      "name": "Shoe eyelets and zipper",
+      "position": [7.5, 7.2, -1.1],
+      "type": "ferrous_sphere",
+      "radius": 0.015,
+      "susceptibility": 400.0,
+      "conductivity": 1e6,
+      "metadata": {"description": "Small ferrous hardware from clothing"}
+    },
+    {
+      "name": "Dropped tool (shovel head)",
+      "position": [8.2, 8.0, -0.4],
+      "type": "ferrous_sphere",
+      "radius": 0.06,
+      "susceptibility": 800.0,
+      "conductivity": 5e6,
+      "metadata": {"description": "Discarded shovel head near grave, shallow"}
+    }
+  ],
+  "metadata": {
+    "author": "GeoSim",
+    "category": "forensic",
+    "difficulty": "intermediate",
+    "reference": "HIRT roadmap.qmd - grave shaft 0.8x0.5x1.5m",
+    "grave_dimensions": {"length": 2.0, "width": 0.8, "depth": 1.5},
+    "notes": "The grave shaft itself produces an ERT/MIT anomaly via disturbed soil contrast. The metallic objects produce magnetic anomalies detectable by Pathfinder."
+  }
+}
