@@ -13,7 +13,7 @@ This section provides comprehensive procedures for deploying and operating the H
 Thorough preparation is critical to successful field operations. Before deployment, conduct a comprehensive site assessment covering the following aspects:
 
 1. **Review site conditions:** Evaluate soil type and moisture levels, identify presence of utilities or obstructions, and establish access routes and staging areas.
-2. **Check equipment:** Verify all probes are tested and calibrated, ensure base hub battery is charged (>80%), verify cable continuity, and confirm data logger/tablet is configured.
+2. **Check equipment:** Verify all probes are tested and calibrated, ensure base hub battery is charged (>80% Target), verify cable continuity, and confirm data logger/tablet is configured.
 3. **Verify permits and permissions:** Confirm site access authorization, excavation permits (if required), and archaeological survey approval.
 
 ### Equipment Checklist
@@ -21,10 +21,10 @@ Thorough preparation is critical to successful field operations. Before deployme
 | Category | Item | Quantity | Notes |
 |----------|------|----------|-------|
 | Essential | Probes (tested) | 20-24 | Full functional test |
-| Essential | Base hub/control unit | 1 | Battery >80% |
-| Essential | Connection cables | 3-5 m each | Verified continuity |
+| Essential | Base hub/control unit | 1 | Battery >80% (Target) |
+| Essential | Connection cables | 3-5 m each (Target) | Verified continuity |
 | Essential | Fiberglass survey stakes | As needed | For marking |
-| Essential | Measuring tape | 30 m min | Metric markings |
+| Essential | Measuring tape | 30 m min (Target) | Metric markings |
 | Essential | Field tablet/laptop | 1 | Configured with software |
 | Essential | Tool kit | 1 | Wrenches, screwdrivers, multimeter |
 | Optional | GPS unit | 1 | Sub-meter accuracy preferred |
@@ -39,10 +39,10 @@ Grid design is fundamental to survey success. The grid geometry determines spati
 
 | Configuration | Grid Size | Spacing | Probes | Application |
 |---------------|-----------|---------|--------|-------------|
-| Standard | 10 x 10 m | 2.0 m | 20-24 | General surveys |
-| Small | 8 x 8 m | 1.5 m | 12-16 | Woodland/confined areas |
-| Large | 15 x 15 m | 2.5 m | 30-36 | Crater sites, open areas |
-| High Resolution | 6 x 6 m | 1.0 m | 36 | Detailed anomaly mapping |
+| Standard | 10 x 10 m (Target) | 2.0 m (Target) | 20-24 | General surveys |
+| Small | 8 x 8 m (Target) | 1.5 m (Target) | 12-16 | Woodland/confined areas |
+| Large | 15 x 15 m (Target) | 2.5 m (Target) | 30-36 | Crater sites, open areas |
+| High Resolution | 6 x 6 m (Target) | 1.0 m (Target) | 36 | Detailed anomaly mapping |
 
 : Standard grid configurations for different survey scenarios {#tbl-grid-configs}
 
@@ -149,7 +149,7 @@ plt.show()
 
 1. **Establish baseline:** Set reference point (0,0) with survey stake, align baseline with site grid (N-S or as specified), and mark corners with bright flags.
 2. **Mark probe positions:** Measure spacing intervals along baseline, extend perpendicular rows, and mark each position with small stake or flag.
-3. **Verify geometry:** Cross-measure diagonals (should match within 5 cm) and record any deviations in field notes.
+3. **Verify geometry:** Cross-measure diagonals (should match within 5 cm Target) and record any deviations in field notes.
 
 ## Probe Insertion Methods {#sec-probe-insertion-methods}
 
@@ -159,11 +159,11 @@ Creating 12-16 mm diameter boreholes to 2-3 m depth requires careful method sele
 
 | Requirement | Specification |
 |-------------|---------------|
-| Hole diameter | 12-16 mm (18-20 mm with clearance) |
-| Depth | 2-3 meters |
-| Holes per survey | 20-50 per grid |
+| Hole diameter | 12-16 mm (18-20 mm with clearance) (Target) |
+| Depth | 2-3 meters (Target) |
+| Holes per survey | 20-50 per grid (Target) |
 | UXO Safety | **NO percussion, NO vibration** |
-| Grid size | Typically 10x10 m |
+| Grid size | Typically 10x10 m (Target) |
 
 : Probe insertion requirements {#tbl-insertion-requirements}
 
@@ -176,28 +176,36 @@ The water-assisted static push method combines water jetting to create pilot hol
 | Aspect | Specification |
 |--------|---------------|
 | Equipment | Hand-operated lance + portable pump |
-| Cost | $1,500-2,500 complete system |
-| Training | 1-2 hours |
+| Cost | $1,500-2,500 complete system (Target) |
+| Training | 1-2 hours (Target) |
 | Crew | 2 persons |
 | UXO Safety | **SAFE** - no percussion, no vibration |
-| Production | 20-40 holes/day |
+| Production | 20-40 holes/day (Target) |
 
 : Tier 1 method specifications {#tbl-tier1-specs}
 
 **Equipment List:**
 
-- Honda WH20 or equivalent pump (~$1,000)
-- 3.5 m stainless steel jetting lance (~$150)
-- Fire hose 25 m with fittings (~$150)
-- 1,000 L IBC water tank (~$150)
-- Bentonite slurry supplies (~$50)
+- Honda WH20 or equivalent pump (~$1,000 Target)
+- 3.5 m stainless steel jetting lance (~$150 Target)
+- Fire hose 25 m with fittings (~$150 Target)
+- 1,000 L IBC water tank (~$150 Target)
+- Polymer drilling fluid / xanthan gum (~$30-50 Target)
 
 **Technique:** Hybrid jetting + push
 
-1. Water jet creates 20 mm pilot hole to full depth
-2. Fill with bentonite slurry for hole stability
-3. Insert 16 mm probe into pre-formed, slurry-lubricated hole
-4. Minimal force required due to lubrication
+1. Water jet creates 20 mm pilot hole (Target) to full depth
+2. Fill with polymer drilling fluid (xanthan gum at 0.5-1% concentration Target) for hole stability
+3. Insert 16 mm probe into pre-formed, fluid-lubricated hole
+4. Minimal force required due to lubrication; polymer degrades over 24-48 hours (Modeled)
+
+::: {.callout-warning}
+## Bentonite is PROHIBITED for HIRT Boreholes
+
+**Never use bentonite slurry** for HIRT probe boreholes. Research demonstrates that bentonite reduces soil electrical resistivity by up to 80% (Measured), creating a highly conductive layer (approximately 2.5 ohm-m Measured) between the probe electrodes and native soil. This severely compromises ERT measurements by introducing measurement artifacts indistinguishable from real subsurface features.
+
+Use **biodegradable polymer drilling fluid** (xanthan gum, guar gum, or commercial products such as Bio-Bore or BLACK-BEAR) instead. These polymers provide comparable borehole stability through gel membrane formation, degrade naturally over 24-48 hours (Modeled), and have minimal effect on soil electrical properties after degradation.
+:::
 
 ### Tier 2: Lightweight Hydraulic Rig / HMIS ($8,000-15,000) {#sec-tier2-insertion}
 
@@ -207,25 +215,25 @@ The HMIS (HIRT Modular Insertion System) is a purpose-built lightweight rig opti
 
 | Aspect | Specification |
 |--------|---------------|
-| Push force | 8-10 kN (adequate for most soils) |
-| Weight | 75-100 kg total system |
-| Stroke | 1.5 m (single stroke) |
-| Power | Battery (48V, 10Ah) or 12V vehicle |
+| Push force | 8-10 kN (adequate for most soils) (Target) |
+| Weight | 75-100 kg total system (Target) |
+| Stroke | 1.5 m (single stroke) (Target) |
+| Power | Battery (48V, 10Ah) or 12V vehicle (Target) |
 | Anchoring | 4x helical ground anchors |
-| Control | 50 m tethered remote (UXO safety) |
+| Control | 50 m tethered remote (UXO safety) (Target) |
 | Transport | 2-person carry, fits in SUV |
-| Production | 25-40 holes/day |
+| Production | 25-40 holes/day (Target) |
 
 : Tier 2 HMIS specifications {#tbl-tier2-specs}
 
 **System Components:**
 
-- Aluminum frame with screw anchor mounts ($1,500-2,500)
-- 10 kN hydraulic cylinder, 1.5 m stroke ($800-1,500)
-- Battery hydraulic pump ($1,500-2,500)
-- 4x helical ground anchors ($400-800)
-- Control electronics and 50 m tether ($800-1,600)
-- Probe guide and holder ($200-400)
+- Aluminum frame with screw anchor mounts ($1,500-2,500 Target)
+- 10 kN hydraulic cylinder, 1.5 m stroke ($800-1,500 Target)
+- Battery hydraulic pump ($1,500-2,500 Target)
+- 4x helical ground anchors ($400-800 Target)
+- Control electronics and 50 m tether ($800-1,600 Target)
+- Probe guide and holder ($200-400 Target)
 
 ### Tier 3: Remote-Controlled Excavator ($60,000-95,000) {#sec-tier3-insertion}
 
@@ -236,20 +244,20 @@ For surveys at sites with elevated UXO risk, remote-controlled operation removes
 | Aspect | Specification |
 |--------|---------------|
 | Equipment | 1-2 ton mini excavator + remote kit + custom attachment |
-| Standoff | 100-300 m remote operation |
-| Cost | $60,000-95,000 |
+| Standoff | 100-300 m remote operation (Target) |
+| Cost | $60,000-95,000 (Target) |
 | Crew | 1 operator + 1 spotter |
-| Production | 15-30 holes/day |
+| Production | 15-30 holes/day (Target) |
 
 : Tier 3 remote system specifications {#tbl-tier3-specs}
 
 **Configuration:**
 
-- Used mini excavator (1-2 ton class): $15-30K
-- Stanley ROC remote control kit: $15-25K
-- Custom probe insertion attachment: $10-20K
-- Probe magazine (10-15 probes): $5-10K
-- Integration and testing: $10-15K
+- Used mini excavator (1-2 ton class): $15-30K (Target)
+- Stanley ROC remote control kit: $15-25K (Target)
+- Custom probe insertion attachment: $10-20K (Target)
+- Probe magazine (10-15 probes): $5-10K (Target)
+- Integration and testing: $10-15K (Target)
 
 ### Method Selection by Scenario
 
@@ -268,10 +276,10 @@ For surveys at sites with elevated UXO risk, remote-controlled operation removes
 
 | Method | 20-Hole Survey | 50-Hole Survey | Notes |
 |--------|----------------|----------------|-------|
-| Tier 1 (Water jet) | $200-400 | $400-750 | Consumables only |
-| Tier 2 (HMIS) | $400-800 | $800-1,500 | After equipment amortization |
-| Tier 3 (Remote) | $1,500-3,000 | $3,000-5,000 | Operator time + fuel |
-| Commercial CPT contract | $4,000-8,000 | $10,000-15,000 | Third-party service |
+| Tier 1 (Water jet) | $200-400 (Target) | $400-750 (Target) | Consumables only |
+| Tier 2 (HMIS) | $400-800 (Target) | $800-1,500 (Target) | After equipment amortization |
+| Tier 3 (Remote) | $1,500-3,000 (Target) | $3,000-5,000 (Target) | Operator time + fuel |
+| Commercial CPT contract | $4,000-8,000 (Target) | $10,000-15,000 (Target) | Third-party service |
 
 : Operational cost comparison per survey {#tbl-cost-comparison}
 
@@ -281,15 +289,69 @@ For surveys at sites with elevated UXO risk, remote-controlled operation removes
 All three tiers use **static push only**---no percussion or vibration. This is the industry-standard approach for intrusive surveys at UXO-suspected sites, as established by CIRIA C681/C785 and used by commercial magnetometer-cone (MagCone) operations.
 :::
 
+### Borehole Creation Methods Comparison {#sec-borehole-methods}
+
+The following table summarizes borehole creation methods evaluated for HIRT probe deployment, drawing on comprehensive research into field-deployable insertion techniques. Method selection depends on soil conditions, UXO risk, budget, and site accessibility.
+
+| Method | Depth Range | Suitable Soils | UXO Safety | Portability | Cost Range |
+|--------|-------------|----------------|------------|-------------|------------|
+| **Water Jetting** | 0-3+ m (Target) | Sand, silt, soft clay | SAFE | Excellent (pump + lance) | $1,500-2,500 (Target) |
+| **Hand Auger** | 0-2 m (Target) | Clay, silt, soft soils | SAFE | Excellent (manual) | $100-300 (Target) |
+| **Hydraulic Static Push** | 0-5+ m (Target) | All except hard rock | SAFE | Good (72-102 kg system) | $5,000-10,000 (Target) |
+| **Direct Push Drilling (DPD)** | 0-8+ m (Target) | Most soils | SAFE (static only) | Poor (requires rig) | $8,000-15,000 (Modeled) |
+| **Hydro-Excavation** | 0-5 m (Target) | All unconsolidated | SAFE | Poor (truck-mounted) | $500-2,000/day (Modeled) |
+| **Sonic Drilling** | 0-200 m (Target) | All soils, soft rock | **DANGEROUS** | Poor (large rig) | $50,000+ (Target) |
+| **Rotary Drilling** | 0-1000+ m (Target) | All soils and rock | CAUTION (vibration) | Poor (large rig) | $50,000+ (Target) |
+| **Percussion/Hammer** | 0-50+ m (Target) | Rock, hard soils | **DANGEROUS** | Variable | Variable |
+
+: Borehole creation methods comparison for HIRT probe deployment. UXO safety ratings: SAFE = no percussion/vibration; CAUTION = some vibration present; DANGEROUS = percussion/impact forces, prohibited at UXO sites. {#tbl-borehole-methods}
+
+For HIRT applications, only methods rated **SAFE** should be used at UXO-suspected sites. Water jetting and hydraulic static push are the recommended primary methods, with hand auger as a low-cost backup for shallow deployments in suitable soils.
+
+### Push Force Requirements by Soil Type {#sec-push-force-requirements}
+
+Hydraulic push force requirements for the 16 mm HIRT probe (2.01 cm^2^ cross-section) vary significantly with soil type. These values inform equipment selection for the portable push system.
+
+| Soil Type | Tip Resistance (Modeled) | Friction (Modeled) | Total Force (Modeled) | Notes |
+|-----------|--------------------------|--------------------|-----------------------|-------|
+| Very soft clay | 0.3-0.6 kN | 0.1-0.2 kN | 0.4-0.8 kN | Hand push may suffice |
+| Soft clay | 0.6-1.0 kN | 0.2-0.5 kN | 0.8-1.5 kN | Lightweight rig adequate |
+| Medium clay | 1.0-2.0 kN | 0.5-1.0 kN | 1.5-3.0 kN | Standard hydraulic push |
+| Loose sand | 1.0-3.0 kN | 0.2-0.5 kN | 1.2-3.5 kN | Water-assisted recommended |
+| Medium sand | 3.0-6.0 kN | 0.5-1.5 kN | 3.5-7.5 kN | Full hydraulic system needed |
+| Dense sand/gravel | 6.0-12.0 kN | 1.0-3.0 kN | 7.0-15.0 kN | Maximum rig capacity |
+
+: Push force requirements by soil type for 16 mm HIRT probe at 3 m depth. Values derived from CPT correlation models. {#tbl-push-force}
+
+The portable hydraulic push system design targets 15 kN capacity (Target), which covers approximately 95% of expected field conditions. In dense sand or gravel, pre-jetting with water significantly reduces required push force.
+
+### Pre-Push UXO Assessment {#sec-pre-push-uxo}
+
+Before inserting probes at any UXO-suspected site, perform the following pre-push assessment at each probe location:
+
+1. **Surface magnetometer sweep**: Use handheld magnetometer or drone survey to screen each probe position to 3-4 m depth (Target). Flag any anomaly exceeding 10 nT (Target) for further assessment.
+2. **Review site history**: Check DRA (Detailed Risk Assessment) and historical records for known ordnance types and penetration depths at the site.
+3. **Set abort thresholds**: Configure monitoring system with hard abort at >50 nT anomaly (automatic stop) (Target) and soft alarm at >10 nT (operator warning) (Target).
+4. **Verify standoff**: Ensure all non-essential personnel are outside the 100 m exclusion zone (300 m for high-risk sites) (Target).
+5. **Establish communications**: Confirm radio contact between insertion operator and safe zone before any push operation.
+
+::: {.callout-tip}
+## Real-Time Monitoring During Push
+
+If the push system includes integrated magnetometry (see @sec-development-roadmap), monitor magnetic gradient continuously during insertion. A gradient exceeding 5 nT/cm rate of change (Target) warrants immediate push stop and assessment. At the standard push rate of 20 mm/sec (Target), automatic abort systems can stop within 10-30 mm of travel (Modeled)---well within the 2-4 m detection range for 250 kg bombs (Modeled).
+
+For systems without integrated magnetometry, a two-pass approach provides equivalent safety: push a standard 44 mm magnetometer cone (Target) first to clear the column, then insert the 16 mm HIRT probe in the pre-cleared position.
+:::
+
 ## Probe Installation {#sec-probe-installation}
 
 Proper probe installation is critical for obtaining quality data. Insertion depth and technique vary with soil conditions and target depth requirements.
 
 | Scenario | Target Depth | Insertion Depth | Notes |
 |----------|--------------|-----------------|-------|
-| Woodland survey | 1-2 m | 1.5 m | Standard for shallow targets |
-| Crater survey | 2-4 m | 3.0 m | Extended depth for crater fill |
-| Reconnaissance | 0.5-1 m | 1.0 m | Rapid screening mode |
+| Woodland survey | 1-2 m (Target) | 1.5 m (Target) | Standard for shallow targets |
+| Crater survey | 2-4 m (Target) | 3.0 m (Target) | Extended depth for crater fill |
+| Reconnaissance | 0.5-1 m (Target) | 1.0 m (Target) | Rapid screening mode |
 
 : Recommended insertion depths by survey scenario {#tbl-insertion-depths}
 
@@ -492,9 +554,9 @@ plt.show()
 
 #### Clay/Compact Soil
 
-- Pre-drill pilot hole using 18 mm hand auger
+- Pre-drill pilot hole using 18 mm hand auger (Target)
 - May need to enlarge hole slightly for probe diameter
-- Allow settling time (5-10 min) before measurement
+- Allow settling time (5-10 min Target) before measurement
 
 #### Rocky/Mixed Soil
 
@@ -507,37 +569,37 @@ plt.show()
 
 - Route cables radially from base hub placed at grid center or edge
 - Route cables along grid lines to avoid tangling
-- Use cable clips or ties to secure at 1 m intervals
-- Leave 0.5 m slack at each probe connection for strain relief
+- Use cable clips or ties to secure at 1 m intervals (Target)
+- Leave 0.5 m slack (Target) at each probe connection for strain relief
 :::
 
 ### Cable Length and Signal Integrity {#sec-cable-length-guidance}
 
 The HIRT system uses **passive probes** with all active electronics in the central hub. This architecture offers cost and reliability advantages but requires attention to cable length effects on MIT receive signals, which operate in the microvolt range.
 
-**The Signal Integrity Challenge:** MIT RX coils produce signals of approximately 1 µV at the probe. These signals must travel through the probe cable (3-5 m) and trunk cable (variable length to hub) before reaching the preamplifier. Cable capacitance creates a low-pass filter effect, and longer cables increase susceptibility to electromagnetic interference (EMI) pickup.
+**The Signal Integrity Challenge:** MIT RX coils produce signals of approximately 1 µV (Modeled) at the probe. These signals must travel through the probe cable (3-5 m Target) and trunk cable (variable length to hub) before reaching the preamplifier. Cable capacitance creates a low-pass filter effect, and longer cables increase susceptibility to electromagnetic interference (EMI) pickup.
 
 | Trunk Cable Length | Signal Degradation | EMI Susceptibility | Recommendation |
 |-------------------|-------------------|-------------------|----------------|
-| <5 m | <10% | Low | Passive probes OK |
-| 5-10 m | 10-25% | Moderate | Passive probes OK with shielding |
-| 10-15 m | 25-40% | High | Consider active probe option |
-| >15 m | >40% | Very High | Active probes recommended |
+| <5 m | <10% (Modeled) | Low | Passive probes OK |
+| 5-10 m | 10-25% (Modeled) | Moderate | Passive probes OK with shielding |
+| 10-15 m | 25-40% (Modeled) | High | Consider active probe option |
+| >15 m | >40% (Modeled) | Very High | Active probes recommended |
 
 : Cable length impact on MIT signal integrity. {#tbl-cable-length}
 
-**Cable Capacitance Effect:** Typical shielded cable has capacitance of approximately 100 pF/m. A 20 m cable run creates ~2 nF capacitive load. At 20 kHz operating frequency, this represents an impedance of ~4 k-ohm---significant for microvolt-level signals driving typical coil source impedances.
+**Cable Capacitance Effect:** Typical shielded cable has capacitance of approximately 100 pF/m (Modeled). A 20 m cable run creates ~2 nF capacitive load (Modeled). At 20 kHz operating frequency, this represents an impedance of ~4 k-ohm (Modeled)---significant for microvolt-level signals driving typical coil source impedances.
 
 **Practical Guidelines:**
 
-- **Standard deployments (10 m total cable run):** Passive probes provide adequate SNR with no additional measures beyond standard shielded cable
-- **Extended deployments (10-15 m):** Use low-capacitance cable, minimize parallel cable runs, ensure single-point shield grounding
-- **Large-area surveys (>15 m):** Consider the **optional active probe** configuration (adds $50-80/probe) which places a unity-gain buffer at the probe, driving the cable with a low-impedance source
+- **Standard deployments (10 m total cable run Target):** Passive probes provide adequate SNR with no additional measures beyond standard shielded cable
+- **Extended deployments (10-15 m Target):** Use low-capacitance cable, minimize parallel cable runs, ensure single-point shield grounding
+- **Large-area surveys (>15 m Target):** Consider the **optional active probe** configuration (adds $50-80/probe Target) which places a unity-gain buffer at the probe, driving the cable with a low-impedance source
 
 ::: {.callout-tip}
 ## Field Tip: Testing Cable Length Impact
 
-Before committing to a large deployment, verify acceptable SNR at your planned cable lengths. Set up a single probe at the maximum expected distance from the hub and measure noise floor with TX disabled. If the noise exceeds 500 nV RMS, consider active probes or repositioning the hub closer to the probe array.
+Before committing to a large deployment, verify acceptable SNR at your planned cable lengths. Set up a single probe at the maximum expected distance from the hub and measure noise floor with TX disabled. If the noise exceeds 500 nV RMS (Target), consider active probes or repositioning the hub closer to the probe array.
 :::
 
 ## Cable Management and Field Logistics {#sec-cable-management}
@@ -546,9 +608,9 @@ Managing cable harnesses for 16-24 probes in field conditions represents one of 
 
 ### The Cable Challenge
 
-A standard 20-probe HIRT deployment involves 20 individual 3-5 meter cables, creating 60-100 meters of total cable length that must be routed, connected, and managed across uneven terrain. In wet or muddy conditions, cables become heavy and prone to picking up debris. Without a systematic approach, deployment can devolve into "cable spaghetti" where identifying connections becomes guesswork and extraction takes twice as long as installation.
+A standard 20-probe HIRT deployment involves 20 individual 3-5 meter cables (Target), creating 60-100 meters of total cable length (Target) that must be routed, connected, and managed across uneven terrain. In wet or muddy conditions, cables become heavy and prone to picking up debris. Without a systematic approach, deployment can devolve into "cable spaghetti" where identifying connections becomes guesswork and extraction takes twice as long as installation.
 
-The key principle is that **systematic deployment prevents chaotic recovery**. Investing 10 minutes in organized cable routing saves 30 minutes during extraction and dramatically reduces connection errors.
+The key principle is that **systematic deployment prevents chaotic recovery**. Investing 10 minutes in organized cable routing (Target) saves 30 minutes during extraction (Target) and dramatically reduces connection errors.
 
 ### Labeling System
 
@@ -591,13 +653,13 @@ Regardless of pattern, the key is **consistency**. The same deployment sequence 
 
 ### Cable Routing and Management
 
-**Slack Management**: Keep excess cable coiled at the probe end, not at the hub. This prevents a tangled mass at the central connection point and makes individual probe adjustments easier. Use 2-3 loose coils secured with a single velcro tie at each probe location.
+**Slack Management**: Keep excess cable coiled at the probe end, not at the hub. This prevents a tangled mass at the central connection point and makes individual probe adjustments easier. Use 2-3 loose coils (Target) secured with a single velcro tie at each probe location.
 
-**Elevated Routing in Wet Conditions**: In muddy or waterlogged sites, elevate cables above ground level using survey stakes or improvised supports. This prevents cables from sinking into mud, reduces debris pickup, and makes extraction far cleaner. Position stakes at 2-3 meter intervals and secure cables with velcro ties or clips.
+**Elevated Routing in Wet Conditions**: In muddy or waterlogged sites, elevate cables above ground level using survey stakes or improvised supports. This prevents cables from sinking into mud, reduces debris pickup, and makes extraction far cleaner. Position stakes at 2-3 meter intervals (Target) and secure cables with velcro ties or clips.
 
 **Avoid Crossing Cables**: Design your routing pattern to minimize cable crossings. Where crossings are unavoidable, mark the intersection with a small flag or bright tie so operators know to untangle in reverse order during extraction.
 
-**Bundle Parallel Runs**: When multiple cables follow the same path (common in spoke patterns), bundle them together with velcro ties every 2 meters. This prevents individual cables from wandering and reduces tangling. Do not use zip ties (difficult to remove for adjustment) or excessive tension (damages insulation).
+**Bundle Parallel Runs**: When multiple cables follow the same path (common in spoke patterns), bundle them together with velcro ties every 2 meters (Target). This prevents individual cables from wandering and reduces tangling. Do not use zip ties (difficult to remove for adjustment) or excessive tension (damages insulation).
 
 ### Connection Protocol
 
@@ -646,7 +708,7 @@ Proper storage prevents connector damage, cable tangling, and corrosion between 
 ::: {.callout-tip}
 ## Field Tip: Pre-Deployment Prep
 
-Before leaving for a survey, lay out all cables in deployment order at the lab. This verifies you have the correct number, labels are legible, and connectors are clean. Taking 15 minutes for this check prevents discovering missing or damaged cables after probes are already in the ground.
+Before leaving for a survey, lay out all cables in deployment order at the lab. This verifies you have the correct number, labels are legible, and connectors are clean. Taking 15 minutes for this check (Target) prevents discovering missing or damaged cables after probes are already in the ground.
 :::
 
 ### Quick Reference: Cable Management Checklist
@@ -685,10 +747,10 @@ Real-world field conditions rarely permit idealized grid placement. Tree roots, 
 
 | Situation | Recommended Action | Notes |
 |-----------|-------------------|-------|
-| Small root/rock at surface | Offset probe 10-30 cm | Record actual position |
+| Small root/rock at surface | Offset probe 10-30 cm (Target) | Record actual position |
 | Large obstruction (tree, boulder) | Skip position entirely | Document in survey notes |
 | Standing water/soft ground | Relocate to firm ground | May need wider offset |
-| Buried utility (confirmed) | Skip with 1 m clearance | Safety priority |
+| Buried utility (confirmed) | Skip with 1 m clearance (Target) | Safety priority |
 | Partial insertion possible | Insert to achievable depth | Record actual depth |
 
 : Decision guidance for probe placement around obstructions {#tbl-obstruction-decisions}
@@ -701,12 +763,12 @@ When a probe cannot reach full target depth due to subsurface obstructions (rock
 2. **Note the obstruction type** in field log (rock, clay, unknown)
 3. **Sensors above the obstruction remain valid** for measurements
 4. **Exclude sensors below tip depth** during inversion processing
-5. **Consider progressive deployment**: Start shallow (1 m), assess data, then extend depths in clear areas
+5. **Consider progressive deployment**: Start shallow (1 m Target), assess data, then extend depths in clear areas
 
 ::: {.callout-note}
 ## Partial Probes Are Still Useful
 
-A probe reaching only 2 m instead of 3 m still provides valid measurements for the upper sensors. The inversion mesh simply excludes electrode positions below the actual tip depth. This is far better than no probe at all.
+A probe reaching only 2 m instead of 3 m (Target) still provides valid measurements for the upper sensors. The inversion mesh simply excludes electrode positions below the actual tip depth. This is far better than no probe at all.
 :::
 
 ### Position Measurement Procedures {#sec-position-measurement}
@@ -720,7 +782,7 @@ For most surveys, tape measure positioning relative to grid origin provides adeq
 1. **Establish grid origin** at a marked reference point (survey stake, corner post)
 2. **Measure X offset** along the primary baseline direction
 3. **Measure Y offset** perpendicular to baseline
-4. **Record to nearest 5 cm** (sufficient for ~2 m probe spacing)
+4. **Record to nearest 5 cm (Target)** (sufficient for ~2 m probe spacing)
 5. **Note direction convention** (e.g., X = East, Y = North)
 
 #### Level 2: Total Station (High Precision)
@@ -748,8 +810,8 @@ When ground surface varies across the survey area (slopes, undulating terrain, c
 | Surface Variation | Action Required | Impact on Inversion |
 |-------------------|-----------------|---------------------|
 | < 20 cm across grid | Record as flat (Z=0) | Negligible |
-| 20-50 cm variation | Relative elevations | Minor mesh adjustment |
-| > 50 cm variation | Full topographic survey | Required for accuracy |
+| 20-50 cm variation (Target) | Relative elevations | Minor mesh adjustment |
+| > 50 cm variation (Target) | Full topographic survey | Required for accuracy |
 
 : Surface elevation recording requirements {#tbl-surface-elevation}
 
@@ -775,7 +837,7 @@ After probe installation, systematic setup and verification ensures reliable dat
 ### Power-Up Sequence
 
 1. **Connect all cables:** Verify each probe is connected to the base hub, check cable routing for kinks or tension points.
-2. **Power on base hub:** Turn main power switch ON, wait for initialization (10-15 seconds), and verify power LED is solid green.
+2. **Power on base hub:** Turn main power switch ON, wait for initialization (10-15 seconds Target), and verify power LED is solid green.
 3. **Verify probe communication:** Run diagnostic scan, verify all probes report status, and note any non-responsive probes for troubleshooting.
 4. **Initialize measurement system:** Start field software, load site configuration, and verify probe array geometry matches field deployment.
 
@@ -866,19 +928,19 @@ plt.show()
 
 | Frequency | Penetration | Primary Use |
 |-----------|-------------|-------------|
-| 2 kHz | Deep (3-4 m) | Deep target detection, high conductivity |
+| 2 kHz | Deep (3-4 m Modeled) | Deep target detection, high conductivity |
 | 5 kHz | Medium-deep | General subsurface mapping |
 | 10 kHz | Medium | Balanced depth/resolution |
 | 20 kHz | Shallow-medium | Enhanced resolution |
-| 50 kHz | Shallow (<1 m) | Near-surface detail, small targets |
+| 50 kHz | Shallow (<1 m Modeled) | Near-surface detail, small targets |
 
 : MIT frequency selection guide for different survey objectives {#tbl-frequency-guide}
 
 ### Timing
 
-- Full matrix measurement: all TX-RX pairs at single frequency (3-5 minutes)
-- Multi-frequency sweep: complete matrix at all frequencies (30-45 minutes)
-- Typical survey cycle: 10-15 minutes per complete scan at primary frequency
+- Full matrix measurement: all TX-RX pairs at single frequency (3-5 minutes Target)
+- Multi-frequency sweep: complete matrix at all frequencies (30-45 minutes Target)
+- Typical survey cycle: 10-15 minutes per complete scan at primary frequency (Target)
 
 ## ERT Measurement Protocol {#sec-ert-protocol}
 
@@ -966,10 +1028,10 @@ plt.show()
 
 | Parameter | Standard Value | Range | Notes |
 |-----------|----------------|-------|-------|
-| Current level | 1.0 mA | 0.5-2.0 mA | Adjust for noise floor |
-| Integration time | 2 s | 1-5 s | Longer for noisy sites |
-| Polarity reversal | Every 1 s | 0.5-2 s | Reduces electrode polarization |
-| Stacking | 4 cycles | 2-8 | More for weak signals |
+| Current level | 1.0 mA (Target) | 0.5-2.0 mA (Target) | Adjust for noise floor |
+| Integration time | 2 s (Target) | 1-5 s (Target) | Longer for noisy sites |
+| Polarity reversal | Every 1 s (Target) | 0.5-2 s (Target) | Reduces electrode polarization |
+| Stacking | 4 cycles (Target) | 2-8 | More for weak signals |
 
 : ERT measurement configuration parameters {#tbl-ert-config}
 
@@ -1073,7 +1135,7 @@ plt.show()
 2. **Background Scan:** Perform short MIT and ERT scan outside suspected zone to establish baseline/control measurements.
 3. **MIT Sweep:** Complete full TX-RX matrix at all frequencies before moving probes.
 4. **ERT Patterns:** Execute all injection patterns with multiple baselines for redundancy.
-5. **Quality Control:** Repeat 5-10% of TX-RX pairs, verify reciprocity (A-B approximately equals B-A), document any anomalies.
+5. **Quality Control:** Repeat 5-10% of TX-RX pairs (Target), verify reciprocity (A-B approximately equals B-A), document any anomalies.
 6. **Extract and Move:** Carefully extract probes, shift to next section with one-column overlap for data continuity.
 
 ## Quality Checks {#sec-field-quality-checks}
@@ -1082,7 +1144,7 @@ Real-time quality assessment during data acquisition prevents costly re-surveys.
 
 ### Good Data Indicators
 
-- Consistent reciprocity: TX(A)-RX(B) matches TX(B)-RX(A) within 5%
+- Consistent reciprocity: TX(A)-RX(B) matches TX(B)-RX(A) within 5% (Target)
 - Smooth spatial variations without abrupt discontinuities
 - Expected depth sensitivity decay with increasing offset
 - Stable baseline measurements throughout survey
@@ -1090,7 +1152,7 @@ Real-time quality assessment during data acquisition prevents costly re-surveys.
 ::: {.callout-warning}
 ## Problematic Data Indicators
 
-- Poor reciprocity (>10% difference) - check coupling, recalibrate
+- Poor reciprocity (>10% difference Target) - check coupling, recalibrate
 - Noisy/spiky readings - check connections, improve shielding
 - No depth sensitivity - verify spacing, adjust frequency
 - Inconsistent repeats - check timebase synchronization, connector integrity
@@ -1183,12 +1245,12 @@ plt.show()
 - Place ring of probes around suspected feature edge
 - Add select probes angled inward for cross-coverage
 - Reduces ground disturbance in sensitive archaeological contexts
-- Provides adequate coverage with proper geometric factor correction
+- Provides adequate coverage with proper geometric factor correction (Modeled)
 
 #### Shallow Mode
 
-- Insert probes to 1 m or less
-- Use wider spacing (2-3 m) to compensate
+- Insert probes to 1 m or less (Target)
+- Use wider spacing (2-3 m Target) to compensate
 - Rely on lower frequencies (2-5 kHz) for deeper field penetration
 - Suitable for extremely sensitive sites or regulatory constraints
 
@@ -1196,12 +1258,12 @@ plt.show()
 
 | Activity | Duration | Team Size | Notes |
 |----------|----------|-----------|-------|
-| Setup (probe insertion) | 30-60 min | 2-3 | Varies with soil |
-| MIT sweep (all frequencies) | 30-45 min | 1 | Automated |
-| ERT patterns | 15-30 min | 1 | Multiple configurations |
-| QC checks | 10-15 min | 1 | Repeat measurements |
-| Extraction | 15-30 min | 2-3 | Care required |
-| **Total per section** | **2-3 hours** | 2-3 | 10x10 m, 20 probes |
+| Setup (probe insertion) | 30-60 min (Target) | 2-3 | Varies with soil |
+| MIT sweep (all frequencies) | 30-45 min (Target) | 1 | Automated |
+| ERT patterns | 15-30 min (Target) | 1 | Multiple configurations |
+| QC checks | 10-15 min (Target) | 1 | Repeat measurements |
+| Extraction | 15-30 min (Target) | 2-3 | Care required |
+| **Total per section** | **2-3 hours (Target)** | 2-3 | 10x10 m, 20 probes |
 
 : Time estimates for standard 10x10 m section survey {#tbl-time-estimates}
 
@@ -1243,7 +1305,7 @@ plt.show()
 - Be aware of wildlife, terrain hazards, and site-specific dangers
 - Follow all site-specific safety rules and permit requirements
 - Keep first aid kit accessible and know location of nearest medical facility
-- For UXO sites: EOD clearance required, soft insertion tools only, 100 m exclusion zone
+- For UXO sites: EOD clearance required, soft insertion tools only, 100 m exclusion zone (Target)
 :::
 
 ## Equipment Maintenance and Storage {#sec-maintenance}
@@ -1257,7 +1319,7 @@ plt.show()
 
 ### Storage
 
-- **Batteries:** Store LiFePO4 batteries at 50-60% charge if unused for >1 month.
+- **Batteries:** Store LiFePO4 batteries at 50-60% charge (Target) if unused for >1 month.
 - **O-Rings:** Lightly grease O-rings with silicone grease to prevent drying.
 - **Coiling:** Use 'over-under' coiling method to prevent cable twisting.
 - **Environment:** Store in dry, cool location to prevent mold or thermal cycling damage.

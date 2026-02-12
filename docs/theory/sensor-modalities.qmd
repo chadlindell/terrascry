@@ -16,6 +16,26 @@ Each sensor modality is classified by maturity level:
 | **R** | **Recommended Extension** | Tested principle, straightforward integration |
 | **F** | **Future Exploration** | Promising concept, requires development |
 
+```{python}
+#| label: fig-sensor-maturity
+#| fig-cap: "Sensor maturity framework showing current classification of each modality. Sensors progress from Future Exploration through Recommended Extension to Supported as they are validated in field conditions."
+#| fig-width: 11
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_sensor_maturity_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_sensor_maturity_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(11, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ## Supported Now (S)
 
 ### MIT-3D: Magneto-Inductive Tomography
@@ -34,8 +54,8 @@ Each sensor modality is classified by maturity level:
 
 | Parameter | Specification | Rationale |
 |-----------|---------------|-----------|
-| Frequency range | 2-50 kHz | Trade-off: depth vs. resolution |
-| TX coil current | 10 mA RMS | Signal strength vs. power consumption |
+| Frequency range | 2-50 kHz **(Target)** | Trade-off: depth vs. resolution |
+| TX coil current | 10 mA RMS **(Target)** | Signal strength vs. power consumption |
 | Coil configuration | Coaxial, horizontal | Directional sensitivity |
 
 **Unique Capability:** Detects aluminum and other non-ferrous metals invisible to magnetometers.
@@ -63,7 +83,7 @@ Each sensor modality is classified by maturity level:
 
 | Parameter | Specification | Rationale |
 |-----------|---------------|-----------|
-| Injection current | 0.5-2.0 mA | Safety, contact resistance tolerance |
+| Injection current | 0.5-2.0 mA **(Target)** | Safety, contact resistance tolerance |
 | Electrode configuration | Ring electrodes | Omni-directional sensitivity |
 | Measurement type | Potential vs. reference | Simplified hardware |
 
@@ -83,6 +103,26 @@ These modalities are technically straightforward and provide significant value. 
 
 **Maturity:** Recommended Extension
 
+```{python}
+#| label: fig-tilt-error
+#| fig-cap: "Tilt error propagation in probe deployment. A 5-degree tilt at 3 m depth produces 26 cm of lateral positional error at the probe tip, displacing sensor rings from their assumed vertical positions and distorting inversion results."
+#| fig-width: 8
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_tilt_error_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_tilt_error_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(8, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ::: {.callout-important}
 ## Technical Necessity for Accurate Inversion
 
@@ -90,7 +130,7 @@ Probe tilt significantly affects tomographic inversion accuracy. Without borehol
 
 **Impact of uncorrected tilt:**
 
-- 5° tilt at 3 m depth = 26 cm positional error at tip
+- 5 deg tilt at 3 m depth = 26 cm positional error at tip **(Modeled)**
 - Sensor ring positions displaced from assumed locations
 - Inversion results geometrically distorted
 
@@ -111,7 +151,7 @@ Accelerometer integration is recommended as a **standard feature**, not optional
 | Sensor type | 3-axis MEMS accelerometer |
 | Example part | ADXL345, MPU-6050 |
 | Resolution | 0.1° or better |
-| Cost | <$5 per probe |
+| Cost | <$5 per probe **(Target)** |
 | Integration | I²C bus, shares probe MCU |
 
 **Data Use:**
@@ -322,6 +362,26 @@ When multiple sensors are deployed, fusion improves interpretation confidence:
 
 ### Joint Inversion
 
+```{python}
+#| label: fig-multimodal-fusion
+#| fig-cap: "Multi-modal sensor fusion architecture. Independent measurements from MIT-3D, ERT-Lite, accelerometer, and temperature sensors flow through preprocessing into joint inversion, producing a unified 3D subsurface model with confidence estimates."
+#| fig-width: 11
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_multimodal_fusion_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_multimodal_fusion_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(11, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 Advanced processing can incorporate multiple modalities simultaneously:
 
 - **Structural coupling:** Require consistent boundaries across modalities
@@ -365,7 +425,7 @@ Based on multi-model consensus:
 
 **Rationale:** Accelerometer is technically necessary for accurate inversion. Temperature provides high forensic value with minimal complexity.
 
-**Effort:** ~2 weeks integration, ~$10/probe additional cost
+**Effort:** ~2 weeks integration, ~$10/probe additional cost **(Target)**
 
 ### Phase 2: Validate Core Sensors
 
@@ -389,11 +449,11 @@ Based on multi-model consensus:
 |----------|--------|----------|-------------|
 | MIT-3D | Supported | Core | Included |
 | ERT-Lite | Supported | Core | Included |
-| Accelerometer | Recommended | Phase 1 | +$5/probe |
-| Temperature | Recommended | Phase 1 | +$10/probe |
-| Moisture | Future | Phase 3 | +$15/probe |
+| Accelerometer | Recommended | Phase 1 | +$5/probe **(Target)** |
+| Temperature | Recommended | Phase 1 | +$10/probe **(Target)** |
+| Moisture | Future | Phase 3 | +$15/probe **(Target)** |
 | SP | Future | Phase 3 | Minimal (uses ERT) |
-| pH | Future | Deferred | +$30/probe |
-| Gas | Future | Deferred | +$50/probe |
+| pH | Future | Deferred | +$30/probe **(Target)** |
+| Gas | Future | Deferred | +$50/probe **(Target)** |
 
 The modular probe architecture enables incremental sensor additions. Start with core channels plus accelerometer/temperature, then expand based on application requirements and validation results.

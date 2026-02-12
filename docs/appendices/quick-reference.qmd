@@ -13,13 +13,13 @@ The HIRT quick setup sequence consists of seven steps:
 1. **Connect Trunk Cables** - Attach trunk cables from Zone Hubs to Central Hub
 2. **Connect Probes** - Connect probe cables to Zone Hubs
 3. **Power ON Base Hub** - Turn on the Central Hub power switch
-4. **Wait 15s for Init** - Allow system initialization to complete
+4. **Wait 15s for Init** - Allow system initialization to complete **(Target)**
 5. **Verify "Ready" LED** - Confirm the Ready LED is solid green
 6. **Run System Diagnostic** - Execute the built-in diagnostic test
 7. **Start Measurement** - Begin data acquisition
 
 ::: {.callout-note}
-Total Setup Time: approximately 2-3 minutes (excluding probe installation)
+Total Setup Time: approximately 2-3 minutes **(Target)** (excluding probe installation)
 :::
 
 ## Key Parameters
@@ -28,30 +28,30 @@ Total Setup Time: approximately 2-3 minutes (excluding probe installation)
 
 | Parameter | Value |
 |-----------|-------|
-| Frequency | 2-50 kHz |
-| TX Current | 10-50 mA |
-| Integration | 1-5 sec |
+| Frequency | 2-50 kHz **(Target)** |
+| TX Current | 10-50 mA **(Target)** |
+| Integration | 1-5 sec **(Target)** |
 
 ### ERT Parameters
 
 | Parameter | Value |
 |-----------|-------|
-| Injection | 0.5-2 mA |
-| Ring Positions | 0.5, 1.5, 2.5 m |
-| Polarity Reversal | Every 2 sec |
+| Injection | 0.5-2 mA **(Target)** |
+| Ring Positions | 0.5, 1.5, 2.5 m **(Target)** |
+| Polarity Reversal | Every 2 sec **(Target)** |
 
 ### Grid Layout
 
 | Parameter | Value |
 |-----------|-------|
-| Spacing | 2 meters |
+| Spacing | 2 meters **(Target)** |
 | Standard Grid | 5 x 5 (25 probes) |
-| Probe Depth | 2.5-3 m |
+| Probe Depth | 2.5-3 m **(Target)** |
 
 ## Standard Grid Layout (10x10 m)
 
 ```
-Spacing: 2 meters    Probes: 25 (5x5 grid)    Depth: 2.5-3 m
+Spacing: 2 meters (Target)    Probes: 25 (5x5 grid)    Depth: 2.5-3 m (Target)
 
       0m    2m    4m    6m    8m
  0m   P01   P02   P03   P04   P05

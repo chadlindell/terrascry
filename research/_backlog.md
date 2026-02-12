@@ -6,11 +6,7 @@ This file tracks research needs and priorities for the HIRT project.
 
 ### High Priority
 
-| Topic | Question | Status | Research File(s) | Target Section |
-|-------|----------|--------|-------------------|----------------|
-| Probe insertion | Best method for different soil types? | Has research | `deployment/probe-insertion-methods-summary.md` + 12 related files | deployment, roadmap |
-| UXO safety | Regulatory requirements by jurisdiction? | Has research | `regulatory/2026-01-29-regulatory-compliance-uxo.md` | safety, regulations |
-| Electronics | Modern component alternatives? | Has research | `electronics/2026-01-29-electronics-modernization.md` | electronics, roadmap |
+*All high priority research has been reviewed and integrated. See Completed Research below.*
 
 ### Medium Priority
 
@@ -18,15 +14,11 @@ This file tracks research needs and priorities for the HIRT project.
 |-------|----------|--------|-------------------|----------------|
 | Inversion software | Best open-source options for HIRT data? | Partial | (needs dedicated research) | inversion, roadmap |
 | Field validation | Published crosshole case studies? | Needs work | (needs dedicated research) | scenarios |
-| Cost optimization | Where can we reduce BOM cost? | Has research | `electronics/2026-01-29-manufacturing-cost-report.md` | bill-of-materials |
+| Alternative probes | Micro-probe designs? | Partial | (needs dedicated research) | mechanical, roadmap |
 
 ### Low Priority / Future
 
-| Topic | Question | Status | Research File(s) | Target Section |
-|-------|----------|--------|-------------------|----------------|
-| Automation | Robotic probe deployment? | Has research | `deployment/feasibility-robotic-deployment.md` | roadmap |
-| Alternative probes | Micro-probe designs? | Partial | (needs dedicated research) | mechanical, roadmap |
-| Comparable projects | What similar systems exist? | Has research | `literature/comparable-projects-catalog.md` | overview |
+*No active low priority items. All previous items resolved -- see Completed Research and Reviewed (No Integration Needed) below.*
 
 ---
 
@@ -36,7 +28,33 @@ Research that has been reviewed and integrated into the Technical Manual:
 
 | Research File | Integrated Into | Date |
 |---------------|-----------------|------|
-| (none yet) | | |
+| `electronics/2026-01-29-electronics-modernization.md` | `docs/build-guide/electronics.qmd` (modernization roadmap section) | 2026-02-12 |
+| `electronics/2026-01-29-manufacturing-cost-report.md` | `docs/build-guide/bill-of-materials.qmd` (manufacturing cost analysis) | 2026-02-12 |
+| `deployment/probe-insertion-methods-summary.md` | `docs/field-guide/progressive-deployment.qmd` (insertion methods table) | 2026-02-12 |
+| `regulatory/2026-01-29-regulatory-compliance-uxo.md` | `docs/getting-started/safety.qmd` (HERO analysis, regulatory framework, permit-to-dig) | 2026-02-12 |
+| `deployment/probe-insertion-methods-research-B.md` | `docs/field-guide/deployment.qmd` (bentonite prohibition, polymer fluid guidance, borehole stability data) | 2026-02-12 |
+| `deployment/portable-hydraulic-push-consolidated-research.md` | `docs/field-guide/deployment.qmd` (push force data, soil-specific penetration rates, UXO detection thresholds) | 2026-02-12 |
+| `deployment/borehole-creation-methods-catalog.md` | `docs/field-guide/deployment.qmd` (borehole methods comparison table) | 2026-02-12 |
+| `deployment/probe-insertion-methods-research-A.md` | `docs/field-guide/deployment.qmd` (depth range data incorporated into methods table) | 2026-02-12 |
+| `deployment/uxo-detection-during-push-research-A.md` | `docs/getting-started/safety.qmd` (UXO standoff distances, abort criteria, magnetometer detection ranges) | 2026-02-12 |
+| `deployment/uxo-detection-during-push-research-B.md` | `docs/field-guide/deployment.qmd` (pre-push UXO assessment checklist, real-time monitoring guidance) | 2026-02-12 |
+| `deployment/feasibility-robotic-deployment.md` | `docs/developer/roadmap.qmd` (autonomous deployment section, TRL 3-4 assessment) | 2026-02-12 |
+
+---
+
+## Reviewed -- No Integration Needed
+
+Research documents reviewed during Phase B that contain background/speculative content with no additional actionable data beyond what is already integrated:
+
+| Research File | Rationale | Date |
+|---------------|-----------|------|
+| `deployment/feasibility-biomimetic-root-growth.md` | Speculative concept (TRL 1); no actionable data for current manual | 2026-02-12 |
+| `deployment/feasibility-hydraulic-push.md` | Superseded by consolidated hydraulic push research (already integrated) | 2026-02-12 |
+| `deployment/feasibility-water-jet.md` | Core findings already captured in Tier 1 insertion method and borehole methods table | 2026-02-12 |
+| `deployment/portable-reaction-force-research-A.md` | Anchor system data consolidated into portable-hydraulic-push-consolidated-research.md (already integrated) | 2026-02-12 |
+| `deployment/portable-reaction-force-research-B.md` | Duplicate scope with research-A; key findings already in consolidated document | 2026-02-12 |
+| `literature/comparable-projects-catalog.md` | Background context only; no specific data points needed in manual sections | 2026-02-12 |
+| `literature/documentation-best-practices.md` | Internal process guidance; informed CLAUDE.md style guide, not manual content | 2026-02-12 |
 
 ---
 

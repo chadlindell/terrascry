@@ -393,6 +393,121 @@ def create_depth_profile_comparison():
     return buf
 
 
+def create_progressive_cross_section():
+    """
+    Four-panel cross-section showing progressive deployment at different phases,
+    with comparison to fixed-depth approach.
+    """
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+    axes = axes.flatten()
+
+    # Probe positions (x coordinates)
+    probe_positions = [1, 2, 3, 4, 5]
+    n_probes = len(probe_positions)
+
+    panels = [
+        ('Phase A: Shallow Survey', [1.0, 1.0, 1.0, 1.0, 1.0],
+         'Full lateral coverage, limited depth', COLOR_PALETTE['phase_a']),
+        ('Phase C: Selective Extension', [1.0, 2.0, 2.5, 2.0, 1.0],
+         'Targeted depth where anomalies detected', COLOR_PALETTE['phase_c']),
+        ('Phase D: Complete Survey', [1.0, 2.0, 3.0, 2.5, 1.0],
+         'Maximum depth at target, efficient elsewhere', COLOR_PALETTE['phase_d']),
+        ('Fixed-Depth (Comparison)', [3.0, 3.0, 3.0, 3.0, 3.0],
+         'Standard approach: same effort everywhere', COLOR_PALETTE['light_orange']),
+    ]
+
+    for ax, (title, depths, annotation, title_bg) in zip(axes, panels):
+        ax.set_xlim(0, 6)
+        ax.set_ylim(-3.5, 0.8)
+        ax.set_aspect('equal')
+
+        # Surface and ground
+        ax.fill_between([0, 6], [0, 0], [-3.5, -3.5],
+                       color=COLOR_PALETTE['ground_tan'], alpha=0.35)
+        ax.axhline(0, color=COLOR_PALETTE['ground_dark'], linewidth=2)
+
+        # Depth markers
+        for d in [1, 2, 3]:
+            ax.axhline(-d, color=COLOR_PALETTE['gray_light'], linewidth=0.5, linestyle='--')
+            ax.text(5.8, -d + 0.08, f'{d}m', fontsize=6, ha='right',
+                   color=COLOR_PALETTE['gray_med'])
+
+        # Target anomaly
+        anomaly = mpatches.Ellipse((3, -2.3), 1.5, 0.7, angle=0,
+                                   facecolor=COLOR_PALETTE['warning'], alpha=0.3,
+                                   edgecolor=COLOR_PALETTE['warning'], linewidth=1.5,
+                                   linestyle='--')
+        ax.add_patch(anomaly)
+        ax.text(3, -2.3, 'Target', ha='center', va='center', fontsize=7,
+               color=COLOR_PALETTE['warning'], fontweight='bold', alpha=0.8)
+
+        # Probes
+        for x, depth in zip(probe_positions, depths):
+            # Probe body
+            ax.add_patch(Rectangle((x - 0.08, -depth), 0.16, depth,
+                                   facecolor=COLOR_PALETTE['secondary'],
+                                   edgecolor=COLOR_PALETTE['gray_dark'], linewidth=1))
+            # Electrode rings
+            ring_spacing = 0.5
+            n_rings = int(depth / ring_spacing)
+            for r in range(1, n_rings + 1):
+                ring_d = r * ring_spacing
+                if ring_d <= depth:
+                    ax.plot([x - 0.12, x + 0.12], [-ring_d, -ring_d],
+                            color=COLOR_PALETTE['orange'], linewidth=1.5, zorder=6)
+            # Top cap
+            ax.add_patch(Circle((x, 0), 0.1, facecolor=COLOR_PALETTE['accent'],
+                                edgecolor=COLOR_PALETTE['gray_dark'], linewidth=0.8))
+
+        # Sensitivity ellipses between adjacent probes
+        for i in range(len(probe_positions) - 1):
+            x1, x2 = probe_positions[i], probe_positions[i+1]
+            d1, d2 = depths[i], depths[i+1]
+            mid_x = (x1 + x2) / 2
+            min_d = min(d1, d2)
+            ell = mpatches.Ellipse((mid_x, -min_d/2), 0.8, min_d * 0.8, angle=0,
+                                   facecolor=COLOR_PALETTE['accent'], alpha=0.08,
+                                   edgecolor=COLOR_PALETTE['accent'], linewidth=0.5,
+                                   linestyle=':')
+            ax.add_patch(ell)
+
+        # Title with background
+        ax.set_title(title, fontsize=10, fontweight='bold', color=COLOR_PALETTE['primary'],
+                    pad=8)
+
+        # Annotation
+        ax.text(3, 0.5, annotation, ha='center', fontsize=7, style='italic',
+               color=COLOR_PALETTE['gray_dark'])
+
+        ax.set_xticks([1, 2, 3, 4, 5])
+        ax.set_xticklabels(['P1', 'P2', 'P3', 'P4', 'P5'], fontsize=7)
+        ax.set_yticks([0, -1, -2, -3])
+        ax.set_yticklabels(['0', '1', '2', '3'], fontsize=7)
+        ax.set_ylabel('Depth (m)', fontsize=8)
+
+    # Add total insertion comparison between panels 3 and 4
+    total_prog = sum([1.0, 2.0, 3.0, 2.5, 1.0])
+    total_fixed = sum([3.0, 3.0, 3.0, 3.0, 3.0])
+    savings = (1 - total_prog / total_fixed) * 100
+
+    fig.text(0.5, 0.02,
+             f'Progressive: {total_prog:.0f} m total insertion  |  '
+             f'Fixed: {total_fixed:.0f} m total insertion  |  '
+             f'Savings: {savings:.0f}% less ground disturbance',
+             ha='center', fontsize=9, fontweight='bold', color=COLOR_PALETTE['primary'],
+             bbox=dict(boxstyle='round,pad=0.3', facecolor=COLOR_PALETTE['light_bg'],
+                       edgecolor=COLOR_PALETTE['gray_light']))
+
+    plt.tight_layout(rect=[0, 0.05, 1, 1])
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
+    buf.seek(0)
+    plt.close()
+    return buf
+
+
 def create_uxo_clearance_protocol():
     """
     Diagram showing the two-pass magnetometer clearance protocol for UXO sites.

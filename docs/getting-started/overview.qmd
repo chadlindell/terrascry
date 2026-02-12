@@ -8,7 +8,7 @@ HIRT (Hybrid Inductive-Resistivity Tomography) is a **dual-channel subsurface im
 
 ```{python}
 #| label: fig-system-overview
-#| fig-cap: "HIRT dual-channel system overview. The system combines MIT-3D (Magneto-Inductive Tomography) for metal detection with ERT-Lite (Electrical Resistivity) for soil disturbance mapping. Probes are inserted into pre-drilled 18-20mm holes, with ray paths traversing the target volume for true 3D tomographic imaging."
+#| fig-cap: "HIRT dual-channel system overview. The system combines MIT-3D (Magneto-Inductive Tomography) for metal detection with ERT-Lite (Electrical Resistivity) for soil disturbance mapping. Probes are inserted into pre-drilled 18-20mm holes (Target), with ray paths traversing the target volume for true 3D tomographic imaging."
 #| fig-width: 9
 #| fig-height: 5
 
@@ -42,8 +42,8 @@ HIRT takes its name from this history of hurt and pain, and from a commitment to
 
 HIRT employs two complementary sensing modalities that together provide comprehensive subsurface characterization:
 
-- **MIT-3D (Magneto-Inductive Tomography):** Low-frequency TX/RX coils (2-50 kHz) measure amplitude and phase changes caused by eddy currents. Maps conductive metal masses including aluminum, which magnetometry cannot detect.
-- **ERT-Lite (Electrical Resistivity):** Small ring electrodes inject tiny currents (0.5-2 mA) and measure voltage distribution. Maps soil resistivity variations from moisture, disturbance patterns, voids, and grave shafts.
+- **MIT-3D (Magneto-Inductive Tomography):** Low-frequency TX/RX coils (2-50 kHz) (Target) measure amplitude and phase changes caused by eddy currents. Maps conductive metal masses including aluminum, which magnetometry cannot detect.
+- **ERT-Lite (Electrical Resistivity):** Small ring electrodes inject tiny currents (0.5-2 mA) (Target) and measure voltage distribution. Maps soil resistivity variations from moisture, disturbance patterns, voids, and grave shafts.
 
 ::: {.callout-note}
 ## Design Philosophy
@@ -60,9 +60,9 @@ HIRT is optimized for three primary application scenarios, each with specific co
 
 | Use Case | Typical Parameters | Key Method | Target Types |
 |----------|-------------------|------------|--------------|
-| Filled Bomb Crater | 10-15m dia, 0-4m depth; 3m probes, 1.5m spacing | MIT + ERT combined | Metal parts + remains |
-| Woods Burials | 0.6-1.5m depth; 1.5m probes, 1m spacing | ERT patterns + MIT | Grave shafts, artifacts |
-| Swamp/Marsh Crash | 5-8+m depth; 3.5m probes, 2-3m spacing | Low-freq MIT | Deep-buried aircraft |
+| Filled Bomb Crater | 10-15m dia, 0-4m depth; 3m probes, 1.5m spacing (Target) | MIT + ERT combined | Metal parts + remains |
+| Woods Burials | 0.6-1.5m depth; 1.5m probes, 1m spacing (Target) | ERT patterns + MIT | Grave shafts, artifacts |
+| Swamp/Marsh Crash | 5-8+m depth; 3.5m probes, 2-3m spacing (Target) | Low-freq MIT | Deep-buried aircraft |
 
 : Primary HIRT use cases and configurations {#tbl-use-cases}
 
@@ -70,7 +70,7 @@ HIRT is optimized for three primary application scenarios, each with specific co
 
 ```{python}
 #| label: fig-capabilities
-#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters (modeled estimate). Cost savings of 95%+ (estimated) make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
+#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters (Modeled). Cost savings of 95%+ (Target) make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
 #| fig-width: 10
 #| fig-height: 4.5
 
@@ -89,14 +89,14 @@ plt.show()
 Surface GPR and magnetometry are excellent screening tools but can yield ambiguous results in complex conditions. HIRT's crosshole geometry provides superior performance through direct measurement paths:
 
 - **True tomographic coverage** through the target volume (not surface extrapolation)
-- **2-5x better resolution** than surface methods at depths exceeding 2 meters (*modeled*)
-- **Superior depth discrimination** - targets at 3m vs 4m are clearly distinguishable
+- **2-5x better resolution** than surface methods at depths exceeding 2 meters (Modeled)
+- **Superior depth discrimination** - targets at 3m vs 4m are clearly distinguishable (Target)
 - **Non-ferrous detection** - aluminum aircraft parts that magnetometry cannot sense
 - **3D localization** with measured positions rather than estimated pseudo-depth
 
 ```{python}
 #| label: fig-depth-investigation
-#| fig-cap: "Depth of investigation ranges by HIRT configuration. The typical surface method limit (~1.5m) is shown for comparison. Confidence levels indicate the reliability of detection at different depths and soil conditions."
+#| fig-cap: "Depth of investigation ranges by HIRT configuration. The typical surface method limit (~1.5m) (Modeled) is shown for comparison. Confidence levels indicate the reliability of detection at different depths and soil conditions."
 #| fig-width: 9
 #| fig-height: 4
 
@@ -122,9 +122,9 @@ plt.show()
 - Replacing professional archaeological/forensic protocols
 :::
 
-**When Surface Methods Remain Superior:** Rapid large-area screening (10x faster), shallow targets (<1m) where GPR resolution excels, purely ferrous targets (magnetometry), and initial site characterization before targeted investigation.
+**When Surface Methods Remain Superior:** Rapid large-area screening (10x faster) (Modeled), shallow targets (<1m) where GPR resolution excels, purely ferrous targets (magnetometry), and initial site characterization before targeted investigation.
 
-**Technical Limitations:** Smaller coil area results in ~19 dB SNR loss compared to commercial systems (*modeled*; compensated by longer integration times). Survey time increases 5-10x compared to commercial systems (*estimated*). Requires post-processing software for 3D reconstruction. Limited depth performance in highly conductive soils.
+**Technical Limitations:** Smaller coil area results in ~19 dB SNR loss compared to commercial systems (Modeled; compensated by longer integration times). Survey time increases 5-10x compared to commercial systems (Modeled). Requires post-processing software for 3D reconstruction. Limited depth performance in highly conductive soils.
 
 ## Optimal Workflow {#sec-workflow}
 
@@ -165,7 +165,7 @@ This documentation and the HIRT system are designed for:
 
 ```{python}
 #| label: fig-cost-comparison
-#| fig-cap: "Cost comparison between HIRT and commercial crosshole systems. A complete HIRT starter kit costs $1,800-3,900 depending on component selection, representing 95%+ savings compared to commercial systems ($50,000-200,000+). The primary cost driver is the number of probes (20-24 for standard deployment at $70-150 each)."
+#| fig-cap: "Cost comparison between HIRT and commercial crosshole systems. A complete HIRT starter kit costs $1,800-3,900 (Target) depending on component selection, representing 95%+ savings (Target) compared to commercial systems ($50,000-200,000+) (Manufacturer spec). The primary cost driver is the number of probes (20-24 for standard deployment at $70-150 each) (Target)."
 #| fig-width: 10
 #| fig-height: 4
 
@@ -183,13 +183,13 @@ plt.show()
 
 | Component | Low-End | High-End | Notes |
 |-----------|---------|----------|-------|
-| Probes (20-24) | $1,400 | $3,600 | $70-150 per probe |
-| Electronics Hub | $200 | $300 | DIY vs pre-built |
-| Cables & Connectors | $50 | $50 | Standard components |
-| Tools & Misc | $50 | $50 | Assembly tools |
-| **Total** | **$1,800** | **$3,900** | **95%+ vs commercial** |
+| Probes (20-24) | $1,400 (Target) | $3,600 (Target) | $70-150 per probe (Target) |
+| Electronics Hub | $200 (Target) | $300 (Target) | DIY vs pre-built |
+| Cables & Connectors | $50 (Target) | $50 (Target) | Standard components |
+| Tools & Misc | $50 (Target) | $50 (Target) | Assembly tools |
+| **Total** | **$1,800 (Target)** | **$3,900 (Target)** | **95%+ vs commercial (Target)** |
 
-: HIRT system cost breakdown (*estimated*, 2024 component pricing) {#tbl-cost-breakdown}
+: HIRT system cost breakdown (2024 component pricing) {#tbl-cost-breakdown}
 
 This cost structure places professional-grade subsurface imaging capabilities within reach of university research groups, non-profit humanitarian organizations, and archaeological teams that could not otherwise afford crosshole tomography.
 
@@ -201,10 +201,10 @@ The table below positions HIRT relative to comparable open-hardware projects:
 
 | Project | Modality | Open Hardware | Peer Review | Estimated Cost |
 |---------|----------|---------------|-------------|----------------|
-| **HIRT** | MIT + ERT crosshole | Yes | Target: HardwareX | <$3,000 |
-| OhmPi | ERT (surface) | Yes | HardwareX 2020 | <$500 |
-| OpenEIT | EIT (biomedical) | Yes | Partial | ~$300 |
-| Cheap-G | Gravimetry | Yes | HardwareX 2021 | ~$1,000 |
+| **HIRT** | MIT + ERT crosshole | Yes | Target: HardwareX | <$3,000 (Target) |
+| OhmPi | ERT (surface) | Yes | HardwareX 2020 | <$500 (Target) |
+| OpenEIT | EIT (biomedical) | Yes | Partial | ~$300 (Target) |
+| Cheap-G | Gravimetry | Yes | HardwareX 2021 | ~$1,000 (Target) |
 
 : Comparison of open-source geophysical/tomographic hardware {#tbl-related-work}
 

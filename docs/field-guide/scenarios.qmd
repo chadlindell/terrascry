@@ -10,7 +10,7 @@ Configuration selection depends on several key factors: target depth, soil condi
 
 ## Scenario 1: Bomb Crater Investigation {#sec-bomb-crater}
 
-Bomb crater investigation represents the most demanding HIRT application, requiring deep penetration (3-4+ meters), comprehensive coverage of disturbed fill material, and detection of potentially large metallic masses. Typical crater dimensions range from 10-15 meters diameter with depths of 2-4 meters.
+Bomb crater investigation represents the most demanding HIRT application, requiring deep penetration (3-4+ meters **(Target)**), comprehensive coverage of disturbed fill material, and detection of potentially large metallic masses. Typical crater dimensions range from 10-15 meters diameter with depths of 2-4 meters.
 
 ```{python}
 #| label: fig-bomb-crater
@@ -187,7 +187,7 @@ plt.show()
 
 ### Configuration Parameters
 
-- **Rod Length:** 3.0 m (minimum; 3.5m preferred for full-depth coverage)
+- **Rod Length:** 3.0 m (minimum; 3.5 m preferred for full-depth coverage)
 - **ERT Ring Positions:** 0.5 m, 1.5 m, 2.5 m from probe tip
 - **Probe Spacing:** 1.5-2 m between probes
 - **Section Size:** Covers full crater plus rim (may require multiple sections)
@@ -197,8 +197,8 @@ plt.show()
 
 - **MIT Emphasis:** 2-20 kHz frequency range for aluminum/steel mass detection
 - **ERT Focus:** Map fill bowl geometry and identify wet pockets
-- **Depth Target:** 0-4+ meters (full crater depth plus underlying zone)
-- **Frequency Selection:** Lower frequencies (2-5 kHz) for maximum penetration
+- **Depth Target:** 0-4+ meters **(Target)** (full crater depth plus underlying zone)
+- **Frequency Selection:** Lower frequencies (2-5 kHz) for maximum penetration **(Modeled)**
 - **Integration Time:** 10-30 seconds per measurement for improved SNR at depth
 
 ### Deployment Considerations
@@ -216,7 +216,7 @@ MIT measurements will show strong amplitude and phase anomalies from large metal
 
 ## Scenario 2: Woodland Burials {#sec-woodland-burial}
 
-Woodland burial search requires high-resolution detection of relatively shallow targets (0.5-2 m depth) in environments complicated by root systems and organic material. The primary detection mechanism is ERT mapping of disturbed soil zones (grave shafts), supplemented by MIT detection of metallic artifacts.
+Woodland burial search requires high-resolution detection of relatively shallow targets (0.5-2 m depth **(Target)**) in environments complicated by root systems and organic material. The primary detection mechanism is ERT mapping of disturbed soil zones (grave shafts), supplemented by MIT detection of metallic artifacts.
 
 ```{python}
 #| label: fig-woodland-burial
@@ -380,8 +380,8 @@ plt.show()
 
 - **ERT Emphasis:** Primary method for grave shaft detection
 - **MIT Frequencies:** 5-20 kHz range (focus on small metallic artifacts)
-- **Target Signatures:** Clusters of small anomalies suggest artifact concentrations
-- **Depth Target:** 0-2 m (standard burial depth range)
+- **Target Signatures:** Clusters of small anomalies suggest artifact concentrations **(Modeled)**
+- **Depth Target:** 0-2 m **(Target)** (standard burial depth range)
 - **Multiple Frequencies:** Sweep 5, 10, 20 kHz for sensitivity optimization
 
 ### Deployment Considerations
@@ -395,7 +395,7 @@ Woodland environments require sensitivity to site preservation. Use shallow inse
 
 ## Scenario 3: Swamp/Marsh Crash Sites {#sec-swamp-margin}
 
-Waterlogged and marshy terrain presents unique challenges for aircraft crash investigation. When bombers went down in soft, saturated ground, the combination of impact forces and unstable soil caused aircraft---and their crews---to sink progressively deeper over time. Unlike dry-ground crashes where wreckage remains near the surface, marsh impacts can result in debris fields extending 5-10+ meters below the current surface level.
+Waterlogged and marshy terrain presents unique challenges for aircraft crash investigation. When bombers went down in soft, saturated ground, the combination of impact forces and unstable soil caused aircraft---and their crews---to sink progressively deeper over time. Unlike dry-ground crashes where wreckage remains near the surface, marsh impacts can result in debris fields extending 5-10+ meters **(Modeled)** below the current surface level.
 
 The soft, organic-rich soil essentially "swallows" the wreckage: initial impact creates a crater that fills with water and sediment, while the weight of aircraft components causes continued subsidence over decades. This phenomenon is well-documented at WWII crash sites in Poland's Silesian marshlands, the Netherlands' polders, and similar low-lying areas across Europe.
 
@@ -569,7 +569,7 @@ When aircraft crashed into saturated marshland, several factors combined to driv
 4. **Sediment accumulation:** Organic material and sediment fill the depression from above
 5. **Decades of compression:** 80+ years of soil compaction further buries the debris
 
-The result: aircraft that hit dry ground remain within 1-2 meters of the surface, while marsh impacts can place wreckage 5-10+ meters deep.
+The result: aircraft that hit dry ground remain within 1-2 meters of the surface, while marsh impacts can place wreckage 5-10+ meters deep **(Modeled)**.
 
 ### Configuration Parameters
 
@@ -581,7 +581,7 @@ The result: aircraft that hit dry ground remain within 1-2 meters of the surface
 
 ### Measurement Strategy
 
-- **Low MIT Frequencies:** 2-5 kHz essential for maximum depth penetration
+- **Low MIT Frequencies:** 2-5 kHz essential for maximum depth penetration **(Modeled)**
 - **Extended Integration:** 15-30 second measurements for weak deep signals
 - **Multi-Frequency Sweep:** Start at 2 kHz, sweep to 10 kHz to characterize depth
 - **ERT for Context:** Maps saturated zones and disturbed fill boundaries
@@ -594,16 +594,16 @@ Soft ground conditions require careful planning for both safety and data quality
 - **Ground Assessment:** Test soil firmness before committing to probe positions
 - **Deployment Platforms:** Plywood boards or temporary walkways distribute weight
 - **Probe Insertion:** May require pilot holes; avoid forcing probes through root mats
-- **Water Table Effects:** High conductivity of saturated soil limits ERT depth; rely primarily on MIT
+- **Water Table Effects:** High conductivity of saturated soil limits ERT depth **(Modeled)**; rely primarily on MIT
 - **Seasonal Timing:** Drier seasons may improve access but water table remains high
-- **Extended Survey Time:** Budget 2-3x longer than dry-ground surveys
+- **Extended Survey Time:** Budget 2-3x longer than dry-ground surveys **(Target)**
 
 ::: {.callout-warning}
 ## Detection Limits
 
-Targets at 6+ meters in conductive saturated soil approach HIRT's detection limits. Expect:
+Targets at 6+ meters in conductive saturated soil approach HIRT's detection limits **(Modeled)**. Expect:
 
-- Signal levels 10-20 dB below typical dry-ground responses
+- Signal levels 10-20 dB below typical dry-ground responses **(Modeled)**
 - Higher uncertainty in depth estimates
 - Possible false negatives for smaller debris fragments
 - Need for multiple survey passes to confirm anomalies
@@ -617,9 +617,9 @@ The following comparison summarizes key configuration parameters across all thre
 
 | Scenario | Rod Length | Spacing | Frequencies | Depth Target | Key Method |
 |----------|------------|---------|-------------|--------------|------------|
-| Woods Burials | 1.6 m | 1-1.5 m | 5-20 kHz | 0-2 m | ERT + MIT |
-| Bomb Crater | 3.0 m | 1.5-2 m | 2-20 kHz | 0-4+ m | MIT + ERT |
-| Swamp/Marsh Crash | 3.0-3.5 m | 2-3 m | 2-5 kHz | 5-8+ m | Low-freq MIT |
+| Woods Burials | 1.6 m | 1-1.5 m | 5-20 kHz | 0-2 m (Target) | ERT + MIT |
+| Bomb Crater | 3.0 m | 1.5-2 m | 2-20 kHz | 0-4+ m (Target) | MIT + ERT |
+| Swamp/Marsh Crash | 3.0-3.5 m | 2-3 m | 2-5 kHz | 5-8+ m (Target) | Low-freq MIT |
 
 : Summary of configuration parameters by application scenario {#tbl-config-comparison}
 
@@ -680,10 +680,10 @@ Planning a HIRT deployment requires realistic assessment of equipment costs and 
 
 | Component | Essential (12 probes) | Standard (20 probes) | Complete (24 probes) |
 |-----------|----------------------|---------------------|---------------------|
-| Probes | $840-1,800 | $1,400-3,000 | $1,680-3,600 |
-| Base Hub | $200-500 | $200-500 | $200-500 |
-| Tools/Supplies | $200-400 | $200-400 | $200-400 |
-| **Total** | **$1,200-2,700** | **$1,800-3,900** | **$2,100-4,500** |
+| Probes | $840-1,800 (Target) | $1,400-3,000 (Target) | $1,680-3,600 (Target) |
+| Base Hub | $200-500 (Target) | $200-500 (Target) | $200-500 (Target) |
+| Tools/Supplies | $200-400 (Target) | $200-400 (Target) | $200-400 (Target) |
+| **Total** | **$1,200-2,700 (Target)** | **$1,800-3,900 (Target)** | **$2,100-4,500 (Target)** |
 
 : Estimated costs for HIRT system configurations. Actual costs vary by supplier, quantity discounts, and component choices. {#tbl-cost-estimate}
 
@@ -773,7 +773,7 @@ Each case study follows a standardized documentation format to enable meaningful
 
 **Expected Targets:**
 
-- Engine components (estimated 3-4 m depth based on crater fill)
+- Engine components (estimated 3-4 m depth **(Modeled)** based on crater fill)
 - Scattered debris field within crater boundary
 - Possible human remains in association with wreckage
 
@@ -782,7 +782,7 @@ Each case study follows a standardized documentation format to enable meaningful
 - Perimeter deployment around crater margin
 - 20 probes at 2 m spacing
 - 3.0 m probe depth
-- Low-frequency emphasis (2-5 kHz) for depth penetration
+- Low-frequency emphasis (2-5 kHz) for depth penetration **(Modeled)**
 
 **Status:** Awaiting site access approval. Results will validate deep detection claims and inform recovery operations.
 

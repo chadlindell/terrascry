@@ -60,6 +60,21 @@ The HIRT system operates in the 2-50 kHz range, classifying it as an active emit
 2. **Passive Scan First:** Use magnetometer sensors *passively* (MIT transmitter OFF) to scan the look-ahead buffer (1.5-2.0 meters)
 3. **Clearance:** Only activate the MIT transmitter once the immediate volume is confirmed clear of ferrous anomalies
 
+#### Regulatory Framework {#sec-hero-regulatory}
+
+HIRT operations at UXO-contaminated sites fall under established regulatory frameworks that govern both intrusive surveys and electromagnetic emissions near ordnance:
+
+::: {.callout-note}
+## Key Regulatory Standards
+
+- **CIRIA C681/C785** (UK): De facto industry standard for UXO risk management. While not statutory legislation, compliance is essential to meet obligations under CDM Regulations 2015 and the Health and Safety at Work Act 1974.
+- **MIL-HDBK-240** (NATO): Hazards of Electromagnetic Radiation to Ordnance (HERO). Governs electromagnetic emissions near ordnance, requiring induced currents to remain 16.5 dB below the Maximum No-Fire Current (MNFC).
+- **EIA Directive 2014/52/EU**: Requires assessment of "risks of major accidents and/or disasters," which includes UXO risk in conflict zones.
+- **Valetta Treaty (1992)**: European Convention on the Protection of Archaeological Heritage, creating dual obligations for heritage protection and UXO safety.
+
+For intrusive surveys in the UK, CIRIA C681 mandates a four-stage process: Preliminary Risk Assessment, Detailed Risk Assessment, Risk Mitigation Strategy, and Implementation with clearance certification.
+:::
+
 ### HERO Safety Analysis {#sec-hero-analysis}
 
 This section provides the technical justification for HERO protocols when operating HIRT's active MIT channel at UXO-contaminated sites.
@@ -81,6 +96,8 @@ US Navy and NATO HERO standards govern electromagnetic emissions near ordnance. 
 > **Induced currents must remain 16.5 dB below the Maximum No-Fire Current (MNFC)** of the most susceptible ordnance.
 
 This 16.5 dB margin (approximately 7:1 current ratio) provides safety against component variation, environmental factors, and measurement uncertainty.
+
+For HIRT's operating frequencies (2-50 kHz), the critical interaction mechanism is eddy current induction in Electro-Explosive Devices (EEDs). The Maximum No-Fire Stimulus (MNFS) threshold varies by ordnance type, but specific values are classified. In the absence of ordnance-specific data, HERO protocols require treating the HIRT MIT channel as **HERO UNSAFE** -- meaning the field strength must be assumed to exceed safe limits until proven otherwise for the specific ordnance types present at the site.
 
 #### Mathematical Basis for Field Strength Limits
 
@@ -128,6 +145,44 @@ HIRT's MIT channel should be treated as **HERO UNSAFE by default** until site-sp
 - CIRIA C681 (2009) and C785 (2019): UK UXO risk management standards
 - NATO AASTP-1: Manual of NATO Safety Principles for the Storage of Military Ammunition and Explosives
 - MIL-HDBK-240: Hazards of Electromagnetic Radiation to Ordnance (HERO)
+
+### UXO Safe Standoff Distances During Probe Insertion {#sec-uxo-standoff}
+
+Probe insertion at UXO-suspected sites requires safe standoff distances based on the ordnance types potentially present. These distances are derived from German evacuation precedents and NATO safety standards.
+
+| Ordnance Type | Weight | Evacuation Radius | Recommended Operator Standoff |
+|---------------|--------|-------------------|-------------------------------|
+| Small UXO (mortar, grenade) | <50 kg | 100 m | 100 m minimum |
+| SC 250 (German bomb) | 250 kg | 300 m | 300 m (conservative) |
+| SC 500 (German bomb) | 500 kg | 300-450 m | 300 m minimum |
+| SC 1000 "Hermann" | >1,000 kg | 450+ m | 450 m minimum |
+
+: UXO safe standoff distances during probe insertion. Evacuation radii based on German EOD precedents. {#tbl-uxo-standoff}
+
+For remote-controlled or tethered insertion systems (Tier 2 HMIS with 50 m tether, Tier 3 remote excavator at 100-300 m), the operator remains outside the hazard zone during insertion. For Tier 1 water-jet systems requiring operator proximity, restrict use to sites where EOD assessment confirms low UXO risk or where prior magnetometer clearance has been obtained for each probe position.
+
+### Abort Criteria During Probe Insertion {#sec-abort-criteria}
+
+If any of the following conditions occur during probe insertion, **immediately stop all push operations** and withdraw to the safe zone:
+
+1. **Unexpected resistance spike**: Sudden increase in push force inconsistent with known soil conditions. May indicate contact with a buried object.
+2. **Magnetic anomaly** (if magnetometer-equipped): Any anomaly exceeding 50 nT triggers automatic hard abort; anomalies between 10-50 nT trigger operator warning and manual assessment.
+3. **Unusual sounds or vibrations**: Any metallic scraping, grinding, or unexpected vibration during push.
+4. **Conductivity anomaly**: If HIRT ERT pre-screening shows conductivity exceeding 5,500 uS/cm at the probe location (see @tbl-conductivity-thresholds), do not insert at that position.
+5. **Visual indicators**: Exposed metal, unusual soil coloration (chemical staining), or ordnance fragments visible at the surface.
+
+After any abort, do not resume insertion at that location without EOD professional assessment. Document the abort location, conditions, and any sensor readings for the EOD team.
+
+### Permit to Dig Requirements {#sec-permit-to-dig}
+
+At known WWII impact zones, ground disturbance (including HIRT probe insertion) requires a formal "Permit to Dig" that is conditional upon:
+
+1. **Detailed UXO Risk Assessment (DRA)** completed by a competent UXO specialist
+2. **Non-intrusive or intrusive survey** as specified by the DRA
+3. **UXO Clearance Certificate** issued for the specific probe locations
+4. **On-site EOD supervision** ("Watching Brief") for high-risk zones
+
+The Clearance Certificate is valid only for the surveyed area and depth. Extending probes beyond the certified depth requires re-clearance of the additional volume.
 
 ### Required Safety Measures for UXO Sites
 

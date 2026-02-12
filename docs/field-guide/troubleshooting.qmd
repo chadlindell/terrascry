@@ -466,6 +466,10 @@ Field instruments operate in conditions far removed from the controlled laborato
 
 ## Field Repairs {#sec-field-repairs}
 
+Field equipment inevitably suffers wear and damage. Cables are the most vulnerable component -- they flex during deployment, snag on probe hardware, and accumulate moisture at connector interfaces. Over multiple surveys, the repeated insertion and extraction of M12 connectors wears contact surfaces and compresses O-ring seals, gradually degrading both electrical continuity and environmental protection. A cable that passes bench testing may fail intermittently under the mechanical stress of field use.
+
+Connector degradation follows a predictable pattern: initial performance is excellent, followed by a long period of slow decline, then rapid failure once corrosion or wear reaches a critical threshold. By the time a connector fails visibly, the degradation has been building for several surveys. This is why carrying spare cables and performing proactive connector inspection matters more than reactive repair -- catching a marginal connector before it causes data loss saves far more time than field-splicing a broken cable.
+
 ### Field Repair Kit {#sec-repair-kit}
 
 Keep these items handy for field repairs:
@@ -505,10 +509,18 @@ Field-repaired cables should be replaced at first opportunity.
 
 ## When to Abort Survey {#sec-when-to-abort}
 
+The decision to abort a survey is rarely binary. Problems typically escalate through stages, and recognizing the escalation trajectory early allows operators to make informed decisions about whether to continue, adapt, or withdraw. Three categories of trigger warrant different responses.
+
+**Data quality degradation** is the most common escalation path. A single failed probe is routine; two or three warrant attention to whether a systemic cause exists; losing more than 25% of the array fundamentally compromises tomographic resolution and the survey should be paused for diagnosis. Similarly, noise levels that exceed acceptable thresholds on a few channels may indicate localized interference (relocate or shield), but system-wide noise elevation suggests a grounding fault, power issue, or environmental factor that will not resolve without intervention.
+
+**Equipment damage indicators** require immediate assessment. Intermittent connections, unexplained resets, or erratic readings that resist standard troubleshooting may indicate water ingress, thermal damage, or mechanical failure inside sealed enclosures. Continuing to operate damaged equipment risks corrupting data that appears valid but contains systematic errors that are difficult to detect in post-processing.
+
+**Safety triggers** demand immediate response with no deliberation. At UXO-contaminated sites, any conductivity reading exceeding the RED threshold (>5,500 uS/cm; see [Safety: Conductivity Thresholds](../getting-started/safety.qmd#tbl-conductivity-thresholds)) requires immediate cessation of all insertion activities and evacuation to the safe zone. Similarly, any unexpected magnetic anomaly detected during progressive deployment clearance sweeps (see [Safety: HERO Protocols](../getting-started/safety.qmd#sec-hero-analysis)) must be treated as a potential UXO encounter until assessed by EOD professionals.
+
 ::: {.callout-warning}
 ## Conditions Requiring Survey Abort
 
-- **Safety Issues:** Severe weather (lightning, high winds), site hazards discovered, equipment malfunction creating hazard
+- **Safety Issues:** Severe weather (lightning, high winds), site hazards discovered, equipment malfunction creating hazard, UXO safety threshold exceeded
 - **Data Quality:** >25% probes non-functional, persistent unusable noise, unable to achieve ground contact on majority of probes
 - **Critical Failures:** Base hub failure, data logger failure, battery depletion with no backup
 - **Practical Issues:** Time constraints preventing quality data, site access revoked

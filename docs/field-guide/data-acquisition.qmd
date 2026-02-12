@@ -14,7 +14,7 @@ HIRT data acquisition is based on a **transmit-receive (TX-RX) matrix**. For an 
 - While transmitting, **all other probes** simultaneously act as receivers (RX)
 - This produces N × (N-1) unique TX-RX measurements per frequency (MIT) or injection pattern (ERT)
 
-For a typical 16-probe array, this yields 240 unique measurements per acquisition cycle—each sampling a different geometric path through the subsurface.
+For a typical 16-probe array **(Target)**, this yields 240 unique measurements per acquisition cycle—each sampling a different geometric path through the subsurface.
 
 ## Probe Coordinate System
 
@@ -22,13 +22,13 @@ Each probe is positioned in 3D space and contains sensors at multiple depths:
 
 | Coordinate | Description | Typical Values |
 |------------|-------------|----------------|
-| X | Horizontal position (grid column) | 0 to 10 m |
-| Y | Horizontal position (grid row) | 0 to 10 m |
-| Z | Vertical depth below surface | 0 to -3 m (negative = below ground) |
+| X | Horizontal position (grid column) | 0 to 10 m **(Target)** |
+| Y | Horizontal position (grid row) | 0 to 10 m **(Target)** |
+| Z | Vertical depth below surface | 0 to -3 m **(Target)** (negative = below ground) |
 
 : Probe coordinate system {#tbl-probe-coordinates}
 
-Within each probe, multiple sensor rings are spaced along the shaft (e.g., at 0.5 m intervals). A 3 m probe with 0.5 m ring spacing contains **6 electrode rings**, each at a known depth. The complete array therefore samples a 3D volume defined by the probe positions (X, Y) and sensor depths (Z).
+Within each probe, multiple sensor rings are spaced along the shaft (e.g., at 0.5 m intervals **(Target)**). A 3 m probe **(Target)** with 0.5 m ring spacing **(Target)** contains **6 electrode rings**, each at a known depth. The complete array therefore samples a 3D volume defined by the probe positions (X, Y) and sensor depths (Z).
 
 ## Sequential Acquisition Process
 
@@ -42,7 +42,7 @@ The HIRT controller automates the measurement sequence, cycling through all TX-R
 4. **Record measurements** to data file
 5. **Advance to next TX** and repeat
 
-For a 16-probe array at 5 frequencies, this produces approximately 1,200 MIT measurements per acquisition cycle.
+For a 16-probe array **(Target)** at 5 frequencies **(Target)**, this produces approximately 1,200 MIT measurements per acquisition cycle.
 
 ## Building 3D Sensitivity Coverage
 
@@ -117,7 +117,7 @@ For consistency across surveys, adopt a standard local coordinate system:
 - **X-axis:** Primary baseline direction (typically longest dimension)
 - **Y-axis:** Perpendicular to X, following right-hand rule
 - **Z-axis:** Positive upward; surface elevations positive, tip depths negative
-- **Units:** Always meters with two decimal places
+- **Units:** Always meters with two decimal places **(Target)**
 
 When using GPS or total station, record the transformation parameters (origin coordinates, rotation angle) to enable conversion between local and absolute coordinates.
 

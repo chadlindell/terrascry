@@ -31,32 +31,32 @@ This section contains **Target specifications** that define expected performance
 
 | Parameter | Target | Method | Status |
 |-----------|--------|--------|--------|
-| Operating frequencies | 2, 5, 10, 20, 50 kHz | Frequency sweep test | (Target) |
-| TX coil current | 10 ± 1 mA RMS | Oscilloscope measurement | (Target) |
-| RX noise floor | < 100 nV/rt-Hz at 10 kHz | Spectrum analyzer | (Target) |
-| Dynamic range | > 80 dB | Calibration target test | (Target) |
-| Phase accuracy | ± 0.5° | Lock-in verification | (Target) |
-| Inter-probe consistency | < 5% amplitude variation | Cross-calibration | (Target) |
+| Operating frequencies | 2, 5, 10, 20, 50 kHz (Target) | Frequency sweep test | Not validated |
+| TX coil current | 10 ± 1 mA RMS (Target) | Oscilloscope measurement | Not validated |
+| RX noise floor | < 100 nV/rt-Hz at 10 kHz (Target) | Spectrum analyzer | Not validated |
+| Dynamic range | > 80 dB (Target) | Calibration target test | Not validated |
+| Phase accuracy | ± 0.5° (Target) | Lock-in verification | Not validated |
+| Inter-probe consistency | < 5% amplitude variation (Target) | Cross-calibration | Not validated |
 
 ### ERT-Lite Channel
 
 | Parameter | Target | Method | Status |
 |-----------|--------|--------|--------|
-| Injection current | 0.5, 1.0, 2.0 mA selectable | Multimeter measurement | (Target) |
-| Current accuracy | ± 2% of setpoint | Precision resistor test | (Target) |
-| Voltage measurement range | 0.1 mV - 10 V | Calibration resistor | (Target) |
-| Input impedance | > 10 Mohm | Impedance meter | (Target) |
-| Reciprocity error | < 3% (typical soil) | Field reciprocity check | (Target) |
-| Contact resistance tolerance | Up to 10 kohm | Simulated contact test | (Target) |
+| Injection current | 0.5, 1.0, 2.0 mA selectable (Target) | Multimeter measurement | Not validated |
+| Current accuracy | ± 2% of setpoint (Target) | Precision resistor test | Not validated |
+| Voltage measurement range | 0.1 mV - 10 V (Target) | Calibration resistor | Not validated |
+| Input impedance | > 10 Mohm (Target) | Impedance meter | Not validated |
+| Reciprocity error | < 3% (typical soil) (Target) | Field reciprocity check | Not validated |
+| Contact resistance tolerance | Up to 10 kohm (Target) | Simulated contact test | Not validated |
 
 ### Mechanical
 
 | Parameter | Target | Method | Status |
 |-----------|--------|--------|--------|
-| Probe water resistance | IP67 (1 m, 30 min) | Submersion test | (Target) |
-| Connector cycles | > 500 insertions | Lifecycle test | (Target) |
-| Operating temperature | -10°C to +50°C | Environmental chamber | (Target) |
-| Drop resistance | 1 m onto concrete | Drop test | (Target) |
+| Probe water resistance | IP67 (1 m, 30 min) (Target) | Submersion test | Not validated |
+| Connector cycles | > 500 insertions (Target) | Lifecycle test | Not validated |
+| Operating temperature | -10°C to +50°C (Target) | Environmental chamber | Not validated |
+| Drop resistance | 1 m onto concrete (Target) | Drop test | Not validated |
 
 ## Validation Procedures
 
@@ -64,9 +64,9 @@ This section contains **Target specifications** that define expected performance
 
 **Equipment Required:**
 
-- Calibrated oscilloscope (100 MHz bandwidth or greater)
+- Calibrated oscilloscope (100 MHz bandwidth or greater) (Manufacturer spec)
 - Signal generator with frequency counter
-- Precision current shunt (0.1%, 10 ohm)
+- Precision current shunt (0.1%, 10 ohm) (Manufacturer spec)
 - Faraday cage or shielded enclosure
 - Reference calibration targets (aluminum spheres: 5, 10, 25 mm diameter)
 
@@ -75,34 +75,34 @@ This section contains **Target specifications** that define expected performance
 1. **Baseline Noise Measurement**
    - Place probe assembly in shielded enclosure
    - Record RX noise spectrum at each operating frequency
-   - Verify noise floor < 100 nV/rt-Hz specification
+   - Verify noise floor < 100 nV/rt-Hz (Target) specification
 
 2. **TX Current Verification**
    - Insert precision shunt in TX coil circuit
    - Measure RMS current at each frequency
-   - Verify 10 ± 1 mA across operating range
+   - Verify 10 ± 1 mA (Target) across operating range
 
 3. **Phase Accuracy Test**
    - Apply known reference signal to RX path
    - Measure reported phase vs. true phase
-   - Verify ± 0.5° accuracy
+   - Verify ± 0.5° (Target) accuracy
 
 4. **Dynamic Range Test**
    - Position calibration spheres at known distances
    - Measure response from maximum (5 mm at 0.1 m) to minimum detectable
-   - Calculate and verify > 80 dB dynamic range
+   - Calculate and verify > 80 dB (Target) dynamic range
 
 5. **Cross-Probe Calibration**
    - Use identical calibration target at identical position
    - Measure response from each probe
-   - Verify < 5% variation after calibration factor application
+   - Verify < 5% (Target) variation after calibration factor application
 
 ### ERT-Lite Validation Protocol
 
 **Equipment Required:**
 
-- Calibrated multimeter (6-digit resolution)
-- Precision resistor set (0.1%: 10 ohm, 100 ohm, 1 kohm, 10 kohm)
+- Calibrated multimeter (6-digit resolution) (Manufacturer spec)
+- Precision resistor set (0.1%: 10 ohm, 100 ohm, 1 kohm, 10 kohm) (Manufacturer spec)
 - Variable resistance decade box
 - Soil simulation circuit (parallel RC network)
 
@@ -111,12 +111,12 @@ This section contains **Target specifications** that define expected performance
 1. **Current Source Accuracy**
    - Connect precision 100 ohm resistor
    - Measure actual injected current at each setpoint
-   - Verify ± 2% accuracy
+   - Verify ± 2% (Target) accuracy
 
 2. **Voltage Measurement Linearity**
    - Apply known voltages across measurement range
    - Compare reported values to reference meter
-   - Verify linearity < 0.5% of full scale
+   - Verify linearity < 0.5% (Target) of full scale
 
 3. **Contact Resistance Tolerance**
    - Insert series resistance (0, 1 kohm, 5 kohm, 10 kohm) in current path
@@ -126,7 +126,7 @@ This section contains **Target specifications** that define expected performance
 4. **Reciprocity Bench Test**
    - Use resistor network simulating soil
    - Measure forward and reverse transfer impedance
-   - Verify < 1% bench reciprocity error
+   - Verify < 1% (Target) bench reciprocity error
 
 ### Integrated System Validation
 
@@ -134,7 +134,7 @@ This section contains **Target specifications** that define expected performance
 
 For systems with access to a controlled test tank:
 
-1. Fill tank with uniform conductivity solution (e.g., 500 µS/cm)
+1. Fill tank with uniform conductivity solution (e.g., 500 µS/cm (Modeled))
 2. Deploy 4-probe minimum configuration
 3. Insert calibration target (metal sphere, PVC cylinder) at known position
 4. Acquire MIT and ERT data
@@ -145,9 +145,9 @@ For systems with access to a controlled test tank:
 
 | Parameter | Target | Method |
 |-----------|--------|--------|
-| Lateral localization | ± 0.5 × probe spacing | Known target test |
-| Depth localization | ± 0.25 m | Known target test |
-| Size estimation | Within 2× actual | Known target test |
+| Lateral localization | ± 0.5 × probe spacing (Target) | Known target test |
+| Depth localization | ± 0.25 m (Target) | Known target test |
+| Size estimation | Within 2× actual (Target) | Known target test |
 
 ### Field Validation
 
@@ -162,9 +162,9 @@ For systems with access to a controlled test tank:
 **Acceptance Criteria:**
 
 - All probes communicate successfully
-- Reciprocity error < 5% in field conditions
+- Reciprocity error < 5% (Target) in field conditions
 - Known target detected and localized within specifications
-- No hardware failures during 4-hour continuous operation
+- No hardware failures during 4-hour (Target) continuous operation
 
 ## Validation Records
 
@@ -187,16 +187,16 @@ Operator: _______________
 
 MIT-3D Channel
 --------------
-Noise Floor: _______ nV/rt-Hz (Target: < 100)  [PASS/FAIL]
-TX Current: _______ mA RMS (Target: 10 ± 1)  [PASS/FAIL]
-Phase Accuracy: _______ ° (Target: ± 0.5)    [PASS/FAIL]
-Dynamic Range: _______ dB (Target: > 80)     [PASS/FAIL]
+Noise Floor: _______ nV/rt-Hz (Target: < 100 (Target))  [PASS/FAIL]
+TX Current: _______ mA RMS (Target: 10 ± 1 (Target))  [PASS/FAIL]
+Phase Accuracy: _______ ° (Target: ± 0.5 (Target))    [PASS/FAIL]
+Dynamic Range: _______ dB (Target: > 80 (Target))     [PASS/FAIL]
 
 ERT-Lite Channel
 ----------------
-Current Accuracy: _______% (Target: ± 2%)    [PASS/FAIL]
-Reciprocity Error: _______% (Target: < 3%)   [PASS/FAIL]
-Contact Tolerance: _______ kohm (Target: 10)   [PASS/FAIL]
+Current Accuracy: _______% (Target: ± 2% (Target))    [PASS/FAIL]
+Reciprocity Error: _______% (Target: < 3% (Target))   [PASS/FAIL]
+Contact Tolerance: _______ kohm (Target: 10 (Target))   [PASS/FAIL]
 
 Integrated System
 -----------------
@@ -216,7 +216,7 @@ Revalidate the system after:
 - Major firmware updates
 - Component replacement affecting measurement path
 - Physical damage to probes or electronics
-- Extended storage (> 12 months)
+- Extended storage (> 12 months (Target))
 - Any unexplained measurement anomalies
 
 Annual revalidation is recommended for systems in regular use.

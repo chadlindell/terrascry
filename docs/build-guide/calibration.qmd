@@ -41,20 +41,20 @@ plt.show()
 
 | Parameter | Target | Tolerance | Measurement Freq |
 |-----------|--------|-----------|------------------|
-| Coil Inductance | 1.5 mH | +/-10% | 1 kHz |
-| Coil Q Factor @ 2 kHz | >=25 | Minimum | 2 kHz |
-| Coil Q Factor @ 10 kHz | >=30 | Minimum | 10 kHz |
-| Coil Q Factor @ 50 kHz | >=20 | Minimum | 50 kHz |
-| Coil DC Resistance | <8 ohm | Maximum | DC |
-| Self-Resonant Freq | >200 kHz | Minimum | VNA sweep |
-| TX-RX Coupling | <-40 dB | Maximum | 10 kHz |
-| DDS Frequency | Commanded | +/-1% | All |
-| TX Amplitude | Design spec | +/-10% | All |
-| RX Gain | Design spec | +/-10% | All |
-| ERT Current | Commanded | +/-5% | DC |
-| Reciprocity | A->B = B->A | +/-5% | All |
+| Coil Inductance | 1.5 mH (Target) | +/-10% | 1 kHz |
+| Coil Q Factor @ 2 kHz | >=25 (Target) | Minimum | 2 kHz |
+| Coil Q Factor @ 10 kHz | >=30 (Target) | Minimum | 10 kHz |
+| Coil Q Factor @ 50 kHz | >=20 (Target) | Minimum | 50 kHz |
+| Coil DC Resistance | <8 ohm (Target) | Maximum | DC |
+| Self-Resonant Freq | >200 kHz (Target) | Minimum | VNA sweep |
+| TX-RX Coupling | <-40 dB (Target) | Maximum | 10 kHz |
+| DDS Frequency | Commanded | +/-1% (Target) | All |
+| TX Amplitude | Design spec | +/-10% (Target) | All |
+| RX Gain | Design spec | +/-10% (Target) | All |
+| ERT Current | Commanded | +/-5% (Target) | DC |
+| Reciprocity | A->B = B->A | +/-5% (Target) | All |
 
-: Calibration parameters and acceptance tolerances {#tbl-calibration-params}
+: Calibration parameters and acceptance tolerances. All thresholds are (Target) unless otherwise noted. {#tbl-calibration-params}
 
 ### Expected Data Error Thresholds {#sec-error-thresholds}
 
@@ -62,14 +62,14 @@ Based on published practices in the geophysical literature (SimPEG, pyGIMLi), th
 
 | Measurement Type | Expected Error | QC Threshold | Notes |
 |------------------|----------------|--------------|-------|
-| MIT amplitude | 3-5% | <5% | Relative measurement-to-measurement |
-| MIT phase | 2-3 deg | <5 deg | Absolute phase accuracy |
-| ERT resistance | 3-5% | <5% | Relative error typical for DC resistivity |
-| Reciprocity | <3% | <5% | A->B vs B->A difference |
+| MIT amplitude | 3-5% (Target) | <5% (Target) | Relative measurement-to-measurement |
+| MIT phase | 2-3 deg (Target) | <5 deg (Target) | Absolute phase accuracy |
+| ERT resistance | 3-5% (Target) | <5% (Target) | Relative error typical for DC resistivity |
+| Reciprocity | <3% (Target) | <5% (Target) | A->B vs B->A difference |
 
 : Expected measurement error thresholds for QC pass/fail determination {#tbl-error-thresholds}
 
-These thresholds are consistent with standard inversion software defaults (e.g., pyGIMLi uses 3% relative error for ERT; SimPEG recommends 5-10% data uncertainty for DC resistivity). Measurements exceeding these thresholds should be flagged for review and potential re-acquisition.
+These thresholds are consistent with standard inversion software defaults (e.g., pyGIMLi uses 3% relative error for ERT (Manufacturer spec); SimPEG recommends 5-10% data uncertainty for DC resistivity (Manufacturer spec)). Measurements exceeding these thresholds should be flagged for review and potential re-acquisition.
 
 ## Calibration Workflow {#sec-calibration-workflow}
 
@@ -98,7 +98,7 @@ plt.show()
 | Equipment | Purpose | Notes |
 |-----------|---------|-------|
 | LCR Meter | Coil measurements | Set to 10 kHz |
-| Oscilloscope | Signal verification | 50 MHz minimum |
+| Oscilloscope | Signal verification | 50 MHz minimum (Target) |
 | Multimeter | V/I/R measurements | 6-digit preferred |
 | Function Generator | Signal injection | 1 Hz - 100 kHz |
 | Known Test Targets | Coupling verification | Al plate, steel bar |
@@ -109,14 +109,14 @@ plt.show()
 
 ### Environment Requirements {#sec-environment-requirements}
 
-- Temperature: 20-25C (stable, within +/-2C during calibration)
+- Temperature: 20-25C (stable, within +/-2C during calibration) (Target)
 - EMI: Minimize interference sources (turn off nearby equipment, use shielded area)
-- Warm-up time: Allow 15-30 minutes for equipment stabilization
-- Humidity: <80% RH to prevent condensation on probe surfaces
+- Warm-up time: Allow 15-30 minutes for equipment stabilization (Target)
+- Humidity: <80% RH to prevent condensation on probe surfaces (Target)
 
 ## Air Calibration Setup {#sec-air-calibration}
 
-Air calibration establishes the baseline response of the probe when isolated from all external influences. The probe is suspended on a non-metallic stand (wood, PVC, or fiberglass) at least 1 meter from any metal objects. This measurement provides the 'zero' reference for subsequent target detection.
+Air calibration establishes the baseline response of the probe when isolated from all external influences. The probe is suspended on a non-metallic stand (wood, PVC, or fiberglass) at least 1 meter (Target) from any metal objects. This measurement provides the 'zero' reference for subsequent target detection.
 
 ```{python}
 #| label: fig-air-calibration-setup
@@ -143,7 +143,7 @@ plt.show()
 1. Connect LCR meter to TX coil leads (ensure proper polarity)
 2. Set measurement frequency to 1 kHz (reference frequency)
 3. Measure inductance (L) and record in mH
-4. Compare to specification: target 1.5 mH, tolerance +/-10% (1.35-1.65 mH)
+4. Compare to specification: target 1.5 mH (Target), tolerance +/-10% (1.35-1.65 mH)
 5. Record Pass/Fail status on calibration sheet
 
 ### TX Coil Q Factor (Multi-Frequency) {#sec-tx-q-factor}
@@ -152,9 +152,9 @@ The Q factor must be measured across the full operating frequency range:
 
 | Frequency | Minimum Q | Notes |
 |-----------|-----------|-------|
-| 2 kHz | >=25 | Deep penetration mode |
-| 10 kHz | >=30 | Primary operating frequency |
-| 50 kHz | >=20 | High-resolution mode |
+| 2 kHz | >=25 (Target) | Deep penetration mode |
+| 10 kHz | >=30 (Target) | Primary operating frequency |
+| 50 kHz | >=20 (Target) | High-resolution mode |
 
 **Procedure:**
 
@@ -166,7 +166,7 @@ The Q factor must be measured across the full operating frequency range:
 
 **Self-Resonant Frequency Check:**
 
-If VNA available, sweep 100 kHz - 1 MHz to identify the self-resonant frequency (SRF). Target: SRF > 200 kHz. If SRF falls within operating range (2-50 kHz), the coil must be rewound with single-layer technique to reduce parasitic capacitance.
+If VNA available, sweep 100 kHz - 1 MHz to identify the self-resonant frequency (SRF). Target: SRF > 200 kHz (Target). If SRF falls within operating range (2-50 kHz), the coil must be rewound with single-layer technique to reduce parasitic capacitance.
 
 ### RX Coil Parameters {#sec-rx-coil-params}
 
@@ -182,20 +182,20 @@ $$
 \text{Error (\%)} = \frac{f_{\text{actual}} - f_{\text{commanded}}}{f_{\text{commanded}}} \times 100
 $$
 
-Expected accuracy: +/-1% or better. Larger errors indicate DDS programming issues or clock reference problems.
+Expected accuracy: +/-1% or better (Target). Larger errors indicate DDS programming issues or clock reference problems.
 
 ### TX Output Amplitude {#sec-tx-amplitude}
 
-- DDS output: ~0.6 V RMS typical (before driver stage)
-- Driver output: 1-5 V RMS (design dependent)
-- Gain should be 2-5x across frequency range
-- Check for flat frequency response (+/-1 dB)
+- DDS output: ~0.6 V RMS typical (Modeled) (before driver stage)
+- Driver output: 1-5 V RMS (design dependent) (Target)
+- Gain should be 2-5x across frequency range (Target)
+- Check for flat frequency response (+/-1 dB) (Target)
 
 ## RX Chain Calibration {#sec-rx-calibration}
 
 ### RX Chain Gain {#sec-rx-gain}
 
-Verify RX amplification chain gain by injecting a known test signal at the RX input and measuring output at each stage. A typical test signal is 1 mV at 10 kHz. Measure at preamp output, instrumentation amplifier output, and ADC input. Calculate gain at each stage and total system gain.
+Verify RX amplification chain gain by injecting a known test signal at the RX input and measuring output at each stage. A typical test signal is 1 mV at 10 kHz (Target). Measure at preamp output, instrumentation amplifier output, and ADC input. Calculate gain at each stage and total system gain.
 
 ### RX Noise Floor {#sec-rx-noise-floor}
 
@@ -203,11 +203,11 @@ Verify RX amplification chain gain by injecting a known test signal at the RX in
 2. Apply no input signal (or short input terminals)
 3. Measure output noise amplitude over 10-second window
 4. Record multiple measurements and calculate standard deviation
-5. Target: Noise floor < 1% of full scale
+5. Target: Noise floor < 1% of full scale (Target)
 
 ## Known-Target Test Setup {#sec-known-target-setup}
 
-The known-target test verifies that the complete MIT system detects conductive targets with the expected amplitude and phase response. Two probes are set up 1-3 meters apart with a known target (aluminum plate or steel bar) placed between them. This test validates both the detection sensitivity and the multi-frequency response characteristics.
+The known-target test verifies that the complete MIT system detects conductive targets with the expected amplitude and phase response. Two probes are set up 1-3 meters apart (Target) with a known target (aluminum plate or steel bar) placed between them. This test validates both the detection sensitivity and the multi-frequency response characteristics.
 
 ```{python}
 #| label: fig-known-target-setup
@@ -229,8 +229,8 @@ plt.show()
 
 ### Expected Results {#sec-expected-results}
 
-- Amplitude reduction: 10-50% depending on target size and distance
-- Phase lag: 5-30 degrees depending on frequency and target conductivity
+- Amplitude reduction: 10-50% depending on target size and distance (Modeled)
+- Phase lag: 5-30 degrees depending on frequency and target conductivity (Modeled)
 - Lower frequencies show deeper sensitivity (skin depth effect)
 - Response should scale predictably with target distance
 
@@ -239,7 +239,7 @@ plt.show()
 Reciprocity checks are essential for validating measurement quality. For both MIT and ERT, swapping transmitter and receiver should yield equivalent measurements within error bounds:
 
 $$
-\frac{|M_{A \rightarrow B} - M_{B \rightarrow A}|}{(M_{A \rightarrow B} + M_{B \rightarrow A})/2} \times 100\% < 5\%
+\frac{|M_{A \rightarrow B} - M_{B \rightarrow A}|}{(M_{A \rightarrow B} + M_{B \rightarrow A})/2} \times 100\% < 5\% \text{ (Target)}
 $$ {#eq-reciprocity}
 
 where $M$ represents the measured quantity (voltage ratio for MIT, apparent resistivity for ERT).
@@ -250,11 +250,11 @@ where $M$ represents the measured quantity (voltage ratio for MIT, apparent resi
 1. Measure forward path (A transmit -> B receive)
 2. Measure reciprocal path (B transmit -> A receive)
 3. Calculate percent difference using @eq-reciprocity
-4. Flag measurements exceeding 5% for investigation
+4. Flag measurements exceeding 5% (Target) for investigation
 5. Common causes of poor reciprocity: loose connections, electrode corrosion, coupling variations
 :::
 
-Systematic reciprocity errors indicate calibration drift or hardware issues. Random reciprocity failures suggest environmental noise or poor electrode contact. The pyGIMLi crosshole ERT examples recommend filtering data points with reciprocal error exceeding 5% before inversion.
+Systematic reciprocity errors indicate calibration drift or hardware issues. Random reciprocity failures suggest environmental noise or poor electrode contact. The pyGIMLi crosshole ERT examples recommend filtering data points with reciprocal error exceeding 5% (Manufacturer spec) before inversion.
 
 ## Calibration Data Analysis {#sec-data-analysis}
 
@@ -282,15 +282,15 @@ plt.show()
 
 ### Ring Isolation Verification {#sec-ring-isolation}
 
-Verify electrical isolation between ERT rings to ensure independent measurements. Measure resistance between all ring pairs, between rings and ground, and between rings and the probe rod. All measurements should exceed 1 M-ohm. Lower values indicate contamination or insulation failure.
+Verify electrical isolation between ERT rings to ensure independent measurements. Measure resistance between all ring pairs, between rings and ground, and between rings and the probe rod. All measurements should exceed 1 M-ohm (Target). Lower values indicate contamination or insulation failure.
 
 ### Current Source Calibration {#sec-current-source-calibration}
 
-1. Connect current source to test load (1 k-ohm precision resistor)
+1. Connect current source to test load (1 k-ohm precision resistor) (Target)
 2. Set commanded current level (start at 1 mA)
 3. Measure actual current with calibrated multimeter
 4. Calculate calibration factor: Cal = I_actual / I_commanded
-5. Test across full range: 0.5, 1.0, 1.5, 2.0 mA
+5. Test across full range: 0.5, 1.0, 1.5, 2.0 mA (Target)
 6. Record all values and average calibration factor
 
 ## Error Analysis and Uncertainty Budget {#sec-error-analysis}
@@ -299,11 +299,11 @@ Scientific data reporting requires characterizing not just the measured value, b
 
 | Source | Type | Magnitude | Distribution |
 |--------|------|-----------|--------------|
-| Reference Resistor | Systematic | 0.1% | Rectangular |
-| ADC Quantization | Random | < 1 uV | Uniform |
-| Thermal Drift | Systematic | 50 ppm/C | Linear |
-| Probe Geometry | Random | +/- 1 cm | Normal |
-| Combined Uncertainty | Mixed | ~1-2% | (k=2) |
+| Reference Resistor | Systematic | 0.1% (Manufacturer spec) | Rectangular |
+| ADC Quantization | Random | < 1 uV (Modeled) | Uniform |
+| Thermal Drift | Systematic | 50 ppm/C (Modeled) | Linear |
+| Probe Geometry | Random | +/- 1 cm (Target) | Normal |
+| Combined Uncertainty | Mixed | ~1-2% (Modeled) | (k=2) |
 
 : Typical uncertainty budget for HIRT measurements {#tbl-uncertainty-budget}
 
@@ -315,15 +315,15 @@ $$
 
 ## Field Quick-Check Procedure {#sec-field-quick-check}
 
-Before each field deployment, perform these abbreviated checks to verify system readiness. This procedure takes approximately 15-30 minutes and can identify common issues before they affect data collection.
+Before each field deployment, perform these abbreviated checks to verify system readiness. This procedure takes approximately 15-30 minutes (Target) and can identify common issues before they affect data collection.
 
 ::: {.callout-note}
 ## Pre-Deployment Quick Check
 
 - Visual inspection: No visible damage, all connections secure
 - Power check: System powers on, LEDs functioning, communication established
-- Coil quick test: TX/RX connected (~1-2 mH), Q factor reasonable (>20)
-- ERT quick test: Rings isolated (>1 M-ohm), no shorts to ground
+- Coil quick test: TX/RX connected (~1-2 mH) (Target), Q factor reasonable (>20) (Target)
+- ERT quick test: Rings isolated (>1 M-ohm) (Target), no shorts to ground
 - Coupling verification: Wave hand near coil and observe response
 :::
 
@@ -339,7 +339,7 @@ Before each field deployment, perform these abbreviated checks to verify system 
 
 : Recalibration schedule triggers and actions {#tbl-recalibration-schedule}
 
-Calibration is considered valid if: all measurements are within specifications, no repairs or modifications have been made since calibration, system performance remains consistent, and the calibration validity period has not expired (typically 6 months).
+Calibration is considered valid if: all measurements are within specifications, no repairs or modifications have been made since calibration, system performance remains consistent, and the calibration validity period has not expired (typically 6 months) (Target).
 
 ## Documentation Requirements {#sec-calibration-documentation}
 

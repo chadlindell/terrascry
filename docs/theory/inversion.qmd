@@ -61,40 +61,40 @@ For crosshole/borehole geometries, anisotropic regularization improves results:
 
 | Parameter | Surface Survey | Crosshole Survey | Notes |
 |-----------|---------------|------------------|-------|
-| zWeight | 1.0 | 0.3-0.5 | Reduced vertical smoothing for crosshole |
+| zWeight | 1.0 | 0.3-0.5 **(Modeled)** | Reduced vertical smoothing for crosshole |
 | Lateral smoothing | Standard | Standard | Maintain lateral continuity |
-| Alpha_s (smallness) | 0.001-0.01 | 0.001-0.01 | Model norm regularization |
-| Alpha_x/y/z (smoothness) | 1.0 | 1.0/1.0/0.3 | Directional smoothness weights |
+| Alpha_s (smallness) | 0.001-0.01 **(Modeled)** | 0.001-0.01 **(Modeled)** | Model norm regularization |
+| Alpha_x/y/z (smoothness) | 1.0 | 1.0/1.0/0.3 **(Modeled)** | Directional smoothness weights |
 
-: Recommended regularization parameters {#tbl-regularization}
+: Recommended regularization parameters (from SimPEG/pyGIMLi best practices) {#tbl-regularization}
 
-The reduced zWeight (0.3-0.5) for crosshole surveys allows sharper vertical boundaries—appropriate when horizontal ray paths provide good vertical resolution.
+The reduced zWeight (0.3-0.5) **(Modeled)** for crosshole surveys allows sharper vertical boundaries—appropriate when horizontal ray paths provide good vertical resolution.
 
 ### Starting Model Selection
 
 The starting model significantly affects inversion convergence and final results:
 
-- **Default starting model**: Use background resistivity estimate, typically ln(100 ohm·m) = ln(0.01 S/m)
+- **Default starting model**: Use background resistivity estimate, typically ln(100 ohm·m) = ln(0.01 S/m) **(Modeled)**
 - **Site-specific**: If prior information exists, use that as the starting model
 - **Homogeneous half-space**: Appropriate when no prior information is available
 
 ::: {.callout-note}
 ## SimPEG Convention
-SimPEG uses log-conductivity (ln σ) parameterization. A starting model of ln(0.01) corresponds to 100 ohm·m resistivity. This ensures positivity and improves numerical stability.
+SimPEG uses log-conductivity (ln σ) parameterization. A starting model of ln(0.01) corresponds to 100 ohm·m **(Modeled)** resistivity. This ensures positivity and improves numerical stability.
 :::
 
 ### Mesh Design Guidelines
 
 | Element | Guideline | Rationale |
 |---------|-----------|-----------|
-| Cell size at electrodes | ~10% of electrode spacing | Resolves current injection |
-| Cell size in target zone | ~25% of expected feature size | Adequate resolution |
-| Padding cells | 3-5 layers, expanding | Boundary condition stability |
+| Cell size at electrodes | ~10% of electrode spacing **(Modeled)** | Resolves current injection |
+| Cell size in target zone | ~25% of expected feature size **(Modeled)** | Adequate resolution |
+| Padding cells | 3-5 layers, expanding **(Modeled)** | Boundary condition stability |
 | Mesh type (ERT) | Tetrahedral or OcTree | Handles topography and refinement |
 
-: Mesh design guidelines {#tbl-mesh-guidelines}
+: Mesh design guidelines (from finite element best practices) {#tbl-mesh-guidelines}
 
-For HIRT's ~0.5m ring electrode spacing, cells near electrodes should be ~5 cm. For the target zone between probes, 10-25 cm cells typically provide adequate resolution.
+For HIRT's ~0.5 m ring electrode spacing, cells near electrodes should be ~5 cm **(Modeled)**. For the target zone between probes, 10-25 cm cells **(Modeled)** typically provide adequate resolution.
 
 ## Data Uncertainty and Error Propagation
 
@@ -102,12 +102,12 @@ For HIRT's ~0.5m ring electrode spacing, cells near electrodes should be ~5 cm. 
 
 | Error Source | MIT Typical | ERT Typical | Mitigation |
 |--------------|-------------|-------------|------------|
-| Instrument noise | 2-5% | 1-3% | Averaging, filtering |
-| Electrode contact | N/A | 2-10% | Contact resistance check |
-| Position uncertainty | 1-3% | 1-3% | Careful surveying |
-| Temperature drift | 1-2% | 1-2% | Reference measurements |
-| Reciprocity error | 2-5% | 2-5% | QC during acquisition |
-| **Combined (RSS)** | **3-8%** | **3-12%** | All above measures |
+| Instrument noise | 2-5% **(Target)** | 1-3% **(Target)** | Averaging, filtering |
+| Electrode contact | N/A | 2-10% **(Modeled)** | Contact resistance check |
+| Position uncertainty | 1-3% **(Modeled)** | 1-3% **(Modeled)** | Careful surveying |
+| Temperature drift | 1-2% **(Modeled)** | 1-2% **(Modeled)** | Reference measurements |
+| Reciprocity error | 2-5% **(Target)** | 2-5% **(Target)** | QC during acquisition |
+| **Combined (RSS)** | **3-8% (Target)** | **3-12% (Target)** | All above measures |
 
 : Typical measurement error sources {#tbl-error-sources}
 
@@ -117,7 +117,7 @@ Data weights $w_i$ in the inversion are typically set as the inverse of estimate
 
 $$w_i = \frac{1}{\sigma_i} = \frac{1}{\epsilon_r \cdot |d_i|}$$
 
-Where $\epsilon_r$ is the relative error (typically 3-5% for HIRT) and $d_i$ is the measured datum.
+Where $\epsilon_r$ is the relative error (typically 3-5% **(Target)** for HIRT) and $d_i$ is the measured datum.
 
 ### Model Resolution and Covariance
 
@@ -135,7 +135,7 @@ $$\mathbf{C}_m = (\mathbf{J}^T \mathbf{W} \mathbf{J} + \lambda \mathbf{R}_m^T \m
 
 **Step 1: Assign Data Weights**
 
-- Start with uniform 5% relative error assumption
+- Start with uniform 5% **(Target)** relative error assumption
 - Increase weights for measurements with poor reciprocity (>5%)
 - Decrease weights for repeated measurements that show consistency
 
@@ -145,7 +145,7 @@ $$\mathbf{C}_m = (\mathbf{J}^T \mathbf{W} \mathbf{J} + \lambda \mathbf{R}_m^T \m
 2. Invert each perturbed dataset independently
 3. Compute mean and standard deviation across ensemble
 
-Minimum recommended: 20 realizations; robust estimate: 50-100 realizations.
+Minimum recommended: 20 realizations **(Modeled)**; robust estimate: 50-100 realizations **(Modeled)**.
 
 **Step 3: Calculate DOI Index**
 
@@ -153,17 +153,17 @@ The Depth of Investigation (DOI) index identifies regions where inversion result
 
 1. Run inversion with two different reference models (e.g., 10× and 0.1× background)
 2. DOI = (m_1 - m_2) / (m_ref1 - m_ref2)
-3. DOI < 0.1: Well-constrained by data
-4. DOI > 0.3: Poorly constrained, regularization-dominated
+3. DOI < 0.1 **(Modeled)**: Well-constrained by data
+4. DOI > 0.3 **(Modeled)**: Poorly constrained, regularization-dominated
 
 **Step 4: Report Uncertainty with Results**
 
 - Estimated parameter uncertainty (from ensemble or covariance analysis)
 - DOI map showing sensitivity coverage
 - Confidence level assignment:
-  - HIGH: Feature in >90% of realizations, DOI < 0.1
-  - MEDIUM: Feature in 70-90% of realizations, DOI < 0.2
-  - LOW: Feature in 50-70% of realizations, or DOI > 0.2
+  - HIGH: Feature in >90% of realizations, DOI < 0.1 **(Modeled)**
+  - MEDIUM: Feature in 70-90% of realizations, DOI < 0.2 **(Modeled)**
+  - LOW: Feature in 50-70% of realizations, or DOI > 0.2 **(Modeled)**
 
 ::: {.callout-important}
 ## Reporting Uncertainty is Mandatory
@@ -177,7 +177,7 @@ Tomographic images without uncertainty estimates can be misleading. A sharp-look
 
 Modern inversion algorithms (SimPEG, pyGIMLi, EIDORS) construct the sensitivity matrix from **actual electrode positions**, not idealized grid coordinates:
 
-- A probe offset by 30 cm is correctly incorporated if its position is accurately recorded
+- A probe offset by 30 cm **(Modeled)** is correctly incorporated if its position is accurately recorded
 - Irregular spacing does not inherently degrade inversion quality
 - **Accurate position documentation** is more important than perfect grid geometry
 
@@ -185,21 +185,21 @@ Modern inversion algorithms (SimPEG, pyGIMLi, EIDORS) construct the sensitivity 
 
 | Condition | Impact on Coverage | Impact on Resolution | Mitigation |
 |-----------|-------------------|---------------------|------------|
-| Probe offset <0.5 m | Minimal | Negligible | Record actual position |
-| Probe offset 0.5-1.0 m | Minor asymmetry | Slight reduction | Document reason |
+| Probe offset <0.5 m **(Modeled)** | Minimal | Negligible | Record actual position |
+| Probe offset 0.5-1.0 m **(Modeled)** | Minor asymmetry | Slight reduction | Document reason |
 | Missing probe | Reduced ray coverage | Lower resolution in gap | Report reduced confidence |
 | Partial depth (>50%) | Upper sensors valid | Normal for shallow | Exclude below-tip sensors |
 | Partial depth (<50%) | Limited value | Significantly reduced | Consider omitting |
-| Surface topography >0.5 m | Requires mesh adjustment | Minor if accounted for | Use actual Z coordinates |
+| Surface topography >0.5 m **(Modeled)** | Requires mesh adjustment | Minor if accounted for | Use actual Z coordinates |
 
-: Impact of array irregularities {#tbl-irregularity-impact}
+: Impact of array irregularities (from sensitivity analysis) {#tbl-irregularity-impact}
 
 ### Handling Missing Probes
 
 **Coverage Effects:**
 - Ray paths through gap have reduced density
 - Anomalies within gap may be under-resolved
-- Edge effects extend ~1 spacing distance into covered area
+- Edge effects extend ~1 spacing distance **(Modeled)** into covered area
 
 **Mitigation Strategies:**
 1. Add extra probes on opposite side of gap if possible
@@ -217,9 +217,9 @@ Modern inversion algorithms (SimPEG, pyGIMLi, EIDORS) construct the sensitivity 
 
 ### Lateral Resolution
 
-Lateral resolution depends on probe spacing and measurement density. HIRT can resolve features with dimensions approximately 0.5 to 1.5 times the probe spacing.
+Lateral resolution depends on probe spacing and measurement density. HIRT can resolve features with dimensions approximately 0.5 to 1.5 times **(Modeled)** the probe spacing.
 
-| Probe Spacing | Minimum Feature | Practical Resolution |
+| Probe Spacing | Minimum Feature (Modeled) | Practical Resolution (Modeled) |
 |---------------|-----------------|---------------------|
 | 1.0 m | 0.5 m | 0.75-1.0 m |
 | 1.5 m | 0.75 m | 1.0-1.5 m |
@@ -233,17 +233,17 @@ Lateral resolution depends on probe spacing and measurement density. HIRT can re
 
 $$\Delta z_{MIT} \approx 0.5 \sqrt{\frac{2}{\omega \mu_0 \sigma}}$$
 
-For 5 kHz in 10 mS/m soil, this yields approximately 0.5-0.8 m vertical resolution.
+For 5 kHz in 10 mS/m soil, this yields approximately 0.5-0.8 m **(Modeled)** vertical resolution.
 
-**ERT Depth Resolution:** Depends on electrode spacing. With 0.5 m vertical spacing, features separated by less than 0.25-0.5 m vertically will blur.
+**ERT Depth Resolution:** Depends on electrode spacing. With 0.5 m vertical spacing, features separated by less than 0.25-0.5 m **(Modeled)** vertically will blur.
 
 ### Resolution Degradation with Depth
 
 Below the probe tips, sensitivity falls approximately exponentially:
 
-- **0-0.5 m below tip:** Resolution degrades by ~30%
-- **0.5-1.0 m below tip:** Resolution degrades by ~60%
-- **>1.0 m below tip:** Detection unreliable
+- **0-0.5 m below tip:** Resolution degrades by ~30% **(Modeled)**
+- **0.5-1.0 m below tip:** Resolution degrades by ~60% **(Modeled)**
+- **>1.0 m below tip:** Detection unreliable **(Modeled)**
 
 ::: {.callout-warning}
 ## Do Not Extend Inversions Beyond Probe Depth
@@ -259,7 +259,7 @@ Geophysical inversion suffers from a fundamental limitation: multiple different 
 
 The inverse problem is underdetermined. The number of model parameters (thousands of mesh cells) greatly exceeds the number of independent measurements (hundreds of probe pairs). Regularization forces preference for smooth models, introducing bias.
 
-**Practical Implication:** A tomogram showing a high-conductivity anomaly at 2.5 m depth could represent:
+**Practical Implication:** A tomogram showing a high-conductivity anomaly at 2.5 m **(Modeled)** depth could represent:
 
 - A single large metallic object
 - Multiple smaller objects distributed over depth
@@ -303,7 +303,7 @@ The inverse problem is underdetermined. The number of model parameters (thousand
 
 **Resolution Mismatch:** A small metal object may appear tight in MIT but smeared in ERT.
 
-**Depth Discrepancy:** Same target may appear at slightly different depths. Allow ±0.5 m tolerance.
+**Depth Discrepancy:** Same target may appear at slightly different depths. Allow ±0.5 m **(Modeled)** tolerance.
 
 ## Software Compatibility
 

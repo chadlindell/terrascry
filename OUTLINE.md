@@ -69,10 +69,10 @@ This document tracks the status and requirements for each documentation section.
 - **Notes:** Bomb crater, woodland burial, swamp recovery
 
 ### troubleshooting.qmd
-- **Status:** MIGRATED (needs hybrid rewrite)
+- **Status:** REVIEW
 - **Purpose:** Common problems and solutions
 - **Source:** 13-troubleshooting.qmd
-- **Notes:** Needs hybrid format (tables + narrative)
+- **Notes:** Hybrid format applied (tables + narrative context for field repairs, abort decisions)
 
 ---
 
@@ -136,9 +136,9 @@ This document tracks the status and requirements for each documentation section.
 - **Notes:** Block diagrams, signal flow
 
 ### sensor-modalities.qmd
-- **Status:** NEW
+- **Status:** REVIEW
 - **Purpose:** Sensor maturity framework
-- **Notes:** Supported/Recommended/Future labeling
+- **Notes:** Supported/Recommended/Future labeling, 3 diagrams added (maturity, tilt error, fusion), specs qualified
 
 ### inversion.qmd
 - **Status:** NEW (split from 12-data-interpretation)
@@ -217,17 +217,21 @@ This document tracks the status and requirements for each documentation section.
 - [x] GitHub Actions CI workflow created
 - [x] Build artifacts excluded from git tracking
 - [x] README updated for Technical Manual structure
-- [ ] Troubleshooting hybrid rewrite (keep tables + add narrative)
-- [ ] Performance claim qualifications throughout
-- [ ] Progressive deployment diagrams (5-6 new)
-- [ ] Research backlog reviewed and integrated
-- [ ] Research findings integrated into relevant sections
+- [x] Troubleshooting hybrid rewrite (keep tables + add narrative)
+- [x] Performance claim qualifications (Phase A: 4 worst-offender files)
+- [x] Progressive deployment diagrams (cross-section, depth extension, workflow)
+- [x] Sensor modality diagrams (maturity framework, tilt error, fusion)
+- [x] Research integration Phase A (4 key documents)
+- [x] Performance claim qualifications (Phase B: remaining 14 files, ~190 claims)
+- [x] Research backlog reviewed and integrated (Phase B: 7 integrated, 7 closed)
+- [x] Research findings fully integrated into relevant sections
+- [x] Bentonite correctness bug fixed (polymer drilling fluid replaces prohibited bentonite)
+- [x] UXO safety data integrated (standoff distances, abort criteria, pre-push checklist)
+- [x] Autonomous deployment entry added to roadmap (TRL 3-4 assessment)
 
 ---
 
 ## Pending Tasks
 
-1. **Troubleshooting hybrid rewrite** - Apply hybrid format (keep diagnostic tables, add narrative context sections)
-2. **Performance qualifications** - Add (Measured)/(Modeled)/(Target) labels to all specs
-3. **Progressive deployment diagrams** - Create workflow flowchart, depth extension decision tree, etc.
-4. **Sensor modality diagrams** - Multi-modal fusion illustration
+1. **Phase C: Deep theory pass** - HERO analysis in physics, modernized signal chain in architecture
+2. **Phase C: Extended diagram coverage** - Architecture block diagram, uncertainty visualization

@@ -184,6 +184,26 @@ plt.show()
 
 The modular M12 connector system enables depth extension without removing the probe from the ground.
 
+```{python}
+#| label: fig-depth-extension-procedure
+#| fig-cap: "In-place depth extension sequence. The four-step process maintains probe position while adding segments, avoiding the need to extract and re-insert."
+#| fig-width: 12
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_depth_extension_procedure
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_depth_extension_procedure()
+img = Image.open(buf)
+plt.figure(figsize=(12, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ### Equipment Required
 
 - Additional rod segments
@@ -250,6 +270,8 @@ When extending probes in place, the cable must have sufficient slack to accommod
 | 2.5 m | 1.0 m | Coil excess near zone hub |
 | 3.0 m | 1.5 m | Use extended cables |
 
+: Cable slack requirements for progressive deployment **(Target)**. {#tbl-cable-slack}
+
 **Slack Management Technique:**
 
 1. Before Phase A, deploy with excess cable coiled at surface
@@ -260,6 +282,22 @@ When extending probes in place, the cable must have sufficient slack to accommod
 ## Push System Integration
 
 For depths beyond what hand-pushing can achieve, integrate with mechanical push systems.
+
+### Viable Insertion Methods
+
+Research into probe insertion methods identified five candidate approaches, with three rated as highly feasible for HIRT deployment. The following comparison summarizes viable methods ranked by cost-effectiveness:
+
+| Method | Equipment Cost | Production Rate | UXO Safety | Best For |
+|--------|---------------|-----------------|------------|----------|
+| Water-assisted static push | $1,500-2,500 **(Target)** | 20-40 holes/day **(Target)** | SAFE | Initial testing, light use |
+| Lightweight purpose-built rig (HMIS) | $6,200-11,300 **(Target)** | 25-40 holes/day **(Target)** | SAFE | Standard operations |
+| Remote-controlled mini excavator | $60,000-95,000 **(Target)** | 15-30 holes/day **(Target)** | SAFE | High-risk UXO sites |
+
+: Viable insertion methods for HIRT probe deployment. All methods use static push (no percussion or vibration) for UXO safety compliance. Production rates assume a 2-person crew in typical soil conditions. {#tbl-insertion-methods}
+
+Water-assisted jetting represents the lowest-cost entry point: a portable pump and stainless steel lance create pilot holes to full depth, followed by probe insertion into the pre-formed hole with minimal force. This hybrid jetting-plus-push technique is recommended as the Tier 1 deployment method for initial field trials **(Target)**.
+
+For standard operations requiring higher throughput, the HMIS provides an optimal balance of capability and portability at roughly one-tenth the cost of commercial CPT equipment.
 
 ### Strategy A: Two-Pass Method
 
@@ -316,9 +354,13 @@ For sites requiring mechanical push assistance, the HIRT Modular Insertion Syste
 | Control | 50 m tethered remote |
 | Transport | 2-person carry, fits in SUV |
 
-**Estimated Cost:** $6,200-11,300 complete system
+: HMIS system specifications **(Target, design goals)**. {#tbl-hmis-specs}
 
-See research documentation: `research/deployment/probe-insertion-methods-summary.md`
+**Estimated Cost:** $6,200-11,300 complete system **(Target)**
+
+**Production Rate:** 25-40 holes/day **(Target)**
+
+See [Probe Insertion Methods Summary](../../research/deployment/probe-insertion-methods-summary.md) for comprehensive feasibility assessments of all five candidate methods.
 
 ## UXO Safety Protocols
 
@@ -383,38 +425,25 @@ For maximum safety at high-risk sites:
 
 The following diagram illustrates how progressive deployment builds depth coverage incrementally:
 
-::: {.visual-placeholder}
-**Figure Concept**: Progressive Deployment Depth Profile
+```{python}
+#| label: fig-progressive-cross-section
+#| fig-cap: "Progressive deployment depth profile across four stages. Phase A provides uniform shallow coverage, Phase C extends selectively where anomalies are detected, Phase D achieves full depth at the target, and the comparison panel shows the equivalent fixed-depth approach requiring 37% more total insertion."
+#| fig-width: 12
+#| fig-height: 8
 
-Cross-section view showing probe array at four stages:
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.progressive_deployment import create_progressive_cross_section
+from PIL import Image
+import matplotlib.pyplot as plt
 
-**Panel 1 (Phase A):**
-- All probes at 1.0 m depth (uniform shallow)
-- Sensitivity zone indicated as ellipses between probes
-- Annotation: "Full lateral coverage, limited depth"
-
-**Panel 2 (Phase C - selective):**
-- Some probes extended to 2.0 m (where anomalies detected)
-- Other probes remain at 1.0 m
-- Deeper sensitivity zones at extended positions
-- Annotation: "Targeted depth where needed"
-
-**Panel 3 (Phase D - complete):**
-- Priority probes at 3.0 m
-- Adjacent probes at 2.0 m
-- Background probes at 1.0 m
-- Full depth sensitivity at target
-- Annotation: "Maximum depth at target, efficient coverage elsewhere"
-
-**Panel 4 (Comparison with fixed-depth):**
-- All probes at 3.0 m (traditional approach)
-- Annotation: "Standard approach: same effort everywhere"
-- Arrow comparing total insertion work
-
-Show surface, probes as vertical lines with electrode rings, target location, ground layers.
-
-**Type**: cross-section
-:::
+buf = create_progressive_cross_section()
+img = Image.open(buf)
+plt.figure(figsize=(12, 8))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
 
 ## When Progressive Deployment Is NOT Appropriate
 

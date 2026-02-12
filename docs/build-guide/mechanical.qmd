@@ -28,11 +28,11 @@ See `/hardware/cad/QUICKSTART.md` for getting started with the CAD files.
 
 - **No big electronics at the tip:** PCBs, ADCs, MCUs stay at surface. Only passive components downhole.
 - **Probes are mostly passive:** Downhole contains only coils and electrodes plus thin wiring. All "smart" electronics reside in junction box above ground.
-- **Rod diameter standard: 16mm OD:** Robust hiking pole standard allowing strong M12 threads. Hole size of 18-20mm is much less destructive than traditional 50mm.
+- **Rod diameter standard: 16mm OD (Target):** Robust hiking pole standard allowing strong M12 threads. Hole size of 18-20mm (Target) is much less destructive than traditional 50mm.
 
 ```{python}
 #| label: fig-exploded-assembly
-#| fig-cap: "Probe assembly exploded view showing the modular construction with M12x1.75 threaded connections. Components from bottom: probe tip, rod segments with integrated coils, ERT ring collars, and surface junction box. All parts screw together for field assembly."
+#| fig-cap: "Probe assembly exploded view showing the modular construction with M12x1.75 (Manufacturer spec) threaded connections. Components from bottom: probe tip, rod segments with integrated coils, ERT ring collars, and surface junction box. All parts screw together for field assembly."
 #| fig-width: 8
 #| fig-height: 10
 #| code-fold: true
@@ -53,11 +53,11 @@ plt.show()
 
 ## Disturbance Comparison {#sec-disturbance-comparison}
 
-The micro-probe design achieves dramatic reduction in soil disturbance compared to traditional geophysical probes. A 16mm rod requires only an 18-20mm hole, with cross-sectional area of approximately 2.5-3.1 cm^2^ ($\pi \times 1.0^2$ cm). At 3m depth, this creates only 0.75-0.93 liters of displacement per hole. In contrast, traditional 25mm rods requiring 50mm holes produce cross-sectional area of approximately 19.6 cm^2^ ($\pi \times 2.5^2$ cm), displacing approximately 5.9 liters per hole at 3m depth. This represents a **6-7x reduction** in soil disturbance volume with the HIRT micro-probe design.
+The micro-probe design achieves dramatic reduction in soil disturbance compared to traditional geophysical probes. A 16mm (Target) rod requires only an 18-20mm (Target) hole, with cross-sectional area of approximately 2.5-3.1 cm^2^ (Modeled) ($\pi \times 1.0^2$ cm). At 3m depth, this creates only 0.75-0.93 liters (Modeled) of displacement per hole. In contrast, traditional 25mm rods requiring 50mm holes produce cross-sectional area of approximately 19.6 cm^2^ (Modeled) ($\pi \times 2.5^2$ cm), displacing approximately 5.9 liters (Modeled) per hole at 3m depth. This represents a **6-7x reduction** (Modeled) in soil disturbance volume with the HIRT micro-probe design.
 
 ```{python}
 #| label: fig-disturbance-comparison
-#| fig-cap: "Soil disturbance comparison between HIRT micro-probe (16mm) and traditional probe (25mm). The dashed lines indicate the disturbed zone extent. The 16mm design achieves approximately 85% less soil disturbance volume (6-7x reduction), critical for archaeological site preservation."
+#| fig-cap: "Soil disturbance comparison between HIRT micro-probe (16mm) (Target) and traditional probe (25mm). The dashed lines indicate the disturbed zone extent. The 16mm (Target) design achieves approximately 85% (Modeled) less soil disturbance volume (6-7x (Modeled) reduction), critical for archaeological site preservation."
 #| fig-width: 10
 #| fig-height: 5
 #| code-fold: true
@@ -80,12 +80,12 @@ plt.show()
 
 | Component | Dimension | Notes |
 |-----------|-----------|-------|
-| Rod OD | 16 mm | Increased from 12mm for strength |
-| Rod ID | 12-13 mm | Standard pultruded tube |
-| Wall Thickness | 1.5-2.0 mm | Structural requirement |
-| Segment Length | 50, 100 cm | Defines sensor spacing |
-| Hole Size | 18-20 mm | For 16mm rod insertion |
-| Total Length | 2.5-3.0 m | Multiple segments assembled |
+| Rod OD | 16 mm (Target) | Increased from 12mm for strength |
+| Rod ID | 12-13 mm (Manufacturer spec) | Standard pultruded tube |
+| Wall Thickness | 1.5-2.0 mm (Manufacturer spec) | Structural requirement |
+| Segment Length | 50, 100 cm (Target) | Defines sensor spacing |
+| Hole Size | 18-20 mm (Target) | For 16mm rod insertion |
+| Total Length | 2.5-3.0 m (Target) | Multiple segments assembled |
 
 : Key dimensional specifications for the HIRT micro-probe system. {#tbl-dimensions}
 
@@ -118,21 +118,21 @@ plt.show()
 
 | Parameter | Specification |
 |-----------|---------------|
-| Outer Diameter (OD) | 16 mm (approx. 5/8") |
-| Inner Diameter (ID) | 12-13 mm |
-| Wall Thickness | ~1.5-2.0 mm |
+| Outer Diameter (OD) | 16 mm (Target) (approx. 5/8") |
+| Inner Diameter (ID) | 12-13 mm (Manufacturer spec) |
+| Wall Thickness | ~1.5-2.0 mm (Manufacturer spec) |
 | Material | Fiberglass (non-conductive, RF transparent) |
-| Segment Lengths | 50 cm, 100 cm (spacers) |
+| Segment Lengths | 50 cm, 100 cm (Target) (spacers) |
 
 : Fiberglass rod specifications. {#tbl-fiberglass}
 
 ## Modular Connector System {#sec-modular-connector}
 
-The system uses a 2-part connector system permanently epoxied into rod ends to create a screw-together stack. The male insert provides the threaded portion while the female insert/sensor module receives the thread and houses sensors. This flush-mount design ensures a smooth 16mm OD profile throughout, preventing snag points during insertion and extraction.
+The system uses a 2-part connector system permanently epoxied into rod ends to create a screw-together stack. The male insert provides the threaded portion while the female insert/sensor module receives the thread and houses sensors. This flush-mount design ensures a smooth 16mm OD (Target) profile throughout, preventing snag points during insertion and extraction.
 
 ```{python}
 #| label: fig-modular-connection
-#| fig-cap: "Modular flush-mount connector system showing (a) assembled view with smooth profile and (b) exploded view revealing male/female insert architecture. The 6mm central channel accommodates wiring. M12x1.75 threads provide robust mechanical connection."
+#| fig-cap: "Modular flush-mount connector system showing (a) assembled view with smooth profile and (b) exploded view revealing male/female insert architecture. The 6mm (Target) central channel accommodates wiring. M12x1.75 (Manufacturer spec) threads provide robust mechanical connection."
 #| fig-width: 10
 #| fig-height: 9
 #| code-fold: true
@@ -157,7 +157,7 @@ All threaded connections use M12x1.75 ISO standard metric threads. This provides
 
 ```{python}
 #| label: fig-thread-detail
-#| fig-cap: "M12x1.75 thread profile detail showing (a) male thread external profile and (b) female thread cross-section. Pitch of 1.75mm provides good engagement with 12-15mm thread length. Male threads print at 12.2mm OD for die cutting; female threads print at 10.5mm ID for tapping."
+#| fig-cap: "M12x1.75 thread profile detail showing (a) male thread external profile and (b) female thread cross-section. Pitch of 1.75mm (Manufacturer spec) provides good engagement with 12-15mm (Target) thread length. Male threads print at 12.2mm (Target) OD for die cutting; female threads print at 10.5mm (Target) ID for tapping."
 #| fig-width: 10
 #| fig-height: 5
 #| code-fold: true
@@ -179,21 +179,21 @@ plt.show()
 | Parameter | Value |
 |-----------|-------|
 | Thread Type | M12x1.75 ISO Standard |
-| Pitch | 1.75 mm |
-| Major Diameter | 12.0 mm |
-| Engagement Length | 12-15 mm |
-| Print Oversize (Male) | 12.2 mm (for Die cutting) |
-| Print Undersize (Female) | 10.5 mm hole (for Tapping) |
+| Pitch | 1.75 mm (Manufacturer spec) |
+| Major Diameter | 12.0 mm (Manufacturer spec) |
+| Engagement Length | 12-15 mm (Target) |
+| Print Oversize (Male) | 12.2 mm (Target) (for Die cutting) |
+| Print Undersize (Female) | 10.5 mm hole (Target) (for Tapping) |
 
 : Thread specifications for modular connections. {#tbl-thread}
 
 ## Coil Mounting and Ferrite Cores {#sec-coil-mounting}
 
-The MIT sensing coils are wound onto ferrite rod cores positioned along the probe body. This configuration keeps coils internal to the 16mm profile, adding only 1-2mm to the rod OD with potting. Coils are positioned orthogonally (90 degree separation) to minimize direct coupling between TX and RX elements.
+The MIT sensing coils are wound onto ferrite rod cores positioned along the probe body. This configuration keeps coils internal to the 16mm (Target) profile, adding only 1-2mm (Target) to the rod OD with potting. Coils are positioned orthogonally (90 degree separation) to minimize direct coupling between TX and RX elements.
 
 ```{python}
 #| label: fig-coil-mounting
-#| fig-cap: "Coil assembly detail showing ferrite rod core (100mm x 6mm) with copper wire windings (200-400 turns of 0.2mm enameled wire). Support brackets maintain alignment within the probe cavity. Lead wires route to the surface junction box."
+#| fig-cap: "Coil assembly detail showing ferrite rod core (100mm x 6mm) (Target) with copper wire windings (200-400 turns (Target) of 0.2mm (Target) enameled wire). Support brackets maintain alignment within the probe cavity. Lead wires route to the surface junction box."
 #| fig-width: 10
 #| fig-height: 6
 #| code-fold: true
@@ -214,8 +214,8 @@ plt.show()
 
 | Parameter | Specification |
 |-----------|---------------|
-| Diameter | 6-8 mm |
-| Length | 40-80 mm |
+| Diameter | 6-8 mm (Target) |
+| Length | 40-80 mm (Target) |
 | Material | MnZn ferrite |
 | Quantity | 1-2 per probe (TX/RX) |
 
@@ -223,10 +223,10 @@ plt.show()
 
 | Parameter | Specification |
 |-----------|---------------|
-| Wire Gauge | 34-38 AWG (fine wire) |
-| Turns | 200-400 turns |
-| Target Inductance | 1-2 mH |
-| Target Q Factor | >20 |
+| Wire Gauge | 34-38 AWG (Target) (fine wire) |
+| Turns | 200-400 turns (Target) |
+| Target Inductance | 1-2 mH (Target) |
+| Target Q Factor | >20 (Target) |
 
 : Coil winding specifications. {#tbl-coil-winding}
 
@@ -236,7 +236,7 @@ Electrical Resistivity Tomography (ERT) electrodes are implemented as narrow sta
 
 ```{python}
 #| label: fig-ert-ring-detail
-#| fig-cap: "ERT ring collar assembly showing stainless steel ring (316L) flush-mounted on insulating collar. Spring-loaded contact pins ensure reliable electrical connection. Ring dimensions: 5mm width x 16mm OD, approximately 50mm collar length."
+#| fig-cap: "ERT ring collar assembly showing stainless steel ring (316L) flush-mounted on insulating collar. Spring-loaded contact pins ensure reliable electrical connection. Ring dimensions: 5mm (Target) width x 16mm (Target) OD, approximately 50mm (Target) collar length."
 #| fig-width: 10
 #| fig-height: 5
 #| code-fold: true
@@ -258,19 +258,19 @@ plt.show()
 | Parameter | Value |
 |-----------|-------|
 | Ring Material | Stainless steel (316L) or copper |
-| Ring Width | 3-5 mm (narrow bands) |
-| Ring Thickness | 0.5-1 mm |
-| Diameter | Match rod OD (16 mm) |
-| Quantity | 2-3 rings per probe |
-| Minimum Spacing | 0.3 m between rings |
+| Ring Width | 3-5 mm (Target) (narrow bands) |
+| Ring Thickness | 0.5-1 mm (Target) |
+| Diameter | Match rod OD (16 mm) (Target) |
+| Quantity | 2-3 rings per probe (Target) |
+| Minimum Spacing | 0.3 m (Target) between rings |
 
 : ERT ring electrode specifications. {#tbl-ert-ring}
 
 | Position | Distance from Tip |
 |----------|-------------------|
-| Ring A (Upper) | 0.5 m |
-| Ring B (Mid) | 1.5 m |
-| Ring C (Deep) | 2.5-3.0 m (optional) |
+| Ring A (Upper) | 0.5 m (Target) |
+| Ring B (Mid) | 1.5 m (Target) |
+| Ring C (Deep) | 2.5-3.0 m (Target) (optional) |
 
 : Standard ERT ring mounting positions. {#tbl-ert-positions}
 
@@ -301,8 +301,8 @@ plt.show()
 
 | Dimension | Value |
 |-----------|-------|
-| Diameter | 25 mm |
-| Height | 35 mm |
+| Diameter | 25 mm (Target) |
+| Height | 35 mm (Target) |
 | Thread | Internal M12x1.75 (bottom) |
 | Material | PETG or ABS (weatherproof) |
 | Features | Terminal block mount, cable gland |
@@ -311,11 +311,11 @@ plt.show()
 
 ## Probe Cross-Section Detail {#sec-probe-cross-section}
 
-The complete probe assembly integrates all components into a unified 16mm OD profile. The cross-section reveals the internal arrangement of coils, ERT rings, threaded joints, and wiring passages. This dense packing enables full sensing capability while minimizing ground disturbance.
+The complete probe assembly integrates all components into a unified 16mm OD (Target) profile. The cross-section reveals the internal arrangement of coils, ERT rings, threaded joints, and wiring passages. This dense packing enables full sensing capability while minimizing ground disturbance.
 
 ```{python}
 #| label: fig-probe-cross-section-mech
-#| fig-cap: "Detailed probe cross-section showing complete internal architecture. From bottom: tapered tip, ERT ring positions, RX coil with ferrite core, M12 threaded joints, TX coil assembly, and junction box connection. Standard 50cm segment shown."
+#| fig-cap: "Detailed probe cross-section showing complete internal architecture. From bottom: tapered tip, ERT ring positions, RX coil with ferrite core, M12 threaded joints, TX coil assembly, and junction box connection. Standard 50cm (Target) segment shown."
 #| fig-width: 6
 #| fig-height: 10
 #| code-fold: true
@@ -364,11 +364,11 @@ plt.show()
 | Setting | Value | Notes |
 |---------|-------|-------|
 | Material | PETG or ASA | Required for impact/UV |
-| Layer Height | 0.12mm | Critical for threads |
-| Infill | 100% (Solid) | Critical for strength |
-| Walls | 6 Loops | Solid threaded regions |
+| Layer Height | 0.12mm (Target) | Critical for threads |
+| Infill | 100% (Solid) (Target) | Critical for strength |
+| Walls | 6 Loops (Target) | Solid threaded regions |
 | Supports | DISABLED | Use built-in scaffolding |
-| Speed | 50mm/s outer wall | Quality over speed |
+| Speed | 50mm/s (Target) outer wall | Quality over speed |
 
 : Recommended 3D printer settings for probe components. {#tbl-print-settings}
 
@@ -377,8 +377,8 @@ plt.show()
 ::: {.callout-note}
 ## Thread Cutting Procedure
 
-- Male threads: Print at 12.2mm OD, cut with M12x1.75 Die
-- Female threads: Print at 10.5mm hole, cut with M12x1.75 Tap
+- Male threads: Print at 12.2mm OD (Target), cut with M12x1.75 Die
+- Female threads: Print at 10.5mm hole (Target), cut with M12x1.75 Tap
 - Always use cutting oil to reduce friction
 - Cut slowly, back out frequently to clear chips
 - Test fit before epoxy assembly
@@ -390,7 +390,7 @@ Four primary insertion methods accommodate different soil conditions. Method sel
 
 ```{python}
 #| label: fig-insertion-methods
-#| fig-cap: "Probe insertion methods: (a) Hand auger for most soils using 10-20mm auger; (b) Pilot rod for compact soils - must remove metal before survey; (c) Direct push in sandy soils only; (d) Water-jet method for excellent sand penetration with minimal disturbance."
+#| fig-cap: "Probe insertion methods: (a) Hand auger for most soils using 10-20mm (Target) auger; (b) Pilot rod for compact soils - must remove metal before survey; (c) Direct push in sandy soils only; (d) Water-jet method for excellent sand penetration with minimal disturbance."
 #| fig-width: 10
 #| fig-height: 8
 #| code-fold: true
@@ -415,7 +415,7 @@ Probe assembly follows a bottom-to-top sequence with all components screwing tog
 
 ```{python}
 #| label: fig-assembly-sequence
-#| fig-cap: "Assembly sequence from bottom to top: (1) Probe tip pointing down, (2) Bottom rod segment with RX coil, (3) First ERT ring at 0.5m, (4) Coupler joint, (5) Top rod segment with TX coil, (6) Additional ERT rings, (7) Junction box at surface level."
+#| fig-cap: "Assembly sequence from bottom to top: (1) Probe tip pointing down, (2) Bottom rod segment with RX coil, (3) First ERT ring at 0.5m (Target), (4) Coupler joint, (5) Top rod segment with TX coil, (6) Additional ERT rings, (7) Junction box at surface level."
 #| fig-width: 7
 #| fig-height: 10
 #| code-fold: true
@@ -438,7 +438,7 @@ plt.show()
 
 ```{python}
 #| label: fig-advantages
-#| fig-cap: "Summary of micro-probe design advantages including 10x less disturbance, modular field-serviceable construction, passive probes with no downhole electronics, and 70% cost reduction compared to traditional designs."
+#| fig-cap: "Summary of micro-probe design advantages including 10x (Modeled) less disturbance, modular field-serviceable construction, passive probes with no downhole electronics, and 70% (Modeled) cost reduction compared to traditional designs."
 #| fig-width: 10
 #| fig-height: 7
 #| code-fold: true
@@ -459,17 +459,17 @@ plt.show()
 
 Key advantages of the micro-probe design include:
 
-- **Strength:** 16mm OD allows for robust M12 threads
+- **Strength:** 16mm OD (Target) allows for robust M12 threads
 - **Modularity:** Sensor spacing determined by rod segment length
 - **Manufacturability:** Sensors built into printed parts, not glued onto rod
 - **Smooth Profile:** Flush connections prevent snagging during insertion/extraction
 - **Field Serviceable:** Replace individual segments without rebuilding entire probe
 - **Simpler Assembly:** No electronics in probe
-- **Lighter Weight:** ~50-100 g per meter (vs 200-250 g)
+- **Lighter Weight:** ~50-100 g per meter (Modeled) (vs 200-250 g)
 - **Easier Insertion:** Smaller diameter, less force needed
-- **Lower Cost:** ~$40-60 per probe (vs $130-180)
+- **Lower Cost:** ~$40-60 per probe (Target) (vs $130-180)
 - **Better Reliability:** Passive probes more robust
-- **Minimal Intrusion:** ~10x less disturbance than 25mm design
+- **Minimal Intrusion:** ~10x (Modeled) less disturbance than 25mm design
 
 ## Rapid Prototyping Guide {#sec-rapid-prototyping}
 
@@ -480,7 +480,7 @@ This section provides a streamlined workflow for building a **Minimum Viable Pro
 The prototyping approach follows a "fail-fast" methodology:
 
 - **Prioritize speed to first data** over production quality
-- **Use relaxed tolerances** (+/-20% vs +/-10%) for initial validation
+- **Use relaxed tolerances** (+/-20% (Target) vs +/-10% (Target)) for initial validation
 - **Accept reversible assembly** (dry-fit, no epoxy) for iteration
 - **Focus on core physics validation** before manufacturing refinement
 
@@ -489,8 +489,8 @@ The prototyping approach follows a "fail-fast" methodology:
 
 | Parameter | Production Spec | Prototype Target |
 |-----------|-----------------|------------------|
-| Inductance | 1.5 mH +/-10% | 1.5 mH +/-20% |
-| Q Factor @ 10kHz | >=30 | >=15 |
+| Inductance | 1.5 mH +/-10% (Target) | 1.5 mH +/-20% (Target) |
+| Q Factor @ 10kHz | >=30 (Target) | >=15 (Target) |
 | Metal detection | Calibrated | Visible response |
 | Thread quality | Production | Functional fit |
 
@@ -538,9 +538,9 @@ Additional materials needed:
 
 | Component | Specification | Notes |
 |-----------|---------------|-------|
-| Fiberglass tube | 16mm OD x 300mm | Single segment |
-| Ferrite rod | 8mm dia. x 100mm, NiZn | Core material |
-| Magnet wire | 34 AWG, 15m | For 300 turns |
+| Fiberglass tube | 16mm OD (Target) x 300mm (Target) | Single segment |
+| Ferrite rod | 8mm dia. (Target) x 100mm (Target), NiZn | Core material |
+| Magnet wire | 34 AWG (Target), 15m (Target) | For 300 turns |
 | Test leads | Alligator clips | Bench testing |
 
 : Additional materials for MVP prototype. {#tbl-proto-materials}
@@ -551,7 +551,7 @@ The coil is the most critical component. Follow this simplified winding procedur
 
 ```{python}
 #| label: fig-coil-winding-steps
-#| fig-cap: "Step-by-step coil winding visual guide. The process takes 45-90 minutes depending on experience. Key success factors: consistent tension, close-wound turns, and measurement before securing."
+#| fig-cap: "Step-by-step coil winding visual guide. The process takes 45-90 minutes (Target) depending on experience. Key success factors: consistent tension, close-wound turns, and measurement before securing."
 #| fig-width: 10
 #| fig-height: 4
 #| code-fold: true
@@ -573,18 +573,18 @@ plt.show()
 **Coil Winding Checklist:**
 
 1. [ ] Clean ferrite rod with IPA
-2. [ ] Mark 50mm winding zone at center
-3. [ ] Leave 150mm wire tail, secure with tape
-4. [ ] Wind 300 turns, single layer, close-wound
-5. [ ] Maintain consistent light tension (~50g)
-6. [ ] **Measure inductance before securing** (target: 1.2-1.8 mH)
+2. [ ] Mark 50mm (Target) winding zone at center
+3. [ ] Leave 150mm (Target) wire tail, secure with tape
+4. [ ] Wind 300 turns (Target), single layer, close-wound
+5. [ ] Maintain consistent light tension (~50g (Target))
+6. [ ] **Measure inductance before securing** (target: 1.2-1.8 mH (Target))
 7. [ ] Apply thin CA glue or nail polish to fix
-8. [ ] Strip and tin wire ends (5mm)
+8. [ ] Strip and tin wire ends (5mm (Target))
 
 ::: {.callout-warning}
 ## Critical: Measure Before Securing
 
-Always verify inductance *before* applying fixative. If inductance is outside 1.2-1.8 mH, adjust turns (+/-20-30) and re-measure. Once glue is applied, changes are difficult.
+Always verify inductance *before* applying fixative. If inductance is outside 1.2-1.8 mH (Target), adjust turns (+/-20-30 turns) and re-measure. Once glue is applied, changes are difficult.
 :::
 
 ### Quick Functional Test Setup {#sec-proto-test-setup}
@@ -593,7 +593,7 @@ The functional test validates that the coil responds to conductive targets. This
 
 ```{python}
 #| label: fig-quick-test-setup
-#| fig-cap: "Bench test setup for functional validation. A function generator drives the coil at 10 kHz through a 100 ohm current-limiting resistor. The oscilloscope monitors the coil voltage. When a metal target approaches, the amplitude and/or phase should change visibly."
+#| fig-cap: "Bench test setup for functional validation. A function generator drives the coil at 10 kHz (Target) through a 100 ohm (Target) current-limiting resistor. The oscilloscope monitors the coil voltage. When a metal target approaches, the amplitude and/or phase should change visibly."
 #| fig-width: 10
 #| fig-height: 5
 #| code-fold: true
@@ -614,8 +614,8 @@ plt.show()
 
 **Test Procedure:**
 
-1. Connect function generator to coil through 100 ohm series resistor
-2. Set generator to 10 kHz sine wave, 2V peak-to-peak
+1. Connect function generator to coil through 100 ohm (Target) series resistor
+2. Set generator to 10 kHz (Target) sine wave, 2V peak-to-peak (Target)
 3. Connect oscilloscope across the coil
 4. Record baseline amplitude (no target present)
 5. Slowly approach metal target (bolt, aluminum can) on non-metallic stick
@@ -625,7 +625,7 @@ plt.show()
 **Pass Criteria:**
 
 - Stable baseline signal
-- Visible change when metal target within 10cm
+- Visible change when metal target within 10cm (Target)
 - Response repeatable across 3 trials
 
 ### Prototype Test Decision Tree {#sec-proto-decision}
@@ -655,7 +655,7 @@ plt.show()
 
 | Test | Pass Criteria | If Fail |
 |------|---------------|---------|
-| Coil L, Q | L = 1.2-1.8 mH, Q >= 15 | Re-wind coil, check core |
+| Coil L, Q | L = 1.2-1.8 mH (Target), Q >= 15 (Target) | Re-wind coil, check core |
 | Thread fit | Parts screw together | Reprint with blanks + tap/die |
 | Metal detect | Visible response | Debug test setup, check drive |
 
@@ -676,8 +676,8 @@ plt.show()
 ## No Response to Metal Target
 
 1. Try larger target (bigger = stronger signal)
-2. Try closer distance (<5cm)
-3. Try different frequencies (2, 5, 20, 50 kHz)
+2. Try closer distance (<5cm (Target))
+3. Try different frequencies (2, 5, 20, 50 kHz (Target))
 4. Verify coil current is flowing (series resistor voltage)
 5. Check for shorted turns (Q factor very low)
 :::

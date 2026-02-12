@@ -49,7 +49,7 @@ Operating frequency determines the trade-off between depth penetration and near-
 | 2.5-4 m (deep) | 2-10 kHz | 5-15 sec |
 | >4 m (very deep) | 2-5 kHz | 10-30 sec |
 
-: Target-dependent frequency selection guidelines. Higher frequencies provide sharper near-surface resolution while lower frequencies enable deeper penetration. Longer integration times improve SNR at all frequencies. {#tbl-frequency-selection}
+: Target-dependent frequency selection guidelines **(Target)**. Higher frequencies provide sharper near-surface resolution while lower frequencies enable deeper penetration. Integration times are design targets for achieving adequate SNR. {#tbl-frequency-selection}
 
 ## Electromagnetic Skin Depth {#sec-skin-depth}
 
@@ -78,7 +78,7 @@ where $\rho$ is resistivity in ohm-meters and $f$ is frequency in Hz. This appro
 | 0.5 (wet clay) | 15.9 m | 10.1 m | 7.1 m | 5.0 m | 3.2 m |
 | 1.0 (saturated clay) | 11.2 m | 7.1 m | 5.0 m | 3.6 m | 2.3 m |
 
-: Skin depth values for typical soil conductivities across the HIRT operating frequency range. Even in the most conductive soils, skin depth exceeds typical investigation depths at HIRT frequencies. {#tbl-skin-depth}
+: Skin depth values **(Modeled)** for typical soil conductivities across the HIRT operating frequency range, calculated from @eq-skin-depth. Even in the most conductive soils, skin depth exceeds typical investigation depths at HIRT frequencies. {#tbl-skin-depth}
 
 ```{python}
 #| label: fig-skin-depth
@@ -201,7 +201,7 @@ This approximation is valid within +/-15% for typical HIRT geometries (L = 0.5-2
 | A(0.5m) to C(2.5m) | 2.0 m | 6.28 ohm-m |
 | A(0.5m) to D(3.0m) | 2.5 m | 7.85 ohm-m |
 
-: ERT geometric factors for HIRT ring electrode configurations. Larger electrode separations provide greater depth of investigation but lower resolution. {#tbl-geometric-factors}
+: ERT geometric factors for HIRT ring electrode configurations **(Modeled)**, calculated from @eq-geometric-factor. Larger electrode separations provide greater depth of investigation but lower resolution. {#tbl-geometric-factors}
 
 ```{python}
 #| label: fig-ert-geometric
@@ -225,8 +225,8 @@ plt.show()
 
 The ERT depth of investigation (DOI) is approximately 1.5x the maximum electrode separation. For HIRT probe configurations:
 
-- **1.5 m probes** (rings at 0.5m, 1.5m): DOI = 2-3 m
-- **3.0 m probes** (rings at 0.5m, 1.5m, 2.5m): DOI = 3-5 m (edge cases to 6 m)
+- **1.5 m probes** (rings at 0.5m, 1.5m): DOI = 2-3 m **(Modeled)**
+- **3.0 m probes** (rings at 0.5m, 1.5m, 2.5m): DOI = 3-5 m **(Modeled)**, edge cases to 6 m
 
 ## Multi-Frequency Response {#sec-multi-frequency}
 
@@ -275,7 +275,7 @@ This is not merely an improvement in data processing; it is a fundamental physic
 
 **Surface methods** must send energy down to a target and receive the return signal---doubling the path length and exponentially increasing attenuation. Sensitivity decreases as 1/r^2 to 1/r^4 with depth. More critically, nearly all energy travels vertically through the target, providing excellent lateral resolution but poor vertical discrimination.
 
-**Crosshole methods** send signals horizontally through the target volume. Energy travels directly between probes at depth, with sensitivity concentrated precisely where targets are located. This geometry provides 2-5x better resolution than surface methods at depths exceeding 2 m (*theoretical advantage based on ray coverage geometry; field validation pending*), with approximately isotropic resolution in all three dimensions.
+**Crosshole methods** send signals horizontally through the target volume. Energy travels directly between probes at depth, with sensitivity concentrated precisely where targets are located. This geometry provides 2-5x better resolution than surface methods at depths exceeding 2 m **(Modeled)**, with approximately isotropic resolution in all three dimensions.
 
 ```{python}
 #| label: fig-ray-path-comparison
@@ -353,7 +353,7 @@ The following table quantifies the resolution advantage of crosshole geometry at
 | **HIRT Crosshole MIT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-4 m** |
 | **HIRT Crosshole ERT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-5 m** |
 
-: Resolution comparison across geophysical methods at typical HIRT investigation depths. Note that HIRT provides approximately isotropic resolution (similar in all directions), while surface methods show 3-6x worse vertical than lateral resolution. {#tbl-resolution-comparison}
+: Resolution comparison across geophysical methods at typical HIRT investigation depths **(Modeled)**. HIRT values are derived from ray-path geometry analysis; field validation pending. Surface method values from published literature. {#tbl-resolution-comparison}
 
 The key distinction is **isotropic vs. anisotropic resolution**. Surface methods provide good lateral resolution but poor vertical resolution because all ray paths are steeply inclined. Crosshole methods provide similar resolution in all three dimensions because ray paths sample all orientations.
 
@@ -428,7 +428,7 @@ The effective investigation depth depends on probe configuration, soil condition
 | 3.0 m probes, 2 m spacing | 3-4 m | 3-5 m | 3-5 m (MEDIUM confidence) |
 | Edge cases (conductive soil) | 2-3 m | 4-6 m | Up to 6 m (LOW confidence) |
 
-: Depth of investigation summary by configuration and confidence level. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions. {#tbl-depth-summary}
+: Depth of investigation summary by configuration and confidence level **(Modeled)**. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions. Field validation pending. {#tbl-depth-summary}
 
 **Rule of thumb:** With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT).
 

@@ -174,11 +174,11 @@ The HIRT hardware system requires embedded firmware to operate. This firmware de
 
 The hardware design specifies the **ESP32-WROOM-32** module as the MCU platform, selected for:
 
-- Dual-core 240 MHz processor (adequate for lock-in DSP)
+- Dual-core 240 MHz **(Manufacturer spec)** processor (adequate for lock-in DSP)
 - Built-in WiFi/BLE for future wireless data transfer
-- 520 KB SRAM for measurement buffering
+- 520 KB SRAM **(Manufacturer spec)** for measurement buffering
 - Arduino and ESP-IDF toolchain support
-- Wide availability and low cost (<$5 per module)
+- Wide availability and low cost (<$5 per module **(Target)**)
 
 ### Firmware Repository Status
 
@@ -417,6 +417,12 @@ Wireless communication would significantly reduce cable management complexity an
 - Immediate quality feedback in the field
 - Requires edge computing capability (e.g., Raspberry Pi, Jetson)
 
+### Autonomous Probe Deployment {#sec-autonomous-deployment}
+
+Feasibility research has assessed robotic and remote-controlled systems for HIRT probe insertion at UXO sites, where the primary objective is personnel safety through standoff distance. The current technology readiness level is assessed at TRL 3-4 (Target).
+
+The most relevant existing platform is the ROGO agricultural soil sampling robot, which demonstrates autonomous RTK-GPS navigation with centimeter-level positioning accuracy, adaptive force control for variable soil conditions, and proven soil penetration capability. However, adapting such a platform for UXO environments requires replacing the manned UTV base with a tracked remote-controlled platform, integrating the HIRT-specific hydraulic push system, and adding real-time magnetometer monitoring with automatic abort capability. The estimated development cost for a purpose-built robotic probe insertion platform is $150,000-400,000 (Target), with a 12-24 month **(Target)** development timeline. A near-term alternative---a remote-controlled mini excavator with a custom probe insertion attachment---could achieve 100-300 m **(Target)** operator standoff at lower development cost, and is already described as a Tier 3 deployment option in the field guide (see @sec-tier3-insertion).
+
 ## Forward Modeling and Validation {#sec-forward-modeling}
 
 Before field deployment, the HIRT system response should be validated using synthetic models. Recommended tools include:
@@ -447,7 +453,7 @@ The following tutorials from these packages are directly applicable to HIRT data
 
 **empymod Applications:**
 
-- Loop source modeling for 2-50 kHz range (HIRT operating frequencies)
+- Loop source modeling for 2-50 kHz **(Measured)** range (HIRT operating frequencies)
 - Layered-earth forward modeling validates HIRT physics assumptions
 - In-phase/Quadrature decomposition: Real component = resistive response, Imaginary component = inductive response
 
@@ -471,10 +477,10 @@ The OhmPi project ([ohmpi.org](https://ohmpi.org)) provides a valuable reference
 | Specification | OhmPi | HIRT ERT |
 |--------------|-------|----------|
 | Architecture | Raspberry Pi + ADS1115 ADC | Custom MCU + ADC |
-| Channels | 32 electrodes standard | Scalable, 4+ probes |
-| Current range | 0.1-80 mA | 0.5-2 mA (safety limited) |
-| Voltage range | 0.001-12 V | Similar |
-| Cost | <$500 (32 channel) | Target similar |
+| Channels | 32 electrodes standard **(Manufacturer spec)** | Scalable, 4+ probes |
+| Current range | 0.1-80 mA **(Manufacturer spec)** | 0.5-2 mA **(Target)** (safety limited) |
+| Voltage range | 0.001-12 V **(Manufacturer spec)** | Similar |
+| Cost | <$500 (32 channel) **(Manufacturer spec)** | Target similar **(Target)** |
 | Philosophy | Open-source, DIY | Open-source, DIY |
 
 : Comparison of OhmPi and HIRT ERT specifications {#tbl-ohmpi-comparison}
@@ -485,18 +491,18 @@ OhmPi demonstrates that research-grade resistivity measurements are achievable w
 
 Four standard scenarios are recommended for system validation:
 
-1. **Aluminum Bomb in Sandy Loam:** 1m diameter sphere at 3m depth in 0.1 S/m soil - validates MIT response to non-ferrous UXO
-2. **Grave Shaft (Disturbed Fill):** 0.8x0.5x1.5m prism with 0.05 S/m fill in 0.2 S/m clay - validates ERT contrast detection
-3. **Scattered Aircraft Debris:** Multiple fragments (0.2-1m) at 1-4m depths - validates MIT multi-target discrimination
-4. **Bomb Crater with Heterogeneous Fill:** 8m diameter, 5m deep crater with variable conductivity - tests combined MIT+ERT response
+1. **Aluminum Bomb in Sandy Loam:** 1m diameter sphere at 3m depth in 0.1 S/m **(Modeled)** soil - validates MIT response to non-ferrous UXO
+2. **Grave Shaft (Disturbed Fill):** 0.8x0.5x1.5m prism with 0.05 S/m fill in 0.2 S/m clay **(Modeled)** - validates ERT contrast detection
+3. **Scattered Aircraft Debris:** Multiple fragments (0.2-1m) at 1-4m depths **(Modeled)** - validates MIT multi-target discrimination
+4. **Bomb Crater with Heterogeneous Fill:** 8m diameter, 5m deep crater with variable conductivity **(Modeled)** - tests combined MIT+ERT response
 
 ## Known Limitations {#sec-known-limitations}
 
 ::: {.callout-note}
 ## Technical Limitations
 
-- Smaller coil area results in ~19 dB SNR loss (compensated by longer integration)
-- Survey time increases 5-10x compared to commercial systems
+- Smaller coil area results in ~19 dB **(Modeled)** SNR loss (compensated by longer integration)
+- Survey time increases 5-10x **(Modeled)** compared to commercial systems
 - Post-processing software required for 3D reconstruction
 - Limited depth penetration in highly conductive soils
 :::
@@ -505,8 +511,8 @@ Four standard scenarios are recommended for system validation:
 ## Current System Constraints
 
 - Electronics SNR adequate for detection but compromised for precise characterization
-- Phase accuracy: +/-5 degrees (vs. commercial +/-0.5 degrees)
-- Noise floor: ~100 nV (vs. commercial ~10 nV)
+- Phase accuracy: +/-5 degrees **(Target)** (vs. commercial +/-0.5 degrees **(Manufacturer spec)**)
+- Noise floor: ~100 nV **(Target)** (vs. commercial ~10 nV **(Manufacturer spec)**)
 :::
 
 ## Machine Learning Opportunities {#sec-machine-learning}

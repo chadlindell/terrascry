@@ -4,7 +4,7 @@ title: "Assembly and Wiring"
 
 ## Overview {#sec-assembly-overview}
 
-This section provides comprehensive step-by-step assembly instructions for the HIRT modular micro-probe system (16mm). The modular design allows probes to be built by stacking fiberglass rod segments and 3D-printed sensor modules. The assembly process is designed for field conditions with minimal tooling requirements.
+This section provides comprehensive step-by-step assembly instructions for the HIRT modular micro-probe system (16 mm **(Target)** diameter). The modular design allows probes to be built by stacking fiberglass rod segments and 3D-printed sensor modules. The assembly process is designed for field conditions with minimal tooling requirements.
 
 ::: {.callout-tip}
 ## Hardware Documentation Reference
@@ -21,7 +21,7 @@ These hardware docs contain the most current assembly procedures and are updated
 
 ## Probe Assembly Overview {#sec-probe-overview}
 
-The HIRT probe is a modular stack of 3D-printed components connected by M12x1.75 threads. The assembly comprises four main component types: probe tip, male rod caps, sensor bodies, and junction cap. Fiberglass rod segments (50cm or 100cm) bridge between sensor bodies to achieve the desired probe depth.
+The HIRT probe is a modular stack of 3D-printed components connected by M12x1.75 **(Manufacturer spec)** threads. The assembly comprises four main component types: probe tip, male rod caps, sensor bodies, and junction cap. Fiberglass rod segments (50 cm or 100 cm **(Target)**) bridge between sensor bodies to achieve the desired probe depth.
 
 ```{python}
 #| label: fig-probe-exploded
@@ -49,7 +49,7 @@ The sensor body is the key component, housing both the MIT coil winding zone and
 
 ```{python}
 #| label: fig-sensor-detail
-#| fig-cap: "Cross-section of sensor body showing internal features: dual female thread sockets (25mm depth each), ERT ring groove at 1/4 position, MIT coil winding zone at 3/4 position, and 6mm center wire channel."
+#| fig-cap: "Cross-section of sensor body showing internal features: dual female thread sockets (25 mm depth each **(Target)**), ERT ring groove at 1/4 position, MIT coil winding zone at 3/4 position, and 6 mm center wire channel **(Target)**."
 #| code-fold: true
 
 import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
@@ -62,11 +62,11 @@ display(Image(data=buf.getvalue()))
 
 ## Thread Engagement {#sec-thread-engagement}
 
-Proper thread engagement is critical for both mechanical strength and waterproofing. The M12x1.75 ISO metric threads provide approximately 6 full threads of engagement at the minimum 10mm depth.
+Proper thread engagement is critical for both mechanical strength and waterproofing. The M12x1.75 **(Manufacturer spec)** ISO metric threads provide approximately 6 full threads of engagement at the minimum 10 mm depth **(Target)**.
 
 ```{python}
 #| label: fig-thread-engagement
-#| fig-cap: "Thread engagement detail showing male rod cap threading into sensor body socket. Minimum engagement of 10mm (6 threads) required. O-ring seal compresses at thread shoulder."
+#| fig-cap: "Thread engagement detail showing male rod cap threading into sensor body socket. Minimum engagement of 10 mm **(Target)** (6 threads) required. O-ring seal compresses at thread shoulder."
 #| code-fold: true
 
 import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
@@ -82,10 +82,10 @@ display(Image(data=buf.getvalue()))
 ::: {.callout-important}
 ## Thread Assembly Guidelines
 
-- **Hand-tighten only**: Finger-tight plus 1/4 turn maximum
-- **O-ring required**: 10mm ID x 1.5mm cross-section at each joint
+- **Hand-tighten only**: Finger-tight plus 1/4 turn maximum **(Target)**
+- **O-ring required**: 10 mm ID x 1.5 mm cross-section **(Manufacturer spec)** at each joint
 - **Thread sealant**: Apply Loctite 567 or equivalent to male threads
-- **Verify engagement**: Minimum 10mm (6 full threads) before sealing
+- **Verify engagement**: Minimum 10 mm **(Target)** (6 full threads) before sealing
 :::
 
 ## Parts List {#sec-parts-list}
@@ -105,13 +105,13 @@ display(Image(data=buf.getvalue()))
 
 | Part | Qty/Probe | Notes |
 |------|-----------|-------|
-| Fiberglass Tube | 2-3 sections | 16mm OD x 12mm ID |
+| Fiberglass Tube | 2-3 sections | 16 mm OD x 12 mm ID **(Manufacturer spec)** |
 | Epoxy | As needed | 2-part structural (Loctite Marine, JB Weld) |
-| O-rings | 4-6 | Size for M12 thread shoulder (10mm ID x 1.5mm) |
-| Ferrite Cores | 1-2 | For MIT coils (6-8mm x 40-80mm) |
-| Magnet Wire | 10-20m | 30-34 AWG for coil winding |
+| O-rings | 4-6 | Size for M12 thread shoulder (10 mm ID x 1.5 mm **(Manufacturer spec)**) |
+| Ferrite Cores | 1-2 | For MIT coils (6-8 mm x 40-80 mm **(Manufacturer spec)**) |
+| Magnet Wire | 10-20 m | 30-34 AWG **(Manufacturer spec)** for coil winding |
 | ERT Ring Material | 2-3 bands | Stainless steel or copper tape |
-| Cable | 3-5m | Multi-conductor shielded |
+| Cable | 3-5 m | Multi-conductor shielded |
 
 : Hardware and consumable materials {#tbl-hardware-parts}
 
@@ -144,7 +144,7 @@ display(Image(data=buf.getvalue()))
 
 ## Wiring Architecture {#sec-wiring-architecture}
 
-The HIRT system uses a hierarchical wiring architecture designed to manage the complexity of connecting 20-50 passive probes. Rather than routing all probe cables directly to the main hub (which would require 600+ conductors), the system uses a **Zone Wiring Strategy** that aggregates signals through intermediate junction boxes.
+The HIRT system uses a hierarchical wiring architecture designed to manage the complexity of connecting 20-50 passive probes. Rather than routing all probe cables directly to the main hub (which would require 600+ conductors **(Modeled)**), the system uses a **Zone Wiring Strategy** that aggregates signals through intermediate junction boxes.
 
 ```{python}
 #| label: fig-zone-architecture
@@ -236,15 +236,15 @@ display(IPImage(data=buf.getvalue()))
 
 The zone architecture divides the probe array into manageable groups of 4 probes each. Each group connects to a Zone Box (small passive hub) via individual probe cables. The Zone Box then connects to the Main Hub via a single high-density Trunk Cable. This reduces the number of cables entering the main enclosure from 20+ to just 5-6 trunk cables.
 
-- **Zone Box:** Small IP65 enclosure (100x100mm) with 4 cable glands for probes and 1 DB25 connector for trunk output
-- **Trunk Cable:** High-quality shielded 25-conductor cable, 10-20 meters, carrying signals for 4 probes
+- **Zone Box:** Small IP65 enclosure (100x100 mm **(Target)**) with 4 cable glands for probes and 1 DB25 connector for trunk output
+- **Trunk Cable:** High-quality shielded 25-conductor cable, 10-20 meters **(Target)**, carrying signals for 4 probes
 - **Advantages:** Modular expansion, clean installation, field-ready deployment
 
 ### Wiring Harness Layout
 
 ```{python}
 #| label: fig-wiring-harness
-#| fig-cap: "Wiring harness architecture from probe sensors through junction box and zone box to the main hub. The multi-conductor shielded cable (2-4mm diameter) carries all sensor signals."
+#| fig-cap: "Wiring harness architecture from probe sensors through junction box and zone box to the main hub. The multi-conductor shielded cable (2-4 mm diameter **(Target)**) carries all sensor signals."
 #| code-fold: true
 
 from io import BytesIO
@@ -293,7 +293,7 @@ ax.plot(cable_x, cable_y, color=COLORS['gray_dark'], lw=6, solid_capstyle='round
 ax.plot(cable_x, cable_y, color=COLORS['gray_light'], lw=4, solid_capstyle='round')
 
 ax.text(4.1, 4.4, 'Multi-conductor\nShielded Cable', ha='center', fontsize=8)
-ax.annotate('2-4mm dia', xy=(4.1, 3.4), fontsize=7, ha='center', color=COLORS['gray_dark'])
+ax.annotate('2-4 mm dia', xy=(4.1, 3.4), fontsize=7, ha='center', color=COLORS['gray_dark'])
 
 # Zone Box (Right Side)
 ax.add_patch(FancyBboxPatch((5.8, 2.5), 1.8, 2.0, boxstyle="round,pad=0.05",
@@ -482,7 +482,7 @@ display(IPImage(data=buf.getvalue()))
 
 ### Rod Segment Preparation
 
-Cut fiberglass tubing to desired lengths (50 cm or 100 cm segments are standard). Use steady, even strokes with the hacksaw and rotate the tube to keep the cut square. After cutting, deburr the ends by removing fiberglass fibers with a file and sanding smooth with 400-grit sandpaper.
+Cut fiberglass tubing to desired lengths (50 cm or 100 cm **(Target)** segments are standard). Use steady, even strokes with the hacksaw and rotate the tube to keep the cut square. After cutting, deburr the ends by removing fiberglass fibers with a file and sanding smooth with 400-grit **(Manufacturer spec)** sandpaper.
 
 ::: {.callout-note}
 ## Rod Assembly Convention
@@ -613,7 +613,7 @@ display(IPImage(data=buf.getvalue()))
 
 ## Base Hub Assembly {#sec-base-hub-assembly}
 
-The base hub houses all electronics in a weatherproof enclosure. The internal layout follows a stacked architecture for easy assembly and maintenance. The backplane PCB (160x120mm) contains all signal processing circuits organized into functional zones.
+The base hub houses all electronics in a weatherproof enclosure. The internal layout follows a stacked architecture for easy assembly and maintenance. The backplane PCB (160x120 mm **(Target)**) contains all signal processing circuits organized into functional zones.
 
 ```{python}
 #| label: fig-base-hub-stack
@@ -643,7 +643,7 @@ ax.text(3.5, 5.15, 'Weatherproof Enclosure (Bud NBF-32016)',
 stack_layers = [
     (0.7, 0.8, 'Power Shelf', '#feebc8', 'LiFePO4 Battery, Fuse Block'),
     (1.6, 0.6, 'Harness Strain Relief', COLORS['gray_light'], 'Internal ribbon cables'),
-    (2.3, 1.2, 'Backplane PCB (160x120mm)', '#c6f6d5', 'DDS, TX/RX, ERT, MCU'),
+    (2.3, 1.2, 'Backplane PCB (160x120 mm)', '#c6f6d5', 'DDS, TX/RX, ERT, MCU'),
     (3.6, 0.7, 'Front Panel', '#ebf8ff', 'DB25 Trunk Ports'),
     (4.4, 0.6, 'Top Cover', COLORS['gray_light'], 'Weatherproof seal'),
 ]
@@ -734,8 +734,8 @@ display(IPImage(data=buf.getvalue()))
 **Electrical Checks:**
 
 - All coil leads continuous (no opens) - verify with multimeter
-- Coil inductance in spec (1-2 mH) - verify with LCR meter
-- ERT ring isolation >1 M-ohm between all ring pairs
+- Coil inductance in spec (1-2 mH **(Target)**) - verify with LCR meter
+- ERT ring isolation >1 M-ohm **(Target)** between all ring pairs
 - No shorts between any conductors
 - Shield continuity verified end-to-end
 
@@ -776,7 +776,7 @@ display(IPImage(data=buf.getvalue()))
 ::: {.callout-tip}
 ## Epoxy Tips
 
-- Mix thoroughly (2+ minutes of stirring)
+- Mix thoroughly (2+ minutes of stirring **(Manufacturer spec)**)
 - Apply thin coats - too much is messy and adds weight
 - Work in well-ventilated area
 - Clean up drips immediately with IPA
@@ -795,7 +795,7 @@ display(IPImage(data=buf.getvalue()))
 
 ## Deployment Configuration {#sec-deployment-config}
 
-A typical HIRT survey uses 4-20 probes arranged in a grid pattern. The probe spacing depends on the target depth and desired resolution. For most archaeological and forensic applications, 0.5-1.0 meter spacing provides adequate coverage.
+A typical HIRT survey uses 4-20 probes arranged in a grid pattern. The probe spacing depends on the target depth and desired resolution. For most archaeological and forensic applications, 0.5-1.0 meter spacing **(Target)** provides adequate coverage.
 
 ```{python}
 #| label: fig-deployment-scene
@@ -826,7 +826,7 @@ After complete assembly, proceed to the following sections for system verificati
 ::: {.callout-warning}
 ## Important Reminders
 
-- Allow epoxy to fully cure (24 hours) before field deployment
+- Allow epoxy to fully cure (24 hours **(Manufacturer spec)**) before field deployment
 - Verify all electrical connections before sealing junction boxes
 - Document probe configuration (sensor positions, coil specs) for each unit
 - Store probes vertically to prevent cable stress at joints

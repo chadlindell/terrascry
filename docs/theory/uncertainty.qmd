@@ -24,29 +24,29 @@ The achievable investigation depth depends on several factors including probe de
 
 | Configuration | MIT Depth | ERT Depth | Combined | Confidence |
 |---------------|-----------|-----------|----------|------------|
-| 1.5m probes, 1.5m spacing | 1.5-2.5m | 2-3m | 2-3m | HIGH |
-| 1.5m probes, 2.0m spacing | 2-3m | 2-3m | 2-3m | HIGH |
-| 3.0m probes, 2.0m spacing | 3-4m | 3-5m | 3-5m | MEDIUM |
-| 3.0m probes, 2.5m spacing | 3-4m | 4-6m | 4-6m | LOW |
+| 1.5m probes, 1.5m spacing | 1.5-2.5m **(Modeled)** | 2-3m **(Modeled)** | 2-3m **(Modeled)** | HIGH |
+| 1.5m probes, 2.0m spacing | 2-3m **(Modeled)** | 2-3m **(Modeled)** | 2-3m **(Modeled)** | HIGH |
+| 3.0m probes, 2.0m spacing | 3-4m **(Modeled)** | 3-5m **(Modeled)** | 3-5m **(Modeled)** | MEDIUM |
+| 3.0m probes, 2.5m spacing | 3-4m **(Modeled)** | 4-6m **(Modeled)** | 4-6m **(Modeled)** | LOW |
 
 : Depth of investigation by configuration {#tbl-depth-investigation}
 
 ::: {.callout-note}
-The commonly cited '3-6m' depth range represents favorable conditions only. For most field conditions, expect 2-4m typical depth, with up to 5-6m achievable in optimal soil conditions with longer probes and wider spacing.
+The commonly cited 3-6m **(Modeled)** depth range represents favorable conditions only. For most field conditions, expect 2-4m **(Modeled)** typical depth, with up to 5-6m **(Modeled)** achievable in optimal soil conditions with longer probes and wider spacing.
 :::
 
 ## Resolution Limits
 
 ### Lateral Resolution
 
-HIRT can resolve lateral features with dimensions approximately 0.5 to 1.5 times the probe spacing.
+HIRT can resolve lateral features with dimensions approximately 0.5 to 1.5 times the probe spacing **(Modeled)**.
 
 | Probe Spacing | Minimum Feature Size | Practical Resolution |
 |---------------|---------------------|---------------------|
-| 1.0 m | 0.5 m | 0.75-1.0 m |
-| 1.5 m | 0.75 m | 1.0-1.5 m |
-| 2.0 m | 1.0 m | 1.5-2.0 m |
-| 2.5 m | 1.25 m | 2.0-2.5 m |
+| 1.0 m | 0.5 m **(Modeled)** | 0.75-1.0 m **(Modeled)** |
+| 1.5 m | 0.75 m **(Modeled)** | 1.0-1.5 m **(Modeled)** |
+| 2.0 m | 1.0 m **(Modeled)** | 1.5-2.0 m **(Modeled)** |
+| 2.5 m | 1.25 m **(Modeled)** | 2.0-2.5 m **(Modeled)** |
 
 : Lateral resolution limits by probe spacing {#tbl-lateral-resolution}
 
@@ -54,17 +54,17 @@ HIRT can resolve lateral features with dimensions approximately 0.5 to 1.5 times
 
 ### Vertical Resolution
 
-**MIT Depth Resolution:** Controlled by frequency. For 5 kHz in soil with 10 mS/m conductivity, vertical resolution is approximately 0.5-0.8 m.
+**MIT Depth Resolution:** Controlled by frequency. For 5 kHz in soil with 10 mS/m conductivity, vertical resolution is approximately 0.5-0.8 m **(Modeled)**.
 
-**ERT Depth Resolution:** Depends on electrode spacing. With 0.5 m vertical electrode spacing, features separated by less than 0.25-0.5 m vertically will blur together.
+**ERT Depth Resolution:** Depends on electrode spacing. With 0.5 m vertical electrode spacing, features separated by less than 0.25-0.5 m **(Modeled)** vertically will blur together.
 
 ### Resolution Degradation with Depth
 
-Below the probe tips, sensitivity falls approximately exponentially:
+Below the probe tips, sensitivity falls approximately exponentially **(Modeled)**:
 
-- **0-0.5 m below probe tip:** Moderate sensitivity, resolution degrades by ~30%
-- **0.5-1.0 m below tip:** Weak sensitivity, resolution degrades by ~60%
-- **>1.0 m below tip:** Very weak sensitivity, detection unreliable
+- **0-0.5 m below probe tip:** Moderate sensitivity, resolution degrades by ~30% **(Modeled)**
+- **0.5-1.0 m below tip:** Weak sensitivity, resolution degrades by ~60% **(Modeled)**
+- **>1.0 m below tip:** Very weak sensitivity, detection unreliable **(Modeled)**
 
 ::: {.callout-warning}
 ## Do Not Extend Inversions Beyond Probe Depth
@@ -78,11 +78,11 @@ While mathematically possible to extend the inversion mesh below probe tips, res
 
 | Target Type | Depth | Minimum Size | SNR Requirement | Confidence |
 |-------------|-------|--------------|-----------------|-----------|
-| High-contrast metal | 1 m | 0.1 m diameter | >5:1 | HIGH |
-| High-contrast metal | 2 m | 0.3 m diameter | >5:1 | MEDIUM |
-| High-contrast metal | 3 m | 0.5 m diameter | >5:1 | LOW |
-| Corroded metal | 1 m | 0.3 m diameter | >3:1 | MEDIUM |
-| Corroded metal | 2 m | 0.8 m diameter | >3:1 | LOW |
+| High-contrast metal | 1 m | 0.1 m diameter **(Modeled)** | >5:1 | HIGH |
+| High-contrast metal | 2 m | 0.3 m diameter **(Modeled)** | >5:1 | MEDIUM |
+| High-contrast metal | 3 m | 0.5 m diameter **(Modeled)** | >5:1 | LOW |
+| Corroded metal | 1 m | 0.3 m diameter **(Modeled)** | >3:1 | MEDIUM |
+| Corroded metal | 2 m | 0.8 m diameter **(Modeled)** | >3:1 | LOW |
 
 : MIT detection limits for metallic targets {#tbl-mit-detection}
 
@@ -90,15 +90,15 @@ While mathematically possible to extend the inversion mesh below probe tips, res
 
 | Target Type | Depth | Minimum Size | Contrast Requirement | Confidence |
 |-------------|-------|--------------|---------------------|-----------|
-| Disturbed fill (2:1) | 1 m | 0.5 m | >50% contrast | HIGH |
-| Disturbed fill (2:1) | 2 m | 0.75 m | >50% contrast | MEDIUM |
-| Disturbed fill (2:1) | 3 m | 1.0 m | >50% contrast | LOW |
-| Weak contrast (<1.5:1) | 1 m | 1.0 m | >30% contrast | MEDIUM |
+| Disturbed fill (2:1) | 1 m | 0.5 m **(Modeled)** | >50% contrast | HIGH |
+| Disturbed fill (2:1) | 2 m | 0.75 m **(Modeled)** | >50% contrast | MEDIUM |
+| Disturbed fill (2:1) | 3 m | 1.0 m **(Modeled)** | >50% contrast | LOW |
+| Weak contrast (<1.5:1) | 1 m | 1.0 m **(Modeled)** | >30% contrast | MEDIUM |
 | Weak contrast (<1.5:1) | 2 m | May not detect | >30% contrast | LOW/NONE |
 
 : ERT detection limits for resistivity contrasts {#tbl-ert-detection}
 
-**Critical Observation:** A small metallic object (e.g., 5 cm artifact) at 2 m depth is **below the detection limit**. The absence of an MIT anomaly does not confirm absence of small artifacts.
+**Critical Observation:** A small metallic object (e.g., 5 cm artifact) at 2 m depth is **below the detection limit** **(Modeled)**. The absence of an MIT anomaly does not confirm absence of small artifacts.
 
 ## The Non-Uniqueness Problem
 
@@ -150,7 +150,7 @@ Without additional information, these scenarios cannot be distinguished.
 
 ### Appropriate Language for Negative Results
 
-**GOOD:** "No significant MIT or ERT anomalies were detected in the 4×4 probe grid covering 12 m × 12 m to 3 m depth. If metallic debris or disturbed fill is present within this volume, it is smaller than the detection limits (~0.3 m metal, ~0.75 m fill at 2 m depth) or masked by geologic variability."
+**GOOD:** "No significant MIT or ERT anomalies were detected in the 4×4 probe grid covering 12 m × 12 m to 3 m depth. If metallic debris or disturbed fill is present within this volume, it is smaller than the detection limits (~0.3 m metal, ~0.75 m fill at 2 m depth **(Modeled)**) or masked by geologic variability."
 
 **BAD:** "The survey proves that no aircraft wreckage is present in the search area."
 
@@ -168,7 +168,7 @@ Without additional information, these scenarios cannot be distinguished.
 
 ### Poor Electrode Contact (ERT)
 
-**Symptom:** Erratic variability, failed reciprocity checks (>10% error), unreasonably high apparent resistivity.
+**Symptom:** Erratic variability, failed reciprocity checks (>10% error **(Target)**), unreasonably high apparent resistivity.
 
 **Cause:** Inadequate electrical contact between electrodes and soil.
 
@@ -212,7 +212,7 @@ Without additional information, these scenarios cannot be distinguished.
 
 ## HIRT vs Surface Methods
 
-HIRT's crosshole geometry provides 2-5× better resolution than surface methods at depths greater than 2 m (*modeled estimate; field validation pending*). This advantage increases with depth.
+HIRT's crosshole geometry provides 2-5× better resolution **(Modeled)** than surface methods at depths greater than 2 m. This advantage increases with depth.
 
 | Method | Lateral Res. | Depth Res. | At 3m Depth |
 |--------|--------------|------------|-------------|
@@ -220,7 +220,7 @@ HIRT's crosshole geometry provides 2-5× better resolution than surface methods 
 | GPR (in sand) | 0.3-0.5m | 0.05-0.1m | Degrades to 1m+ |
 | GPR (in clay) | Limited | Limited | Often fails |
 | Surface ERT (Wenner) | ~1× spacing | ~0.5× spacing | ~2-3m |
-| **HIRT (1.5m spacing)** | **0.75-1.5m** | **0.5-0.75m** | **~1m lateral** |
+| **HIRT (1.5m spacing)** | **0.75-1.5m (Modeled)** | **0.5-0.75m (Modeled)** | **~1m lateral (Modeled)** |
 
 : Resolution comparison: HIRT vs surface methods {#tbl-method-comparison}
 
