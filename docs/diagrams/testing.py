@@ -6,7 +6,10 @@ pass/fail criteria visualizations, and test results templates.
 """
 
 import matplotlib
-matplotlib.use('Agg')
+try:
+    get_ipython()
+except NameError:
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import (
     FancyBboxPatch, Circle, Rectangle, Polygon

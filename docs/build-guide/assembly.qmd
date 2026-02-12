@@ -19,7 +19,7 @@ Detailed assembly drawings and wiring diagrams are maintained in the hardware do
 These hardware docs contain the most current assembly procedures and are updated as the design evolves.
 :::
 
-## Probe Assembly Overview {#sec-probe-overview}
+## Probe Assembly Overview {#sec-probe-assembly-overview}
 
 The HIRT probe is a modular stack of 3D-printed components connected by M12x1.75 **(Manufacturer spec)** threads. The assembly comprises four main component types: probe tip, male rod caps, sensor bodies, and junction cap. Fiberglass rod segments (50 cm or 100 cm **(Target)**) bridge between sensor bodies to achieve the desired probe depth.
 

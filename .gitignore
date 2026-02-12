@@ -50,5 +50,11 @@ docs/**/.jupyter_cache/
 # Quarto site libraries (copied on render)
 docs/site_libs/
 
+# Quarto intermediate figure files (regenerated from _freeze on render)
+docs/**/*_files/
+
 # Quarto intermediate files
 *.html.md
+
+# Archive caches
+_archive/**/.jupyter_cache/

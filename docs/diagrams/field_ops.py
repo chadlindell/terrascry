@@ -5,7 +5,10 @@ Functions for creating grid layouts, deployment scenarios, and field operation d
 """
 
 import matplotlib
-matplotlib.use('Agg')
+try:
+    get_ipython()
+except NameError:
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import (

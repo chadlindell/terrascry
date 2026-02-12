@@ -16,7 +16,12 @@ Usage in .qmd files:
 """
 
 import matplotlib
-matplotlib.use('Agg')
+# Only force Agg backend when not running inside Jupyter/IPython,
+# where the inline backend is needed for figure capture.
+try:
+    get_ipython()
+except NameError:
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import (

@@ -6,7 +6,10 @@ Enhanced with realistic soil textures, Fresnel zones, and improved target render
 """
 
 import matplotlib
-matplotlib.use('Agg')
+try:
+    get_ipython()
+except NameError:
+    matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import (
