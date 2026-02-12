@@ -662,6 +662,7 @@ from . import testing
 from . import calibration
 from . import assembly_3d
 from . import sensor_modalities
+from . import uncertainty
 
 
 # Export all colors and functions
@@ -708,4 +709,5 @@ __all__ = [
     'calibration',
     'assembly_3d',
     'sensor_modalities',
+    'uncertainty',
 ]

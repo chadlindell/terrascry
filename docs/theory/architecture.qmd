@@ -98,18 +98,20 @@ plt.show()
 
 ### MIT Driver/Receiver {#sec-mit-electronics}
 
-- **Central DDS sine source** (e.g., AD9833) for 2-50 kHz operation **(Manufacturer spec)**
-- **TX driver amplifier** - drives all probe TX coils via trunk cables (10-50 mA) **(Target)**
-- **RX low-noise amplifier chain** - instrumentation amplifier with G=1000 **(Target)**
-- **ADC/lock-in detection** - digital synchronous demodulation
+- **Central DDS sine source** (AD9833) for 2-50 kHz operation **(Manufacturer spec)** --- generates the reference waveform for both TX drive and lock-in demodulation
+- **TX driver amplifier** (OPA2186 buffer) --- zero-drift precision op-amp with 90 uA quiescent current **(Manufacturer spec)** drives all probe TX coils via trunk cables at 10-50 mA **(Target)**
+- **RX low-noise amplifier chain** (AD8421 instrumentation amplifier) --- 3 nV/$\sqrt{\text{Hz}}$ input noise **(Manufacturer spec)**, G=1000 **(Target)**, followed by second-stage gain (INA128) for total chain gain of 800-1000x **(Target)**
+- **ADC/lock-in detection** (AD7124-8 integrated AFE) --- 24-bit sigma-delta ADC with programmable gain **(Manufacturer spec)**, digital synchronous demodulation extracts in-phase and quadrature components
 - **MCU** (ESP32 or STM32) for control, DSP, and data acquisition
+
+For detailed component specifications, comparison tables, and PCB implementation guidance, see [Electronics](../build-guide/electronics.qmd).
 
 ### ERT System {#sec-ert-electronics}
 
-- **Howland current source** - 0.5-2 mA **(Target)**, programmable via DAC
-- **Polarity reversal** - H-bridge for DC measurements with polarity cycling
-- **Voltage measurement** - differential amplifier (INA128) + 24-bit ADC **(Manufacturer spec)**
-- **Multiplexer** - High-density matrix (CD74HC4067) to switch electrode pairs
+- **Howland current source** - 0.5-2 mA **(Target)**, programmable via DAC, output impedance >1 M-ohm **(Target)**
+- **Polarity reversal** - H-bridge for DC measurements with polarity cycling every 1-2 seconds **(Target)** to cancel electrode polarization
+- **Voltage measurement** - differential amplifier (INA128) + AD7124-8 24-bit ADC **(Manufacturer spec)** --- shared ADC with MIT channel via multiplexer
+- **Multiplexer** - High-density matrix (CD74HC4067 16:1) **(Manufacturer spec)** to switch electrode pairs, supporting 80+ channels **(Target)**
 
 ### Power and Communications {#sec-power-comms}
 
@@ -204,7 +206,7 @@ plt.show()
 
 ### MIT Signal Path {#sec-mit-signal-path}
 
-The MIT measurement chain begins with the MCU generating a sine wave via Direct Digital Synthesis (DDS), which is converted to analog, filtered, and amplified to drive the TX coil. The induced signal in the RX coil passes through a high-gain amplifier chain before synchronous demodulation extracts amplitude and phase information.
+The MIT measurement chain begins with the MCU commanding the AD9833 DDS to generate a sine wave at the selected frequency (2-50 kHz). The DDS output passes through the OPA2186 buffer amplifier, which provides rail-to-rail drive to the TX coil via the trunk cable. The induced signal in the RX coil passes through the AD8421 low-noise preamplifier (3 nV/$\sqrt{\text{Hz}}$), then through a second gain stage (INA128) before the AD7124-8 ADC performs synchronous demodulation to extract amplitude and phase information.
 
 ```{python}
 #| label: fig-mit-signal-flow
@@ -226,7 +228,7 @@ plt.show()
 
 ### ERT Signal Path {#sec-ert-signal-path}
 
-The ERT system injects a known current (0.5-2 mA) **(Target)** between selected electrode pairs and measures the resulting voltage distribution. A Howland current source provides stable current injection regardless of load impedance, while a precision differential amplifier rejects common-mode noise from the measurement electrodes.
+The ERT system injects a known current (0.5-2 mA) **(Target)** between selected electrode pairs and measures the resulting voltage distribution. A Howland current source provides stable injection regardless of load impedance (output impedance >1 M-ohm), while the INA128 differential amplifier rejects common-mode noise from the measurement electrodes. The AD7124-8 ADC is shared between MIT and ERT channels via the CD74HC4067 multiplexer array.
 
 ```{python}
 #| label: fig-ert-signal-flow

@@ -1037,3 +1037,217 @@ def create_resolution_depth_plot():
     buf.seek(0)
     plt.close(fig)
     return buf
+
+
+def create_illumination_angle_comparison():
+    """
+    Create illumination angle comparison showing surface vs crosshole angular coverage.
+
+    Shows side-by-side comparison of ray path angles with polar coverage plots at bottom.
+
+    Returns:
+        BytesIO buffer containing the PNG image
+    """
+    # Create figure with 4 subplots: 2 main diagrams + 2 polar plots
+    fig = plt.figure(figsize=(10, 7))
+
+    # Top row: main diagram panels
+    ax_surface = plt.subplot2grid((3, 2), (0, 0), rowspan=2)
+    ax_crosshole = plt.subplot2grid((3, 2), (0, 1), rowspan=2)
+
+    # Bottom row: polar plots
+    ax_polar_surface = plt.subplot2grid((3, 2), (2, 0), projection='polar')
+    ax_polar_crosshole = plt.subplot2grid((3, 2), (2, 1), projection='polar')
+
+    # ===== LEFT PANEL: Surface Methods =====
+    ax_surface.set_xlim(-1, 6)
+    ax_surface.set_ylim(-3.5, 1)
+    ax_surface.set_aspect('equal')
+    ax_surface.axis('off')
+
+    # Ground surface
+    ax_surface.axhline(0, color='#654321', linewidth=2.5, zorder=5)
+    ax_surface.fill_between([-1, 6], [0, 0], [-3.5, -3.5],
+                            color='#d4a373', alpha=0.3, zorder=1)
+
+    # Surface sensors (7 sensors in a line)
+    sensor_x_positions = np.linspace(0.5, 4.5, 7)
+    for x in sensor_x_positions:
+        # Triangle sensor markers
+        triangle = Polygon([[x-0.15, 0.05], [x+0.15, 0.05], [x, 0.35]],
+                          facecolor=COLORS['secondary'], edgecolor='black',
+                          linewidth=0.5, zorder=10)
+        ax_surface.add_patch(triangle)
+
+    # Target at 2.5 m depth
+    target_x = 2.5
+    target_depth = -2.5
+    target_radius = 0.25
+    ax_surface.add_patch(Circle((target_x, target_depth), target_radius,
+                                facecolor=COLORS['warning'], edgecolor='black',
+                                linewidth=1, zorder=5))
+
+    # Ray paths from sensors to target (color-coded by angle)
+    ray_angles = []
+    for x in sensor_x_positions:
+        dx = target_x - x
+        dy = target_depth - 0
+        angle = np.arctan2(-dy, dx)  # Angle from horizontal (0 = horizontal right)
+        ray_angles.append(angle)
+
+        # Color by angle: steep rays (close to vertical) are red,
+        # shallower rays are orange/yellow
+        angle_deg = np.degrees(angle)
+        if angle_deg > 80:
+            ray_color = WONG_PALETTE['vermillion']  # Steep (red)
+        elif angle_deg > 70:
+            ray_color = WONG_PALETTE['orange']  # Moderate (orange)
+        else:
+            ray_color = WONG_PALETTE['yellow']  # Shallow (yellow)
+
+        # Draw ray path (curved to suggest indirect path)
+        t = np.linspace(0, 1, 30)
+        # Parabolic path (curves outward slightly)
+        curve_factor = 0.3 * np.abs(dx) * np.sin(np.pi * t)
+        ray_x = x + dx * t
+        ray_y = 0 + dy * t - curve_factor
+        ax_surface.plot(ray_x, ray_y, color=ray_color, alpha=0.5,
+                       linewidth=1.5, zorder=3)
+
+    # Annotation
+    ax_surface.text(2.5, -3.2, 'All rays from above - poor vertical resolution',
+                    fontsize=8, ha='center', style='italic',
+                    color=COLORS['gray_dark'])
+
+    # Title
+    ax_surface.text(2.5, 0.8, '(a) Surface Methods',
+                    fontsize=10, ha='center', fontweight='bold',
+                    color=COLORS['primary'])
+
+    # ===== RIGHT PANEL: Crosshole Methods =====
+    ax_crosshole.set_xlim(-1, 6)
+    ax_crosshole.set_ylim(-3.5, 1)
+    ax_crosshole.set_aspect('equal')
+    ax_crosshole.axis('off')
+
+    # Ground surface
+    ax_crosshole.axhline(0, color='#654321', linewidth=2.5, zorder=5)
+    ax_crosshole.fill_between([-1, 6], [0, 0], [-3.5, -3.5],
+                              color='#d4a373', alpha=0.3, zorder=1)
+
+    # Probe positions (3 probes at 2 m spacing)
+    probe_positions = [1, 3, 5]
+    probe_depth = -3.0
+    sensor_depths = [-0.5, -1.5, -2.5]  # Sensors at multiple depths
+
+    # Draw probes
+    for px in probe_positions:
+        # Probe body
+        ax_crosshole.add_patch(Rectangle((px - 0.08, probe_depth), 0.16,
+                                         abs(probe_depth),
+                                         facecolor=COLORS['secondary'],
+                                         edgecolor='black', linewidth=0.5,
+                                         zorder=4))
+
+        # Sensor markers on probe
+        for sy in sensor_depths:
+            ax_crosshole.add_patch(Circle((px, sy), 0.1,
+                                          facecolor=COLORS['success'],
+                                          edgecolor='black', linewidth=0.5,
+                                          zorder=6))
+
+    # Target at 2.5 m depth
+    target_x_ch = 2.5
+    target_depth_ch = -2.5
+    ax_crosshole.add_patch(Circle((target_x_ch, target_depth_ch), target_radius,
+                                   facecolor=COLORS['warning'], edgecolor='black',
+                                   linewidth=1, zorder=5))
+
+    # Ray paths between probe sensors (color-coded by direction)
+    ch_ray_angles = []
+    for i, px1 in enumerate(probe_positions):
+        for j, px2 in enumerate(probe_positions):
+            if i >= j:  # Only draw rays in one direction
+                continue
+            for sy1 in sensor_depths:
+                for sy2 in sensor_depths:
+                    # Calculate angle of ray
+                    dx = px2 - px1
+                    dy = sy2 - sy1
+                    angle = np.arctan2(dy, dx)
+                    ch_ray_angles.append(angle)
+
+                    # Color by direction
+                    if np.abs(dy) < 0.3:  # Horizontal
+                        ray_color = WONG_PALETTE['bluish_green']
+                        alpha = 0.4
+                    elif dy > 0:  # Ascending
+                        ray_color = WONG_PALETTE['blue']
+                        alpha = 0.35
+                    else:  # Descending
+                        ray_color = WONG_PALETTE['reddish_purple']
+                        alpha = 0.35
+
+                    # Draw straight ray path
+                    ax_crosshole.plot([px1, px2], [sy1, sy2],
+                                      color=ray_color, alpha=alpha,
+                                      linewidth=1.2, zorder=2)
+
+    # Annotation
+    ax_crosshole.text(2.5, -3.2, 'Rays from all directions - isotropic 3D resolution',
+                      fontsize=8, ha='center', style='italic',
+                      color=COLORS['success'])
+
+    # Title
+    ax_crosshole.text(2.5, 0.8, '(b) HIRT Crosshole',
+                      fontsize=10, ha='center', fontweight='bold',
+                      color=COLORS['primary'])
+
+    # ===== POLAR PLOTS =====
+
+    # Surface angular coverage (narrow wedge)
+    ax_polar_surface.set_theta_zero_location('E')  # 0 degrees at right (horizontal)
+    ax_polar_surface.set_theta_direction(1)  # Counter-clockwise
+
+    # Convert ray angles to polar convention
+    surface_angles = np.array(ray_angles)
+    # Create wedge showing coverage (60-90 degrees from horizontal = 0-30 deg from vertical)
+    wedge_angles = np.linspace(np.radians(60), np.radians(90), 50)
+    wedge_r = np.ones_like(wedge_angles)
+    ax_polar_surface.fill_between(wedge_angles, 0, wedge_r,
+                                   color=WONG_PALETTE['vermillion'], alpha=0.3)
+    ax_polar_surface.plot(wedge_angles, wedge_r, color=WONG_PALETTE['vermillion'],
+                          linewidth=2)
+
+    ax_polar_surface.set_ylim(0, 1)
+    ax_polar_surface.set_yticks([])
+    ax_polar_surface.set_title('Surface Coverage\n(narrow wedge)',
+                               fontsize=8, pad=10, color=COLORS['gray_dark'])
+    ax_polar_surface.grid(True, alpha=0.3)
+
+    # Crosshole angular coverage (nearly full circle)
+    ax_polar_crosshole.set_theta_zero_location('E')
+    ax_polar_crosshole.set_theta_direction(1)
+
+    # Show full coverage: -45 to +135 degrees (180 deg horizontal + vertical range)
+    coverage_angles = np.linspace(np.radians(-45), np.radians(135), 100)
+    coverage_r = np.ones_like(coverage_angles)
+    ax_polar_crosshole.fill_between(coverage_angles, 0, coverage_r,
+                                     color=WONG_PALETTE['bluish_green'], alpha=0.3)
+    ax_polar_crosshole.plot(coverage_angles, coverage_r,
+                            color=WONG_PALETTE['bluish_green'], linewidth=2)
+
+    ax_polar_crosshole.set_ylim(0, 1)
+    ax_polar_crosshole.set_yticks([])
+    ax_polar_crosshole.set_title('Crosshole Coverage\n(near-full circle)',
+                                 fontsize=8, pad=10, color=COLORS['gray_dark'])
+    ax_polar_crosshole.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    buf = BytesIO()
+    fig.savefig(buf, format='png', dpi=200, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
+    buf.seek(0)
+    plt.close(fig)
+    return buf

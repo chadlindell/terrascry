@@ -72,6 +72,30 @@ Below the probe tips, sensitivity falls approximately exponentially **(Modeled)*
 While mathematically possible to extend the inversion mesh below probe tips, results in this region are highly uncertain and often artifacts. Report survey depth as probe insertion depth, not inversion mesh extent.
 :::
 
+```{python}
+#| label: fig-resolution-degradation
+#| fig-cap: "Sensitivity degradation below probe tips shows exponential decay with depth. Results beyond 1m below probe tips are highly uncertain and often artifacts of the regularization."
+#| fig-width: 12
+#| fig-height: 6
+#| echo: false
+
+import sys
+if '..' not in sys.path:
+    sys.path.insert(0, '..')
+
+from diagrams.uncertainty import create_resolution_degradation_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_resolution_degradation_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(12, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
 ## Detection Limits
 
 ### Minimum Detectable Object Size (MIT)
@@ -114,6 +138,30 @@ The inverse problem is underdetermined. The number of model parameters (conducti
 - Multiple smaller objects distributed over 2-3 m depth range
 - A conductive soil layer combined with a smaller metal target
 - Any combination producing the same integrated response
+
+```{python}
+#| label: fig-non-uniqueness
+#| fig-cap: "The non-uniqueness problem: multiple subsurface models can produce identical tomographic responses. The inversion prefers smooth models due to regularization, which may not represent the true subsurface structure."
+#| fig-width: 12
+#| fig-height: 7
+#| echo: false
+
+import sys
+if '..' not in sys.path:
+    sys.path.insert(0, '..')
+
+from diagrams.uncertainty import create_non_uniqueness_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_non_uniqueness_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(12, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
 
 The inversion cannot distinguish between these scenarios based solely on measured data.
 

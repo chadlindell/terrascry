@@ -231,7 +231,13 @@ This document tracks the status and requirements for each documentation section.
 
 ---
 
+- [x] HERO physics analysis in physics.qmd (eddy current theory, field decay, ordnance interaction)
+- [x] Modernized signal chain in architecture.qmd (AD8421, OPA2186, AD7124-8 component callouts)
+- [x] Illumination angle diagram expanded from visual placeholder in physics.qmd
+- [x] Uncertainty visualization diagrams (non-uniqueness problem, resolution degradation)
+
 ## Pending Tasks
 
-1. **Phase C: Deep theory pass** - HERO analysis in physics, modernized signal chain in architecture
-2. **Phase C: Extended diagram coverage** - Architecture block diagram, uncertainty visualization
+1. **Field validation** - Plan first prototype tests
+2. **Additional diagram refinement** - Architecture block diagram updates if needed
+3. **HardwareX submission prep** - Final formatting and compliance check

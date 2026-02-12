@@ -4,11 +4,20 @@
 
 ## Current Focus
 
-**Phase B quality pass complete -- all research integrated, full qualification sweep done**
+**Phase C deep theory pass complete -- HERO physics, signal chain modernization, new diagrams**
 
-Phase B addressed the remaining quality debt: 14 research documents reviewed (7 integrated, 7 closed as no-integration-needed), ~190 numeric claims qualified across 14 .qmd files, and a critical bentonite correctness bug fixed in deployment.qmd.
+Phase C expanded the theoretical foundations: HERO physics analysis in physics.qmd (eddy current interaction with ordnance), modernized signal chain references in architecture.qmd (AD8421, OPA2186, AD7124-8), and three new visualization diagrams (illumination angle comparison, non-uniqueness problem, resolution degradation).
 
 ## Recent Accomplishments
+
+### 2026-02-12: Phase C Deep Theory Pass
+- **HERO physics analysis** added to physics.qmd: eddy current induction in metallic shells, field strength decay from TX coil, frequency-dependent ordnance interaction, cross-reference to safety.qmd
+- **Signal chain modernization** in architecture.qmd: MIT driver/receiver and ERT system sections updated with specific component callouts (AD8421, OPA2186, AD7124-8, CD74HC4067), signal flow paths updated with component-level detail
+- **Illumination angle diagram** expanded from visual placeholder in physics.qmd: surface vs crosshole ray paths with polar coverage plots
+- **Uncertainty visualizations** (2 new diagrams):
+  - Non-uniqueness problem: 4 different subsurface models producing identical tomogram
+  - Resolution degradation: sensitivity decay curve below probe tips with cross-section
+- New `docs/diagrams/uncertainty.py` module created
 
 ### 2026-02-12: Phase B Quality Pass (Research Integration & Extended Qualification)
 - **Critical fix:** Replaced bentonite slurry recommendation with polymer drilling fluid (xanthan gum) in deployment.qmd -- bentonite causes 80% resistivity reduction and is PROHIBITED for ERT measurements
@@ -87,6 +96,10 @@ Phase B addressed the remaining quality debt: 14 research documents reviewed (7 
 | Research integration (Phase B) | Complete | 7 more docs integrated, 7 reviewed and closed |
 | Extended qualification sweep | Complete | ~190 claims labeled across 14 files |
 | Bentonite correctness fix | Complete | Polymer drilling fluid replaces prohibited bentonite |
+| HERO physics analysis | Complete | Eddy current theory, field decay, ordnance interaction |
+| Signal chain modernization | Complete | AD8421, OPA2186, AD7124-8 referenced in architecture |
+| Illumination angle diagram | Complete | Visual placeholder expanded to working diagram |
+| Uncertainty visualizations | Complete | Non-uniqueness + resolution degradation diagrams |
 
 ## Blockers
 
@@ -94,9 +107,9 @@ None currently.
 
 ## Next Steps
 
-1. **Phase C: Deep theory pass** - Expand HERO analysis in physics, modernized signal chain in architecture
-2. **Phase C: Extended diagram coverage** - Architecture block diagram, uncertainty visualization
-3. **Field validation** - Plan first prototype tests
+1. **Field validation** - Plan first prototype tests
+2. **Additional diagram coverage** - Architecture block diagram refinement if needed
+3. **HardwareX submission prep** - Final formatting and compliance check
 
 ## Quick Reference
 
@@ -158,8 +171,8 @@ docs/
 
 ## Session Notes
 
-Phase B quality pass complete. All research documents reviewed and integrated or closed. Full qualification sweep applied to all .qmd files. Critical bentonite bug fixed. Ready for Phase C: deep theory pass and extended diagram coverage.
+Phase C deep theory pass complete. HERO physics analysis added to physics.qmd, signal chain modernized in architecture.qmd, illumination angle placeholder expanded, and two new uncertainty diagrams created. All 30 sections render cleanly.
 
 ---
 
-*Next session: Phase C -- deep theory pass, extended diagrams, field validation planning*
+*Next session: Field validation planning, HardwareX submission prep*

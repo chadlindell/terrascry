@@ -156,6 +156,59 @@ Key optimization strategies:
 
 The depth of investigation (DOI) has a modest relationship with noise floor: DOI $\propto$ noise$^{-0.2}$. Reducing noise by a factor of 10 extends DOI by approximately 1.6x. This relationship reinforces that geometric factors (probe depth and spacing) remain the primary determinants of investigation depth.
 
+### Electromagnetic Interaction with Ordnance Materials {#sec-em-ordnance}
+
+The preceding skin depth and coupling analysis applies not only to geological targets but also to metallic ordnance that may be present at HIRT survey sites. Understanding how the 2-50 kHz transmit field interacts with metallic shells and explosive device components is essential for safe field operations.
+
+#### Eddy Current Induction in Metallic Shells
+
+When an AC magnetic field encounters a metallic body, Faraday's law governs the induced currents. For a thin metallic shell of thickness $t$, radius $a$, and conductivity $\sigma$, the eddy current density at the surface is:
+
+$$
+J = \sigma E = \sigma \omega B_0 a
+$$ {#eq-eddy-current}
+
+where $\omega = 2\pi f$ is the angular frequency and $B_0$ is the incident field amplitude. The power dissipated in the shell scales as:
+
+$$
+P \propto \sigma \omega^2 B_0^2 a^4 t
+$$ {#eq-eddy-power}
+
+This quadratic frequency dependence means that at 50 kHz, eddy current heating is 625 times greater than at 2 kHz for the same field strength **(Modeled)**. For typical ordnance steel ($\sigma \approx 5 \times 10^6$ S/m), the skin depth at HIRT frequencies ranges from 1.0 mm at 50 kHz to 5.0 mm at 2 kHz **(Modeled)** --- well within the wall thickness of most bomb casings (5-15 mm).
+
+#### Field Strength Decay from TX Coil
+
+The MIT transmitter coil generates a near-field magnetic dipole. At distance $r$ from the coil center, the axial field strength decays as:
+
+$$
+B(r) = \frac{\mu_0}{4\pi} \cdot \frac{2 m}{r^3}
+$$ {#eq-dipole-field}
+
+where $m = NIA$ is the magnetic moment (N turns, I current, A coil area). For HIRT's TX coil parameters (N = 200-400 turns, I = 10-50 mA, A $\approx$ 50 mm$^2$), the field strength at representative distances **(Modeled)**:
+
+| Distance from TX Coil | Field Strength | Context |
+|------------------------|---------------|---------|
+| 0.1 m | 10-50 uT | Adjacent sensor ring |
+| 0.5 m | 0.08-0.4 uT | Same probe, different depth |
+| 1.0 m | 0.01-0.05 uT | Neighboring probe |
+| 2.0 m | 0.001-0.006 uT | Far probe |
+
+: TX coil field strength decay with distance **(Modeled)**, calculated from @eq-dipole-field for HIRT coil parameters. Earth's field ($\approx$ 50 uT) shown for reference. {#tbl-field-decay}
+
+The $1/r^3$ decay is steep: at 1 m distance, the field has dropped by three orders of magnitude from its value at 0.1 m. This rapid decay is the physical basis for HIRT's look-ahead safety buffer --- at 1.5-2.0 m ahead of the probe tip, the incident field on any ordnance is negligibly small compared to the near-probe region.
+
+#### Why 2-50 kHz Is the Critical Range
+
+Three factors make the HIRT operating range specifically relevant to ordnance safety:
+
+1. **Skin depth penetration:** At 2-50 kHz, skin depth in steel (1-5 mm) is comparable to EED bridge-wire dimensions, enabling efficient energy coupling into firing circuits **(Modeled)**.
+
+2. **Resonant coupling:** If the wiring in an EED firing circuit forms a loop with dimensions comparable to the wavelength at these frequencies (6-150 km in free space, much shorter in conductive media), resonant enhancement of induced currents can occur.
+
+3. **Below HERO test thresholds:** Many ordnance types were characterized for HERO susceptibility only at radar frequencies (MHz-GHz). The kHz range is less well-characterized, creating uncertainty about safe exposure limits for specific ordnance types.
+
+For the complete safety protocol derived from this physics, including NATO HERO standards and safe standoff distances, see [Safety: HERO Analysis](../getting-started/safety.qmd#sec-hero-analysis).
+
 ## ERT-Lite (Galvanic Method) {#sec-ert-physics}
 
 ### Operating Principle {#sec-ert-principle}
@@ -307,34 +360,24 @@ Consider a 0.5 m diameter spherical target at 2.5 m depth in a 3-probe HIRT arra
 
 This angular diversity directly translates to reconstruction quality. Tomographic inversion requires measurements that sample the target from multiple perspectives. A general rule: resolution improves linearly with the number of independent viewing angles up to approximately 20-30 angles, after which diminishing returns occur.
 
-::: {.visual-placeholder}
-**Figure Concept**: Illumination angle comparison diagram
+```{python}
+#| label: fig-illumination-angle-comparison
+#| fig-cap: "Comparison of illumination angles for (a) surface methods and (b) crosshole geometry. Surface sensors create rays that converge downward in a narrow cone, resulting in poor vertical resolution. Crosshole probes provide ray paths from multiple directions (horizontal, ascending, descending), enabling isotropic 3D resolution. Polar plots at bottom show angular coverage: surface methods sample a narrow wedge, while crosshole geometry achieves nearly full circular coverage."
+#| fig-width: 10
+#| fig-height: 7
 
-A side-by-side comparison showing ray path angles for surface vs. crosshole geometry:
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_illumination_angle_comparison
+from PIL import Image
 
-**Left panel (Surface ERT/MIT):**
-- Show 5-7 surface sensors arranged in a line above ground
-- Draw ray paths from each sensor down to a target at 2.5 m depth
-- All rays converge downward in a narrow cone (60-80 deg from vertical)
-- Color-code rays by angle: steep (red), moderate (orange), shallow (yellow)
-- Annotate: "All rays from above - poor vertical resolution"
-
-**Right panel (HIRT Crosshole):**
-- Show 3 probes at 2 m spacing inserted to 3 m depth
-- Draw ray paths connecting probes at multiple depths through a target at 2.5 m
-- Include horizontal rays (green), ascending rays (blue), descending rays (purple)
-- Show angular coverage: 180 deg horizontal, +/- 45 deg vertical
-- Annotate: "Rays from all directions - isotropic 3D resolution"
-
-**Bottom comparison:**
-- Small polar plot for each showing angular coverage
-- Surface: narrow wedge (60-80 deg)
-- Crosshole: nearly full circle coverage
-
-Scale: use consistent 1 m grid spacing. Target shown as 0.5 m sphere at 2.5 m depth.
-
-**Type**: diagram
-:::
+buf = create_illumination_angle_comparison()
+img = Image.open(buf)
+plt.figure(figsize=(10, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
 
 Surface methods concentrate their ray paths in the vertical direction. A Wenner array with 1 m electrode spacing samples the subsurface primarily along near-vertical current paths. The resulting sensitivity pattern is pancake-shaped: excellent lateral resolution but poor depth discrimination. Targets at 2.0 m vs. 2.5 m depth may show <10% difference in measured apparent resistivity.
 
