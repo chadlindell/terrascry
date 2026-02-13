@@ -264,21 +264,29 @@ def _build_pygimli_scheme(
 
 def _build_pygimli_mesh(
     electrode_positions: np.ndarray,
+    scheme: Any,
 ) -> Any:
     """Build a pyGIMLi mesh for forward modeling."""
+    import pygimli as pg
     import pygimli.meshtools as mt
 
     positions = np.asarray(electrode_positions)
-    x_min = positions[:, 0].min() - 5.0
-    x_max = positions[:, 0].max() + 5.0
+    span = positions[:, 0].max() - positions[:, 0].min()
+    pad = max(span * 5, 50.0)
+    x_min = positions[:, 0].min() - pad
+    x_max = positions[:, 0].max() + pad
 
     world = mt.createWorld(
-        start=[x_min, -20.0],
+        start=[x_min, -pad],
         end=[x_max, 0.0],
         worldMarker=True,
     )
 
-    mesh = mt.createMesh(world, quality=33, area=0.5)
+    # Refine mesh around electrode positions
+    for s in scheme.sensors():
+        world += mt.createCircle(pos=s, radius=0.05, marker=-99)
+
+    mesh = mt.createMesh(world, quality=33, area=2.0)
     return mesh
 
 
@@ -287,11 +295,11 @@ def _run_pygimli_forward(
     scheme: Any,
     resistivities: list[float],
     thicknesses: list[float] | None,
-) -> np.ndarray:
+) -> Any:
     """Run pyGIMLi ERT forward simulation."""
     from pygimli.physics import ert
 
-    # Create resistivity model
+    # For homogeneous or layered models, assign resistivity per cell
     rho = np.full(mesh.cellCount(), resistivities[0])
 
     if thicknesses and len(resistivities) > 1:
@@ -303,11 +311,8 @@ def _run_pygimli_forward(
                     if cell.center().y() < -depth:
                         rho[cell.id()] = resistivities[i + 1]
 
-    fwd = ert.ERTModelling()
-    fwd.setMesh(mesh)
-    fwd.setData(scheme)
-
-    return fwd.response(rho)
+    data = ert.simulate(mesh, scheme, res=rho, verbose=False)
+    return data
 
 
 def _ert_forward_pygimli(
@@ -324,20 +329,21 @@ def _ert_forward_pygimli(
     import pygimli  # noqa: F401 — validate availability
 
     scheme = _build_pygimli_scheme(electrode_positions, measurements)
-    mesh = _build_pygimli_mesh(electrode_positions)
+    mesh = _build_pygimli_mesh(electrode_positions, scheme)
     data = _run_pygimli_forward(mesh, scheme, resistivities, thicknesses)
+
+    # Extract apparent resistivity from pyGIMLi data container
+    rho_a_list = [float(v) for v in data['rhoa']]
 
     # Compute geometric factors analytically
     positions = np.asarray(electrode_positions, dtype=np.float64)
     K_list = []
-    rho_a_list = []
-    for i, (c1_idx, c2_idx, p1_idx, p2_idx) in enumerate(measurements):
+    for c1_idx, c2_idx, p1_idx, p2_idx in measurements:
         K = geometric_factor(
             positions[c1_idx], positions[c2_idx],
             positions[p1_idx], positions[p2_idx]
         )
         K_list.append(float(K))
-        rho_a_list.append(float(K * data[i]))
 
     return {
         'apparent_resistivity': rho_a_list,

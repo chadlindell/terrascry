@@ -217,37 +217,6 @@ def _build_simpeg_survey(
     return fdem.Survey(source_list)
 
 
-def _build_simpeg_mesh(
-    thicknesses: list[float],
-) -> tuple[Any, Any]:
-    """Build a 1D mesh and conductivity model for SimPEG."""
-    from discretize import TensorMesh
-
-    # Build 1D mesh from layer thicknesses
-    # Add padding cells below the model
-    hz = np.array(thicknesses)
-    mesh = TensorMesh([hz], origin="N")
-
-    return mesh
-
-
-def _run_simpeg_forward(
-    mesh: Any,
-    survey: Any,
-    conductivities: list[float],
-) -> np.ndarray:
-    """Run SimPEG 1D FDEM forward simulation."""
-    from SimPEG.electromagnetics import frequency_domain as fdem
-
-    sigma = np.array(conductivities)
-    simulation = fdem.Simulation1DLayered(
-        survey=survey,
-        sigmaMap=None,
-        sigma=sigma,
-    )
-    return simulation.dpred(sigma)
-
-
 def _fdem_forward_simpeg(
     thicknesses: list[float],
     conductivities: list[float],
@@ -260,11 +229,19 @@ def _fdem_forward_simpeg(
     All SimPEG imports are inside this function for lazy loading.
     Raises ImportError if SimPEG is not installed.
     """
-    import SimPEG  # noqa: F401 — validate availability
+    from SimPEG import maps
+    from SimPEG.electromagnetics import frequency_domain as fdem
 
     survey = _build_simpeg_survey(frequencies, coil_separation, height)
-    mesh = _build_simpeg_mesh(thicknesses)
-    data = _run_simpeg_forward(mesh, survey, conductivities)
+
+    sigma = np.array(conductivities)
+    sigma_map = maps.IdentityMap(nP=len(sigma))
+    simulation = fdem.Simulation1DLayered(
+        survey=survey,
+        sigmaMap=sigma_map,
+        thicknesses=np.array(thicknesses),
+    )
+    data = simulation.dpred(sigma)
 
     # SimPEG returns interleaved real/imag for each frequency
     n_freq = len(frequencies)

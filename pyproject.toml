@@ -30,6 +30,7 @@ hirt = [
 dev = [
     "pytest>=7.0",
     "pytest-cov",
+    "pandas",
     "ruff",
 ]
 all = ["geosim[viz,hirt,dev]"]
