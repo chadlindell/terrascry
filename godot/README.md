@@ -2,25 +2,52 @@
 
 Interactive 3D visualization frontend for GeoSim physics engine.
 
-## Status: Phase 1d Proof-of-Concept
+## Status: Phase 2 — Real Physics Connection
 
-This is the initial scaffolding. The Godot scene currently uses **mock responses** for physics queries. To connect to the real Python physics engine:
+The Godot frontend connects to the Python physics engine via ZeroMQ REQ-REP.
+When the `godot-zmq` addon is installed and the server is running, the HUD
+shows **"GeoSim LIVE"** (green) and gradient readings come from the real
+dipole/gradiometer model. Without the addon, it falls back to mock responses
+(**"GeoSim OFFLINE"**, red) so you can still develop the scene.
 
-1. Start the physics server: `geosim-server --scenario ../scenarios/scattered-debris.json`
-2. Install the [godot-zmq](https://github.com/zeromq/godot-zmq) GDExtension
-3. Update `physics_client.gd` to use real ZMQ sockets instead of mock responses
+## Quick Start
+
+```bash
+# Terminal 1 — start the physics server
+geosim-server --scenario ../scenarios/scattered-debris.json
+
+# Terminal 2 — run the integration test (no Godot required)
+./tools/test_godot_integration.sh
+
+# Or open the project in Godot 4.3+ and press Play
+```
+
+## Installing godot-zmq
+
+1. Download the precompiled release for your platform from
+   [godot_zeromq_bin](https://github.com/funatsufumiya/godot_zeromq_bin)
+2. Extract to `godot/addons/godot_zeromq/`
+3. Verify the `.gdextension` file is present
+4. Godot will auto-detect the addon on next launch — `PhysicsClient` switches
+   from mock mode to real ZMQ transport automatically
 
 ## Architecture
 
 ```
 Godot 4 (this project)          Python Physics Engine
 ┌─────────────────────┐         ┌──────────────────┐
-│ PhysicsClient       │──ZMQ──→ │ geosim-server    │
-│ (autoload singleton)│←──REP── │ (REQ-REP)        │
+│ Main                │         │ geosim-server    │
+│  ├ startup sequence │         │ (REQ-REP)        │
+│  └ scenario config  │         │                  │
+│                     │         │ Dipole model     │
+│ PhysicsClient       │──ZMQ──→ │ Gradiometer sim  │
+│ (autoload singleton)│←──REP── │ EM / ERT forward │
+│  ├ ZMQ or mock      │         │ Scenario loader  │
+│  └ is_busy() guard  │         │                  │
 │                     │         │                  │
-│ OperatorController  │         │ Dipole model     │
-│ TerrainGenerator    │         │ Gradiometer sim  │
-│ HUD                 │         │ Scenario loader  │
+│ OperatorController  │         │                  │
+│ TerrainGenerator    │         │                  │
+│ HUD (LIVE/OFFLINE)  │         │                  │
 └─────────────────────┘         └──────────────────┘
 ```
 
@@ -28,16 +55,19 @@ Godot 4 (this project)          Python Physics Engine
 
 ```
 godot/
-├── project.godot           # Godot project config
+├── project.godot              # Godot project config
+├── addons/
+│   └── godot_zeromq/          # ZMQ GDExtension (install manually)
 ├── scenes/
-│   └── main.tscn           # Main scene (terrain + operator + HUD)
+│   └── main.tscn              # Main scene (terrain + operator + HUD)
 ├── scripts/
-│   ├── physics_client.gd   # ZMQ client (autoloaded)
+│   ├── main.gd                # Startup orchestrator
+│   ├── physics_client.gd      # ZMQ client (autoloaded singleton)
 │   ├── terrain_generator.gd
 │   ├── operator_controller.gd
-│   └── hud.gd
+│   └── hud.gd                 # Gradient display + connection status
 └── shaders/
-    └── dipole_field.glsl   # GPU compute shader (Phase 3)
+    └── dipole_field.glsl      # GPU compute shader (future)
 ```
 
 ## Controls
@@ -46,8 +76,18 @@ godot/
 - **Mouse**: Look around
 - **Escape**: Release mouse cursor
 
+## Integration Testing
+
+```bash
+# Runs server, sends ZMQ test queries, verifies responses, shuts down
+./tools/test_godot_integration.sh [scenario_path]
+```
+
+The test exercises: ping, scenario info, single-point field/gradient queries,
+batch queries (11 points), and shutdown.
+
 ## Requirements
 
 - Godot 4.3+
-- godot-zmq GDExtension (for real physics connection)
+- godot-zmq GDExtension (for real physics connection; optional for mock mode)
 - Python physics server running (`geosim-server`)
