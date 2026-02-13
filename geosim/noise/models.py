@@ -225,6 +225,25 @@ class NoiseModel:
         return result
 
 
+def hirt_fdem_noise_model() -> NoiseModel:
+    """Create a noise model with HIRT FDEM-typical parameters.
+
+    HIRT FDEM noise is electronics-dominated with no heading error
+    (stationary borehole probes) and minimal diurnal drift
+    (rejected by differential measurement).
+
+    Returns
+    -------
+    model : NoiseModel
+        HIRT FDEM noise model.
+    """
+    return NoiseModel(
+        sensor=SensorNoise(noise_floor=1e-4, pink_corner=0.1),
+        diurnal=DiurnalDrift(amplitude=50e-9, rejection_ratio=0.001),
+        heading=HeadingError(amplitude=0.0),
+    )
+
+
 def pathfinder_noise_model() -> NoiseModel:
     """Create a noise model with Pathfinder-typical parameters.
 
