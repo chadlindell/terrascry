@@ -1,6 +1,7 @@
 ## Heads-up display for survey readings.
 ##
-## Shows current gradient reading, position, and survey statistics.
+## Shows current gradient reading, position, survey statistics,
+## and connection status to the physics server.
 ## Mimics the Pathfinder's on-device display.
 extends Control
 
@@ -16,6 +17,27 @@ func _ready() -> void:
 	# Create UI elements if not in scene tree
 	if not gradient_label:
 		_create_hud()
+
+	# Listen for connection state changes
+	PhysicsClient.connection_state_changed.connect(_on_connection_changed)
+
+	# Set initial connection status
+	_update_connection_status(PhysicsClient._connected)
+
+
+func _on_connection_changed(connected: bool) -> void:
+	_update_connection_status(connected)
+
+
+func _update_connection_status(connected: bool) -> void:
+	if not status_label:
+		return
+	if connected:
+		status_label.text = "GeoSim LIVE"
+		status_label.add_theme_color_override("font_color", Color.GREEN)
+	else:
+		status_label.text = "GeoSim OFFLINE"
+		status_label.add_theme_color_override("font_color", Color.RED)
 
 
 func update_reading(gradient: float, world_pos: Vector3) -> void:
@@ -51,11 +73,11 @@ func _create_hud() -> void:
 	position_label.add_theme_color_override("font_color", Color.LIGHT_GRAY)
 	add_child(position_label)
 
-	# Status (top-right)
+	# Status (connection indicator)
 	status_label = Label.new()
 	status_label.name = "StatusLabel"
-	status_label.text = "GeoSim POC"
+	status_label.text = "GeoSim OFFLINE"
 	status_label.position = Vector2(20, 100)
 	status_label.add_theme_font_size_override("font_size", 14)
-	status_label.add_theme_color_override("font_color", Color.DARK_GRAY)
+	status_label.add_theme_color_override("font_color", Color.RED)
 	add_child(status_label)

@@ -74,6 +74,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _query_physics() -> void:
+	if PhysicsClient.is_busy():
+		return
 	## Query gradient at current position
 	var pos := global_position
 	var sensor_pos := [pos.x, pos.z, sensor_height]  # Godot Y-up → GeoSim Z-up

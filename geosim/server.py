@@ -25,6 +25,19 @@ Commands:
     "get_scenario_info": Return loaded scenario metadata
         returns: {"name": "...", "n_sources": N, "terrain": {...}}
 
+    "query_em_response": Compute FDEM secondary field at receiver positions
+        params: {"positions": [[x,y,z], ...], "frequency": 1000.0}
+        returns: {"response_real": [...], "response_imag": [...]}
+
+    "query_apparent_resistivity": Compute ERT apparent resistivity
+        params: {"electrode_positions": [[x,y], ...],
+                 "measurements": [[c1,c2,p1,p2], ...]}
+        returns: {"apparent_resistivity": [...], "geometric_factors": [...]}
+
+    "query_skin_depth": Quick analytical skin depth calculation
+        params: {"frequency": 1000.0, "conductivity": 0.01}
+        returns: {"skin_depth": 503.29, "unit": "meters"}
+
     "ping": Health check
         returns: {"message": "pong"}
 
@@ -33,9 +46,7 @@ Commands:
 
 from __future__ import annotations
 
-import json
 import logging
-import sys
 
 import numpy as np
 
@@ -107,6 +118,77 @@ class PhysicsServer:
             "gradient": _make_serializable(grad),
         }
 
+    def query_em_response(
+        self,
+        positions: list,
+        frequency: float = 1000.0,
+    ) -> dict:
+        """Compute FDEM secondary field response at positions."""
+        from geosim.em.fdem import secondary_field_conductive_sphere
+
+        em_sources = self.scenario.em_sources
+        results_real = []
+        results_imag = []
+
+        for pos in positions:
+            r_obs = np.array(pos, dtype=np.float64)
+            total = 0.0 + 0.0j
+
+            for src in em_sources:
+                r_src = np.array(src['position'], dtype=np.float64)
+                dist = float(np.linalg.norm(r_obs - r_src))
+                if dist < src['radius']:
+                    dist = src['radius'] * 1.01  # avoid inside-sphere
+
+                resp = secondary_field_conductive_sphere(
+                    radius=src['radius'],
+                    conductivity=src['conductivity'],
+                    frequency=frequency,
+                    r_obs=dist,
+                )
+                total += resp
+
+            results_real.append(float(total.real))
+            results_imag.append(float(total.imag))
+
+        return {
+            "response_real": results_real,
+            "response_imag": results_imag,
+            "frequency": frequency,
+        }
+
+    def query_apparent_resistivity(
+        self,
+        electrode_positions: list,
+        measurements: list,
+    ) -> dict:
+        """Compute ERT apparent resistivity."""
+        from geosim.resistivity.ert import ert_forward
+
+        positions = np.array(electrode_positions, dtype=np.float64)
+        meas_tuples = [tuple(m) for m in measurements]
+
+        res_model = self.scenario.resistivity_model
+        result = ert_forward(
+            electrode_positions=positions,
+            measurements=meas_tuples,
+            resistivities=res_model['resistivities'],
+            thicknesses=res_model['thicknesses'] or None,
+            backend='analytical',
+        )
+        return {
+            "apparent_resistivity": result['apparent_resistivity'],
+            "geometric_factors": result['geometric_factors'],
+        }
+
+    @staticmethod
+    def query_skin_depth(frequency: float, conductivity: float) -> dict:
+        """Quick analytical skin depth calculation."""
+        from geosim.em.skin_depth import skin_depth
+
+        delta = float(skin_depth(frequency, conductivity))
+        return {"skin_depth": delta, "unit": "meters"}
+
     def handle_request(self, request: dict) -> dict:
         """Route a request to the appropriate handler."""
         command = request.get("command", "")
@@ -151,6 +233,31 @@ class PhysicsServer:
                         },
                     },
                 }
+
+            elif command == "query_em_response":
+                if self.scenario is None:
+                    return {"status": "error", "message": "No scenario loaded"}
+                result = self.query_em_response(
+                    params["positions"],
+                    params.get("frequency", 1000.0),
+                )
+                return {"status": "ok", "data": result}
+
+            elif command == "query_apparent_resistivity":
+                if self.scenario is None:
+                    return {"status": "error", "message": "No scenario loaded"}
+                result = self.query_apparent_resistivity(
+                    params["electrode_positions"],
+                    params["measurements"],
+                )
+                return {"status": "ok", "data": result}
+
+            elif command == "query_skin_depth":
+                result = self.query_skin_depth(
+                    params["frequency"],
+                    params["conductivity"],
+                )
+                return {"status": "ok", "data": result}
 
             elif command == "shutdown":
                 self._running = False

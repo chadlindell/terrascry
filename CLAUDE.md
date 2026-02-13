@@ -1,41 +1,66 @@
-# GeoSim - Claude Code Guidelines
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What This Is
-Physics-realistic simulation engine for HIRT (subsurface tomography) and Pathfinder (magnetic gradiometry) geophysical instruments. The physics engine IS the product; visualization layers are consumers.
 
-## Architecture
-- **Python physics engine** (`geosim/`): Core product. Must produce data matching real instruments.
-- **Scenario JSON files** (`scenarios/`): Single source of truth for ground truth.
-- **Jupyter notebooks** (`notebooks/`): Education, validation, research frontend.
-- **Godot 4** (`godot/`): Interactive 3D frontend, communicates via ZeroMQ.
-- **ZeroMQ server** (`geosim/server.py`): Bridge for any external client.
+Physics-realistic simulation engine for HIRT (subsurface tomography) and Pathfinder (magnetic gradiometry) geophysical instruments. The physics engine IS the product; visualization layers are consumers. Physics accuracy is non-negotiable — this is not a game engine.
 
-## Coordinate Convention
-- Right-handed coordinate system: X=East, Y=North, Z=Up
-- All positions in meters
-- All magnetic moments in A·m²
-- All magnetic fields in Tesla (T), gradients in T/m
+## Commands
 
-## Physics Standards
-- Magnetic dipole: B(r) = μ₀/4π [3(m·r̂)r̂ - m] / r³
-- Gradient: ΔB = B(lower_sensor) - B(upper_sensor)
-- Vacuum permeability: μ₀ = 4π × 10⁻⁷ T·m/A
-- SI units throughout
-
-## Key Commands
 ```bash
-pip install -e ".[dev]"     # Install for development
-pytest tests/               # Run all tests
-pytest tests/ -k dipole     # Run dipole tests only
-geosim-server               # Start ZeroMQ server
+pip install -e ".[dev]"              # Install for development
+pip install -e ".[all]"              # Install everything (viz + hirt + dev)
+pytest tests/                        # Run all tests
+pytest tests/ -k dipole              # Run dipole tests only
+pytest tests/test_zmq_server.py      # Run a single test file
+ruff check geosim/                   # Lint
+geosim-server --scenario scenarios/single-ferrous-target.json  # Start ZeroMQ server
 ```
 
-## Related Projects
-- `../HIRT/`: Subsurface tomography instrument (EM induction + ERT)
-- `../Pathfinder/`: Magnetic gradiometry instrument
+## Architecture
+
+**Data flow:** Scenario JSON → physics engine → sensor data → CSV/visualization/ZMQ
+
+- **`geosim/magnetics/dipole.py`**: Core physics — dipole field B(r), superposition, gradiometer readings. Everything depends on this. NumPy only, no viz dependencies.
+- **`geosim/scenarios/loader.py`**: Loads scenario JSON into `Scenario` objects. Auto-computes induced magnetic moments from susceptibility/radius when not explicitly set. Scenario files are the single source of truth for ground truth.
+- **`geosim/sensors/pathfinder.py`**: Full survey simulation pipeline: walk path → field computation → noise → ADC conversion → CSV export. Output CSVs must be loadable by Pathfinder's existing `visualize_data.py`.
+- **`geosim/noise/models.py`**: Three noise sources combined via `NoiseModel`: `SensorNoise` (white + 1/f), `DiurnalDrift` (geomagnetic variation), `HeadingError` (orientation systematic). Applied after clean physics.
+- **`geosim/viz/`**: PyVista 3D visualization (terrain, buried objects, field volumes, survey scenes). Imports from core but never modifies physics. Optional dependency.
+- **`geosim/server.py`**: ZeroMQ REQ-REP server wrapping physics for external clients (Godot). Commands: `ping`, `load_scenario`, `query_field`, `query_gradient`, `get_scenario_info`, `shutdown`.
+- **`godot/`**: Godot 4 interactive frontend. Currently uses mock responses; real connection requires godot-zmq GDExtension.
+- **`geosim/em/`, `geosim/resistivity/`**: Phase 2 stubs (SimPEG/pyGIMLi forward models, not yet implemented).
+
+## Coordinate Convention
+
+Right-handed: X=East, Y=North, Z=Up. All positions in meters, magnetic moments in A·m², fields in Tesla (T), gradients in T/m. SI units throughout.
+
+## Physics Standards
+
+- Magnetic dipole: `B(r) = μ₀/4π [3(m·r̂)r̂ - m] / r³`
+- Gradient: `ΔB = B(lower_sensor) - B(upper_sensor)` (firmware convention)
+- Vacuum permeability: `μ₀ = 4π × 10⁻⁷ T·m/A`
+- Magnetic sources represented as `[{'position': [x,y,z], 'moment': [mx,my,mz]}, ...]`
+- Default Earth field: `[0, 20μT, 45μT]` (mid-latitude, ~65° inclination)
+
+## Pathfinder Instrument Model
+
+4 sensor pairs, 0.50m horizontal spacing, 0.35m vertical baseline, bottom sensors at 0.175m height, 10 Hz sample rate, ADC: 2.5e9 counts/Tesla with ±32000 saturation.
+
+## Testing Conventions
+
+- Physics tests validate against analytical textbook formulas (Jackson/Griffiths)
+- Typical tolerances: `rel=1e-10` for field values, `abs=1e-20` for near-zero, `rtol=1e-14` for batch consistency
+- ZMQ server tests enforce latency SLAs: ping <2ms, field query <5ms, 100-point batch <20ms
+- Physics validation tests required for any new forward model
 
 ## Code Style
+
 - Python 3.10+, type hints on public APIs
 - NumPy-style docstrings on public functions
-- ruff for linting (line-length=100)
-- Physics validation tests required for any new forward model
+- ruff for linting (line-length=100, rules: E, F, W, I, N, UP)
+
+## Related Projects
+
+- `../HIRT/`: Subsurface tomography instrument (EM induction + ERT)
+- `../Pathfinder/`: Magnetic gradiometry instrument

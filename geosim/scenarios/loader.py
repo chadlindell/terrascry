@@ -58,6 +58,93 @@ class SoilLayer:
 
 
 @dataclass
+class AnomalyZone:
+    """A volumetric anomaly zone (e.g., crater fill, grave shaft).
+
+    Represents a region where soil properties differ from the surrounding
+    layers. Used by HIRT EM and ERT models.
+
+    Parameters
+    ----------
+    name : str
+        Human-readable name.
+    center : list[float]
+        Center position [x, y, z] in meters.
+    dimensions : dict
+        Shape dimensions. Keys depend on shape:
+        - 'sphere': {'radius': float}
+        - 'cylinder': {'radius': float, 'height': float}
+        - 'box': {'length': float, 'width': float, 'depth': float}
+    shape : str
+        Geometry type: 'sphere', 'cylinder', 'box'.
+    conductivity : float
+        Electrical conductivity in S/m.
+    resistivity : float
+        Electrical resistivity in Ω·m (inverse of conductivity).
+    relative_permittivity : float
+        Relative dielectric permittivity.
+    susceptibility : float
+        Magnetic susceptibility (SI).
+    """
+
+    name: str = ""
+    center: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    dimensions: dict[str, float] = field(default_factory=dict)
+    shape: str = "box"
+    conductivity: float = 0.0
+    resistivity: float = 0.0
+    relative_permittivity: float = 10.0
+    susceptibility: float = 0.0
+
+
+@dataclass
+class ProbeConfig:
+    """HIRT probe position and geometry.
+
+    Parameters
+    ----------
+    position : list[float]
+        Probe insertion point [x, y, z] in meters.
+    length : float
+        Probe length in meters.
+    orientation : str
+        'vertical' or 'angled'.
+    ring_depths : list[float]
+        Depths of ring electrodes relative to probe top.
+    coil_depths : list[float]
+        Depths of EM coils relative to probe top.
+    """
+
+    position: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    length: float = 1.0
+    orientation: str = "vertical"
+    ring_depths: list[float] = field(default_factory=list)
+    coil_depths: list[float] = field(default_factory=list)
+
+
+@dataclass
+class HIRTConfig:
+    """HIRT instrument configuration.
+
+    Parameters
+    ----------
+    probes : list[ProbeConfig]
+        Probe positions and configurations.
+    frequencies : list[float]
+        FDEM operating frequencies in Hz.
+    injection_current : float
+        ERT injection current in Amps.
+    array_type : str
+        Electrode array type: 'crosshole', 'wenner', 'dipole-dipole'.
+    """
+
+    probes: list[ProbeConfig] = field(default_factory=list)
+    frequencies: list[float] = field(default_factory=lambda: [1000.0, 5000.0, 25000.0])
+    injection_current: float = 0.01  # 10 mA
+    array_type: str = "crosshole"
+
+
+@dataclass
 class Terrain:
     """Terrain definition."""
 
@@ -79,6 +166,8 @@ class Scenario:
         default_factory=lambda: np.array([0.0, 20e-6, 45e-6])
     )  # [Bx, By, Bz] in Tesla (mid-latitude default: ~50 μT, 65° inclination)
     metadata: dict[str, Any] = field(default_factory=dict)
+    hirt_config: HIRTConfig | None = None
+    anomaly_zones: list[AnomalyZone] = field(default_factory=list)
 
     @property
     def magnetic_sources(self) -> list[dict]:
@@ -88,6 +177,73 @@ class Scenario:
             if obj.moment is not None:
                 sources.append(obj.as_dipole_source())
         return sources
+
+    @property
+    def em_sources(self) -> list[dict]:
+        """Return objects with EM-relevant properties (conductivity > 0).
+
+        These are objects that would produce a secondary field response
+        in FDEM measurements.
+        """
+        sources = []
+        for obj in self.objects:
+            if obj.conductivity > 0 and obj.radius > 0:
+                sources.append({
+                    'position': obj.position,
+                    'radius': obj.radius,
+                    'conductivity': obj.conductivity,
+                    'susceptibility': obj.susceptibility,
+                    'name': obj.name,
+                })
+        return sources
+
+    @property
+    def resistivity_model(self) -> dict:
+        """Return a 1D resistivity model from terrain layers.
+
+        Returns a dict with 'thicknesses' and 'resistivities' suitable
+        for analytical 1D forward models.
+        """
+        layers = self.terrain.layers
+        if not layers:
+            return {'thicknesses': [], 'resistivities': [100.0]}
+
+        thicknesses = []
+        resistivities = []
+        for i, layer in enumerate(layers):
+            rho = 1.0 / layer.conductivity if layer.conductivity > 0 else 1e6
+            resistivities.append(rho)
+            if i < len(layers) - 1:
+                thicknesses.append(abs(layer.z_top - layer.z_bottom))
+
+        return {'thicknesses': thicknesses, 'resistivities': resistivities}
+
+    def build_conductivity_model(self) -> dict:
+        """Build a conductivity model including anomaly zones.
+
+        Returns a dict with:
+        - 'background': layer conductivities from terrain
+        - 'anomalies': list of anomaly zone dicts with geometry and properties
+        """
+        background = []
+        for layer in self.terrain.layers:
+            background.append({
+                'z_top': layer.z_top,
+                'z_bottom': layer.z_bottom,
+                'conductivity': layer.conductivity,
+            })
+
+        anomalies = []
+        for zone in self.anomaly_zones:
+            anomalies.append({
+                'name': zone.name,
+                'center': zone.center,
+                'dimensions': zone.dimensions,
+                'shape': zone.shape,
+                'conductivity': zone.conductivity,
+            })
+
+        return {'background': background, 'anomalies': anomalies}
 
     def compute_induced_moments(self) -> None:
         """Compute induced dipole moments for objects without explicit moments.
@@ -178,6 +334,40 @@ def load_scenario(path: str | Path) -> Scenario:
     earth_field_data = data.get('earth_field', [0.0, 20e-6, 45e-6])
     earth_field = np.array(earth_field_data, dtype=np.float64)
 
+    # Parse anomaly zones (optional)
+    anomaly_zones = []
+    for az_data in data.get('anomaly_zones', []):
+        anomaly_zones.append(AnomalyZone(
+            name=az_data.get('name', ''),
+            center=az_data.get('center', [0.0, 0.0, 0.0]),
+            dimensions=az_data.get('dimensions', {}),
+            shape=az_data.get('shape', 'box'),
+            conductivity=az_data.get('conductivity', 0.0),
+            resistivity=az_data.get('resistivity', 0.0),
+            relative_permittivity=az_data.get('relative_permittivity', 10.0),
+            susceptibility=az_data.get('susceptibility', 0.0),
+        ))
+
+    # Parse HIRT config (optional)
+    hirt_config = None
+    hirt_data = data.get('hirt_config')
+    if hirt_data:
+        probes = []
+        for p_data in hirt_data.get('probes', []):
+            probes.append(ProbeConfig(
+                position=p_data.get('position', [0.0, 0.0, 0.0]),
+                length=p_data.get('length', 1.0),
+                orientation=p_data.get('orientation', 'vertical'),
+                ring_depths=p_data.get('ring_depths', []),
+                coil_depths=p_data.get('coil_depths', []),
+            ))
+        hirt_config = HIRTConfig(
+            probes=probes,
+            frequencies=hirt_data.get('frequencies', [1000.0, 5000.0, 25000.0]),
+            injection_current=hirt_data.get('injection_current', 0.01),
+            array_type=hirt_data.get('array_type', 'crosshole'),
+        )
+
     scenario = Scenario(
         name=data.get('name', path.stem),
         description=data.get('description', ''),
@@ -185,6 +375,8 @@ def load_scenario(path: str | Path) -> Scenario:
         objects=objects,
         earth_field=earth_field,
         metadata=data.get('metadata', {}),
+        hirt_config=hirt_config,
+        anomaly_zones=anomaly_zones,
     )
 
     # Auto-compute induced moments for objects that don't have explicit ones
@@ -246,6 +438,41 @@ def save_scenario(scenario: Scenario, path: str | Path) -> None:
         ],
         'metadata': scenario.metadata,
     }
+
+    # Serialize anomaly zones if present
+    if scenario.anomaly_zones:
+        data['anomaly_zones'] = [
+            {
+                'name': az.name,
+                'center': az.center,
+                'dimensions': az.dimensions,
+                'shape': az.shape,
+                'conductivity': az.conductivity,
+                'resistivity': az.resistivity,
+                'relative_permittivity': az.relative_permittivity,
+                'susceptibility': az.susceptibility,
+            }
+            for az in scenario.anomaly_zones
+        ]
+
+    # Serialize HIRT config if present
+    if scenario.hirt_config:
+        hc = scenario.hirt_config
+        data['hirt_config'] = {
+            'frequencies': hc.frequencies,
+            'injection_current': hc.injection_current,
+            'array_type': hc.array_type,
+            'probes': [
+                {
+                    'position': p.position,
+                    'length': p.length,
+                    'orientation': p.orientation,
+                    'ring_depths': p.ring_depths,
+                    'coil_depths': p.coil_depths,
+                }
+                for p in hc.probes
+            ],
+        }
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

@@ -43,6 +43,11 @@ include = ["geosim*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+markers = [
+    "simpeg: requires SimPEG (deselect with '-m \"not simpeg\"')",
+    "pygimli: requires pyGIMLi (deselect with '-m \"not pygimli\"')",
+    "slow: marks tests as slow-running",
+]
 
 [tool.ruff]
 line-length = 100
