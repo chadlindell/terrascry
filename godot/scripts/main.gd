@@ -182,10 +182,11 @@ func _set_gameplay_active(active: bool) -> void:
 		_ground_operator.set_physics_process(active)
 		_ground_operator.set_process_unhandled_input(active)
 	if _drone_operator:
-		_drone_operator.set_process(active and
+		var drone_active: bool = (active and
 			SurveyManager.current_operator_mode == SurveyManager.OperatorMode.DRONE)
-		_drone_operator.set_physics_process(active and
-			SurveyManager.current_operator_mode == SurveyManager.OperatorMode.DRONE)
+		_drone_operator.set_process(drone_active)
+		_drone_operator.set_physics_process(drone_active)
+		_drone_operator.set_process_unhandled_input(drone_active)
 
 
 func _activate_operator(op: Node3D) -> void:
