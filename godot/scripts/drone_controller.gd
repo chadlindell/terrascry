@@ -33,6 +33,12 @@ var autopilot_enabled := false
 var _waypoint_index := 0
 var _waypoints: PackedVector3Array = []  # Godot coordinates
 var _home_position := Vector3.ZERO
+var _auto_engaged := false  # True if autopilot was auto-started
+
+## Line tracking: maps waypoint index ranges to line IDs
+var _waypoint_line_map: PackedInt32Array = []  # line_id per waypoint
+var _current_line_id := -1
+var _total_survey_lines := 0
 
 ## PID controller gains (lateral cross-track correction)
 var _pid_kp := 2.0
@@ -42,9 +48,9 @@ var _pid_integral := 0.0
 var _pid_prev_error := 0.0
 
 ## Camera mode
-var _third_person := false
-var _chase_distance := 5.0
-var _chase_height := 3.0
+var _third_person := true
+var _chase_distance := 8.0
+var _chase_height := 5.0
 
 ## Survey state
 var current_speed := 0.0
@@ -64,6 +70,10 @@ var terrain_x_extent := Vector2(0, 20)
 var terrain_y_extent := Vector2(0, 20)
 var surface_elevation := 0.0
 
+## Drone model
+var _drone_model: Node3D
+var _rotors: Array[MeshInstance3D] = []
+
 ## Mouse state
 var _mouse_captured := true
 
@@ -71,6 +81,7 @@ var _mouse_captured := true
 signal position_updated(world_pos: Vector3)
 signal battery_warning(remaining: float)
 signal altitude_warning(agl: float)
+signal drone_progress(info: Dictionary)
 
 
 func _ready() -> void:
@@ -78,15 +89,29 @@ func _ready() -> void:
 	_home_position = global_position
 	_last_position = global_position
 
-	# Load waypoints from survey plan
+	# Load waypoints from survey plan with line ID tracking
 	var plan: Dictionary = SurveyManager.survey_plan
 	if not plan.is_empty():
 		var lines: Array = plan.get("lines", [])
-		for line in lines:
+		_total_survey_lines = lines.size()
+		for line_idx in range(lines.size()):
+			var line: Array = lines[line_idx]
 			for pt in line:
 				_waypoints.append(CoordUtil.to_godot(pt))
+				_waypoint_line_map.append(line_idx)
 
 		max_speed = plan.get("speed_target", 5.0)
+
+		# Auto-engage autopilot for drone surveys
+		if not _waypoints.is_empty():
+			autopilot_enabled = true
+			_auto_engaged = true
+			_pid_integral = 0.0
+			_pid_prev_error = 0.0
+			print("[Drone] Autopilot AUTO-ENGAGED")
+
+	_build_drone_model()
+	_update_camera_mode()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -107,15 +132,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		_third_person = not _third_person
 		_update_camera_mode()
 
-	# Toggle autopilot (double-tap move_forward or specific key)
+	# Toggle autopilot — E key disengages (manual override) or re-engages
 	if event.is_action_pressed("interact"):
-		autopilot_enabled = not autopilot_enabled
 		if autopilot_enabled:
+			autopilot_enabled = false
+			_auto_engaged = false
+			print("[Drone] Autopilot DISENGAGED — manual control")
+		elif not _waypoints.is_empty() and _waypoint_index < _waypoints.size():
+			autopilot_enabled = true
 			_pid_integral = 0.0
 			_pid_prev_error = 0.0
-			print("[Drone] Autopilot ENGAGED")
-		else:
-			print("[Drone] Autopilot DISENGAGED")
+			print("[Drone] Autopilot RE-ENGAGED")
 
 	# Event marker
 	if event.is_action_pressed("mark_event"):
@@ -168,8 +195,38 @@ func _physics_process(delta: float) -> void:
 	# Heading
 	heading = fposmod(rotation.y - PI, TAU)
 
+	# Spin rotors
+	for rotor in _rotors:
+		if is_instance_valid(rotor):
+			rotor.rotate_y(25.0 * delta)
+
 	# Position signal
 	position_updated.emit(global_position)
+
+	# Emit progress info for HUD
+	if autopilot_enabled and not _waypoints.is_empty():
+		var remaining_dist := _compute_remaining_distance()
+		var eta := remaining_dist / maxf(current_speed, 0.5)
+		var lines_done := _current_line_id if _current_line_id >= 0 else 0
+		drone_progress.emit({
+			"waypoint": _waypoint_index,
+			"total_waypoints": _waypoints.size(),
+			"eta_seconds": eta,
+			"lines_completed": lines_done,
+			"total_lines": _total_survey_lines,
+			"battery": battery_remaining,
+			"autopilot": true,
+		})
+	else:
+		drone_progress.emit({
+			"waypoint": _waypoint_index,
+			"total_waypoints": _waypoints.size(),
+			"eta_seconds": 0.0,
+			"lines_completed": _current_line_id if _current_line_id >= 0 else 0,
+			"total_lines": _total_survey_lines,
+			"battery": battery_remaining,
+			"autopilot": false,
+		})
 
 	# Sensor query
 	_query_timer += delta
@@ -215,7 +272,6 @@ func _autopilot_update(delta: float) -> void:
 	## PID-based waypoint following with altitude hold.
 	if _waypoint_index >= _waypoints.size():
 		autopilot_enabled = false
-		print("[Drone] Autopilot: all waypoints reached")
 		return
 
 	var target := _waypoints[_waypoint_index]
@@ -224,6 +280,10 @@ func _autopilot_update(delta: float) -> void:
 	var to_target := target - global_position
 	var horiz_dist := Vector2(to_target.x, to_target.z).length()
 
+	# Track current line ID from waypoint map
+	if _waypoint_index < _waypoint_line_map.size():
+		_current_line_id = _waypoint_line_map[_waypoint_index]
+
 	# Waypoint reached?
 	if horiz_dist < 0.5:
 		_waypoint_index += 1
@@ -231,6 +291,7 @@ func _autopilot_update(delta: float) -> void:
 		if _waypoint_index >= _waypoints.size():
 			velocity = Vector3.ZERO
 			autopilot_enabled = false
+			print("[Drone] Autopilot: all waypoints reached")
 			return
 		return
 
@@ -306,7 +367,7 @@ func _query_physics() -> void:
 				"z_up": gs.z,
 				"heading": heading,
 				"speed": current_speed,
-				"line_id": -1,
+				"line_id": _current_line_id,
 				"instrument": inst_name,
 				"reading": reading,
 				"reading_raw": raw_data,
@@ -317,6 +378,16 @@ func _query_physics() -> void:
 			})
 
 
+func _compute_remaining_distance() -> float:
+	## Sum remaining waypoint-to-waypoint distances from current position.
+	if _waypoints.is_empty() or _waypoint_index >= _waypoints.size():
+		return 0.0
+	var total := global_position.distance_to(_waypoints[_waypoint_index])
+	for i in range(_waypoint_index, _waypoints.size() - 1):
+		total += _waypoints[i].distance_to(_waypoints[i + 1])
+	return total
+
+
 func _update_camera_mode() -> void:
 	var cam := $Camera3D as Camera3D
 	if not cam:
@@ -324,7 +395,113 @@ func _update_camera_mode() -> void:
 
 	if _third_person:
 		cam.position = Vector3(0, _chase_height, _chase_distance)
-		cam.look_at(global_position, Vector3.UP)
+		cam.rotation = Vector3(-deg_to_rad(20.0), 0, 0)
 	else:
-		cam.position = Vector3.ZERO
+		cam.position = Vector3(0, 0.1, 0.3)
 		cam.rotation = Vector3.ZERO
+
+
+func _build_drone_model() -> void:
+	## Build a procedural quadcopter mesh.
+	_drone_model = Node3D.new()
+	_drone_model.name = "DroneModel"
+	add_child(_drone_model)
+
+	# Central body — flat dark-gray box
+	var body := MeshInstance3D.new()
+	body.name = "Body"
+	var body_mesh := BoxMesh.new()
+	body_mesh.size = Vector3(0.25, 0.06, 0.25)
+	body.mesh = body_mesh
+	var body_mat := StandardMaterial3D.new()
+	body_mat.albedo_color = Color(0.2, 0.22, 0.25)
+	body.material_override = body_mat
+	_drone_model.add_child(body)
+
+	# 4 arms extending diagonally + rotor discs at tips
+	var arm_positions: Array[Vector3] = [
+		Vector3(0.2, 0, 0.2),
+		Vector3(-0.2, 0, 0.2),
+		Vector3(0.2, 0, -0.2),
+		Vector3(-0.2, 0, -0.2),
+	]
+
+	var arm_mat := StandardMaterial3D.new()
+	arm_mat.albedo_color = Color(0.15, 0.15, 0.18)
+
+	var rotor_mat := StandardMaterial3D.new()
+	rotor_mat.albedo_color = Color(0.5, 0.5, 0.55, 0.5)
+	rotor_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+
+	for i in range(4):
+		var arm_pos := arm_positions[i]
+
+		# Arm
+		var arm := MeshInstance3D.new()
+		arm.name = "Arm_%d" % i
+		var arm_mesh := CylinderMesh.new()
+		arm_mesh.top_radius = 0.012
+		arm_mesh.bottom_radius = 0.012
+		arm_mesh.height = arm_pos.length() * 2.0
+		arm.mesh = arm_mesh
+		arm.material_override = arm_mat
+		arm.position = arm_pos * 0.5
+		# Rotate cylinder to lie along the diagonal
+		var angle := atan2(arm_pos.x, arm_pos.z)
+		arm.rotation = Vector3(0, 0, deg_to_rad(90.0))
+		arm.rotate(Vector3.UP, angle)
+		_drone_model.add_child(arm)
+
+		# Motor housing (small cylinder at arm tip)
+		var motor := MeshInstance3D.new()
+		motor.name = "Motor_%d" % i
+		var motor_mesh := CylinderMesh.new()
+		motor_mesh.top_radius = 0.025
+		motor_mesh.bottom_radius = 0.025
+		motor_mesh.height = 0.03
+		motor.mesh = motor_mesh
+		motor.material_override = arm_mat
+		motor.position = arm_pos
+		motor.position.y = 0.015
+		_drone_model.add_child(motor)
+
+		# Rotor disc
+		var rotor := MeshInstance3D.new()
+		rotor.name = "Rotor_%d" % i
+		var rotor_mesh := CylinderMesh.new()
+		rotor_mesh.top_radius = 0.12
+		rotor_mesh.bottom_radius = 0.12
+		rotor_mesh.height = 0.005
+		rotor.mesh = rotor_mesh
+		rotor.material_override = rotor_mat
+		rotor.position = arm_pos
+		rotor.position.y = 0.035
+		_drone_model.add_child(rotor)
+		_rotors.append(rotor)
+
+	# Sensor pod — small orange cylinder underneath center (magnetometer)
+	var sensor := MeshInstance3D.new()
+	sensor.name = "SensorPod"
+	var sensor_mesh := CylinderMesh.new()
+	sensor_mesh.top_radius = 0.03
+	sensor_mesh.bottom_radius = 0.02
+	sensor_mesh.height = 0.06
+	sensor.mesh = sensor_mesh
+	var sensor_mat := StandardMaterial3D.new()
+	sensor_mat.albedo_color = Color(0.9, 0.5, 0.1)
+	sensor.material_override = sensor_mat
+	sensor.position = Vector3(0, -0.06, 0)
+	_drone_model.add_child(sensor)
+
+	# Landing skids — 2 thin bars beneath body
+	var skid_mat := StandardMaterial3D.new()
+	skid_mat.albedo_color = Color(0.3, 0.3, 0.32)
+	for side in [-1.0, 1.0]:
+		var skid := MeshInstance3D.new()
+		skid.name = "Skid_%s" % ("L" if side < 0 else "R")
+		var skid_mesh := BoxMesh.new()
+		skid_mesh.size = Vector3(0.01, 0.01, 0.3)
+		skid.mesh = skid_mesh
+		skid.material_override = skid_mat
+		skid.position = Vector3(side * 0.1, -0.05, 0)
+		_drone_model.add_child(skid)

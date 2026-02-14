@@ -36,6 +36,29 @@ var _speed_stability_label: Label
 ## UI elements — recording indicator
 var _record_indicator: Label
 
+## UI elements — line QC toast and progress
+var _line_qc_toast: Label
+var _line_qc_toast_timer := 0.0
+var _line_progress_bar: HBoxContainer
+var _line_qc_results: Array = []  ## Array of {passed: bool} per completed line
+
+## UI elements — drone progress panel
+var _drone_panel: PanelContainer
+var _drone_wp_label: Label
+var _drone_eta_label: Label
+var _drone_lines_label: Label
+var _drone_battery_label: Label
+var _drone_status_label: Label
+
+## UI elements — toggle legend
+var _toggle_legend: VBoxContainer
+var _targets_visible := false
+
+## UI elements — compass and crosshair
+var _compass_label: Label
+var _crosshair: Control
+var _controls_label: Label
+
 ## Tracking
 var _reading_count := 0
 var _peak_gradient_nT := 0.0
@@ -54,6 +77,29 @@ func _ready() -> void:
 	_update_visibility(SurveyManager.current_state)
 
 
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	# Update compass bearing from operator heading
+	if _compass_label and SurveyManager.active_operator:
+		var heading: float = SurveyManager.active_operator.get("heading") if SurveyManager.active_operator.get("heading") != null else 0.0
+		var deg := rad_to_deg(heading)
+		var cardinal := _heading_to_cardinal(deg)
+		_compass_label.text = "%s %.0f" % [cardinal, fposmod(deg, 360.0)]
+
+	# Fade out line QC toast
+	if _line_qc_toast and _line_qc_toast.visible:
+		_line_qc_toast_timer -= delta
+		if _line_qc_toast_timer <= 0:
+			_line_qc_toast.visible = false
+		elif _line_qc_toast_timer < 0.5:
+			_line_qc_toast.modulate.a = _line_qc_toast_timer / 0.5
+
+	# Update toggle legend
+	if _toggle_legend:
+		_update_toggle_legend()
+
+
 func _on_state_changed(new_state: SurveyManager.State) -> void:
 	_update_visibility(new_state)
 
@@ -62,10 +108,22 @@ func _update_visibility(state: SurveyManager.State) -> void:
 	visible = (state == SurveyManager.State.SURVEYING or
 		state == SurveyManager.State.HIRT_SURVEY)
 
+	var is_surveying: bool = (state == SurveyManager.State.SURVEYING)
+	var is_drone: bool = (SurveyManager.current_operator_mode == SurveyManager.OperatorMode.DRONE)
+	var has_plan: bool = (not SurveyManager.survey_plan.is_empty() and
+		SurveyManager.survey_plan.get("pattern", "freeform") != "freeform")
+
 	if _guidance_panel:
-		_guidance_panel.visible = (state == SurveyManager.State.SURVEYING and
-			not SurveyManager.survey_plan.is_empty() and
-			SurveyManager.survey_plan.get("pattern", "freeform") != "freeform")
+		_guidance_panel.visible = is_surveying and has_plan and not is_drone
+
+	if _drone_panel:
+		_drone_panel.visible = is_surveying and is_drone
+
+	if _controls_label:
+		if is_drone:
+			_controls_label.text = "WASD=Fly | Q/Z=Alt | E=Autopilot | C=Camera | Esc=Pause | H=Targets"
+		else:
+			_controls_label.text = "WASD=Move | Esc=Pause | Tab=Instrument | Space=Mark | V=VCO | H=Targets | T=Tool"
 
 
 func _on_connection_changed(connected: bool) -> void:
@@ -203,6 +261,52 @@ func update_coverage(pct: float) -> void:
 		_coverage_label.text = "Coverage: %.0f%%" % pct
 
 
+## Update drone autopilot progress display.
+func update_drone_progress(info: Dictionary) -> void:
+	if not _drone_panel:
+		return
+	_drone_panel.visible = true
+
+	if _drone_wp_label:
+		var wp: int = info.get("waypoint", 0)
+		var total: int = info.get("total_waypoints", 0)
+		_drone_wp_label.text = "WP %d / %d" % [wp + 1, total]
+
+	if _drone_eta_label:
+		var eta: float = info.get("eta_seconds", 0.0)
+		if eta > 0:
+			_drone_eta_label.text = "ETA: %d:%02d" % [int(eta) / 60, int(eta) % 60]
+		else:
+			_drone_eta_label.text = "ETA: --"
+
+	if _drone_lines_label:
+		var done: int = info.get("lines_completed", 0)
+		var total: int = info.get("total_lines", 0)
+		if total > 0:
+			_drone_lines_label.text = "Lines: %d / %d (%.0f%%)" % [done, total, float(done) / float(total) * 100.0]
+		else:
+			_drone_lines_label.text = "Lines: --"
+
+	if _drone_battery_label:
+		var batt: float = info.get("battery", 1.0)
+		_drone_battery_label.text = "Battery: %.0f%%" % (batt * 100.0)
+		if batt < 0.2:
+			_drone_battery_label.add_theme_color_override("font_color", Color.RED)
+		elif batt < 0.5:
+			_drone_battery_label.add_theme_color_override("font_color", Color.YELLOW)
+		else:
+			_drone_battery_label.add_theme_color_override("font_color", Color.GREEN)
+
+	if _drone_status_label:
+		var ap: bool = info.get("autopilot", false)
+		if ap:
+			_drone_status_label.text = "AUTOPILOT"
+			_drone_status_label.add_theme_color_override("font_color", Color.GREEN)
+		else:
+			_drone_status_label.text = "MANUAL"
+			_drone_status_label.add_theme_color_override("font_color", Color.YELLOW)
+
+
 ## Update QC dashboard values.
 func update_qc(latency_ms: float, dropout_count: int) -> void:
 	if _latency_label:
@@ -246,10 +350,129 @@ func update_qc(latency_ms: float, dropout_count: int) -> void:
 		_speed_stability_label.text = "Speed Var: %.3f" % variance
 
 
+## Handle line completion QC result — show toast and update progress bar.
+func on_line_completed(line_index: int, qc_passed: bool, stats: Dictionary) -> void:
+	var total_lines := 0
+	if SurveyManager.active_operator:
+		var lines: Array = SurveyManager.active_operator.get("_survey_lines")
+		if lines:
+			total_lines = lines.size()
+
+	# Show toast
+	if _line_qc_toast:
+		if qc_passed:
+			_line_qc_toast.text = "Line %d/%d — PASS" % [line_index + 1, total_lines]
+			_line_qc_toast.add_theme_color_override("font_color", Color.GREEN)
+		else:
+			var reason: String = stats.get("reason", "FAIL")
+			if reason.is_empty():
+				reason = "FAIL"
+			_line_qc_toast.text = "Line %d/%d — FAIL: %s" % [line_index + 1, total_lines, reason]
+			_line_qc_toast.add_theme_color_override("font_color", Color.RED)
+		_line_qc_toast.visible = true
+		_line_qc_toast.modulate.a = 1.0
+		_line_qc_toast_timer = 3.0  # Show for 3 seconds
+
+	# Update progress bar segments
+	while _line_qc_results.size() <= line_index:
+		_line_qc_results.append({"passed": false})
+	_line_qc_results[line_index] = {"passed": qc_passed}
+	_update_line_progress_bar(total_lines)
+
+
+## Update the line progress bar with per-line pass/fail color segments.
+func _update_line_progress_bar(total_lines: int) -> void:
+	if not _line_progress_bar:
+		return
+
+	# Clear existing segments
+	for child in _line_progress_bar.get_children():
+		child.queue_free()
+
+	if total_lines <= 0:
+		return
+
+	for i in range(total_lines):
+		var segment := ColorRect.new()
+		segment.custom_minimum_size = Vector2(maxf(180.0 / total_lines, 4), 8)
+		segment.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		if i < _line_qc_results.size():
+			if _line_qc_results[i].get("passed", false):
+				segment.color = Color(0.2, 0.8, 0.3, 0.8)  # Green
+			else:
+				segment.color = Color(0.9, 0.2, 0.2, 0.8)  # Red
+		else:
+			segment.color = Color(0.3, 0.35, 0.4, 0.5)  # Gray (pending)
+
+		_line_progress_bar.add_child(segment)
+
+
 ## Display the loaded scenario name.
 func set_scenario_name(scenario_name: String) -> void:
 	if _scenario_label:
 		_scenario_label.text = scenario_name
+
+
+## Update targets visibility indicator on HUD.
+func set_targets_visible(visible_flag: bool) -> void:
+	_targets_visible = visible_flag
+
+
+func _update_toggle_legend() -> void:
+	## Rebuild toggle legend labels to reflect current state.
+	## Runs each frame but only updates text — no allocations after first build.
+	var is_drone: bool = (SurveyManager.current_operator_mode == SurveyManager.OperatorMode.DRONE)
+
+	# Gather toggle entries: [key, name, on/off]
+	var entries: Array = []
+	if is_drone:
+		var ap := false
+		var cam_mode := "3rd"
+		if SurveyManager.active_operator:
+			ap = SurveyManager.active_operator.get("autopilot_enabled") == true
+			var tp = SurveyManager.active_operator.get("_third_person")
+			cam_mode = "3rd" if tp else "1st"
+		entries.append(["E", "Autopilot", ap])
+		entries.append(["C", "Camera", cam_mode])
+	else:
+		entries.append(["V", "VCO", AudioManager.vco_enabled])
+		var tool_vis := true
+		if SurveyManager.active_operator:
+			var iv = SurveyManager.active_operator.get("_instrument_visible")
+			if iv != null:
+				tool_vis = iv
+		entries.append(["T", "Tool", tool_vis])
+	entries.append(["H", "Targets", _targets_visible])
+
+	# Ensure correct number of child labels
+	while _toggle_legend.get_child_count() < entries.size():
+		var lbl := Label.new()
+		lbl.add_theme_font_size_override("font_size", 11)
+		lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_toggle_legend.add_child(lbl)
+	while _toggle_legend.get_child_count() > entries.size():
+		_toggle_legend.get_child(_toggle_legend.get_child_count() - 1).queue_free()
+
+	for i in range(entries.size()):
+		var entry: Array = entries[i]
+		var lbl: Label = _toggle_legend.get_child(i) as Label
+		if not lbl:
+			continue
+		var key: String = entry[0]
+		var label_name: String = entry[1]
+		var value = entry[2]
+
+		if value is bool:
+			var state_str := "ON" if value else "OFF"
+			lbl.text = "[%s] %s: %s" % [key, label_name, state_str]
+			if value:
+				lbl.add_theme_color_override("font_color", Color.CYAN)
+			else:
+				lbl.add_theme_color_override("font_color", Color(0.35, 0.4, 0.45))
+		else:
+			lbl.text = "[%s] %s: %s" % [key, label_name, str(value)]
+			lbl.add_theme_color_override("font_color", Color(0.6, 0.7, 0.8))
 
 
 func _gradient_color(value_nT: float) -> Color:
@@ -275,11 +498,16 @@ func _create_hud() -> void:
 	panel.offset_bottom = 340
 
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.0, 0.0, 0.0, 0.6)
+	panel_style.bg_color = Color(0.05, 0.08, 0.12, 0.65)
 	panel_style.corner_radius_top_left = 6
 	panel_style.corner_radius_top_right = 6
 	panel_style.corner_radius_bottom_left = 6
 	panel_style.corner_radius_bottom_right = 6
+	panel_style.border_color = Color(0.3, 0.35, 0.45, 0.4)
+	panel_style.border_width_left = 1
+	panel_style.border_width_right = 1
+	panel_style.border_width_top = 1
+	panel_style.border_width_bottom = 1
 	panel_style.content_margin_left = 10
 	panel_style.content_margin_right = 10
 	panel_style.content_margin_top = 8
@@ -430,6 +658,26 @@ func _create_hud() -> void:
 	_heading_label.add_theme_font_size_override("font_size", 13)
 	g_vbox.add_child(_heading_label)
 
+	# Line QC progress bar (colored segments per completed line)
+	_line_progress_bar = HBoxContainer.new()
+	_line_progress_bar.add_theme_constant_override("separation", 2)
+	g_vbox.add_child(_line_progress_bar)
+
+	# ---- TOP-RIGHT: Line QC Toast ----
+	_line_qc_toast = Label.new()
+	_line_qc_toast.set_anchors_preset(PRESET_TOP_RIGHT)
+	_line_qc_toast.offset_right = -12
+	_line_qc_toast.offset_top = 220
+	_line_qc_toast.offset_left = -280
+	_line_qc_toast.text = ""
+	_line_qc_toast.add_theme_font_size_override("font_size", 18)
+	_line_qc_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_line_qc_toast.visible = false
+	_line_qc_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_line_qc_toast)
+
+	# (Toggle legend replaces individual VCO/Targets indicators)
+
 	# ---- BOTTOM-RIGHT: QC Dashboard ----
 	_qc_panel = PanelContainer.new()
 	_qc_panel.name = "QCPanel"
@@ -478,14 +726,156 @@ func _create_hud() -> void:
 	_speed_stability_label.add_theme_color_override("font_color", Color.LIGHT_GRAY)
 	qc_vbox.add_child(_speed_stability_label)
 
+	# ---- TOP-RIGHT: Drone Progress Panel ----
+	_drone_panel = PanelContainer.new()
+	_drone_panel.name = "DronePanel"
+	_drone_panel.set_anchors_preset(PRESET_TOP_RIGHT)
+	_drone_panel.offset_left = -250
+	_drone_panel.offset_top = 12
+	_drone_panel.offset_right = -12
+	_drone_panel.offset_bottom = 180
+	_drone_panel.visible = false
+
+	var drone_style := panel_style.duplicate()
+	_drone_panel.add_theme_stylebox_override("panel", drone_style)
+	_drone_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_drone_panel)
+
+	var d_vbox := VBoxContainer.new()
+	d_vbox.add_theme_constant_override("separation", 4)
+	_drone_panel.add_child(d_vbox)
+
+	_drone_status_label = Label.new()
+	_drone_status_label.text = "AUTOPILOT"
+	_drone_status_label.add_theme_font_size_override("font_size", 16)
+	_drone_status_label.add_theme_color_override("font_color", Color.GREEN)
+	d_vbox.add_child(_drone_status_label)
+
+	_drone_wp_label = Label.new()
+	_drone_wp_label.text = "WP -- / --"
+	_drone_wp_label.add_theme_font_size_override("font_size", 13)
+	_drone_wp_label.add_theme_color_override("font_color", Color.LIGHT_GRAY)
+	d_vbox.add_child(_drone_wp_label)
+
+	_drone_lines_label = Label.new()
+	_drone_lines_label.text = "Lines: --"
+	_drone_lines_label.add_theme_font_size_override("font_size", 13)
+	_drone_lines_label.add_theme_color_override("font_color", Color.LIGHT_GRAY)
+	d_vbox.add_child(_drone_lines_label)
+
+	_drone_eta_label = Label.new()
+	_drone_eta_label.text = "ETA: --"
+	_drone_eta_label.add_theme_font_size_override("font_size", 13)
+	_drone_eta_label.add_theme_color_override("font_color", Color.LIGHT_GRAY)
+	d_vbox.add_child(_drone_eta_label)
+
+	_drone_battery_label = Label.new()
+	_drone_battery_label.text = "Battery: 100%"
+	_drone_battery_label.add_theme_font_size_override("font_size", 13)
+	_drone_battery_label.add_theme_color_override("font_color", Color.GREEN)
+	d_vbox.add_child(_drone_battery_label)
+
+
+	# ---- BOTTOM-LEFT: Toggle legend ----
+	_toggle_legend = VBoxContainer.new()
+	_toggle_legend.name = "ToggleLegend"
+	_toggle_legend.set_anchors_preset(PRESET_BOTTOM_LEFT)
+	_toggle_legend.offset_left = 12
+	_toggle_legend.offset_bottom = -30
+	_toggle_legend.offset_top = -110
+	_toggle_legend.add_theme_constant_override("separation", 1)
+	_toggle_legend.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_toggle_legend)
+
 	# ---- BOTTOM-LEFT: Controls hint ----
-	var controls_label := Label.new()
-	controls_label.set_anchors_preset(PRESET_BOTTOM_LEFT)
-	controls_label.offset_left = 12
-	controls_label.offset_bottom = -12
-	controls_label.offset_top = -40
-	controls_label.text = "WASD=Move | P=Pause | Tab=Instrument | Space=Mark | Esc=Mouse"
-	controls_label.add_theme_font_size_override("font_size", 11)
-	controls_label.add_theme_color_override("font_color", Color(0.35, 0.4, 0.45))
-	controls_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(controls_label)
+	_controls_label = Label.new()
+	_controls_label.set_anchors_preset(PRESET_BOTTOM_LEFT)
+	_controls_label.offset_left = 12
+	_controls_label.offset_bottom = -12
+	_controls_label.offset_top = -28
+	_controls_label.text = "WASD=Move | Esc=Pause | Tab=Instrument | Space=Mark | V=VCO | H=Targets | T=Tool"
+	_controls_label.add_theme_font_size_override("font_size", 11)
+	_controls_label.add_theme_color_override("font_color", Color(0.35, 0.4, 0.45))
+	_controls_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_controls_label)
+
+	# ---- TOP-CENTER: Compass bearing ----
+	_compass_label = Label.new()
+	_compass_label.set_anchors_preset(PRESET_CENTER_TOP)
+	_compass_label.offset_top = 12
+	_compass_label.offset_left = -40
+	_compass_label.offset_right = 40
+	_compass_label.text = "N 0"
+	_compass_label.add_theme_font_size_override("font_size", 16)
+	_compass_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
+	_compass_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_compass_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_compass_label)
+
+	# ---- CENTER: Crosshair ----
+	_crosshair = Control.new()
+	_crosshair.name = "Crosshair"
+	_crosshair.set_anchors_preset(PRESET_CENTER)
+	_crosshair.offset_left = -8
+	_crosshair.offset_top = -8
+	_crosshair.offset_right = 8
+	_crosshair.offset_bottom = 8
+	_crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_crosshair.draw.connect(_draw_crosshair)
+	add_child(_crosshair)
+
+	# ---- VIGNETTE: Subtle corner darkening ----
+	var vignette := ColorRect.new()
+	vignette.name = "Vignette"
+	vignette.set_anchors_preset(PRESET_FULL_RECT)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vignette_shader := Shader.new()
+	vignette_shader.code = """
+shader_type canvas_item;
+void fragment() {
+	float d = length(UV - 0.5) * 1.6;
+	float v = mix(0.0, 0.25, pow(d, 2.5));
+	COLOR = vec4(0.0, 0.0, 0.0, v);
+}
+"""
+	var vignette_mat := ShaderMaterial.new()
+	vignette_mat.shader = vignette_shader
+	vignette.material = vignette_mat
+	add_child(vignette)
+
+
+func _draw_crosshair() -> void:
+	var center := _crosshair.size / 2.0
+	var gap := 3.0
+	var arm := 6.0
+	var color := Color(1.0, 1.0, 1.0, 0.4)
+	# Top
+	_crosshair.draw_line(Vector2(center.x, center.y - gap - arm), Vector2(center.x, center.y - gap), color, 1.0)
+	# Bottom
+	_crosshair.draw_line(Vector2(center.x, center.y + gap), Vector2(center.x, center.y + gap + arm), color, 1.0)
+	# Left
+	_crosshair.draw_line(Vector2(center.x - gap - arm, center.y), Vector2(center.x - gap, center.y), color, 1.0)
+	# Right
+	_crosshair.draw_line(Vector2(center.x + gap, center.y), Vector2(center.x + gap + arm, center.y), color, 1.0)
+	# Center dot
+	_crosshair.draw_circle(center, 1.0, color)
+
+
+func _heading_to_cardinal(deg: float) -> String:
+	deg = fposmod(deg, 360.0)
+	if deg < 22.5 or deg >= 337.5:
+		return "N"
+	elif deg < 67.5:
+		return "NE"
+	elif deg < 112.5:
+		return "E"
+	elif deg < 157.5:
+		return "SE"
+	elif deg < 202.5:
+		return "S"
+	elif deg < 247.5:
+		return "SW"
+	elif deg < 292.5:
+		return "W"
+	else:
+		return "NW"
