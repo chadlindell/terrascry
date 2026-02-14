@@ -125,13 +125,13 @@ func _process(delta: float) -> void:
 
 	# Modulate wind volume by operator speed
 	if SurveyManager.active_operator and _ambient_wind.playing:
-		var speed: float = SurveyManager.active_operator.get("current_speed")
-		if speed != null:
-			var ref_speed: float = SurveyManager.active_operator.get("walk_speed")
-			if ref_speed == null:
-				ref_speed = SurveyManager.active_operator.get("max_speed")
-			if ref_speed == null:
-				ref_speed = 1.5
+		var speed_val = SurveyManager.active_operator.get("current_speed")
+		if speed_val != null:
+			var speed: float = speed_val
+			var ref_val = SurveyManager.active_operator.get("walk_speed")
+			if ref_val == null:
+				ref_val = SurveyManager.active_operator.get("max_speed")
+			var ref_speed: float = ref_val if ref_val != null else 1.5
 			var speed_factor := clampf(speed / maxf(ref_speed, 0.1), 0.0, 1.0)
 			_ambient_wind.volume_db = lerpf(-20.0, -9.0, speed_factor)
 

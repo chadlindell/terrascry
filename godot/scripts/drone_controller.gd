@@ -179,12 +179,13 @@ func _physics_process(delta: float) -> void:
 	else:
 		_manual_control(delta)
 
-	# Altitude measurement via raycast
+	# Altitude measurement via raycast (exclude self to avoid hitting own collision)
 	var space_state := get_world_3d().direct_space_state
 	var ray_params := PhysicsRayQueryParameters3D.create(
 		global_position,
 		global_position + Vector3.DOWN * 50.0
 	)
+	ray_params.exclude = [get_rid()]
 	var ray_result := space_state.intersect_ray(ray_params)
 	if ray_result:
 		current_altitude_agl = global_position.y - ray_result.position.y
