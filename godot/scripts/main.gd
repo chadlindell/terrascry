@@ -239,8 +239,11 @@ func _configure_from_scenario(data: Dictionary) -> void:
 		print("[Main] Operator placed at (%.1f, %.1f), elevation %.1f" % [
 			center_x, center_z, surface_elev])
 
-	# Configure drone operator similarly
+	# Configure drone operator with terrain bounds and starting position
 	if _drone_operator:
+		_drone_operator.terrain_x_extent = Vector2(x_ext[0], x_ext[1])
+		_drone_operator.terrain_y_extent = Vector2(y_ext[0], y_ext[1])
+		_drone_operator.surface_elevation = surface_elev
 		_drone_operator.position = Vector3(center_x, surface_elev + 5.0, center_z)
 
 	# Update HUD with scenario name

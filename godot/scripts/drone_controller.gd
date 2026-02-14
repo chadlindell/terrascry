@@ -89,29 +89,43 @@ func _ready() -> void:
 	_home_position = global_position
 	_last_position = global_position
 
-	# Load waypoints from survey plan with line ID tracking
-	var plan: Dictionary = SurveyManager.survey_plan
-	if not plan.is_empty():
-		var lines: Array = plan.get("lines", [])
-		_total_survey_lines = lines.size()
-		for line_idx in range(lines.size()):
-			var line: Array = lines[line_idx]
-			for pt in line:
-				_waypoints.append(CoordUtil.to_godot(pt))
-				_waypoint_line_map.append(line_idx)
-
-		max_speed = plan.get("speed_target", 5.0)
-
-		# Auto-engage autopilot for drone surveys
-		if not _waypoints.is_empty():
-			autopilot_enabled = true
-			_auto_engaged = true
-			_pid_integral = 0.0
-			_pid_prev_error = 0.0
-			print("[Drone] Autopilot AUTO-ENGAGED")
-
 	_build_drone_model()
 	_update_camera_mode()
+
+	# Load waypoints when the survey actually starts (plan isn't ready at _ready time)
+	SurveyManager.survey_started.connect(_on_survey_started)
+
+
+func _on_survey_started() -> void:
+	## Load waypoints from survey plan and auto-engage autopilot.
+	_waypoints.clear()
+	_waypoint_line_map.clear()
+	_waypoint_index = 0
+	_current_line_id = -1
+	_pid_integral = 0.0
+	_pid_prev_error = 0.0
+	autopilot_enabled = false
+
+	var plan: Dictionary = SurveyManager.survey_plan
+	if plan.is_empty():
+		return
+
+	var lines: Array = plan.get("lines", [])
+	_total_survey_lines = lines.size()
+	for line_idx in range(lines.size()):
+		var line: Array = lines[line_idx]
+		for pt in line:
+			_waypoints.append(CoordUtil.to_godot(pt))
+			_waypoint_line_map.append(line_idx)
+
+	max_speed = plan.get("speed_target", 5.0)
+	_home_position = global_position
+
+	# Auto-engage autopilot for drone surveys
+	if not _waypoints.is_empty():
+		autopilot_enabled = true
+		_auto_engaged = true
+		print("[Drone] Autopilot AUTO-ENGAGED — %d waypoints" % _waypoints.size())
 
 
 func _unhandled_input(event: InputEvent) -> void:
