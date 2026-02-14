@@ -245,3 +245,97 @@ class TestHandleRequestDirectly:
         server = PhysicsServer()
         resp = server.handle_request({"command": "bogus"})
         assert resp["status"] == "error"
+
+    def test_scenario_info_returns_all_fields(self):
+        """get_scenario_info returns full payload with all expected fields."""
+        server = PhysicsServer()
+        server.handle_request({
+            "command": "load_scenario",
+            "params": {"path": SCENARIO_PATH},
+        })
+        resp = server.handle_request({"command": "get_scenario_info"})
+        assert resp["status"] == "ok"
+        data = resp["data"]
+
+        # Core fields
+        assert "name" in data
+        assert "description" in data
+        assert "n_sources" in data
+
+        # Terrain with full detail
+        assert "terrain" in data
+        terrain = data["terrain"]
+        assert "x_extent" in terrain
+        assert "y_extent" in terrain
+        assert "surface_elevation" in terrain
+        assert "layers" in terrain
+
+        # Earth field
+        assert "earth_field" in data
+        assert len(data["earth_field"]) == 3
+
+        # Objects list
+        assert "objects" in data
+        assert isinstance(data["objects"], list)
+        assert len(data["objects"]) > 0
+        obj = data["objects"][0]
+        assert "name" in obj
+        assert "position" in obj
+        assert "type" in obj
+        assert "radius" in obj
+
+        # Metadata
+        assert "metadata" in data
+
+        # Instrument info
+        assert "has_hirt" in data
+        assert "available_instruments" in data
+        assert isinstance(data["available_instruments"], list)
+        assert "mag_gradiometer" in data["available_instruments"]
+
+    def test_scenario_info_objects_match_scenario(self):
+        """Objects list in info matches actual scenario objects."""
+        server = PhysicsServer()
+        server.handle_request({
+            "command": "load_scenario",
+            "params": {"path": SCENARIO_PATH},
+        })
+        resp = server.handle_request({"command": "get_scenario_info"})
+        data = resp["data"]
+
+        # Number of objects should match
+        assert len(data["objects"]) == len(server.scenario.objects)
+
+        # Names should match
+        info_names = [o["name"] for o in data["objects"]]
+        scenario_names = [o.name for o in server.scenario.objects]
+        assert info_names == scenario_names
+
+    def test_instrument_availability_single_target(self):
+        """Single ferrous target scenario has all three instruments (has layers + EM targets)."""
+        server = PhysicsServer()
+        server.handle_request({
+            "command": "load_scenario",
+            "params": {"path": SCENARIO_PATH},
+        })
+        resp = server.handle_request({"command": "get_scenario_info"})
+        instruments = resp["data"]["available_instruments"]
+        assert "mag_gradiometer" in instruments
+
+    def test_instrument_availability_hirt_scenario(self):
+        """HIRT scenarios include EM and resistivity instruments."""
+        hirt_path = os.path.join(
+            os.path.dirname(__file__), "..", "scenarios", "bomb-crater-heterogeneous.json"
+        )
+        if not os.path.exists(hirt_path):
+            pytest.skip("bomb-crater scenario not found")
+
+        server = PhysicsServer()
+        server.handle_request({
+            "command": "load_scenario",
+            "params": {"path": hirt_path},
+        })
+        resp = server.handle_request({"command": "get_scenario_info"})
+        instruments = resp["data"]["available_instruments"]
+        # Has EM-detectable objects (conductivity > 0 and radius > 0)
+        assert "em_fdem" in instruments

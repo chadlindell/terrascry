@@ -218,6 +218,61 @@ def gradiometer_reading(
     return b_bot, b_top, grad
 
 
+def remanent_moment(
+    volume: float,
+    remanence_direction: np.ndarray,
+    remanence_magnitude: float,
+) -> np.ndarray:
+    """Compute remanent dipole moment for a permanently magnetized object.
+
+    Natural remanent magnetization (NRM) is retained from manufacturing,
+    transport, or geological history. Unlike induced magnetization, it is
+    independent of the current ambient field.
+
+    Parameters
+    ----------
+    volume : float
+        Object volume in m³.
+    remanence_direction : ndarray, shape (3,)
+        Unit vector giving the direction of remanent magnetization.
+    remanence_magnitude : float
+        Remanent magnetization intensity in A/m (NRM intensity).
+        Typical values: mild steel 1-10 A/m, hardened steel 10-100 A/m.
+
+    Returns
+    -------
+    moment : ndarray, shape (3,)
+        Remanent dipole moment in A·m²: ``m_r = V · M_r · direction``.
+    """
+    direction = np.asarray(remanence_direction, dtype=np.float64)
+    norm = np.linalg.norm(direction)
+    if norm < 1e-15:
+        return np.zeros(3)
+    direction = direction / norm
+    return volume * remanence_magnitude * direction
+
+
+def combined_moment(
+    induced: np.ndarray,
+    remanent: np.ndarray,
+) -> np.ndarray:
+    """Combine induced and remanent dipole moments by superposition.
+
+    Parameters
+    ----------
+    induced : ndarray, shape (3,)
+        Induced dipole moment in A·m² (aligned with Earth field).
+    remanent : ndarray, shape (3,)
+        Remanent dipole moment in A·m² (arbitrary direction).
+
+    Returns
+    -------
+    total : ndarray, shape (3,)
+        Combined moment: ``m_total = m_induced + m_remanent``.
+    """
+    return np.asarray(induced, dtype=np.float64) + np.asarray(remanent, dtype=np.float64)
+
+
 def dipole_moment_from_sphere(
     radius: float,
     susceptibility: float,

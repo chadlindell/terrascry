@@ -36,7 +36,8 @@
       "metadata": {
         "description": "500 lb GP bomb, steel casing, intact at 3.5m depth",
         "reference": "HIRT roadmap - aluminum bomb at 3m (adapted to steel)",
-        "hazard": "UXO - do not approach in real scenario"
+        "hazard": "UXO - do not approach in real scenario",
+        "remanent_moment": [0.5, 0.0, 0.2]
       }
     },
     {
@@ -73,7 +74,13 @@
       "radius": 0.03,
       "susceptibility": 1500.0,
       "conductivity": 5e6,
-      "metadata": {"description": "Small submunition near surface"}
+      "metadata": {
+        "description": "Small submunition near surface",
+        "remanence": {
+          "direction": [0.0, 1.0, 0.3],
+          "intensity": 50.0
+        }
+      }
     },
     {
       "name": "Rebar from destroyed structure",

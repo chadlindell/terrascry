@@ -14,7 +14,7 @@ extends Node
 @export var server_address: String = "tcp://127.0.0.1:5555"
 
 ## Timeout for server responses (seconds)
-@export var response_timeout: float = 2.0
+@export var response_timeout: float = 5.0
 
 ## Reconnection interval (seconds)
 @export var reconnect_interval: float = 5.0
@@ -31,6 +31,10 @@ var _awaiting_reply: bool = false
 var _zmq_setup_done: bool = false
 var _reconnect_timer: float = 0.0
 
+## Polling-based response handling (avoids signal/lambda timing issues)
+var _response_ready: bool = false
+var _last_response: Dictionary = {}
+
 ## True when ZMQ addon is not installed (pure mock mode)
 var is_mock_mode: bool:
 	get:
@@ -39,7 +43,6 @@ var is_mock_mode: bool:
 ## Signals
 signal connection_state_changed(connected: bool)
 signal server_error(message: String)
-signal _response_received(data: Dictionary)
 
 
 func _ready() -> void:
@@ -65,17 +68,31 @@ func _process(delta: float) -> void:
 
 
 func _setup_zmq() -> void:
-	_zmq_socket = ClassDB.instantiate("ZMQSender")
-	_zmq_socket.createSocket(1)  # ZMQ_REQ = 1
-	var err = _zmq_socket.connectSocket(server_address)
-	if err == OK:
-		_zmq_socket.onMessageString.connect(_on_zmq_message)
+	# Create ZMQSender dynamically to avoid parse-time dependency on the addon.
+	# ZMQ.SocketType.REQ = 3, ZMQ.ConnectionMode.CONNECT = 2
+	# auto_receive = false — we call beginReceiveRequest() explicitly after each send.
+	var helper := GDScript.new()
+	helper.source_code = "static func make(addr: String):\n\treturn ZMQSender.new_from(addr, 3, 2, \"\", false)\n"
+	if helper.reload() != OK:
+		push_error("[PhysicsClient] Failed to compile ZMQ helper")
+		return
+
+	_zmq_socket = helper.make(server_address)
+	if _zmq_socket:
+		if _zmq_socket is Node:
+			add_child(_zmq_socket)
+			print("[PhysicsClient] ZMQSender added as child node")
+		_zmq_socket.onMessageString(_on_zmq_message)
 		_zmq_setup_done = true
-		# Don't set _connected — ZMQ connect is async; wait for first successful response
-		print("[PhysicsClient] ZMQ socket bound to ", server_address)
+		print("[PhysicsClient] ZMQ REQ socket connected to ", server_address)
 	else:
-		print("[PhysicsClient] Failed to bind ZMQ socket to ", server_address)
-		server_error.emit("Failed to bind ZMQ socket to %s" % server_address)
+		push_error("[PhysicsClient] ZMQSender.new_from() returned null")
+		server_error.emit("Failed to create ZMQ socket to %s" % server_address)
+
+
+func _exit_tree() -> void:
+	if _zmq_socket and _zmq_socket.has_method("stop"):
+		_zmq_socket.stop()
 
 
 func _try_reconnect() -> void:
@@ -90,15 +107,24 @@ func _try_reconnect() -> void:
 
 
 func _on_zmq_message(message: String) -> void:
-	_awaiting_reply = false
+	# ZMQ callback fires from a background thread — defer to main thread
+	call_deferred("_handle_zmq_response", message)
+
+
+func _handle_zmq_response(message: String) -> void:
 	var json = JSON.new()
 	var parse_result = json.parse(message)
 	if parse_result == OK:
-		_response_received.emit(json.data)
+		if not _connected:
+			_connected = true
+			connection_state_changed.emit(true)
+			print("[PhysicsClient] Connected to physics server")
+		_last_response = json.data
 	else:
-		var err_response := {"status": "error", "message": "Failed to parse server response"}
-		_response_received.emit(err_response)
+		_last_response = {"status": "error", "message": "Failed to parse server response"}
 		server_error.emit("JSON parse error: %s" % json.get_error_message())
+	_awaiting_reply = false
+	_response_ready = true
 
 
 ## Whether a request is currently in-flight (prevents double-send on REQ-REP).
@@ -119,56 +145,37 @@ func send_command(command: String, params: Dictionary = {}) -> Dictionary:
 			return {"status": "error", "message": "Client busy (awaiting reply)"}
 
 		_awaiting_reply = true
-		_zmq_socket.sendString(JSON.stringify(request))
+		_response_ready = false
+		_last_response = {}
 
-		var timer := get_tree().create_timer(response_timeout)
-		var result = await _await_with_timeout(timer)
+		var json_str := JSON.stringify(request)
+		_zmq_socket.sendString(json_str)
+		_zmq_socket.beginReceiveRequest()
 
-		if result.is_empty():
+		# Poll for response with timeout — simple and reliable
+		var elapsed := 0.0
+		var poll_interval := 0.016  # ~1 frame at 60fps
+		while not _response_ready and elapsed < response_timeout:
+			await get_tree().create_timer(poll_interval).timeout
+			elapsed += poll_interval
+
+		if not _response_ready:
 			_awaiting_reply = false
+			print("[PhysicsClient] Timeout: ", command)
 			if _connected:
 				_connected = false
 				connection_state_changed.emit(false)
-				print("[PhysicsClient] Server timeout — marking disconnected")
 			server_error.emit("Request timed out: %s" % command)
 			return {"status": "error", "message": "Request timed out"}
 
 		# Successful response confirms connectivity
-		if not _connected and result.get("status") == "ok":
+		if not _connected and _last_response.get("status") == "ok":
 			_connected = true
 			connection_state_changed.emit(true)
 
-		return result
+		return _last_response
 	else:
 		return _mock_response(command, params)
-
-
-## Helper to await response with timeout.
-## Cleans up both callbacks regardless of which fires first.
-func _await_with_timeout(timer: SceneTreeTimer) -> Dictionary:
-	var response := {}
-	var waiting := true
-
-	var on_response := func(data: Dictionary):
-		response = data
-		waiting = false
-
-	var on_timeout := func():
-		waiting = false
-
-	_response_received.connect(on_response, CONNECT_ONE_SHOT)
-	timer.timeout.connect(on_timeout, CONNECT_ONE_SHOT)
-
-	while waiting:
-		await get_tree().process_frame
-
-	# Clean up whichever callback didn't fire
-	if _response_received.is_connected(on_response):
-		_response_received.disconnect(on_response)
-	if timer.timeout.is_connected(on_timeout):
-		timer.timeout.disconnect(on_timeout)
-
-	return response
 
 
 # ---------- Convenience query methods ----------

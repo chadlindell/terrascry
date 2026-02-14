@@ -163,6 +163,76 @@ class HeadingError:
 
 
 @dataclass
+class MotionNoise:
+    """Motion-induced noise from boom pendulation during walking.
+
+    Real gradiometers are highly sensitive to operator motion — the boom
+    oscillates with each step, modulating sensor height and introducing
+    speed-correlated noise. This is often the dominant noise source in
+    field surveys.
+
+    Parameters
+    ----------
+    pendulum_amplitude : float
+        Peak boom oscillation amplitude in meters at reference walk speed.
+    step_frequency : float
+        Gait frequency in Hz (typical walking: ~2 Hz).
+    speed_noise_scale : float
+        Multiplier for sensor noise floor at reference walk speed.
+        Total sensor noise is scaled by ``1 + scale * (v / v_ref)``.
+    reference_speed : float
+        Reference walk speed in m/s for scaling.
+    """
+
+    pendulum_amplitude: float = 0.005  # 5 mm boom oscillation at walk speed
+    step_frequency: float = 2.0  # Hz (gait frequency)
+    speed_noise_scale: float = 1.5  # noise floor multiplier at walk speed
+    reference_speed: float = 1.5  # m/s
+
+    def evaluate(
+        self,
+        timestamps: np.ndarray,
+        speeds: np.ndarray,
+        field_gradient: np.ndarray,
+        phase_offset: float = 0.0,
+        rng: np.random.Generator | None = None,
+    ) -> np.ndarray:
+        """Compute motion-induced noise.
+
+        Parameters
+        ----------
+        timestamps : ndarray, shape (N,)
+            Time values in seconds.
+        speeds : ndarray, shape (N,)
+            Operator speed at each sample in m/s.
+        field_gradient : ndarray, shape (N,)
+            Local vertical field gradient (dBz/dz) in T/m at each sample.
+        phase_offset : float
+            Phase offset in radians (different per sensor pair).
+        rng : Generator, optional
+            Random number generator (unused, reserved for future jitter).
+
+        Returns
+        -------
+        noise : ndarray, shape (N,)
+            Additive motion noise in Tesla.
+        """
+        v_ratio = speeds / self.reference_speed
+
+        # Pendulum height oscillation: amplitude scales with speed
+        dz = (
+            self.pendulum_amplitude
+            * v_ratio
+            * np.sin(2.0 * np.pi * self.step_frequency * timestamps + phase_offset)
+        )
+
+        # Gradient modulation: boom height change × local gradient
+        gradient_noise = field_gradient * dz
+
+        return gradient_noise
+
+
+@dataclass
 class NoiseModel:
     """Combined noise model for a sensor channel.
 
@@ -172,6 +242,7 @@ class NoiseModel:
     sensor: SensorNoise = None
     diurnal: DiurnalDrift = None
     heading: HeadingError = None
+    motion: MotionNoise = None
 
     def __post_init__(self):
         if self.sensor is None:
@@ -180,6 +251,8 @@ class NoiseModel:
             self.diurnal = DiurnalDrift()
         if self.heading is None:
             self.heading = HeadingError()
+        if self.motion is None:
+            self.motion = MotionNoise()
 
     def apply(
         self,
@@ -188,6 +261,9 @@ class NoiseModel:
         headings: np.ndarray | None = None,
         sample_rate: float = 10.0,
         rng: np.random.Generator | None = None,
+        speeds: np.ndarray | None = None,
+        field_gradient: np.ndarray | None = None,
+        phase_offset: float = 0.0,
     ) -> np.ndarray:
         """Apply all noise sources to a clean signal.
 
@@ -203,6 +279,13 @@ class NoiseModel:
             Sample rate in Hz.
         rng : Generator, optional
             Random number generator.
+        speeds : ndarray, optional
+            Operator speed at each sample in m/s. If None, motion noise is
+            omitted (backward compatible).
+        field_gradient : ndarray, optional
+            Local vertical field gradient in T/m. Required with speeds.
+        phase_offset : float
+            Phase offset for motion noise (radians).
 
         Returns
         -------
@@ -212,8 +295,13 @@ class NoiseModel:
         n = len(clean_signal)
         result = clean_signal.copy()
 
-        # Sensor noise
-        result += self.sensor.generate(n, sample_rate, rng)
+        # Speed-dependent sensor noise scaling
+        if speeds is not None:
+            v_ratio = speeds / self.motion.reference_speed
+            scale_factors = 1.0 + self.motion.speed_noise_scale * v_ratio
+            result += self.sensor.generate(n, sample_rate, rng) * scale_factors
+        else:
+            result += self.sensor.generate(n, sample_rate, rng)
 
         # Diurnal drift
         result += self.diurnal.evaluate(timestamps)
@@ -221,6 +309,12 @@ class NoiseModel:
         # Heading error
         if headings is not None:
             result += self.heading.evaluate(headings)
+
+        # Motion-induced noise (pendulum + gradient modulation)
+        if speeds is not None and field_gradient is not None:
+            result += self.motion.evaluate(
+                timestamps, speeds, field_gradient, phase_offset, rng
+            )
 
         return result
 
@@ -251,9 +345,15 @@ def pathfinder_noise_model() -> NoiseModel:
     - Fluxgate noise floor: ~50 pT RMS
     - Gradiometer rejects >99% of common-mode drift
     - Target gradient noise: <20 ADC counts RMS
+    - Motion noise: 5mm boom pendulation at walk speed
     """
     return NoiseModel(
         sensor=SensorNoise(noise_floor=50e-12, pink_corner=0.5),
         diurnal=DiurnalDrift(amplitude=50e-9, rejection_ratio=0.01),
         heading=HeadingError(amplitude=2e-9),
+        motion=MotionNoise(
+            pendulum_amplitude=0.005,
+            step_frequency=2.0,
+            speed_noise_scale=1.5,
+        ),
     )

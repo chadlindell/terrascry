@@ -246,19 +246,43 @@ class Scenario:
         return {'background': background, 'anomalies': anomalies}
 
     def compute_induced_moments(self) -> None:
-        """Compute induced dipole moments for objects without explicit moments.
+        """Compute induced dipole moments and combine with remanence.
 
         Uses the effective sphere approximation with the scenario's Earth field.
-        Objects with existing moments are not modified.
+        If an object has remanence data, the remanent moment is added to the
+        induced moment via superposition. Objects with explicit ``moment``
+        already set (and no remanence) are not modified.
         """
-        from geosim.magnetics.dipole import MU_0
+        from geosim.magnetics.dipole import MU_0, combined_moment, remanent_moment
 
         B_earth_mag = np.linalg.norm(self.earth_field)
 
         for obj in self.objects:
+            # Compute remanent moment if remanence data is present
+            m_remanent = None
+            rem = obj.metadata.get("remanence") if obj.metadata else None
+            rem_direct = obj.metadata.get("remanent_moment") if obj.metadata else None
+
+            if rem_direct is not None:
+                # Direct remanent moment vector [mx, my, mz] in A·m²
+                m_remanent = np.array(rem_direct, dtype=np.float64)
+            elif rem is not None:
+                # Computed from direction + intensity
+                direction = np.array(rem["direction"], dtype=np.float64)
+                intensity = rem["intensity"]  # A/m
+                volume = (4.0 / 3.0) * np.pi * obj.radius ** 3
+                m_remanent = remanent_moment(volume, direction, intensity)
+
+            # If object already has an explicit moment, add remanence if present
             if obj.moment is not None:
+                if m_remanent is not None:
+                    obj.moment = combined_moment(obj.moment, m_remanent)
                 continue
+
+            # Compute induced moment for susceptible objects
             if obj.susceptibility <= 0 or obj.radius <= 0:
+                if m_remanent is not None:
+                    obj.moment = m_remanent
                 continue
 
             volume = (4.0 / 3.0) * np.pi * obj.radius ** 3
@@ -269,7 +293,13 @@ class Scenario:
 
             # Moment aligned with Earth field direction
             B_hat = self.earth_field / B_earth_mag
-            obj.moment = m_magnitude * B_hat
+            m_induced = m_magnitude * B_hat
+
+            # Combine with remanence if present
+            if m_remanent is not None:
+                obj.moment = combined_moment(m_induced, m_remanent)
+            else:
+                obj.moment = m_induced
 
 
 def load_scenario(path: str | Path) -> Scenario:

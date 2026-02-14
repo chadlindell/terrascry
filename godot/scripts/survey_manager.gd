@@ -67,7 +67,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("pause"):
+	# Both P (pause) and Escape (ui_cancel) toggle pause during surveys
+	if event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel"):
 		if current_state == State.SURVEYING or current_state == State.HIRT_SURVEY:
 			transition(State.PAUSED)
 		elif current_state == State.PAUSED:
@@ -127,22 +128,37 @@ func load_scenario(path: String) -> bool:
 
 
 ## Determine which instruments are applicable for current scenario.
+## Uses server-provided list if available, falls back to heuristic.
 func _determine_available_instruments() -> void:
 	available_instruments.clear()
+
+	# Prefer server-provided instrument list (Phase Q)
+	var server_instruments: Array = scenario_info.get("available_instruments", [])
+	if not server_instruments.is_empty():
+		for inst_name in server_instruments:
+			match inst_name:
+				"mag_gradiometer":
+					if not available_instruments.has(Instrument.MAG_GRADIOMETER):
+						available_instruments.append(Instrument.MAG_GRADIOMETER)
+				"em_fdem":
+					if not available_instruments.has(Instrument.EM_FDEM):
+						available_instruments.append(Instrument.EM_FDEM)
+				"resistivity":
+					if not available_instruments.has(Instrument.RESISTIVITY):
+						available_instruments.append(Instrument.RESISTIVITY)
+		if available_instruments.is_empty():
+			available_instruments.append(Instrument.MAG_GRADIOMETER)
+		return
+
+	# Fallback: heuristic based on scenario name/metadata
 	available_instruments.append(Instrument.MAG_GRADIOMETER)
 
-	# EM and ERT available based on scenario metadata or hirt_config presence
-	var meta: Dictionary = scenario_info.get("metadata", {})
-	var difficulty: String = meta.get("difficulty", "")
-	var has_hirt: bool = scenario_info.has("hirt_config")
-
-	# Bomb crater and swamp scenarios support EM
+	var has_hirt: bool = scenario_info.get("has_hirt", false)
 	var name: String = scenario_info.get("name", "").to_lower()
 	if name.contains("crater") or name.contains("swamp") or name.contains("crash") \
 			or has_hirt:
 		available_instruments.append(Instrument.EM_FDEM)
 
-	# Swamp / crash scenarios support ERT
 	if name.contains("swamp") or name.contains("crash") or has_hirt:
 		available_instruments.append(Instrument.RESISTIVITY)
 

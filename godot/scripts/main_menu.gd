@@ -20,13 +20,22 @@ func _on_state_changed(new_state: SurveyManager.State) -> void:
 
 
 func _update_visibility(state: SurveyManager.State) -> void:
-	visible = (state == SurveyManager.State.MAIN_MENU)
+	var should_show := (state == SurveyManager.State.MAIN_MENU)
+	if should_show and not visible:
+		visible = true
+		modulate.a = 0.0
+		var tween := create_tween()
+		tween.tween_property(self, "modulate:a", 1.0, 0.3)
+	elif not should_show and visible:
+		var tween := create_tween()
+		tween.tween_property(self, "modulate:a", 0.0, 0.2)
+		tween.tween_callback(func(): visible = false)
 
 
 func _create_ui() -> void:
-	# Full-screen darkened background
+	# Semi-transparent background showing 3D scene behind
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.07, 0.1, 0.95)
+	bg.color = Color(0.03, 0.05, 0.08, 0.75)
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(bg)
@@ -91,12 +100,15 @@ func _add_menu_button(parent: Control, text: String, callback: Callable) -> Butt
 
 
 func _on_start_survey() -> void:
+	AudioManager.play_ui_click()
 	SurveyManager.transition(SurveyManager.State.SCENARIO_SELECT)
 
 
 func _on_training() -> void:
+	AudioManager.play_ui_click()
 	SurveyManager.transition(SurveyManager.State.TRAINING)
 
 
 func _on_quit() -> void:
+	AudioManager.play_ui_click()
 	get_tree().quit()

@@ -1,17 +1,34 @@
-## Post-survey review UI — replay, stats, export.
+## Post-survey review UI — top-down replay, stats, export.
 ##
-## Shows survey results after completion: statistics, heatmap overview,
-## anomaly list, timeline scrubber for replay, and export buttons.
+## Shows survey results after completion: statistics, anomaly list, and a
+## top-down camera replay with progressive heatmap, position marker, trail,
+## and adjustable playback speed.
 extends Control
 
 var _stats_label: Label
 var _anomaly_list: VBoxContainer
 var _scrubber: HSlider
 var _scrubber_label: Label
+var _speed_label: Label
+var _play_btn: Button
+
+## Replay state
 var _replay_playing: bool = false
 var _replay_index: int = 0
-var _replay_speed: float = 10.0  # samples per second
+var _replay_speed: float = 10.0  # samples per second (base rate)
+var _replay_speed_multiplier: float = 1.0
 var _replay_accumulator: float = 0.0
+
+## 3D replay objects
+var _replay_marker: MeshInstance3D
+var _replay_trail: ImmediateMesh
+var _replay_trail_mesh: MeshInstance3D
+var _topdown_camera: Camera3D
+var _previous_camera: Camera3D
+
+## Speed multiplier options
+const SPEED_OPTIONS := [0.5, 1.0, 2.0, 5.0, 10.0]
+var _speed_index := 1  # Start at 1x
 
 
 func _ready() -> void:
@@ -23,98 +40,380 @@ func _ready() -> void:
 
 func _on_state_changed(new_state: SurveyManager.State) -> void:
 	visible = (new_state == SurveyManager.State.POST_SURVEY)
+
 	if visible:
-		_populate_results()
+		_enter_post_survey()
+	else:
+		_exit_post_survey()
+
+
+func _enter_post_survey() -> void:
+	# Set up 3D objects FIRST (before scrubber can trigger callbacks)
+	_setup_topdown_camera()
+	_setup_replay_objects()
+	_clear_heatmap()
+	# Now populate UI (which sets scrubber range and may trigger callbacks)
+	_populate_results()
+	# Disable operator input
+	var main := _get_main()
+	if main:
+		var op := main.get_node_or_null("Operator")
+		if op:
+			op.set_process(false)
+			op.set_physics_process(false)
+			op.set_process_unhandled_input(false)
+	# Ensure mouse is visible
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _exit_post_survey() -> void:
+	_cleanup_replay_objects()
+	_restore_camera()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not visible:
+		return
+
+	# Speed controls: [ slower, ] faster
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_BRACKETLEFT:
+			_change_speed(-1)
+		elif event.keycode == KEY_BRACKETRIGHT:
+			_change_speed(1)
 
 
 func _process(delta: float) -> void:
 	if not visible or not _replay_playing:
 		return
 
-	# Advance replay at consistent speed regardless of frame rate
-	_replay_accumulator += delta * _replay_speed
+	# Advance replay
+	_replay_accumulator += delta * _replay_speed * _replay_speed_multiplier
 	var steps := int(_replay_accumulator)
 	_replay_accumulator -= steps
-	_replay_index += steps
 
-	if _replay_index >= DataRecorder.samples.size():
+	if steps > 0:
+		var new_index := mini(_replay_index + steps, DataRecorder.samples.size() - 1)
+		# Feed samples progressively to heatmap
+		_feed_heatmap_range(_replay_index, new_index)
+		_replay_index = new_index
+
+	if _replay_index >= DataRecorder.samples.size() - 1:
 		_replay_playing = false
 		_replay_index = DataRecorder.samples.size() - 1
+		if _play_btn:
+			_play_btn.text = "Play"
+
+	_update_replay_visuals()
 
 	if _scrubber:
 		_scrubber.set_value_no_signal(float(_replay_index))
 	_update_scrubber_label()
 
 
+func _setup_topdown_camera() -> void:
+	## Create a top-down camera looking straight down, framing the survey area.
+	var main := _get_main()
+	if not main:
+		return
+
+	# Save reference to current camera
+	_previous_camera = get_viewport().get_camera_3d()
+
+	# Calculate survey bounds from terrain extents
+	var terrain := main.get_node_or_null("Terrain")
+	var x_min := 0.0
+	var x_max := 20.0
+	var z_min := 0.0
+	var z_max := 20.0
+
+	if terrain:
+		x_min = terrain.x_extent.x
+		x_max = terrain.x_extent.y
+		z_min = terrain.y_extent.x
+		z_max = terrain.y_extent.y
+
+	var center_x := (x_min + x_max) / 2.0
+	var center_z := (z_min + z_max) / 2.0
+	var width := x_max - x_min
+	var depth := z_max - z_min
+	var extent := maxf(width, depth) + 4.0  # Padding
+
+	# Calculate camera height for orthographic-like framing
+	# Using perspective camera, height = extent / (2 * tan(fov/2))
+	var fov_rad := deg_to_rad(50.0)
+	var camera_height := (extent / 2.0) / tan(fov_rad / 2.0)
+
+	_topdown_camera = Camera3D.new()
+	_topdown_camera.name = "TopDownCamera"
+	_topdown_camera.fov = 50.0
+	_topdown_camera.near = 0.5
+	_topdown_camera.far = camera_height + 50.0
+	# Position above center, looking straight down
+	_topdown_camera.position = Vector3(center_x, camera_height, center_z)
+	# Rotate to look down: -90 degrees around X
+	_topdown_camera.rotation = Vector3(deg_to_rad(-90), 0, 0)
+
+	main.add_child(_topdown_camera)
+	_topdown_camera.current = true
+
+
+func _setup_replay_objects() -> void:
+	## Create the replay marker and trail in the 3D scene.
+	var main := _get_main()
+	if not main:
+		return
+
+	# Replay marker: glowing cyan sphere
+	_replay_marker = MeshInstance3D.new()
+	_replay_marker.name = "ReplayMarker"
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.4
+	sphere.height = 0.8
+	_replay_marker.mesh = sphere
+
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(0.2, 1.0, 1.0, 0.9)
+	mat.emission_enabled = true
+	mat.emission = Color(0.2, 1.0, 1.0)
+	mat.emission_energy_multiplier = 2.0
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_replay_marker.material_override = mat
+	_replay_marker.visible = true
+
+	main.add_child(_replay_marker)
+
+	# Trail mesh for breadcrumb path
+	_replay_trail = ImmediateMesh.new()
+	_replay_trail_mesh = MeshInstance3D.new()
+	_replay_trail_mesh.name = "ReplayTrail"
+	_replay_trail_mesh.mesh = _replay_trail
+
+	var trail_mat := StandardMaterial3D.new()
+	trail_mat.albedo_color = Color(0.0, 0.8, 1.0, 0.7)
+	trail_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trail_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_replay_trail_mesh.material_override = trail_mat
+
+	main.add_child(_replay_trail_mesh)
+
+
+func _cleanup_replay_objects() -> void:
+	if _replay_marker and is_instance_valid(_replay_marker):
+		_replay_marker.queue_free()
+		_replay_marker = null
+	if _replay_trail_mesh and is_instance_valid(_replay_trail_mesh):
+		_replay_trail_mesh.queue_free()
+		_replay_trail_mesh = null
+	_replay_trail = null
+	if _topdown_camera and is_instance_valid(_topdown_camera):
+		_topdown_camera.queue_free()
+		_topdown_camera = null
+
+
+func _restore_camera() -> void:
+	if _previous_camera and is_instance_valid(_previous_camera):
+		_previous_camera.current = true
+	_previous_camera = null
+
+
+func _update_replay_visuals() -> void:
+	if DataRecorder.samples.is_empty() or _replay_index >= DataRecorder.samples.size():
+		return
+
+	var sample: Dictionary = DataRecorder.samples[_replay_index]
+
+	# Get position using CoordUtil for correct coordinate mapping
+	var x_e: float = sample.get("x_e", 0.0)
+	var y_n: float = sample.get("y_n", 0.0)
+	var z_up: float = sample.get("z_up", 0.0)
+	var godot_pos := CoordUtil.to_godot(Vector3(x_e, y_n, z_up))
+
+	# Update marker position
+	if _replay_marker and is_instance_valid(_replay_marker):
+		_replay_marker.global_position = godot_pos + Vector3(0, 0.5, 0)  # Raise above ground
+
+		# Pulse animation: scale oscillates
+		var pulse := 1.0 + 0.2 * sin(Time.get_ticks_msec() / 200.0)
+		_replay_marker.scale = Vector3(pulse, pulse, pulse)
+
+	# Update trail (redraw from start to current position)
+	if _replay_trail:
+		_replay_trail.clear_surfaces()
+		if _replay_index > 0:
+			_replay_trail.surface_begin(Mesh.PRIMITIVE_LINES)
+			for i in range(mini(_replay_index, DataRecorder.samples.size() - 1)):
+				var s0: Dictionary = DataRecorder.samples[i]
+				var s1: Dictionary = DataRecorder.samples[i + 1]
+				var p0 := CoordUtil.to_godot(Vector3(
+					s0.get("x_e", 0.0), s0.get("y_n", 0.0), s0.get("z_up", 0.0)
+				))
+				var p1 := CoordUtil.to_godot(Vector3(
+					s1.get("x_e", 0.0), s1.get("y_n", 0.0), s1.get("z_up", 0.0)
+				))
+				_replay_trail.surface_add_vertex(p0 + Vector3(0, 0.15, 0))
+				_replay_trail.surface_add_vertex(p1 + Vector3(0, 0.15, 0))
+			_replay_trail.surface_end()
+
+	# Update reading display
+	_update_reading_display(sample)
+
+
+func _update_reading_display(sample: Dictionary) -> void:
+	if not _stats_label:
+		return
+
+	var base_text := _stats_label.text.split("\n\n--- Replay ---")[0]
+	var reading: float = sample.get("reading", 0.0)
+	var qual: int = sample.get("quality", 1)
+	var q_str := "Good"
+	if qual == 0: q_str = "Dropout"
+	elif qual == 2: q_str = "Fast"
+	elif qual == 3: q_str = "Offline"
+
+	var r_display := reading
+	var unit := ""
+	if DataRecorder.session_instrument == "mag_gradiometer":
+		r_display *= 1e9
+		unit = "nT/m"
+
+	var replay_text := "\n\n--- Replay ---\n"
+	replay_text += "Sample: %d / %d\n" % [_replay_index + 1, DataRecorder.samples.size()]
+	replay_text += "Time: %.1fs\n" % sample.get("t", 0.0)
+	replay_text += "Pos: (%.1f, %.1f) m\n" % [sample.get("x_e", 0.0), sample.get("y_n", 0.0)]
+	replay_text += "Reading: %.2f %s\n" % [r_display, unit]
+	replay_text += "Quality: %s" % q_str
+
+	_stats_label.text = base_text + replay_text
+
+
+func _feed_heatmap_range(from_index: int, to_index: int) -> void:
+	## Feed samples from from_index to to_index into the heatmap overlay.
+	var main := _get_main()
+	if not main:
+		return
+
+	var heatmap := main.get_node_or_null("HeatmapOverlay")
+	if not heatmap or not heatmap.has_method("add_replay_sample"):
+		return
+
+	for i in range(from_index, to_index + 1):
+		if i >= 0 and i < DataRecorder.samples.size():
+			heatmap.add_replay_sample(DataRecorder.samples[i])
+
+
+func _clear_heatmap() -> void:
+	var main := _get_main()
+	if not main:
+		return
+	var heatmap := main.get_node_or_null("HeatmapOverlay")
+	if heatmap and heatmap.has_method("clear_for_replay"):
+		heatmap.clear_for_replay()
+
+
+func _change_speed(direction: int) -> void:
+	_speed_index = clampi(_speed_index + direction, 0, SPEED_OPTIONS.size() - 1)
+	_replay_speed_multiplier = SPEED_OPTIONS[_speed_index]
+	if _speed_label:
+		_speed_label.text = "%.1fx" % _replay_speed_multiplier
+
+
 func _create_ui() -> void:
-	# Background
+	# Background (semi-transparent to see 3D world through top-down camera)
 	var bg := ColorRect.new()
-	bg.color = Color(0.05, 0.07, 0.1, 0.95)
+	bg.color = Color(0.02, 0.03, 0.06, 0.45)
 	bg.set_anchors_preset(PRESET_FULL_RECT)
-	bg.mouse_filter = Control.MOUSE_FILTER_STOP
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 60)
-	margin.add_theme_constant_override("margin_right", 60)
-	margin.add_theme_constant_override("margin_top", 30)
-	margin.add_theme_constant_override("margin_bottom", 30)
-	add_child(margin)
+	# Top bar with title
+	var top_bar := PanelContainer.new()
+	top_bar.set_anchors_preset(PRESET_TOP_WIDE)
+	top_bar.offset_bottom = 45
+	var top_style := StyleBoxFlat.new()
+	top_style.bg_color = Color(0.05, 0.07, 0.1, 0.85)
+	top_style.content_margin_left = 20
+	top_style.content_margin_right = 20
+	top_style.content_margin_top = 8
+	top_style.content_margin_bottom = 8
+	top_bar.add_theme_stylebox_override("panel", top_style)
+	top_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(top_bar)
 
-	var outer_vbox := VBoxContainer.new()
-	outer_vbox.add_theme_constant_override("separation", 14)
-	margin.add_child(outer_vbox)
+	var top_hbox := HBoxContainer.new()
+	top_hbox.add_theme_constant_override("separation", 20)
+	top_bar.add_child(top_hbox)
 
-	# Header
 	var title := Label.new()
-	title.text = "Survey Complete"
-	title.add_theme_font_size_override("font_size", 28)
+	title.text = "Survey Complete — Replay"
+	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
-	outer_vbox.add_child(title)
+	top_hbox.add_child(title)
 
-	# Two-column layout
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 30)
-	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer_vbox.add_child(columns)
+	# Spacer
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_hbox.add_child(spacer)
 
-	# Left: Stats
+	# Export and Menu buttons in top bar
+	var export_btn := Button.new()
+	export_btn.text = "Export Data"
+	export_btn.custom_minimum_size = Vector2(120, 30)
+	export_btn.pressed.connect(_on_export)
+	top_hbox.add_child(export_btn)
+
+	var menu_btn := Button.new()
+	menu_btn.text = "Main Menu"
+	menu_btn.custom_minimum_size = Vector2(120, 30)
+	menu_btn.pressed.connect(func(): SurveyManager.transition(SurveyManager.State.MAIN_MENU))
+	top_hbox.add_child(menu_btn)
+
+	# Left panel: Stats (semi-transparent overlay)
 	var left_panel := PanelContainer.new()
-	left_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_panel.set_anchors_preset(PRESET_TOP_LEFT)
+	left_panel.offset_left = 12
+	left_panel.offset_top = 55
+	left_panel.offset_right = 330
+	left_panel.offset_bottom = 450
 	var left_style := StyleBoxFlat.new()
-	left_style.bg_color = Color(0.08, 0.1, 0.13, 0.9)
+	left_style.bg_color = Color(0.05, 0.08, 0.12, 0.8)
 	left_style.corner_radius_top_left = 6
 	left_style.corner_radius_top_right = 6
 	left_style.corner_radius_bottom_left = 6
 	left_style.corner_radius_bottom_right = 6
-	left_style.content_margin_left = 16
-	left_style.content_margin_right = 16
-	left_style.content_margin_top = 14
-	left_style.content_margin_bottom = 14
+	left_style.content_margin_left = 14
+	left_style.content_margin_right = 14
+	left_style.content_margin_top = 12
+	left_style.content_margin_bottom = 12
 	left_panel.add_theme_stylebox_override("panel", left_style)
-	columns.add_child(left_panel)
+	left_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(left_panel)
 
 	_stats_label = Label.new()
 	_stats_label.text = "Loading results..."
-	_stats_label.add_theme_font_size_override("font_size", 14)
+	_stats_label.add_theme_font_size_override("font_size", 13)
 	_stats_label.add_theme_color_override("font_color", Color(0.7, 0.75, 0.8))
 	_stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	left_panel.add_child(_stats_label)
 
-	# Right: Anomaly list
+	# Right panel: Anomaly list
 	var right_panel := PanelContainer.new()
-	right_panel.custom_minimum_size.x = 300
+	right_panel.set_anchors_preset(PRESET_TOP_RIGHT)
+	right_panel.offset_left = -280
+	right_panel.offset_top = 55
+	right_panel.offset_right = -12
+	right_panel.offset_bottom = 350
 	right_panel.add_theme_stylebox_override("panel", left_style.duplicate())
-	columns.add_child(right_panel)
+	right_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(right_panel)
 
 	var right_vbox := VBoxContainer.new()
-	right_vbox.add_theme_constant_override("separation", 8)
+	right_vbox.add_theme_constant_override("separation", 6)
 	right_panel.add_child(right_vbox)
 
 	var anomaly_title := Label.new()
 	anomaly_title.text = "Detected Anomalies"
-	anomaly_title.add_theme_font_size_override("font_size", 16)
+	anomaly_title.add_theme_font_size_override("font_size", 15)
 	anomaly_title.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
 	right_vbox.add_child(anomaly_title)
 
@@ -126,56 +425,125 @@ func _create_ui() -> void:
 	_anomaly_list.add_theme_constant_override("separation", 4)
 	anomaly_scroll.add_child(_anomaly_list)
 
-	# Timeline scrubber
+	# Bottom bar: Scrubber + speed controls
+	var bottom_bar := PanelContainer.new()
+	bottom_bar.set_anchors_preset(PRESET_BOTTOM_WIDE)
+	bottom_bar.offset_top = -70
+	var bottom_style := StyleBoxFlat.new()
+	bottom_style.bg_color = Color(0.05, 0.07, 0.1, 0.85)
+	bottom_style.content_margin_left = 20
+	bottom_style.content_margin_right = 20
+	bottom_style.content_margin_top = 8
+	bottom_style.content_margin_bottom = 8
+	bottom_bar.add_theme_stylebox_override("panel", bottom_style)
+	bottom_bar.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(bottom_bar)
+
+	var bottom_vbox := VBoxContainer.new()
+	bottom_vbox.add_theme_constant_override("separation", 6)
+	bottom_bar.add_child(bottom_vbox)
+
+	# Scrubber row
 	var scrubber_row := HBoxContainer.new()
 	scrubber_row.add_theme_constant_override("separation", 10)
-	outer_vbox.add_child(scrubber_row)
+	bottom_vbox.add_child(scrubber_row)
 
-	var play_btn := Button.new()
-	play_btn.text = "Play"
-	play_btn.custom_minimum_size.x = 60
-	play_btn.pressed.connect(func(): _replay_playing = not _replay_playing; play_btn.text = "Pause" if _replay_playing else "Play")
-	scrubber_row.add_child(play_btn)
+	_play_btn = Button.new()
+	_play_btn.text = "Play"
+	_play_btn.custom_minimum_size.x = 65
+	_play_btn.pressed.connect(_toggle_play)
+	scrubber_row.add_child(_play_btn)
 
 	_scrubber = HSlider.new()
 	_scrubber.min_value = 0
 	_scrubber.max_value = 1
 	_scrubber.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_scrubber.value_changed.connect(func(v): _replay_index = int(v); _update_scrubber_label())
+	_scrubber.value_changed.connect(_on_scrubber_changed)
 	scrubber_row.add_child(_scrubber)
 
 	_scrubber_label = Label.new()
 	_scrubber_label.text = "0 / 0"
-	_scrubber_label.custom_minimum_size.x = 100
+	_scrubber_label.custom_minimum_size.x = 110
 	_scrubber_label.add_theme_font_size_override("font_size", 13)
+	_scrubber_label.add_theme_color_override("font_color", Color(0.7, 0.75, 0.8))
 	scrubber_row.add_child(_scrubber_label)
 
-	# Bottom buttons
-	var btn_row := HBoxContainer.new()
-	btn_row.add_theme_constant_override("separation", 12)
-	btn_row.alignment = BoxContainer.ALIGNMENT_END
-	outer_vbox.add_child(btn_row)
+	# Speed controls row
+	var speed_row := HBoxContainer.new()
+	speed_row.add_theme_constant_override("separation", 6)
+	speed_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	bottom_vbox.add_child(speed_row)
 
-	var export_btn := Button.new()
-	export_btn.text = "Export Data"
-	export_btn.custom_minimum_size = Vector2(150, 40)
-	export_btn.add_theme_font_size_override("font_size", 16)
-	export_btn.pressed.connect(_on_export)
-	btn_row.add_child(export_btn)
+	var speed_title := Label.new()
+	speed_title.text = "Speed:"
+	speed_title.add_theme_font_size_override("font_size", 12)
+	speed_title.add_theme_color_override("font_color", Color(0.5, 0.55, 0.6))
+	speed_row.add_child(speed_title)
 
-	var menu_btn := Button.new()
-	menu_btn.text = "Main Menu"
-	menu_btn.custom_minimum_size = Vector2(150, 40)
-	menu_btn.add_theme_font_size_override("font_size", 16)
-	menu_btn.pressed.connect(func(): SurveyManager.transition(SurveyManager.State.MAIN_MENU))
-	btn_row.add_child(menu_btn)
+	for i in range(SPEED_OPTIONS.size()):
+		var spd: float = SPEED_OPTIONS[i]
+		var btn := Button.new()
+		btn.text = "%.1fx" % spd if spd != int(spd) else "%dx" % int(spd)
+		btn.custom_minimum_size = Vector2(50, 24)
+		btn.add_theme_font_size_override("font_size", 12)
+		var idx := i
+		btn.pressed.connect(func():
+			_speed_index = idx
+			_replay_speed_multiplier = SPEED_OPTIONS[idx]
+			if _speed_label:
+				_speed_label.text = "%.1fx" % _replay_speed_multiplier
+		)
+		speed_row.add_child(btn)
+
+	_speed_label = Label.new()
+	_speed_label.text = "1.0x"
+	_speed_label.add_theme_font_size_override("font_size", 13)
+	_speed_label.add_theme_color_override("font_color", Color.CYAN)
+	_speed_label.custom_minimum_size.x = 50
+	speed_row.add_child(_speed_label)
+
+	var keys_hint := Label.new()
+	keys_hint.text = "[ / ] = Speed"
+	keys_hint.add_theme_font_size_override("font_size", 11)
+	keys_hint.add_theme_color_override("font_color", Color(0.35, 0.4, 0.45))
+	speed_row.add_child(keys_hint)
+
+
+func _toggle_play() -> void:
+	_replay_playing = not _replay_playing
+	if _play_btn:
+		_play_btn.text = "Pause" if _replay_playing else "Play"
+
+	# If at end, restart
+	if _replay_playing and _replay_index >= DataRecorder.samples.size() - 1:
+		_replay_index = 0
+		_replay_accumulator = 0.0
+		_clear_heatmap()
+
+
+func _on_scrubber_changed(value: float) -> void:
+	var new_index := int(value)
+	# Feed heatmap for all samples up to this point
+	if new_index > _replay_index:
+		_feed_heatmap_range(_replay_index, new_index)
+	elif new_index < _replay_index:
+		# Going backward: clear and rebuild
+		_clear_heatmap()
+		_feed_heatmap_range(0, new_index)
+	_replay_index = new_index
+	_update_scrubber_label()
+	_update_replay_visuals()
 
 
 func _populate_results() -> void:
-	# Reset replay state from any previous session
+	# Reset replay state
 	_replay_playing = false
 	_replay_index = 0
 	_replay_accumulator = 0.0
+	_speed_index = 1
+	_replay_speed_multiplier = 1.0
+	if _speed_label:
+		_speed_label.text = "1.0x"
 
 	var stats := DataRecorder.get_stats()
 	var duration: float = stats.get("duration_s", 0.0)
@@ -210,7 +578,7 @@ func _populate_results() -> void:
 		_scrubber.value = 0
 		_replay_index = 0
 
-	# Find anomalies (peaks in readings)
+	# Find anomalies
 	_populate_anomalies()
 
 
@@ -271,10 +639,19 @@ func _populate_anomalies() -> void:
 
 func _update_scrubber_label() -> void:
 	if _scrubber_label:
-		_scrubber_label.text = "%d / %d" % [_replay_index, DataRecorder.samples.size()]
+		var time_s := 0.0
+		if _replay_index < DataRecorder.samples.size():
+			time_s = DataRecorder.samples[_replay_index].get("t", 0.0)
+		_scrubber_label.text = "%d / %d  (%.1fs)" % [
+			_replay_index + 1, DataRecorder.samples.size(), time_s]
 
 
 func _on_export() -> void:
 	var path := DataRecorder.export_session()
 	if not path.is_empty():
-		_stats_label.text += "\n\nExported to:\n%s" % path
+		var base_text := _stats_label.text.split("\n\n--- Replay ---")[0]
+		_stats_label.text = base_text + "\n\nExported to:\n%s" % path
+
+
+func _get_main() -> Node:
+	return get_tree().root.get_node_or_null("Main")

@@ -189,6 +189,75 @@ class PhysicsServer:
         delta = float(skin_depth(frequency, conductivity))
         return {"skin_depth": delta, "unit": "meters"}
 
+    def _build_scenario_info(self) -> dict:
+        """Build the full scenario info payload."""
+        s = self.scenario
+
+        # Terrain info with layers
+        terrain_info = {
+            "x_extent": list(s.terrain.x_extent),
+            "y_extent": list(s.terrain.y_extent),
+            "surface_elevation": s.terrain.surface_elevation,
+            "layers": [
+                {
+                    "name": layer.name,
+                    "z_top": layer.z_top,
+                    "z_bottom": layer.z_bottom,
+                    "conductivity": layer.conductivity,
+                }
+                for layer in s.terrain.layers
+            ],
+        }
+
+        # Objects list (safe subset — positions, types, radii)
+        objects_info = [
+            {
+                "name": obj.name,
+                "position": _make_serializable(obj.position),
+                "type": obj.object_type,
+                "radius": obj.radius,
+            }
+            for obj in s.objects
+        ]
+
+        return {
+            "name": s.name,
+            "description": s.description,
+            "n_sources": len(self.sources),
+            "terrain": terrain_info,
+            "earth_field": _make_serializable(s.earth_field),
+            "objects": objects_info,
+            "metadata": s.metadata,
+            "has_hirt": s.hirt_config is not None,
+            "available_instruments": self._determine_instruments(),
+        }
+
+    def _determine_instruments(self) -> list[str]:
+        """Determine available instruments from scenario data."""
+        instruments = ["mag_gradiometer"]
+
+        if self.scenario is None:
+            return instruments
+
+        # EM available if any object has conductivity and radius (EM-detectable)
+        has_em_targets = any(
+            obj.conductivity > 0 and obj.radius > 0
+            for obj in self.scenario.objects
+        )
+
+        # HIRT config explicitly enables EM and ERT
+        has_hirt = self.scenario.hirt_config is not None
+
+        if has_em_targets or has_hirt:
+            instruments.append("em_fdem")
+
+        # ERT available if terrain has layers with varying conductivity, or HIRT
+        has_layered = len(self.scenario.terrain.layers) >= 2
+        if has_hirt or has_layered:
+            instruments.append("resistivity")
+
+        return instruments
+
     def handle_request(self, request: dict) -> dict:
         """Route a request to the appropriate handler."""
         command = request.get("command", "")
@@ -223,15 +292,7 @@ class PhysicsServer:
                     return {"status": "error", "message": "No scenario loaded"}
                 return {
                     "status": "ok",
-                    "data": {
-                        "name": self.scenario.name,
-                        "description": self.scenario.description,
-                        "n_sources": len(self.sources),
-                        "terrain": {
-                            "x_extent": list(self.scenario.terrain.x_extent),
-                            "y_extent": list(self.scenario.terrain.y_extent),
-                        },
-                    },
+                    "data": self._build_scenario_info(),
                 }
 
             elif command == "query_em_response":

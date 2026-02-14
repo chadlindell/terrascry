@@ -251,6 +251,16 @@ def simulate_survey(
         'lon': positions[:, 0],  # X = easting
     }
 
+    # Compute speeds from position differences for motion noise
+    speeds = np.zeros(n_samples)
+    if n_samples > 1:
+        dt = np.diff(timestamps)
+        dt = np.where(dt > 0, dt, 1.0 / config.sample_rate)
+        dpos = np.diff(positions, axis=0)
+        step_dist = np.sqrt(dpos[:, 0] ** 2 + dpos[:, 1] ** 2)
+        speeds[1:] = step_dist / dt
+        speeds[0] = speeds[1] if n_samples > 1 else 0.0
+
     for pair_idx in range(config.num_pairs):
         pair_num = pair_idx + 1
 
@@ -276,11 +286,22 @@ def simulate_survey(
 
         # Add noise to each channel independently
         if add_noise and config.noise_model is not None:
+            # Compute vertical field gradient for motion noise
+            field_grad = grad / config.sensor_separation
+
+            # Random phase offset per pair (pairs don't swing identically)
+            phase_bot = rng.uniform(0, 2 * np.pi)
+            phase_top = rng.uniform(0, 2 * np.pi)
+
             B_bot = config.noise_model.apply(
-                B_bot, timestamps, headings, config.sample_rate, rng
+                B_bot, timestamps, headings, config.sample_rate, rng,
+                speeds=speeds, field_gradient=field_grad,
+                phase_offset=phase_bot,
             )
             B_top = config.noise_model.apply(
-                B_top, timestamps, headings, config.sample_rate, rng
+                B_top, timestamps, headings, config.sample_rate, rng,
+                speeds=speeds, field_gradient=field_grad,
+                phase_offset=phase_top,
             )
             grad = B_bot - B_top
 

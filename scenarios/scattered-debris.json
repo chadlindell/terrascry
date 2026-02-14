@@ -51,7 +51,13 @@
       "radius": 0.02,
       "susceptibility": 800.0,
       "conductivity": 1e6,
-      "metadata": {"description": "Cluster of bolts and rivets, shallow"}
+      "metadata": {
+        "description": "Cluster of bolts and rivets, shallow",
+        "remanence": {
+          "direction": [1.0, 0.0, 0.0],
+          "intensity": 15.0
+        }
+      }
     },
     {
       "name": "Landing gear strut",
@@ -78,7 +84,13 @@
       "radius": 0.06,
       "susceptibility": 600.0,
       "conductivity": 4e6,
-      "metadata": {"description": "Forged steel propeller fragment"}
+      "metadata": {
+        "description": "Forged steel propeller fragment",
+        "remanence": {
+          "direction": [0.7, 0.7, 0.0],
+          "intensity": 25.0
+        }
+      }
     }
   ],
   "metadata": {

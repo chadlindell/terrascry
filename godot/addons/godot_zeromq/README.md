@@ -1,24 +1,23 @@
-# godot-zmq addon
+# godot_zeromq_bin
 
-This directory should contain the godot-zmq GDExtension for ZeroMQ communication.
+binary repository of [godot_zeromq](https://github.com/funatsufumiya/godot_zeromq)
 
-## Installation
+if you need `godot_zeromq` [releases](https://github.com/funatsufumiya/godot_zeromq/releases) as `git submodule`, please use this repository.
 
-1. Download the precompiled release for your platform from:
-   https://github.com/funatsufumiya/godot_zeromq_bin/releases
+## Simple usage example
 
-2. Extract the contents into this directory. You should have:
-   - `godot_zeromq.gdextension`
-   - `bin/` directory with platform-specific libraries
+```bash
+cd PROJECT_DIR_OF_YOUR_GODOT
+cd addons
+git submodule add https://github.com/funatsufumiya/godot_zeromq_bin.git zeromq
+# or simply: git clone https://github.com/funatsufumiya/godot_zeromq_bin.git zeromq
+```
 
-3. Restart Godot. The addon should load automatically.
+but I recommend to use `godotenv addons install`. see [GodotEnv's readme](https://github.com/chickensoft-games/GodotEnv?tab=readme-ov-file#initializing-godotenv-in-a-project). GodotEnv's `addons.jsonc` config is below (partial):
 
-## Verification
-
-After installation, the `ZMQSender` class should be available. The `PhysicsClient`
-autoload will detect this and switch from mock mode to live ZMQ communication.
-
-## Without the addon
-
-If the addon is not installed, `PhysicsClient` falls back to mock responses.
-This allows scene development and testing without the Python server.
+```json
+    "zeromq": {
+      "url": "https://github.com/funatsufumiya/godot_zeromq_bin",
+      "checkout": "v0.1.0",
+    },
+```

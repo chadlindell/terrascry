@@ -13,13 +13,22 @@ func _ready() -> void:
 
 
 func _on_state_changed(new_state: SurveyManager.State) -> void:
-	visible = (new_state == SurveyManager.State.PAUSED)
+	var should_show := (new_state == SurveyManager.State.PAUSED)
+	if should_show and not visible:
+		visible = true
+		modulate.a = 0.0
+		var tween := create_tween()
+		tween.tween_property(self, "modulate:a", 1.0, 0.2)
+	elif not should_show and visible:
+		var tween := create_tween()
+		tween.tween_property(self, "modulate:a", 0.0, 0.15)
+		tween.tween_callback(func(): visible = false)
 
 
 func _create_ui() -> void:
-	# Semi-transparent overlay
+	# Semi-transparent overlay showing 3D scene behind
 	var bg := ColorRect.new()
-	bg.color = Color(0.0, 0.0, 0.0, 0.7)
+	bg.color = Color(0.0, 0.0, 0.0, 0.55)
 	bg.set_anchors_preset(PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(bg)
@@ -87,19 +96,23 @@ func _add_button(parent: Control, text: String, callback: Callable) -> void:
 
 
 func _on_resume() -> void:
+	AudioManager.play_ui_click()
 	SurveyManager.transition(SurveyManager.previous_state)
 
 
 func _on_export() -> void:
+	AudioManager.play_ui_click()
 	if DataRecorder.samples.size() > 0:
 		DataRecorder.export_session()
 
 
 func _on_finish() -> void:
+	AudioManager.play_ui_click()
 	SurveyManager.survey_finished.emit()
 	SurveyManager.transition(SurveyManager.State.POST_SURVEY)
 
 
 func _on_quit_menu() -> void:
+	AudioManager.play_ui_click()
 	DataRecorder.stop_recording()
 	SurveyManager.transition(SurveyManager.State.MAIN_MENU)
