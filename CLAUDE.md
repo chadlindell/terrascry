@@ -30,6 +30,7 @@ geosim-server --scenario scenarios/single-ferrous-target.json  # Start ZeroMQ se
 - **`geosim/server.py`**: ZeroMQ REQ-REP server wrapping physics for external clients (Godot). Commands: `ping`, `load_scenario`, `query_field`, `query_gradient`, `get_scenario_info`, `shutdown`.
 - **`godot/`**: Godot 4 interactive frontend. Currently uses mock responses; real connection requires godot-zmq GDExtension.
 - **`geosim/em/`, `geosim/resistivity/`**: Phase 2 stubs (SimPEG/pyGIMLi forward models, not yet implemented).
+- **`geosim/streaming/`**: Real-time MQTT streaming module for instrument data. Messages are JSON-serialized dataclasses. See `docs/streaming-architecture.md`.
 
 ## Coordinate Convention
 
@@ -60,7 +61,30 @@ Right-handed: X=East, Y=North, Z=Up. All positions in meters, magnetic moments i
 - NumPy-style docstrings on public functions
 - ruff for linting (line-length=100, rules: E, F, W, I, N, UP)
 
+## EMI/FDEM Forward Modeling (Phase 2)
+
+The `geosim/em/` module will support frequency-domain electromagnetic forward modeling using SimPEG's FDEM API. This enables validation of Pathfinder's EMI conductivity channel against synthetic ground truth. Key capabilities:
+
+- 1D layered earth forward model (EM38-equivalent)
+- LIN approximation: σ_a = (4/(ωμ₀s²)) × Im(Hs/Hp)
+- Multi-coil geometry (HCP, VCP)
+- Integration with `geosim/scenarios/` for synthetic survey generation
+
+## Joint Inversion Concept
+
+Pathfinder surface data serves as boundary conditions for HIRT subsurface inversion:
+- Magnetic gradient map → constrains top susceptibility layer
+- EMI conductivity map → constrains top resistivity layer
+- LiDAR DEM → corrects inversion mesh for terrain
+- Cross-gradient regularization (Gallardo & Meju 2003) couples multi-physics
+
+See `docs/research/joint-inversion-concept.md` for implementation approach using SimPEG.
+
+## Fiber vs WiFi Research
+
+Evaluated fiber optic data links as alternative to ESP32 WiFi. Conclusion: WiFi with TDM is sufficient (< 0.01 nT interference), POF fiber available as upgrade for high-precision work. See `docs/research/fiber-vs-wifi-analysis.md`.
+
 ## Related Projects
 
 - `../HIRT/`: Subsurface tomography instrument (EM induction + ERT)
-- `../Pathfinder/`: Magnetic gradiometry instrument
+- `../Pathfinder/`: Magnetic gradiometry instrument (multi-sensor, 7 modalities)
