@@ -156,6 +156,18 @@ This project uses the RIPER development process for structured, context-efficien
     +-- sessions/   # Session context
 ```
 
+## Sensor Pod Integration
+
+The shared sensor pod (ZED-F9P + BNO055 + BMP390 + DS3231) connects to HIRT's base hub via M8 4-pin connector and PCA9615 differential I2C (Bus 1, GPIO 16/17). Key functions:
+
+- **Probe GPS verification**: Record RTK position at each probe insertion point
+- **Coordinate registration**: Same GPS used by Pathfinder → no coordinate transformation needed
+- **Surface data as boundary condition**: Pathfinder magnetics/EMI constrain HIRT inversion top layers
+
+Firmware changes: I2C bus scan at startup, auto-detect pod, graceful degradation if absent (manual position entry).
+
+See: `research/electronics/sensor-pod-integration.md`
+
 ## Research Guidelines for HIRT
 
 ### Physics & Theory

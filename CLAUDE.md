@@ -28,6 +28,24 @@ Use `/riper:strict` to enable mode tracking. Available modes:
 - Render HTML only: `cd docs && quarto render --to html`
 - Export STL: `openscad -o output.stl input.scad`
 
+## Sensor Pod Integration
+
+HIRT shares a sensor pod with Pathfinder (ZED-F9P RTK GPS + BNO055 IMU + BMP390 barometer + DS3231 RTC in IP67 enclosure). The pod connects via M8 4-pin connector and PCA9615 differential I2C over Cat5 STP cable.
+
+**HIRT-specific usage:**
+- GPS records probe insertion point positions (one-shot per probe, cm-accuracy RTK)
+- Probe positions stored in survey metadata CSV for inversion geometry
+- Pod IMU provides surface orientation during position recording
+- Pod is physically moved between Pathfinder and HIRT as needed
+
+**Pathfinder surface data as inversion boundary condition:**
+- Pathfinder's magnetic gradient map constrains the top layer of HIRT's 3D model
+- Pathfinder's EMI conductivity constrains upper resistivity layers
+- LiDAR DEM corrects HIRT's inversion mesh for actual terrain
+- Cross-gradient regularization couples multi-physics models in SimPEG
+
+See: `research/electronics/sensor-pod-integration.md`, `../Pathfinder/research/multi-sensor-architecture/sensor-pod-design.md`
+
 ## Project Structure
 ```
 HIRT/
