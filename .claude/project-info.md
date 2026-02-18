@@ -6,10 +6,13 @@ Pathfinder is a handheld multi-sensor fluxgate gradiometer for rapid geophysical
 
 ### Key Specifications
 - Swath width: 1.5-2.0 m (4 gradiometer pairs) (Target)
-- Detection depth: 0.5-1.5 m (Target)
+- Detection depth: 0.5-1.5 m magnetics, 0-1.5 m EMI conductivity (Target)
 - System weight: <1.5 kg (Target)
-- Build cost: <$900 (Target)
+- Build cost: $1,052-1,262 (Target)
 - Coverage rate: >3,000 m^2/hour (Target)
+- Sensor modalities: 7 (magnetics, EMI conductivity, RTK GPS, IMU, IR thermal, LiDAR, camera)
+- GPS accuracy: 0.01 m with RTK (Target)
+- Data connectivity: MQTT over WiFi + SD card backup
 
 ### Physical Configuration
 The design follows the proven "trapeze" configuration used by commercial systems like the Bartington Grad601, extended to 4 sensor pairs for wider swath coverage:
@@ -22,9 +25,10 @@ The design follows the proven "trapeze" configuration used by commercial systems
 
 ### Firmware (PlatformIO)
 ```bash
-cd firmware && pio run           # Build
-cd firmware && pio run -t upload # Upload to Arduino Nano
-cd firmware && pio test          # Run tests
+cd firmware && pio run -e esp32dev          # Build for ESP32
+cd firmware && pio run -e esp32dev -t upload # Upload to ESP32
+cd firmware && pio run -e nanoatmega328     # Build for legacy Nano
+cd firmware && pio test                      # Run tests
 ```
 
 ### Data Processing
@@ -54,12 +58,23 @@ Pathfinder/
 ```
 
 ## Technology Stack
-- **Firmware**: Arduino Nano, PlatformIO
-- **Sensors**: FG-3+ fluxgate magnetometers (8 sensors, 4 pairs)
-- **ADC**: 2x ADS1115 16-bit I2C
-- **GPS**: NEO-6M module
-- **Data**: SD card CSV logging
+- **MCU**: ESP32 (dual-core, WiFi, BLE), PlatformIO
+- **Magnetics**: FG-3+ fluxgate magnetometers (8 sensors, 4 pairs) via LM2917 F-to-V
+- **ADC**: 2× ADS1115 16-bit I2C (fluxgate channels) + potential 3rd for EMI I/Q
+- **EMI Conductivity**: AD9833 DDS + OPA549 TX + AD8421 preamp + AD630 phase detector
+- **GPS**: u-blox ZED-F9P RTK (in shared sensor pod, replacing NEO-6M)
+- **IMU**: BNO055 9-axis (in sensor pod, IMUPLUS mode, magnetometer disabled)
+- **IR Temperature**: MLX90614xAC (35° FOV, ground surface thermal)
+- **LiDAR**: RPLiDAR C1 (direct USB to Jetson, not through ESP32)
+- **Camera**: ESP32-CAM standalone (GPIO triggered)
+- **Data**: MQTT streaming to Jetson + SD card CSV backup
 - **Visualization**: Python (matplotlib, pandas)
+- **Power**: 3-stage supply (LM2596 buck → ferrite+LC → TPS7A49 LDO), individual LM78L05 per FG-3+
+
+### Sensor Pod (Shared with HIRT)
+- ZED-F9P (0x42), BNO055 (0x29), BMP390 (0x77), DS3231 (0x68)
+- PCA9615 differential I2C over Cat5 STP cable (1-2m)
+- IP67 enclosure, M8 4-pin connector, SMA for GPS antenna
 
 ## RIPER Workflow
 

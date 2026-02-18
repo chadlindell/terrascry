@@ -5,8 +5,9 @@ Pathfinder is a handheld multi-sensor fluxgate gradiometer for rapid geophysical
 ## Quick Reference
 
 ### Key Commands
-- Build firmware: `cd firmware && pio run`
-- Upload firmware: `cd firmware && pio run -t upload`
+- Build firmware (ESP32): `cd firmware && pio run -e esp32dev`
+- Upload firmware (ESP32): `cd firmware && pio run -e esp32dev -t upload`
+- Build firmware (legacy Nano): `cd firmware && pio run -e nanoatmega328`
 - Run tests: `cd firmware && pio test`
 - Visualize data: `python firmware/tools/visualize_data.py <file.csv>`
 - Spatial map: `python firmware/tools/visualize_data.py <file.csv> --map`
@@ -24,6 +25,27 @@ Use `/riper:strict` to enable mode tracking. Available modes:
 - `/riper:execute` - Implement approved plans
 - `/riper:review` - Validate implementation
 
+## Multi-Sensor Architecture
+
+Pathfinder is being upgraded from a single-modality magnetic gradiometer to a multi-sensor reconnaissance platform:
+
+- **MCU**: ESP32 (dual-core, WiFi, replacing Arduino Nano)
+- **Magnetics**: 8× FG-3+ fluxgate sensors (4 gradiometer pairs)
+- **EMI Conductivity**: Frequency-domain EM coil (AD9833 + OPA549 + AD8421 + AD630)
+- **GPS**: u-blox ZED-F9P RTK (cm-accuracy, in shared sensor pod)
+- **IMU**: BNO055 9-axis (tilt correction, in shared sensor pod)
+- **IR Temperature**: MLX90614 (ground surface thermal mapping)
+- **LiDAR**: RPLiDAR C1 (micro-topography, direct to Jetson USB)
+- **Camera**: ESP32-CAM (georeferenced ground imagery)
+
+**TDM Firmware**: 100ms cycle — 50ms fluxgate (EMI/WiFi off) → 30ms EMI TX/RX → 20ms settling/comms.
+
+**Sensor Pod**: Shared with HIRT (ZED-F9P + BNO055 + BMP390 + DS3231 in IP67 enclosure, PCA9615 differential I2C).
+
+**Updated BOM**: $1,052-1,262 (see `research/multi-sensor-architecture/updated-bom.md`).
+
+See `research/multi-sensor-architecture/` for detailed research on all subsystems.
+
 ## Project Structure
 ```
 Pathfinder/
@@ -31,16 +53,19 @@ Pathfinder/
 ├── VISION.md              # Goals and constraints
 ├── CLAUDE.md              # This file - style guide
 ├── docs/
-│   └── design-concept.md  # Technical design
+│   ├── design-concept.md  # Technical design (multi-sensor architecture)
+│   └── noise-analysis.md  # Signal chain noise budget
 ├── hardware/
 │   ├── schematics/        # Circuit diagrams
 │   ├── cad/               # Frame design (harness mounts, etc.)
 │   └── bom/               # Bills of materials
-├── firmware/              # Arduino/PlatformIO code
+├── firmware/              # ESP32/PlatformIO code (migrating from Arduino Nano)
 │   ├── src/main.cpp       # Main firmware
 │   ├── include/config.h   # Configuration
 │   └── tools/             # Python utilities
-├── research/              # Background research
+├── research/
+│   ├── sensor-selection.md
+│   └── multi-sensor-architecture/  # 11 research files (EMI, interference, TDM, etc.)
 └── .claude/               # Memory bank
 ```
 
@@ -76,7 +101,8 @@ Maintain consistency throughout:
 1. **Harness-first**: Arms never bear weight
 2. **Speed over resolution**: Good enough fast beats perfect slow
 3. **Field-rugged**: No carts, no flat-ground assumptions
-4. **DIY-accessible**: Under $1000, globally-available components
+4. **DIY-accessible**: Under $1,300, globally-available components
+5. **Multi-physics**: Above-ground magnetics + below-ground conductivity in one pass
 
 ---
 

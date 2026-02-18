@@ -74,67 +74,113 @@ Based on the [Bartington Grad601 trapeze design](https://arf.berkeley.edu/files/
 - Arms never bear weight
 - Audio beeper marks pace (one beep per meter)
 
-## Electronics Architecture
+## Multi-Sensor Electronics Architecture
+
+The Pathfinder electronics architecture has been expanded from a single-modality magnetic gradiometer to a multi-sensor platform controlled by an ESP32 dual-core MCU with time-division multiplexed (TDM) measurement cycles.
 
 ```
-+-------------------+
-|   GPS Module      |----+
-|   (NEO-6M)        |    |
-+-------------------+    |
-                         |    +------------------+
-+-------------------+    +--->|                  |
-|   Fluxgate Pair 1 |--->|    |   Arduino Nano   |
-+-------------------+    |    |                  |
-                         |    |   - Read 8 ADC   |
-+-------------------+    |    |   - Log to SD    |
-|   Fluxgate Pair 2 |--->|--->|   - GPS parse    |
-+-------------------+    |    |   - Pace beeper  |
-                         |    |                  |
-+-------------------+    |    +--------+---------+
-|   Fluxgate Pair 3 |--->|             |
-+-------------------+    |             v
-                         |    +------------------+
-+-------------------+    |    |   SD Card        |
-|   Fluxgate Pair 4 |--->+    |   (CSV logging)  |
-+-------------------+         +------------------+
-
-+-------------------+         +------------------+
-|   LiPo Battery    |-------->|   Speaker/Buzzer |
-|   7.4V 2000mAh    |         |   (pace beeper)  |
-+-------------------+         +------------------+
+                                    ┌─────────────────────┐
+SENSOR POD (shared w/ HIRT)         │                     │
+┌────────────────────┐   Cat5 STP   │      ESP32          │
+│ ZED-F9P RTK GPS    │◄────────────►│   (Dual Core)       │
+│ BNO055 IMU         │  PCA9615     │                     │
+│ BMP390 Baro        │  diff I2C    │ Core 0: WiFi/MQTT   │
+│ DS3231 RTC         │  (Bus 1)     │   NTRIP, SD, GPS    │
+└────────────────────┘              │                     │
+                                    │ Core 1: TDM engine  │
+Fluxgate Pairs 1-4  ──► LM2917 ──► │   ADC, EMI, tilt    │
+(8× FG-3+ sensors)      (F-to-V)   │                     │
+                                    │ I2C Bus 0:          │
+ADS1115 ×2 (0x48,0x49) ◄───────────│   Local sensors     │
+MLX90614 IR (0x5A)  ◄──────────────│                     │
+                                    └──────┬──────────────┘
+                                           │
+EMI TX Coil ◄── OPA549 ◄── AD9833 DDS     │ WiFi / MQTT
+EMI RX Coil ──► AD8421 ──► AD630 (I/Q) ──►│
+                                           ▼
+RPLiDAR C1 ──── USB ──────────────► Jetson (edge compute)
+ESP32-CAM  ──── GPIO trigger        MQTT broker + storage
+                                    Anomaly detection
+LiPo Battery 7.4V 2000mAh          LiDAR → DEM
+├── LM2596 buck (5.5V)
+│   ├── Ferrite+LC filter
+│   │   ├── TPS7A49 LDO (5.0V analog rail)
+│   │   └── LM78L05 ×8 (individual per FG-3+)
+│   └── 3.3V LDO (ESP32, digital)
+└── Direct to OPA549 (EMI TX power)
 ```
+
+### Time-Division Multiplexing (TDM)
+
+The TDM firmware prevents electromagnetic interference between sensors by ensuring only compatible sensors operate simultaneously. Each 100 ms cycle:
+
+| Phase | Duration | Active Sensors | Disabled |
+|-------|----------|---------------|----------|
+| Fluxgate | 50 ms | Fluxgates, ADC, IMU, IR, GPS RX | EMI TX, WiFi TX, SD card |
+| EMI TX/RX | 30 ms | EMI coils, ADC (I/Q), lock-in | WiFi TX |
+| Settling | 20 ms | WiFi TX, MQTT, SD write, NTRIP | EMI TX |
+
+See `research/multi-sensor-architecture/tdm-firmware-design.md` for full implementation details.
+
+### EMI Conductivity Channel
+
+The EMI channel adds subsurface electrical conductivity mapping using the FDEM method:
+
+- **TX**: AD9833 DDS generates 15 kHz sine → OPA549 drives TX coil (30 turns, 12 cm dia)
+- **RX**: AD8421 preamp (gain 100) → AD630 phase detector → I and Q channels → ADS1115
+- **Bucking coil**: Cancels primary field at RX location (>99% cancellation)
+- **Output**: Apparent conductivity σ_a = (4/(ωμ₀s²)) × Q/primary
+
+See `research/multi-sensor-architecture/emi-coil-design.md` for signal chain details.
+
+### Physical Layout (Crossbar)
+
+Sensor placement is optimized to minimize electromagnetic interference:
+
+```
+-100cm    -50cm     0cm      +15cm  +25cm +50cm +75cm +100cm
+  │         │        │         │      │     │     │      │
+LiDAR    EMI TX  Electronics  IR   FG-1  FG-2  FG-3   FG-4
+              EMI RX (-10cm)  CAM
+              GPS mast (above)
+              Sensor pod
+```
+
+See `research/multi-sensor-architecture/crossbar-physical-layout.md` for detailed layout.
+
+### Interference Mitigation
+
+15 source-victim interference paths have been analyzed and mitigated:
+
+- **CRITICAL**: EMI TX → fluxgate (2100 nT at 1m) → TDM + physical separation
+- **CRITICAL**: LiDAR motor → fluxgate (100-300 nT) → 1.25-2.0m separation + gradiometer subtraction
+- **HIGH**: Buck converter → ADC → 3-stage power supply (120 dB PSRR)
+- See `research/multi-sensor-architecture/interference-matrix.md` for complete analysis.
 
 ### ADC Requirements
 
-- 8 channels (4 pairs x 2 sensors)
+- 8 channels for fluxgates (4 pairs × 2 sensors) via 2× ADS1115
+- 2 additional channels for EMI I/Q (shared ADS1115 MUX or dedicated 3rd unit)
 - 16-bit resolution adequate for gradiometry
-- 2x ADS1115 modules provide 8 channels total
-- Sample rate: 10-50 Hz sufficient for walking pace
+- Sample rate: 10 Hz (TDM-limited, 128 SPS raw ADC rate)
 
 ## Bill of Materials (Estimated)
 
-| Component | Qty | Est. Cost | Notes |
-|-----------|-----|-----------|-------|
-| **Sensors** |
-| Fluxgate sensors (FG Sensors or equiv.) | 8 | $480-640 | 4 pairs x 2 sensors |
-| **Frame** |
-| Carbon fiber tube 2m x 25mm | 1 | $40 | Main crossbar |
-| PVC conduit 20mm x 50cm | 4 | $10 | Sensor drop tubes |
-| 3D printed mounts | 8 | $20 | Sensor clips |
-| **Harness** |
-| Backpack harness (salvage) | 1 | $0-30 | Old backpack straps |
-| Bungee cord | 2m | $5 | Vibration dampening |
-| Carabiners | 4 | $10 | Quick-release |
-| **Electronics** |
-| Arduino Nano | 1 | $5-25 | |
-| ADS1115 16-bit ADC | 2 | $10 | 4 channels each |
-| GPS module (NEO-6M) | 1 | $15 | Position tagging |
-| SD card module | 1 | $5 | Data logging |
-| LiPo 7.4V 2000mAh | 1 | $20 | Belt-mounted |
-| Speaker/buzzer | 1 | $2 | Pace beeper |
-| Enclosure (IP65) | 1 | $15 | Electronics housing |
-| Cables, connectors | - | $25 | |
-| **Total** | | **$660-870** | |
+The multi-sensor upgrade adds 7× sensing capability for approximately 60% more cost. Full BOM details in `research/multi-sensor-architecture/updated-bom.md`.
+
+| Category | Est. Cost | Key Components |
+|----------|-----------|----------------|
+| **Fluxgate sensors** | $480-640 | 8× FG-3+ (4 gradiometer pairs) |
+| **Frame + harness** | $85-115 | Carbon fiber tube, PVC drops, harness, bungee |
+| **ESP32 + original electronics** | $57 | ESP32, 2× ADS1115, 8× LM2917, SD card, battery |
+| **Power supply upgrade** | $15 | LM2596 + ferrite+LC + TPS7A49 + 8× LM78L05 |
+| **EMI conductivity channel** | $71 | AD9833 + OPA549 + AD8421 + AD630 + coils |
+| **IR temperature** | $15 | MLX90614xAC |
+| **Camera** | $15 | ESP32-CAM standalone |
+| **LiDAR** | $73-93 | RPLiDAR C1 |
+| **Sensor pod (50% shared)** | $182 | ZED-F9P + BNO055 + BMP390 + DS3231 + PCA9615 |
+| **EMI mitigation** | $18 | M8 connectors, shielded cable, bypass caps |
+| **Total** | **$1,052-1,262** | |
 
 ## Weight Budget
 
@@ -198,13 +244,26 @@ timestamp,lat,lon,g1_top,g1_bot,g1_grad,g2_top,g2_bot,g2_grad,g3_top,g3_bot,g3_g
 4. **Visualize**: Generate gradient magnitude map
 5. **Identify**: Mark anomalies for HIRT follow-up
 
+## Joint Inversion with HIRT
+
+Pathfinder's surface measurements serve as boundary conditions for HIRT's subsurface 3D tomographic inversion. The operational workflow:
+
+1. **Pathfinder survey** (30-60 min): Walk site, collect magnetics + EMI + IR + LiDAR
+2. **Anomaly flagging**: Jetson detects anomalies in real-time
+3. **HIRT deployment** (2-4 hr per anomaly): Insert probes around flagged targets
+4. **Joint inversion**: Combine Pathfinder surface data + HIRT crosshole data in SimPEG
+
+The shared sensor pod ensures GPS coordinate registration between instruments. Cross-gradient regularization couples the magnetic susceptibility and conductivity models. See `GeoSim/docs/research/joint-inversion-concept.md`.
+
 ## Open Questions
 
-1. **Sensor selection**: FG Sensors fluxgates vs. alternatives (cost/performance tradeoff)
-2. **ADC noise floor**: Is ADS1115 adequate, or need better ADC?
-3. **Crossbar material**: Carbon fiber vs. fiberglass vs. aluminum (weight/cost/rigidity)
-4. **Enclosure design**: Belt-mounted vs. integrated into crossbar
-5. **Calibration procedure**: Factory calibration vs. field calibration protocol
+1. ~~**Sensor selection**: FG Sensors fluxgates vs. alternatives~~ → Resolved: FG-3+ selected
+2. **ADC noise floor**: Is ADS1115 adequate, or need 24-bit ADS1256? (see noise-analysis.md)
+3. **Crossbar material**: Carbon fiber for fluxgate section, fiberglass elsewhere (aluminum causes eddy currents for EMI)
+4. **LM78L05 dropout**: 5.5V input marginal — may need low-dropout alternatives (MCP1700)
+5. **WiFi vs fiber**: TDM + shielding estimated < 0.01 nT interference — bench validation needed (see R1)
+6. **EMI coil bucking**: Precise turns/position calculation needed (see R3)
+7. **LiDAR TDM gating**: Motor DC field at fluxgate — need bench characterization
 
 ## References
 
