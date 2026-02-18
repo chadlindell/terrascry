@@ -69,7 +69,7 @@ Pathfinder/
 - **Camera**: ESP32-CAM standalone (GPIO triggered)
 - **Data**: MQTT streaming to Jetson + SD card CSV backup
 - **Visualization**: Python (matplotlib, pandas)
-- **Power**: 3-stage supply (LM2596 buck → ferrite+LC → TPS7A49 LDO), individual LM78L05 per FG-3+
+- **Power**: 3-stage supply (LM2596 buck → ferrite+LC → TPS7A49 LDO), individual AP2112K-5.0 per FG-3+ (consensus-corrected from LM78L05)
 
 ### Sensor Pod (Shared with HIRT)
 - ZED-F9P (0x42), BNO055 (0x29), BMP390 (0x77), DS3231 (0x68)

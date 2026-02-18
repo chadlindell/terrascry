@@ -44,7 +44,9 @@ Pathfinder is being upgraded from a single-modality magnetic gradiometer to a mu
 
 **Updated BOM**: $1,052-1,262 (see `research/multi-sensor-architecture/updated-bom.md`).
 
-See `research/multi-sensor-architecture/` for detailed research on all subsystems.
+See `research/multi-sensor-architecture/` for detailed research on all subsystems (26 files including 15 consensus-validated reports).
+
+**Key consensus corrections**: AP2112K-5.0 replaces LM78L05 (dropout error), M8 8-pin replaces 4-pin (PCA9615 needs 6 pins), ADS1115 uses ALERT/RDY interrupt mode (not "DMA"), Wheeler inductance L_TX=150-180 μH, WiFi interference 0.01-0.1 nT (not <0.01 nT).
 
 ## Project Structure
 ```

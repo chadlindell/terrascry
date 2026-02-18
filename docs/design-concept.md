@@ -105,7 +105,7 @@ LiPo Battery 7.4V 2000mAh          LiDAR → DEM
 ├── LM2596 buck (5.5V)
 │   ├── Ferrite+LC filter
 │   │   ├── TPS7A49 LDO (5.0V analog rail)
-│   │   └── LM78L05 ×8 (individual per FG-3+)
+│   │   └── AP2112K-5.0 ×8 (individual per FG-3+)
 │   └── 3.3V LDO (ESP32, digital)
 └── Direct to OPA549 (EMI TX power)
 ```
@@ -154,8 +154,26 @@ See `research/multi-sensor-architecture/crossbar-physical-layout.md` for detaile
 
 - **CRITICAL**: EMI TX → fluxgate (2100 nT at 1m) → TDM + physical separation
 - **CRITICAL**: LiDAR motor → fluxgate (100-300 nT) → 1.25-2.0m separation + gradiometer subtraction
-- **HIGH**: Buck converter → ADC → 3-stage power supply (120 dB PSRR)
+- **HIGH**: Buck converter → ADC → 3-stage power supply (95-110 dB PSRR **(Modeled)**)
 - See `research/multi-sensor-architecture/interference-matrix.md` for complete analysis.
+
+### Consensus-Validated Design Corrections
+
+Multi-model consensus validation (GPT-5.2, GPT-5.2-Pro, Grok 4.1 Fast) identified the following critical corrections to the initial design:
+
+| Issue | Severity | Correction |
+|-------|----------|------------|
+| LM78L05 dropout at 5.5V input (needs 6.7V+) | **CRITICAL** | Replace with AP2112K-5.0 (250mV dropout) — feeds from 5.5V post-LC rail |
+| ADS1115 "DMA" claim over I2C impossible | **CRITICAL** | Use ALERT/RDY pin interrupt-driven continuous mode; 860 SPS for EMI phase |
+| WiFi `esp_wifi_stop/start` too slow for 100ms TDM | **HIGH** | Use `esp_wifi_set_max_tx_power(0)` + application-level send blocking |
+| M8 4-pin connector insufficient for PCA9615 | **CRITICAL** | Upgrade to M8 8-pin (PCA9615 needs 6 conductors: 2×SDA, 2×SCL, VCC, GND) |
+| Solenoid inductance formula wrong for short coils | **HIGH** | Wheeler's approximation: L_TX = 150-180 μH (not 710 μH) |
+| Single AD630 cannot produce simultaneous I/Q | **HIGH** | Need two AD630s or digital lock-in approach |
+| 20ms settling insufficient (26% LM2917 residual) | **MODERATE** | Increase to 45ms (3τ) or use active discharge/discard strategy |
+| GPIO 16/17 conflict (I2C Bus 1 vs UART2) | **HIGH** | Reassign GPS UART2 to GPIO 32/33 |
+| BMP390 in sealed IP67 enclosure invalid | **HIGH** | Add IP67 vent membrane (Gore PolyVent or Amphenol) |
+
+See `research/multi-sensor-architecture/` consensus files for detailed analysis and recommendations.
 
 ### ADC Requirements
 
@@ -173,13 +191,13 @@ The multi-sensor upgrade adds 7× sensing capability for approximately 60% more 
 | **Fluxgate sensors** | $480-640 | 8× FG-3+ (4 gradiometer pairs) |
 | **Frame + harness** | $85-115 | Carbon fiber tube, PVC drops, harness, bungee |
 | **ESP32 + original electronics** | $57 | ESP32, 2× ADS1115, 8× LM2917, SD card, battery |
-| **Power supply upgrade** | $15 | LM2596 + ferrite+LC + TPS7A49 + 8× LM78L05 |
+| **Power supply upgrade** | $18 | LM2596 + ferrite+LC + TPS7A49 + 8× AP2112K-5.0 |
 | **EMI conductivity channel** | $71 | AD9833 + OPA549 + AD8421 + AD630 + coils |
 | **IR temperature** | $15 | MLX90614xAC |
 | **Camera** | $15 | ESP32-CAM standalone |
 | **LiDAR** | $73-93 | RPLiDAR C1 |
 | **Sensor pod (50% shared)** | $182 | ZED-F9P + BNO055 + BMP390 + DS3231 + PCA9615 |
-| **EMI mitigation** | $18 | M8 connectors, shielded cable, bypass caps |
+| **EMI mitigation** | $22 | M8 8-pin connectors, shielded cable, bypass caps, vent membrane |
 | **Total** | **$1,052-1,262** | |
 
 ## Weight Budget
@@ -260,10 +278,12 @@ The shared sensor pod ensures GPS coordinate registration between instruments. C
 1. ~~**Sensor selection**: FG Sensors fluxgates vs. alternatives~~ → Resolved: FG-3+ selected
 2. **ADC noise floor**: Is ADS1115 adequate, or need 24-bit ADS1256? (see noise-analysis.md)
 3. **Crossbar material**: Carbon fiber for fluxgate section, fiberglass elsewhere (aluminum causes eddy currents for EMI)
-4. **LM78L05 dropout**: 5.5V input marginal — may need low-dropout alternatives (MCP1700)
-5. **WiFi vs fiber**: TDM + shielding estimated < 0.01 nT interference — bench validation needed (see R1)
-6. **EMI coil bucking**: Precise turns/position calculation needed (see R3)
+4. ~~**LM78L05 dropout**: 5.5V input marginal~~ → Resolved: Replace with AP2112K-5.0 (250mV dropout, feeds from 5.5V post-LC rail) (R5 consensus)
+5. ~~**WiFi vs fiber**: TDM + shielding estimated < 0.01 nT interference~~ → Resolved: WiFi+TDM sufficient; realistic estimate 0.01-0.1 nT; fiber as optional upgrade (R1 consensus)
+6. ~~**EMI coil bucking**: Precise turns/position calculation needed~~ → Resolved: Wheeler L_TX=150-180 μH, resonant C=625-750 nF, need two AD630s for I/Q (R3 consensus)
 7. **LiDAR TDM gating**: Motor DC field at fluxgate — need bench characterization
+8. **ADS1115 timing**: Cannot achieve 5 cycles/50ms at 128 SPS — need ALERT/RDY interrupt mode (R2 consensus)
+9. **M8 connector upgrade**: 4-pin → 8-pin for PCA9615 differential I2C (R4 consensus)
 
 ## References
 

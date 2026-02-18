@@ -176,30 +176,26 @@ The complete 15-pair interference matrix is documented in `research/multi-sensor
 |--------|-----------|----------------------|------------|
 | EMI TX (15 kHz) | Direct magnetic field | <0.01 nT **(Target)** | TDM + 1.25m separation |
 | LiDAR motor DC field | Permanent magnet | <1 nT **(Target)** | 1.25-2.0m separation + gradiometer subtraction |
-| WiFi TX (2.4 GHz) | RF rectification | <0.01 nT **(Target)** | TDM + shielding + LM2917 filter |
-| Buck converter | Supply ripple | <0.001 nT **(Target)** | 120 dB PSRR (ferrite + LC + LDO) |
+| WiFi TX (2.4 GHz) | RF rectification | 0.01-0.1 nT **(Modeled)** | TDM + shielding + LM2917 filter |
+| Buck converter | Supply ripple | <0.001 nT **(Target)** | 95-110 dB PSRR (ferrite + LC + AP2112K) |
 | I2C/SPI digital | Capacitive coupling | <0.01 nT **(Target)** | PCB layout, guard traces |
 | **Combined interference** | | **<1 nT** **(Target)** | |
 
 ### Power Supply Noise Contribution
 
-The 3-stage power supply chain provides exceptional noise rejection:
+The 3-stage power supply chain provides strong noise rejection. **Note**: Consensus validation (R5) corrected the original LM78L05 per-sensor regulators to AP2112K-5.0 (the LM78L05 has 1.7V dropout, incompatible with the 5.5V intermediate rail). The corrected chain:
 
 ```
-Buck converter → Ferrite+LC filter → TPS7A49 LDO → LM78L05 (per sensor)
-  30-50 mV ripple   60 dB rejection    60 dB PSRR     51 dB rejection
-                    = 30-50 μV         = 30-50 nV      = ~90 pV
+Buck converter → Ferrite+LC filter → AP2112K-5.0 (per sensor)
+  30-50 mV ripple   60 dB rejection    70 dB PSRR @ 1kHz
+                    = 30-50 μV         = ~10 nV
 ```
 
-At the sensor, power supply noise contributes ~90 pV of supply ripple. With the FG-3+ sensitivity of 0.118 μs/μT and a supply voltage sensitivity estimated at ~100 nT/mV, the magnetic noise equivalent is:
+Consensus also corrected the overall PSRR claim from 120 dB to **95-110 dB** (realistic range). The LC filter requires damping (resistor in series with capacitor) to prevent ringing during transients (undamped Q > 100).
 
-```
-Supply noise at sensor: ~90 pV → ~0.000009 nT
-```
+At the sensor, power supply noise contributes ~10 nV of supply ripple — still well below the system noise floor.
 
-This is 5 orders of magnitude below the system noise floor. The power supply is not a limiting factor.
-
-See `research/multi-sensor-architecture/power-supply-architecture.md` for full design.
+See `research/multi-sensor-architecture/power-supply-design.md` for consensus-validated design.
 
 ### Updated Noise Budget (Multi-Sensor)
 
