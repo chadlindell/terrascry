@@ -1,5 +1,7 @@
 # HIRT Project Context
 
+> Part of the [TERRASCRY](../CLAUDE.md) platform. See root CLAUDE.md for platform-wide conventions.
+
 HIRT (Hybrid Inductive-Resistivity Tomography) is a dual-channel subsurface imaging system for archaeology, forensics, and environmental applications.
 
 ## Quick Reference
@@ -22,19 +24,21 @@ Use `/riper:strict` to enable mode tracking. Available modes:
 - `/visualize:expand` - Convert placeholders to diagram code
 
 ### Key Commands
-- Render documentation: `cd docs && quarto render`
-- Preview documentation: `cd docs && quarto preview`
-- Render PDF only: `cd docs && quarto render --to pdf`
-- Render HTML only: `cd docs && quarto render --to html`
-- Export STL: `openscad -o output.stl input.scad`
+- Render documentation: `cd hirt/docs && quarto render`
+- Preview documentation: `cd hirt/docs && quarto preview`
+- Render PDF only: `cd hirt/docs && quarto render --to pdf`
+- Render HTML only: `cd hirt/docs && quarto render --to html`
+- Export STL: `openscad -o output.stl hirt/hardware/cad/openscad/input.scad`
 
 ## Sensor Pod Integration
 
-HIRT shares a sensor pod with Pathfinder (ZED-F9P RTK GPS + BNO055 IMU + BMP390 barometer + DS3231 RTC in IP67 enclosure). The pod connects via M8 4-pin connector and PCA9615 differential I2C over Cat5 STP cable.
+HIRT shares a sensor pod with Pathfinder (ZED-F9P RTK GPS + BNO055 IMU + BMP390 barometer + DS3231 RTC in IP67 enclosure). The pod connects via M8 8-pin connector and PCA9615 differential I2C over Cat5 STP cable.
+
+**Sensor pod specs:** `shared/hardware/sensor_pod/` (hardware), `shared/firmware/sensor_pod/` (firmware drivers).
 
 **HIRT-specific usage:**
 - GPS records probe insertion point positions (one-shot per probe, cm-accuracy RTK)
-- Probe positions stored in survey metadata CSV for inversion geometry
+- Probe positions stored in survey metadata CSV (see `shared/protocols/csv_schemas.md`)
 - Pod IMU provides surface orientation during position recording
 - Pod is physically moved between Pathfinder and HIRT as needed
 
@@ -44,35 +48,28 @@ HIRT shares a sensor pod with Pathfinder (ZED-F9P RTK GPS + BNO055 IMU + BMP390 
 - LiDAR DEM corrects HIRT's inversion mesh for actual terrain
 - Cross-gradient regularization couples multi-physics models in SimPEG
 
-See: `research/electronics/sensor-pod-integration.md`, `../Pathfinder/research/multi-sensor-architecture/sensor-pod-design.md`
+**Shared Libraries:** Firmware references shared libs via `lib_extra_dirs = ../../shared/firmware` in `platformio.ini`.
 
-## Project Structure
+See: `hirt/research/electronics/sensor-pod-integration.md`, `shared/hardware/sensor_pod/`, `geosim/docs/research/joint-inversion-concept.md`
+
+## Project Structure (Monorepo)
 ```
-HIRT/
-├── VISION.md          # Project goals and constraints
-├── STATUS.md          # Current state, active work
-├── OUTLINE.md         # Section-by-section status
-├── CLAUDE.md          # This file - style guide
-├── docs/              # Main deliverable (Quarto Technical Manual)
-│   ├── index.qmd              # Task map landing page
-│   ├── getting-started/       # Onboarding (overview, quick-start, safety)
-│   ├── field-guide/           # Operations (deployment, data, troubleshooting)
-│   ├── build-guide/           # Construction (BOM, mechanical, electronics)
-│   ├── theory/                # Technical depth (physics, inversion, sensors)
-│   ├── developer/             # Contributors (firmware, data-formats, roadmap)
-│   ├── appendices/            # Reference (glossary, checklists, regulations)
-│   └── diagrams/              # Python diagram generators
-├── research/          # Research by topic
-│   ├── deployment/    # Probe insertion methods
-│   ├── electronics/   # Circuit modernization
-│   ├── regulatory/    # Legal/compliance
-│   └── literature/    # Academic papers
-├── hardware/          # Hardware documentation
-│   ├── bom/          # Bills of materials
-│   ├── cad/          # OpenSCAD sources, STLs
-│   ├── drawings/     # Assembly drawings
-│   └── schematics/   # Circuit documentation
-└── _archive/          # Inactive files (includes old whitepaper/)
+terrascry/
+├── CLAUDE.md              # Platform-wide context
+├── hirt/                  # ← You are here
+│   ├── CLAUDE.md          # This file
+│   ├── docs/              # Quarto Technical Manual (30 sections)
+│   ├── research/          # Research by topic
+│   ├── hardware/          # BOMs, CAD, schematics
+│   ├── firmware/          # ESP32 firmware (scaffold)
+│   └── _archive/          # Legacy files
+├── pathfinder/            # Handheld multi-sensor gradiometer
+├── geosim/                # Physics simulation engine
+└── shared/                # Cross-instrument shared components
+    ├── firmware/          # Sensor pod, MQTT, SD logger libraries
+    ├── protocols/         # MQTT topics, CSV schemas
+    ├── hardware/          # Sensor pod specs, connector pinouts
+    └── edge/              # Jetson Docker deployment
 ```
 
 ---

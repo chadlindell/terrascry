@@ -1,21 +1,19 @@
-# CLAUDE.md
+# GeoSim Project Context
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## What This Is
+> Part of the [TERRASCRY](../CLAUDE.md) platform. See root CLAUDE.md for platform-wide conventions.
 
 Physics-realistic simulation engine for HIRT (subsurface tomography) and Pathfinder (magnetic gradiometry) geophysical instruments. The physics engine IS the product; visualization layers are consumers. Physics accuracy is non-negotiable — this is not a game engine.
 
 ## Commands
 
 ```bash
-pip install -e ".[dev]"              # Install for development
-pip install -e ".[all]"              # Install everything (viz + hirt + dev)
-pytest tests/                        # Run all tests
-pytest tests/ -k dipole              # Run dipole tests only
-pytest tests/test_zmq_server.py      # Run a single test file
-ruff check geosim/                   # Lint
-geosim-server --scenario scenarios/single-ferrous-target.json  # Start ZeroMQ server
+cd geosim && pip install -e ".[dev]"              # Install for development
+cd geosim && pip install -e ".[all]"              # Install everything (viz + hirt + dev)
+cd geosim && pytest tests/                        # Run all tests
+cd geosim && pytest tests/ -k dipole              # Run dipole tests only
+cd geosim && pytest tests/test_zmq_server.py      # Run a single test file
+cd geosim && ruff check geosim/                   # Lint
+cd geosim && geosim-server --scenario scenarios/single-ferrous-target.json  # Start ZeroMQ server
 ```
 
 ## Architecture
@@ -30,7 +28,7 @@ geosim-server --scenario scenarios/single-ferrous-target.json  # Start ZeroMQ se
 - **`geosim/server.py`**: ZeroMQ REQ-REP server wrapping physics for external clients (Godot). Commands: `ping`, `load_scenario`, `query_field`, `query_gradient`, `get_scenario_info`, `shutdown`.
 - **`godot/`**: Godot 4 interactive frontend. Currently uses mock responses; real connection requires godot-zmq GDExtension.
 - **`geosim/em/`, `geosim/resistivity/`**: Phase 2 stubs (SimPEG/pyGIMLi forward models, not yet implemented).
-- **`geosim/streaming/`**: Real-time MQTT streaming module for instrument data. Messages are JSON-serialized dataclasses. See `docs/streaming-architecture.md`.
+- **`geosim/streaming/`**: Real-time MQTT streaming module for instrument data. Messages are JSON-serialized dataclasses. MQTT topic hierarchy documented in `shared/protocols/mqtt_topics.md`. See `geosim/docs/streaming-architecture.md`.
 
 ## Coordinate Convention
 
@@ -84,7 +82,8 @@ See `docs/research/joint-inversion-concept.md` for implementation approach using
 
 Evaluated fiber optic data links as alternative to ESP32 WiFi. Conclusion: WiFi with TDM is sufficient (< 0.01 nT interference), POF fiber available as upgrade for high-precision work. See `docs/research/fiber-vs-wifi-analysis.md`.
 
-## Related Projects
+## Related Projects (in monorepo)
 
-- `../HIRT/`: Subsurface tomography instrument (EM induction + ERT)
-- `../Pathfinder/`: Magnetic gradiometry instrument (multi-sensor, 7 modalities)
+- **Pathfinder** (`pathfinder/`): Handheld multi-sensor gradiometer — GeoSim simulates its sensor physics
+- **HIRT** (`hirt/`): Crosshole tomography instrument — GeoSim provides forward models for inversion
+- **Shared** (`shared/`): MQTT protocol specs, CSV schemas consumed by GeoSim's data loaders
