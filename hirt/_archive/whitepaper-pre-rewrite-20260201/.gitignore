@@ -1,0 +1,34 @@
+# Quarto output directory
+_output/
+
+# Installer packages
+*.deb
+*.rpm
+
+# Quarto cache
+.quarto/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment (if created locally)
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*~
+
+# Temporary files
+*.tmp
+*.bak
+
+/.quarto/

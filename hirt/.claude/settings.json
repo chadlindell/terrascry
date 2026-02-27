@@ -1,0 +1,39 @@
+{
+  "enabledPlugins": {
+    "frontend-design@claude-code-plugins": true,
+    "ralph-wiggum@claude-code-plugins": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATHS\" == *.qmd ]]; then echo '[REMINDER] Documentation modified. Run: cd docs/hirt-whitepaper && quarto render'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATHS\" == *.scad ]]; then echo '[REMINDER] CAD file modified. Export STL when ready: openscad -o output.stl file.scad'; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$CLAUDE_FILE_PATHS\" == *.claude/memory-bank/* ]]; then echo '[BLOCKED] Memory bank is protected. Use /memory:save to add new entries.' && exit 1; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

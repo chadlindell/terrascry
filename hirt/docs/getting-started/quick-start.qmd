@@ -1,0 +1,137 @@
+---
+title: "Quick Start"
+---
+
+## Overview
+
+This quick start guide walks you through your first HIRT survey, from equipment check to data collection. For detailed procedures, see the [Field Guide](../field-guide/deployment.qmd).
+
+## Before You Begin
+
+Ensure you have:
+
+- [ ] Complete HIRT probe set (minimum 4 probes for basic survey)
+- [ ] Zone hub and cables
+- [ ] Data acquisition unit (laptop or dedicated controller)
+- [ ] Pilot rod for hole preparation
+- [ ] Soft mallet or hand auger
+- [ ] Measuring tape and grid markers
+- [ ] Field notebook or recording forms
+
+::: {.callout-warning}
+## Safety First
+
+Review [Safety Requirements](safety.qmd) before any field work. At UXO-suspected sites, EOD clearance is mandatory before probe insertion.
+:::
+
+## Step 1: Site Assessment (15-30 minutes)
+
+1. **Survey the area** for obstacles, utilities, and access constraints
+2. **Mark grid positions** using tape measure and markers
+3. **Document conditions** including soil type, moisture, and vegetation
+4. **Photograph the site** before any disturbance
+
+## Step 2: Grid Layout
+
+Standard configurations:
+
+| Grid | Probe Count | Coverage | Best For |
+|------|-------------|----------|----------|
+| 2×2 | 4 | Small area (4 m²) | Single target localization |
+| 3×3 | 9 | Medium area (16 m²) | Standard investigation |
+| 4×4 | 16 | Large area (36 m²) | Comprehensive survey |
+
+Choose probe spacing based on required resolution:
+
+- **1.0 m spacing:** High resolution, small features
+- **1.5 m spacing:** Standard balance of resolution and coverage
+- **2.0 m spacing:** Rapid reconnaissance, large features
+
+## Step 3: Probe Insertion (5-10 minutes per probe)
+
+1. **Create pilot hole** using auger or pilot rod
+   - Target diameter: 12-14 mm (slightly larger than probe)
+   - Target depth: Match probe length (typically 1.5-3.0 m)
+
+2. **Insert probe** by hand
+   - Maintain vertical orientation
+   - Note any obstructions (record actual depth achieved)
+
+3. **Document position**
+   - Record X, Y coordinates from grid origin
+   - Record actual insertion depth (z_tip_m)
+   - Note any offset from ideal position
+
+4. **Connect cables** to zone hub
+   - Verify secure connection at both ends
+   - Route cables to avoid trip hazards
+
+## Step 4: System Initialization (5 minutes)
+
+1. **Power on** the zone hub and data acquisition unit
+2. **Run self-test** to verify all probes respond
+3. **Check connection quality** (all probes should show green status)
+4. **Record baseline** ambient readings
+
+## Step 5: Data Acquisition (15-45 minutes)
+
+1. **Start measurement cycle**
+   - MIT sweep: 2 kHz --> 10 kHz --> 50 kHz
+   - ERT injection: Standard pattern
+
+2. **Monitor acquisition**
+   - Watch for error indicators
+   - Note any unusual readings
+
+3. **Quality check**
+   - Verify reciprocity (A to B should approximately equal B to A)
+   - Check for drift between first and last measurements
+
+4. **Record metadata**
+   - Start/end times
+   - Weather conditions
+   - Personnel present
+
+## Step 6: Data Export and Backup
+
+1. **Export CSV files** for MIT and ERT data
+2. **Copy to backup media** (SD card, USB drive)
+3. **Verify file integrity** (open and check record counts)
+4. **Complete field notes** while details are fresh
+
+## Step 7: Probe Extraction
+
+1. **Disconnect cables** from zone hub
+2. **Extract probes** by pulling straight up
+3. **Clean probes** and inspect for damage
+4. **Fill holes** if site protocol requires
+5. **Restore site** to original condition
+
+## Quick Reference: Typical Workflow
+
+| Phase | Duration | Key Actions |
+|-------|----------|-------------|
+| Setup | 30-60 min | Grid layout, probe insertion |
+| Acquisition | 15-45 min | MIT + ERT measurement cycles |
+| QA/QC | 10-15 min | Reciprocity check, backup |
+| Extraction | 20-40 min | Probe removal, site restoration |
+| **Total** | **1.5-3 hours** | For 4×4 grid (16 probes) |
+
+## Next Steps
+
+After your first survey:
+
+1. **Review data quality** using the [Interpretation Guide](../field-guide/interpretation.qmd)
+2. **Process data** with inversion software (see [Theory: Inversion](../theory/inversion.qmd))
+3. **Document findings** for reporting
+
+## Common Issues
+
+| Problem | Quick Fix |
+|---------|-----------|
+| Probe won't insert | Use auger to clear obstruction, don't force |
+| Connection error | Clean connectors, check cable routing |
+| Noisy data | Move away from power lines, pause for passing vehicles |
+| Poor reciprocity | Check electrode contact, may need conductive gel |
+
+For detailed troubleshooting, see [Field Troubleshooting](../field-guide/troubleshooting.qmd).

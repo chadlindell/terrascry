@@ -1,0 +1,459 @@
+---
+title: "Sensor Modalities"
+---
+
+## Overview
+
+HIRT's modular architecture supports multiple sensing modalities beyond the core MIT-3D and ERT-Lite channels. This section documents supported and potential sensor types, their physical principles, and integration considerations.
+
+## Sensor Maturity Framework
+
+Each sensor modality is classified by maturity level:
+
+| Level | Label | Definition |
+|-------|-------|------------|
+| **S** | **Supported Now** | Fully validated, documented in build guide |
+| **R** | **Recommended Extension** | Tested principle, straightforward integration |
+| **F** | **Future Exploration** | Promising concept, requires development |
+
+```{python}
+#| label: fig-sensor-maturity
+#| fig-cap: "Sensor maturity framework showing current classification of each modality. Sensors progress from Future Exploration through Recommended Extension to Supported as they are validated in field conditions."
+#| fig-width: 11
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_sensor_maturity_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_sensor_maturity_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(11, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Supported Now (S)
+
+### MIT-3D: Magneto-Inductive Tomography
+
+**Maturity:** Supported Now
+
+**Physical Principle:** Low-frequency electromagnetic induction generates eddy currents in conductive materials. The secondary magnetic field from these currents is detected by receiver coils.
+
+**Detects:**
+
+- Metallic objects (ferrous and non-ferrous)
+- Highly conductive soil zones
+- Saline groundwater
+
+**Key Parameters:**
+
+| Parameter | Specification | Rationale |
+|-----------|---------------|-----------|
+| Frequency range | 2-50 kHz **(Target)** | Trade-off: depth vs. resolution |
+| TX coil current | 10 mA RMS **(Target)** | Signal strength vs. power consumption |
+| Coil configuration | Coaxial, horizontal | Directional sensitivity |
+
+**Unique Capability:** Detects aluminum and other non-ferrous metals invisible to magnetometers.
+
+**Limitations:**
+
+- Limited penetration in highly conductive soils
+- Sensitive to electromagnetic interference
+- Requires careful shielding and calibration
+
+### ERT-Lite: Electrical Resistivity Tomography
+
+**Maturity:** Supported Now
+
+**Physical Principle:** Small DC or low-frequency AC currents injected through electrodes create potential distributions that depend on subsurface resistivity structure.
+
+**Detects:**
+
+- Soil disturbance (compaction, fill boundaries)
+- Moisture content variations
+- Voids and cavities
+- Decomposition products
+
+**Key Parameters:**
+
+| Parameter | Specification | Rationale |
+|-----------|---------------|-----------|
+| Injection current | 0.5-2.0 mA **(Target)** | Safety, contact resistance tolerance |
+| Electrode configuration | Ring electrodes | Omni-directional sensitivity |
+| Measurement type | Potential vs. reference | Simplified hardware |
+
+**Unique Capability:** Maps soil disturbance boundaries with excellent geometric fidelity.
+
+**Limitations:**
+
+- Requires good electrode-soil contact
+- Sensitive to contact resistance variations
+- Resolution depends on electrode spacing
+
+## Recommended Extensions (R)
+
+These modalities are technically straightforward and provide significant value. Implementation is recommended for comprehensive surveys.
+
+### Accelerometer/Tilt Sensor
+
+**Maturity:** Recommended Extension
+
+```{python}
+#| label: fig-tilt-error
+#| fig-cap: "Tilt error propagation in probe deployment. A 5-degree tilt at 3 m depth produces 26 cm of lateral positional error at the probe tip, displacing sensor rings from their assumed vertical positions and distorting inversion results."
+#| fig-width: 8
+#| fig-height: 6
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_tilt_error_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_tilt_error_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(8, 6))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-important}
+## Technical Necessity for Accurate Inversion
+
+Probe tilt significantly affects tomographic inversion accuracy. Without borehole deviation data, reconstruction assumes vertical probe alignment. In soft soils, probes can deviate several degrees, causing geometric distortion in results.
+
+**Impact of uncorrected tilt:**
+
+- 5 deg tilt at 3 m depth = 26 cm positional error at tip **(Modeled)**
+- Sensor ring positions displaced from assumed locations
+- Inversion results geometrically distorted
+
+Accelerometer integration is recommended as a **standard feature**, not optional enhancement.
+:::
+
+**Physical Principle:** MEMS accelerometer measures gravitational vector, yielding tilt angle in two axes.
+
+**Detects:**
+
+- Probe inclination from vertical
+- Rotation around vertical axis (with magnetometer)
+
+**Implementation:**
+
+| Aspect | Specification |
+|--------|---------------|
+| Sensor type | 3-axis MEMS accelerometer |
+| Example part | ADXL345, MPU-6050 |
+| Resolution | 0.1° or better |
+| Cost | <$5 per probe **(Target)** |
+| Integration | I²C bus, shares probe MCU |
+
+**Data Use:**
+
+1. Record tilt at each depth during insertion
+2. Build probe trajectory (deviation survey)
+3. Use actual electrode positions in inversion mesh
+4. Report maximum deviation in survey metadata
+
+**Calibration:** Factory calibration adequate. Verify zero reading with probe in calibration fixture.
+
+### Temperature Array
+
+**Maturity:** Recommended Extension
+
+**Physical Principle:** Thermistors or digital temperature sensors measure soil temperature at multiple depths.
+
+**Detects:**
+
+- Thermal gradients from decomposition
+- Seasonal temperature variations
+- Contamination heat signatures
+- Groundwater flow indicators
+
+**Forensic Application:** Decomposition generates heat. Temperature anomalies can indicate burial sites, particularly in early stages (weeks to months).
+
+**Implementation:**
+
+| Aspect | Specification |
+|--------|---------------|
+| Sensor type | Digital 1-Wire (DS18B20) |
+| Sensors per probe | 3-6 (one per segment) |
+| Resolution | 0.0625°C |
+| Accuracy | ±0.5°C |
+| Cost | <$2 per sensor |
+| Integration | 1-Wire bus, single data line |
+
+**Data Use:**
+
+1. Build vertical temperature profile
+2. Compare profiles between probes
+3. Identify thermal anomalies relative to background
+4. Time-series monitoring for dynamic processes
+
+**Calibration:** Factory calibrated. Verify with ice-water bath before field deployment.
+
+**Limitations:**
+
+- Requires thermal equilibration time (10-30 minutes after insertion)
+- Surface temperature dominates shallow readings
+- Decomposition signature fades with time
+
+## Future Exploration (F)
+
+These modalities show promise but require additional development or have operational constraints.
+
+### Moisture/Capacitance
+
+**Maturity:** Future Exploration (deferred per multi-model consensus)
+
+**Physical Principle:** Soil dielectric constant varies with moisture content. Capacitance between electrodes changes accordingly.
+
+**Detects:**
+
+- Volumetric water content
+- Saturation zones
+- Soil type (indirectly via dielectric response)
+
+::: {.callout-note}
+## Why Deferred
+
+Multi-model consensus identified concerns:
+
+1. **Calibration complexity:** Response depends on soil type, not just moisture
+2. **Installation geometry sensitivity:** Small changes in electrode contact affect readings
+3. **Interpretation overlap:** May confuse interpretation vs. ERT without careful documentation
+4. **Limited forensic relevance:** ERT already provides moisture-related information
+
+Recommend focusing on temperature + accelerometer before adding moisture sensors.
+:::
+
+**If Implemented:**
+
+| Aspect | Specification |
+|--------|---------------|
+| Sensor type | Capacitive moisture probe |
+| Measurement | Dielectric constant or capacitance |
+| Calibration | Site-specific required |
+
+### pH Sensor
+
+**Maturity:** Future Exploration
+
+**Physical Principle:** Ion-selective electrode measures hydrogen ion activity.
+
+**Detects:**
+
+- Soil acidification from decomposition
+- Contamination plumes
+- Natural soil chemistry variations
+
+**Forensic Application:** Decomposition releases organic acids, potentially detectable as pH anomalies.
+
+**Challenges:**
+
+- **Electrode fouling:** Soil particles coat sensing element
+- **Drift:** pH electrodes require frequent recalibration
+- **Response time:** Equilibration takes minutes
+- **Maintenance:** Not suitable for long-term deployment
+
+**Status:** Potentially useful for forensic applications, but operational constraints significant.
+
+### Dissolved Oxygen
+
+**Maturity:** Future Exploration
+
+**Physical Principle:** Electrochemical or optical sensor measures dissolved oxygen (O2) in pore water.
+
+**Detects:**
+
+- Anaerobic decomposition zones
+- Reducing conditions
+- Contamination effects
+
+**Challenges:**
+
+- Requires liquid contact (saturated soils only)
+- Sensor degradation in soil environment
+- High maintenance requirements
+
+### Methane/Gas Sensors
+
+**Maturity:** Future Exploration
+
+**Physical Principle:** Electrochemical or catalytic sensors detect methane and other decomposition gases.
+
+**Detects:**
+
+- Active decomposition (burial sites)
+- Landfill gas migration
+- Natural gas seepage
+
+**Challenges:**
+
+- Sensor sensitivity in soil environment
+- Gas migration pathways complex
+- False positives from natural sources
+
+**Potential:** Significant forensic value if technical challenges resolved.
+
+### Self-Potential (SP)
+
+**Maturity:** Future Exploration
+
+**Physical Principle:** Natural electrical potentials arise from electrochemical, streaming, and thermoelectric effects in soil.
+
+**Detects:**
+
+- Groundwater flow
+- Redox boundaries
+- Contamination plumes
+
+**Implementation:** Passive measurement using existing ERT electrodes—no additional hardware required.
+
+**Status:** Low-cost to implement but interpretation complex. May be useful for contamination studies.
+
+### Pressure/Depth
+
+**Maturity:** Future Exploration
+
+**Physical Principle:** Hydrostatic pressure increases with depth below water table.
+
+**Detects:**
+
+- Water table depth
+- Pressure variations in saturated zone
+- Depth verification
+
+**Implementation:**
+
+| Aspect | Specification |
+|--------|---------------|
+| Sensor type | Piezoresistive pressure transducer |
+| Range | 0-50 kPa (0-5 m water column) |
+| Resolution | 0.1 kPa |
+
+**Limited Value:** Primarily useful in saturated soils for depth verification.
+
+## Multi-Modal Fusion
+
+### Combining Modalities
+
+When multiple sensors are deployed, fusion improves interpretation confidence:
+
+| Combination | Enhanced Detection |
+|-------------|-------------------|
+| MIT + ERT | Metal in disturbed soil (forensic) |
+| MIT + ERT + Temp | Active decomposition with metal artifacts |
+| ERT + Temp | Burial without metal (environmental) |
+| All + Accel | Geometrically accurate 3D reconstruction |
+
+### Fusion Principles
+
+1. **Each modality provides independent information** - Don't weight redundantly
+2. **Anomaly correlation increases confidence** - Co-located signals more likely real
+3. **Single-modality anomalies require explanation** - Why didn't others detect it?
+4. **Time-series adds dimension** - Dynamic processes reveal themselves
+
+### Joint Inversion
+
+```{python}
+#| label: fig-multimodal-fusion
+#| fig-cap: "Multi-modal sensor fusion architecture. Independent measurements from MIT-3D, ERT-Lite, accelerometer, and temperature sensors flow through preprocessing into joint inversion, producing a unified 3D subsurface model with confidence estimates."
+#| fig-width: 11
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.sensor_modalities import create_multimodal_fusion_diagram
+from PIL import Image
+import matplotlib.pyplot as plt
+
+buf = create_multimodal_fusion_diagram()
+img = Image.open(buf)
+plt.figure(figsize=(11, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+Advanced processing can incorporate multiple modalities simultaneously:
+
+- **Structural coupling:** Require consistent boundaries across modalities
+- **Petrophysical constraints:** Relate electrical properties to physical state
+- **Bayesian frameworks:** Combine probabilities from each measurement type
+
+Software: pyGIMLi supports joint inversion of ERT + seismic + other modalities.
+
+## Integration Considerations
+
+### Electrical
+
+| Concern | Mitigation |
+|---------|------------|
+| Bus bandwidth | Prioritize MIT/ERT; sample auxiliary slower |
+| Power budget | Sleep low-priority sensors between readings |
+| Crosstalk | Temporal separation, shielding |
+| Connector pins | M12 connectors support 8 pins; allocate carefully |
+
+### Mechanical
+
+| Concern | Mitigation |
+|---------|------------|
+| Sensor placement | Avoid interference with primary electrodes |
+| Water ingress | IP67 rating for all sensors |
+| Shock/vibration | MEMS sensors handle insertion loads |
+
+### Data Management
+
+| Concern | Mitigation |
+|---------|------------|
+| File format | Extend CSV format with sensor columns |
+| Synchronization | Timestamp all readings |
+| Calibration tracking | Registry includes cal dates per sensor type |
+
+## Implementation Priority
+
+Based on multi-model consensus:
+
+### Phase 1: Accelerometer + Temperature
+
+**Rationale:** Accelerometer is technically necessary for accurate inversion. Temperature provides high forensic value with minimal complexity.
+
+**Effort:** ~2 weeks integration, ~$10/probe additional cost **(Target)**
+
+### Phase 2: Validate Core Sensors
+
+**Rationale:** Ensure MIT-3D and ERT-Lite meet specifications before expanding modality set.
+
+**Effort:** Per validation protocol in [Build Guide: Validation](../build-guide/validation.qmd)
+
+### Phase 3: Evaluate Moisture/SP
+
+**Rationale:** After Phase 1 sensors validated, evaluate whether moisture or SP add sufficient value to justify complexity.
+
+**Effort:** Research spike, 2-4 weeks
+
+### Deferred: pH, DO, Gas
+
+**Rationale:** Operational constraints too significant for current development phase. Monitor technology advances.
+
+## Summary
+
+| Modality | Status | Priority | Cost Impact |
+|----------|--------|----------|-------------|
+| MIT-3D | Supported | Core | Included |
+| ERT-Lite | Supported | Core | Included |
+| Accelerometer | Recommended | Phase 1 | +$5/probe **(Target)** |
+| Temperature | Recommended | Phase 1 | +$10/probe **(Target)** |
+| Moisture | Future | Phase 3 | +$15/probe **(Target)** |
+| SP | Future | Phase 3 | Minimal (uses ERT) |
+| pH | Future | Deferred | +$30/probe **(Target)** |
+| Gas | Future | Deferred | +$50/probe **(Target)** |
+
+The modular probe architecture enables incremental sensor additions. Start with core channels plus accelerometer/temperature, then expand based on application requirements and validation results.

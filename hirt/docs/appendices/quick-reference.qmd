@@ -1,0 +1,118 @@
+---
+title: "Quick Reference"
+---
+
+## Overview {#sec-quick-reference-overview}
+
+This quick reference card provides essential information for field deployment of the HIRT system. Print this section as a laminated card for use in the field.
+
+## Power-Up Sequence
+
+The HIRT quick setup sequence consists of seven steps:
+
+1. **Connect Trunk Cables** - Attach trunk cables from Zone Hubs to Central Hub
+2. **Connect Probes** - Connect probe cables to Zone Hubs
+3. **Power ON Base Hub** - Turn on the Central Hub power switch
+4. **Wait 15s for Init** - Allow system initialization to complete **(Target)**
+5. **Verify "Ready" LED** - Confirm the Ready LED is solid green
+6. **Run System Diagnostic** - Execute the built-in diagnostic test
+7. **Start Measurement** - Begin data acquisition
+
+::: {.callout-note}
+Total Setup Time: approximately 2-3 minutes **(Target)** (excluding probe installation)
+:::
+
+## Key Parameters
+
+### MIT Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Frequency | 2-50 kHz **(Target)** |
+| TX Current | 10-50 mA **(Target)** |
+| Integration | 1-5 sec **(Target)** |
+
+### ERT Parameters
+
+| Parameter | Value |
+|-----------|-------|
+| Injection | 0.5-2 mA **(Target)** |
+| Ring Positions | 0.5, 1.5, 2.5 m **(Target)** |
+| Polarity Reversal | Every 2 sec **(Target)** |
+
+### Grid Layout
+
+| Parameter | Value |
+|-----------|-------|
+| Spacing | 2 meters **(Target)** |
+| Standard Grid | 5 x 5 (25 probes) |
+| Probe Depth | 2.5-3 m **(Target)** |
+
+## Standard Grid Layout (10x10 m)
+
+```
+Spacing: 2 meters (Target)    Probes: 25 (5x5 grid)    Depth: 2.5-3 m (Target)
+
+      0m    2m    4m    6m    8m
+ 0m   P01   P02   P03   P04   P05
+ 2m   P06   P07   P08   P09   P10
+ 4m   P11   P12   P13   P14   P15
+ 6m   P16   P17   P18   P19   P20
+ 8m   P21   P22   P23   P24   P25
+```
+
+## Status LEDs (Central Hub)
+
+| LED | Solid | Blink | Off |
+|-----|-------|-------|-----|
+| PWR | OK | Low Battery | No Power |
+| TX | Active | Scanning | Idle |
+| LOG | Log Active | SD Error | No Log |
+| ERR | System Fault | Port Warning | OK |
+
+## Cable Color Code
+
+| Wire Color | Function |
+|------------|----------|
+| Red | Power + |
+| Black | Power GND |
+| White | TX+ |
+| Green | TX- |
+| Blue | RX+ |
+| Yellow | RX- |
+| Shield | Ground |
+
+## Probe Connector Pinout
+
+| Pin | Signal | Pin | Signal |
+|-----|--------|-----|--------|
+| 1 | TX+ | 5 | Guard |
+| 2 | TX- | 6 | Ring A |
+| 3 | RX+ | 7 | Ring B |
+| 4 | RX- | 8 | Ring C |
+
+## Soil Type Guidelines
+
+| Soil Type | Insertion Method | ERT Contact |
+|-----------|-----------------|-------------|
+| Sand | Direct push | Add water |
+| Clay | Pre-drill | Good |
+| Rocky | Careful auger | Variable |
+| Wet | Easy | Excellent |
+
+## Pre-Deployment Safety Checklist
+
+::: {.callout-warning}
+## SAFETY CHECK (Complete Before Deployment)
+
+- [ ] Site access authorized
+- [ ] Underground utilities located and marked
+- [ ] First aid kit available on site
+- [ ] Weather conditions checked and acceptable
+- [ ] Contact person informed of work location
+- [ ] Equipment extraction plan ready
+:::
+
+::: {.callout-note}
+For detailed procedures and troubleshooting, see Section 10: Field Operation Manual and Section 13: Troubleshooting Guide.
+:::

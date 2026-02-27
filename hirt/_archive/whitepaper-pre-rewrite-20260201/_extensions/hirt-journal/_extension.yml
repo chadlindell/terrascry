@@ -1,0 +1,22 @@
+title: HIRT Journal Format
+author: HIRT Development Team
+version: 1.0.0
+contributes:
+  formats:
+    pdf:
+      documentclass: article
+      papersize: letter
+      mainfont: "Times New Roman"
+      fontsize: 11pt
+      geometry:
+        - margin=0.75in
+      header-includes: |
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhf{}
+        \fancyhead[L]{\small HIRT Whitepaper}
+        \fancyhead[R]{\small\thepage}
+        \renewcommand{\headrulewidth}{0.4pt}
+      colorlinks: true
+      linkcolor: "1a365d"
+      urlcolor: "3182ce"

@@ -1,0 +1,833 @@
+---
+title: "Assembly and Wiring"
+---
+
+## Overview {#sec-assembly-overview}
+
+This section provides comprehensive step-by-step assembly instructions for the HIRT modular micro-probe system (16 mm **(Target)** diameter). The modular design allows probes to be built by stacking fiberglass rod segments and 3D-printed sensor modules. The assembly process is designed for field conditions with minimal tooling requirements.
+
+::: {.callout-tip}
+## Hardware Documentation Reference
+
+Detailed assembly drawings and wiring diagrams are maintained in the hardware documentation:
+
+- **Assembly Drawings:** `/hardware/drawings/assembly-drawings.md` - Visual assembly guides
+- **Probe Head Drawing:** `/hardware/drawings/probe-head-drawing.md` - Detailed probe head construction
+- **Probe Assembly:** `/hardware/schematics/mechanical/probe-assembly.md` - Step-by-step mechanical assembly
+- **Manufacturing Notes:** `/hardware/cad/docs/manufacturing-notes.md` - 3D printing tips and troubleshooting
+
+These hardware docs contain the most current assembly procedures and are updated as the design evolves.
+:::
+
+## Probe Assembly Overview {#sec-probe-assembly-overview}
+
+The HIRT probe is a modular stack of 3D-printed components connected by M12x1.75 **(Manufacturer spec)** threads. The assembly comprises four main component types: probe tip, male rod caps, sensor bodies, and junction cap. Fiberglass rod segments (50 cm or 100 cm **(Target)**) bridge between sensor bodies to achieve the desired probe depth.
+
+```{python}
+#| label: fig-probe-exploded
+#| fig-cap: "Exploded view of probe assembly showing component stacking order. Components connect via M12x1.75 threads with O-ring seals at each joint. Fiberglass rod segments bridge between sensor bodies. Assembly proceeds from bottom (tip) upward."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_probe_assembly_exploded
+from IPython.display import display, Image
+
+buf = create_probe_assembly_exploded()
+display(Image(data=buf.getvalue()))
+```
+
+::: {#fig-cad-views layout-ncol=2}
+
+![Exploded view from CAD](../assets/images/assembly/probe_exploded.png){#fig-cad-exploded}
+
+![Assembled probe](../assets/images/assembly/probe_assembled.png){#fig-cad-assembled}
+
+3D CAD renders showing the probe in exploded and assembled configurations. Color coding: green = sensor bodies, blue = male rod caps, dark gray = probe tip and junction cap.
+:::
+
+The sensor body is the key component, housing both the MIT coil winding zone and ERT electrode groove. Each sensor body has female M12 sockets on both ends, allowing it to receive male rod caps from adjacent fiberglass segments.
+
+```{python}
+#| label: fig-sensor-detail
+#| fig-cap: "Cross-section of sensor body showing internal features: dual female thread sockets (25 mm depth each **(Target)**), ERT ring groove at 1/4 position, MIT coil winding zone at 3/4 position, and 6 mm center wire channel **(Target)**."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_sensor_body_detail
+from IPython.display import display, Image
+
+buf = create_sensor_body_detail()
+display(Image(data=buf.getvalue()))
+```
+
+## Thread Engagement {#sec-thread-engagement}
+
+Proper thread engagement is critical for both mechanical strength and waterproofing. The M12x1.75 **(Manufacturer spec)** ISO metric threads provide approximately 6 full threads of engagement at the minimum 10 mm depth **(Target)**.
+
+```{python}
+#| label: fig-thread-engagement
+#| fig-cap: "Thread engagement detail showing male rod cap threading into sensor body socket. Minimum engagement of 10 mm **(Target)** (6 threads) required. O-ring seal compresses at thread shoulder."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_thread_engagement_detail
+from IPython.display import display, Image
+
+buf = create_thread_engagement_detail()
+display(Image(data=buf.getvalue()))
+```
+
+![Cross-section view from CAD showing internal thread engagement, wire channel, and component interfaces.](../assets/images/assembly/probe_cross_section.png){#fig-cad-cross-section width=70%}
+
+::: {.callout-important}
+## Thread Assembly Guidelines
+
+- **Hand-tighten only**: Finger-tight plus 1/4 turn maximum **(Target)**
+- **O-ring required**: 10 mm ID x 1.5 mm cross-section **(Manufacturer spec)** at each joint
+- **Thread sealant**: Apply Loctite 567 or equivalent to male threads
+- **Verify engagement**: Minimum 10 mm **(Target)** (6 full threads) before sealing
+:::
+
+## Parts List {#sec-parts-list}
+
+### Printed Parts (PETG/ASA)
+
+| Part | Qty/Probe | Notes |
+|------|-----------|-------|
+| Male Insert Plug | 2 | Threaded male screw end |
+| Sensor Module (Female) | 2-3 | Sensor body with female threads |
+| Probe Tip | 1 | Pointed nose cone |
+| Top Cap | 1 | Cable exit/handle |
+
+: 3D-printed probe components {#tbl-printed-parts}
+
+### Hardware
+
+| Part | Qty/Probe | Notes |
+|------|-----------|-------|
+| Fiberglass Tube | 2-3 sections | 16 mm OD x 12 mm ID **(Manufacturer spec)** |
+| Epoxy | As needed | 2-part structural (Loctite Marine, JB Weld) |
+| O-rings | 4-6 | Size for M12 thread shoulder (10 mm ID x 1.5 mm **(Manufacturer spec)**) |
+| Ferrite Cores | 1-2 | For MIT coils (6-8 mm x 40-80 mm **(Manufacturer spec)**) |
+| Magnet Wire | 10-20 m | 30-34 AWG **(Manufacturer spec)** for coil winding |
+| ERT Ring Material | 2-3 bands | Stainless steel or copper tape |
+| Cable | 3-5 m | Multi-conductor shielded |
+
+: Hardware and consumable materials {#tbl-hardware-parts}
+
+## Tools Required {#sec-tools-required}
+
+| Tool | Purpose |
+|------|---------|
+| Hacksaw or Tube Cutter | Cutting fiberglass tubing |
+| 400-grit Sandpaper | Surface preparation |
+| M12x1.75 Tap | Threading female parts |
+| M12x1.75 Die | Threading male parts |
+| Tap Handle | For tap operation |
+| Mixing Cups | For epoxy |
+| Nitrile Gloves | Epoxy handling |
+| Soldering Iron | Wire connections |
+| Multimeter | Testing continuity |
+| Calipers | Measuring dimensions |
+
+: Essential tools for assembly {#tbl-tools}
+
+::: {.callout-tip}
+## Recommended Additional Tools
+
+- Bench Vise - Holding parts during tapping
+- Thread Cutting Oil - Lubrication for tap/die
+- LCR Meter - Coil testing
+- Heat Gun - Heat shrink tubing
+- Wire Strippers - Cable preparation
+:::
+
+## Wiring Architecture {#sec-wiring-architecture}
+
+The HIRT system uses a hierarchical wiring architecture designed to manage the complexity of connecting 20-50 passive probes. Rather than routing all probe cables directly to the main hub (which would require 600+ conductors **(Modeled)**), the system uses a **Zone Wiring Strategy** that aggregates signals through intermediate junction boxes.
+
+```{python}
+#| label: fig-zone-architecture
+#| fig-cap: "Zone wiring architecture showing probe groupings, zone boxes, and trunk cable routing to the central hub. Each zone aggregates 4 probes through a passive junction box."
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Circle, Rectangle
+import numpy as np
+from io import BytesIO
+from IPython.display import display, Image as IPImage
+
+# Color palette
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'gray_dark': '#4a5568',
+    'gray_med': '#718096',
+    'gray_light': '#a0aec0',
+    'light_blue': '#ebf8ff',
+}
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 6)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Central hub
+ax.add_patch(FancyBboxPatch((0.5, 2), 2.0, 2.0, boxstyle="round,pad=0.05",
+                            facecolor=COLORS['light_blue'], edgecolor=COLORS['secondary'],
+                            linewidth=2))
+ax.text(1.5, 3, 'Central\nHub', ha='center', va='center',
+       fontsize=10, fontweight='bold')
+
+# Trunk cables
+trunk_y = [4.5, 3.0, 1.5]
+for y in trunk_y:
+    ax.plot([2.5, 4.0], [y, y], color=COLORS['gray_dark'], lw=4)
+
+ax.text(3.25, 5.0, 'Trunk Cables\n(DB25)', ha='center', fontsize=8,
+       color=COLORS['gray_dark'])
+
+# Zone hubs
+zone_positions = [(4.0, 4.0), (4.0, 2.5), (4.0, 1.0)]
+for i, (x, y) in enumerate(zone_positions):
+    ax.add_patch(FancyBboxPatch((x, y), 1.5, 1.0, boxstyle="round,pad=0.03",
+                                facecolor='white', edgecolor=COLORS['gray_dark'],
+                                linewidth=1.5))
+    ax.text(x + 0.75, y + 0.5, f'Zone {i+1}\nHub', ha='center', va='center',
+           fontsize=8)
+
+# Probe cables from each zone
+for zi, (zx, zy) in enumerate(zone_positions):
+    for pi in range(4):
+        px = 7.0 + (pi % 2) * 1.5
+        py = zy + 0.2 + (pi // 2) * 0.4
+        ax.plot([zx + 1.5, px], [zy + 0.5, py], color=COLORS['gray_light'], lw=1)
+        ax.add_patch(Circle((px, py), 0.2, facecolor=COLORS['secondary'],
+                           edgecolor='black', lw=0.5))
+
+ax.text(7.75, 5.5, 'Probes\n(4 per zone)', ha='center', fontsize=8)
+
+# Annotations
+ax.annotate('High-density\nmultiplexing', xy=(1.5, 2), xytext=(0.5, 0.5),
+           fontsize=7, ha='center',
+           arrowprops=dict(arrowstyle='->', color=COLORS['accent']))
+
+ax.annotate('Passive\njunction', xy=(4.75, 4.5), xytext=(4.75, 5.5),
+           fontsize=7, ha='center',
+           arrowprops=dict(arrowstyle='->', color=COLORS['gray_dark']))
+
+# Title
+ax.text(5, 0.2, 'Zone Wiring Architecture', ha='center',
+       fontsize=11, fontweight='bold', color=COLORS['primary'])
+
+plt.tight_layout()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
+```
+
+### System Topology
+
+The zone architecture divides the probe array into manageable groups of 4 probes each. Each group connects to a Zone Box (small passive hub) via individual probe cables. The Zone Box then connects to the Main Hub via a single high-density Trunk Cable. This reduces the number of cables entering the main enclosure from 20+ to just 5-6 trunk cables.
+
+- **Zone Box:** Small IP65 enclosure (100x100 mm **(Target)**) with 4 cable glands for probes and 1 DB25 connector for trunk output
+- **Trunk Cable:** High-quality shielded 25-conductor cable, 10-20 meters **(Target)**, carrying signals for 4 probes
+- **Advantages:** Modular expansion, clean installation, field-ready deployment
+
+### Wiring Harness Layout
+
+```{python}
+#| label: fig-wiring-harness
+#| fig-cap: "Wiring harness architecture from probe sensors through junction box and zone box to the main hub. The multi-conductor shielded cable (2-4 mm diameter **(Target)**) carries all sensor signals."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 6)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Title
+ax.text(5, 5.7, 'Wiring Harness Architecture', fontsize=12,
+        fontweight='bold', ha='center', color=COLORS['primary'])
+
+# Probe (Left Side)
+ax.add_patch(Rectangle((0.5, 1.0), 0.4, 3.5,
+                       facecolor=COLORS['secondary'], edgecolor='black', lw=1.5))
+ax.text(0.7, 4.7, 'Probe', ha='center', fontsize=9, fontweight='bold')
+
+# Sensor positions on probe
+sensor_info = [
+    (4.0, 'TX Coil', COLORS['success']),
+    (3.2, 'ERT Ring 1', '#ed8936'),
+    (2.4, 'RX Coil', COLORS['accent']),
+    (1.6, 'ERT Ring 2', '#ed8936'),
+]
+
+for y, label, color in sensor_info:
+    ax.add_patch(Rectangle((0.45, y - 0.1), 0.5, 0.2,
+                           facecolor=color, edgecolor='black', lw=0.5))
+
+# Junction Box
+ax.add_patch(FancyBboxPatch((1.2, 3.0), 1.5, 1.5, boxstyle="round,pad=0.05",
+                            facecolor=COLORS['gray_dark'], edgecolor='black', lw=1.5))
+ax.text(1.95, 4.3, 'Junction\nBox', ha='center', fontsize=8, color='white')
+
+# Internal connections from probe to junction box
+for y, label, color in sensor_info:
+    ax.plot([0.9, 1.2], [y, 3.75], color=color, lw=1.5, alpha=0.7)
+
+# Multi-conductor Cable
+cable_x = np.linspace(2.7, 5.5, 50)
+cable_y = 3.75 + 0.3 * np.sin(np.linspace(0, 2*np.pi, 50))
+ax.plot(cable_x, cable_y, color=COLORS['gray_dark'], lw=6, solid_capstyle='round')
+ax.plot(cable_x, cable_y, color=COLORS['gray_light'], lw=4, solid_capstyle='round')
+
+ax.text(4.1, 4.4, 'Multi-conductor\nShielded Cable', ha='center', fontsize=8)
+ax.annotate('2-4 mm dia', xy=(4.1, 3.4), fontsize=7, ha='center', color=COLORS['gray_dark'])
+
+# Zone Box (Right Side)
+ax.add_patch(FancyBboxPatch((5.8, 2.5), 1.8, 2.0, boxstyle="round,pad=0.05",
+                            facecolor='white', edgecolor=COLORS['gray_dark'], lw=1.5))
+ax.text(6.7, 4.3, 'Zone Box', ha='center', fontsize=9, fontweight='bold')
+
+# Cable glands on Zone Box
+for i in range(4):
+    gy = 2.8 + i * 0.4
+    ax.add_patch(Circle((5.8, gy), 0.12, facecolor=COLORS['gray_med'],
+                       edgecolor='black', lw=0.5))
+ax.text(5.3, 3.3, 'Cable\nGlands', ha='center', fontsize=6, va='center')
+
+# Terminal strip inside Zone Box
+ax.add_patch(Rectangle((6.2, 2.8), 0.8, 1.4, facecolor='#ebf8ff',
+                       edgecolor=COLORS['accent'], lw=1))
+ax.text(6.6, 3.5, 'Terminal\nStrip', ha='center', fontsize=6, va='center')
+
+# Trunk Cable to Hub
+ax.plot([7.6, 9.0], [3.5, 3.5], color=COLORS['gray_dark'], lw=8, solid_capstyle='round')
+ax.plot([7.6, 9.0], [3.5, 3.5], color=COLORS['gray_light'], lw=5, solid_capstyle='round')
+ax.text(8.3, 3.9, 'Trunk Cable\n(to Main Hub)', ha='center', fontsize=8)
+
+# DB25 connector
+ax.add_patch(FancyBboxPatch((7.2, 3.2), 0.6, 0.6, boxstyle="round,pad=0.02",
+                            facecolor=COLORS['gray_med'], edgecolor='black', lw=1))
+ax.text(7.5, 3.5, 'DB25', ha='center', fontsize=6, color='white', fontweight='bold')
+
+# Legend
+legend_y = 0.5
+legend_items = [
+    ('TX Signal', COLORS['success']),
+    ('RX Signal', COLORS['accent']),
+    ('ERT Electrodes', '#ed8936'),
+    ('Shield/Ground', COLORS['gray_light']),
+]
+
+for i, (label, color) in enumerate(legend_items):
+    lx = 1.5 + i * 2.3
+    ax.add_patch(Rectangle((lx, legend_y), 0.3, 0.2, facecolor=color, edgecolor='black', lw=0.5))
+    ax.text(lx + 0.4, legend_y + 0.1, label, fontsize=7, va='center')
+
+plt.tight_layout()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
+```
+
+### Connector Pinout Reference
+
+The system uses 12-pin Phoenix Contact connectors (part number 1757248) or equivalent for probe-side connections. The pinout is standardized across all probes to ensure interchangeability and simplify field maintenance.
+
+```{python}
+#| label: fig-connector-pinout
+#| fig-cap: "12-pin Phoenix connector pinout showing signal assignments and recommended wire colors. Pins 1-4 carry MIT coil differential pairs, pins 6-8 carry ERT electrode signals."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
+
+fig, ax = plt.subplots(figsize=(9, 6))
+ax.set_xlim(0, 9)
+ax.set_ylim(0, 6)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Title
+ax.text(4.5, 5.7, '12-Pin Phoenix Connector Pinout (1757248)', fontsize=12,
+        fontweight='bold', ha='center', color=COLORS['primary'])
+
+# Connector Body
+conn_x, conn_y = 2.0, 2.0
+conn_w, conn_h = 3.5, 2.5
+
+# Outer housing
+ax.add_patch(FancyBboxPatch((conn_x, conn_y), conn_w, conn_h,
+                            boxstyle="round,pad=0.1",
+                            facecolor=COLORS['gray_dark'], edgecolor='black', lw=2))
+
+# Inner cavity
+ax.add_patch(FancyBboxPatch((conn_x + 0.2, conn_y + 0.2), conn_w - 0.4, conn_h - 0.4,
+                            boxstyle="round,pad=0.05",
+                            facecolor=COLORS['gray_med'], edgecolor='black', lw=1))
+
+# Pin arrangement (2 rows of 6)
+pin_colors = {
+    1: ('red', 'TX+'),
+    2: ('black', 'TX-'),
+    3: ('white', 'RX+'),
+    4: ('green', 'RX-'),
+    5: ('yellow', 'Guard'),
+    6: ('blue', 'Ring A'),
+    7: ('orange', 'Ring B'),
+    8: ('#8B4513', 'Ring C'),
+    9: ('purple', 'ID Sense'),
+    10: ('gray', 'Spare+'),
+    11: ('pink', 'Spare-'),
+    12: (COLORS['gray_light'], 'Shield'),
+}
+
+pin_radius = 0.15
+for pin in range(1, 13):
+    row = (pin - 1) // 6
+    col = (pin - 1) % 6
+    px = conn_x + 0.5 + col * 0.5
+    py = conn_y + conn_h - 0.7 - row * 0.6
+
+    color, _ = pin_colors[pin]
+    ax.add_patch(Circle((px, py), pin_radius, facecolor=color,
+                       edgecolor='black', lw=1))
+
+    # Pin number
+    text_color = 'white' if color in ['black', 'purple', 'blue', '#8B4513'] else 'black'
+    ax.text(px, py, str(pin), ha='center', va='center', fontsize=6,
+            fontweight='bold', color=text_color)
+
+# Row labels
+ax.text(conn_x + 0.15, conn_y + conn_h - 0.7, '1-6', fontsize=6,
+        va='center', color='white')
+ax.text(conn_x + 0.15, conn_y + conn_h - 1.3, '7-12', fontsize=6,
+        va='center', color='white')
+
+# Pinout Table
+table_x = 6.0
+table_y = 4.8
+row_height = 0.35
+
+ax.text(table_x + 1.2, table_y + 0.3, 'Signal Assignment', fontsize=10,
+        fontweight='bold', ha='center', color=COLORS['primary'])
+
+# Table header
+ax.add_patch(Rectangle((table_x, table_y - row_height), 2.4, row_height,
+                       facecolor=COLORS['primary'], edgecolor='black', lw=0.5))
+ax.text(table_x + 0.25, table_y - row_height/2, 'Pin', fontsize=7,
+        color='white', va='center', fontweight='bold')
+ax.text(table_x + 0.8, table_y - row_height/2, 'Signal', fontsize=7,
+        color='white', va='center', fontweight='bold')
+ax.text(table_x + 1.7, table_y - row_height/2, 'Color', fontsize=7,
+        color='white', va='center', fontweight='bold')
+
+# Table rows
+for i, (pin, (color, signal)) in enumerate(pin_colors.items()):
+    row_y = table_y - (i + 2) * row_height
+    bg_color = '#ebf8ff' if i % 2 == 0 else 'white'
+
+    ax.add_patch(Rectangle((table_x, row_y), 2.4, row_height,
+                           facecolor=bg_color, edgecolor=COLORS['gray_light'], lw=0.5))
+
+    ax.text(table_x + 0.25, row_y + row_height/2, str(pin), fontsize=6, va='center')
+    ax.text(table_x + 0.8, row_y + row_height/2, signal, fontsize=6, va='center')
+
+    # Color swatch
+    ax.add_patch(Rectangle((table_x + 1.55, row_y + 0.08), 0.25, row_height - 0.16,
+                           facecolor=color, edgecolor='black', lw=0.5))
+
+# Notes
+ax.text(0.3, 0.8, 'Notes:', fontsize=8, fontweight='bold', color=COLORS['primary'])
+notes = [
+    '- Pins 1-4: MIT coil differential pairs',
+    '- Pins 5: Guard/reference electrode',
+    '- Pins 6-8: ERT ring electrodes',
+    '- Pin 9: Probe ID sense (optional)',
+    '- Pins 10-11: Reserved for future use',
+    '- Pin 12: Cable shield (drain wire)',
+]
+for i, note in enumerate(notes):
+    ax.text(0.3, 0.5 - i * 0.25, note, fontsize=7, color=COLORS['gray_dark'])
+
+plt.tight_layout()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
+```
+
+## Assembly Procedures {#sec-assembly-procedures}
+
+### Preparation Steps
+
+1. **Inspect All Parts:** Verify all printed parts are present and undamaged, no visible layer separation or cracks
+2. **Prepare Workspace:** Clean, well-lit, well-ventilated area with protected work surface
+3. **Test-Fit Parts (Dry Run):** Test thread engagement on all threaded parts, verify tube sections fit inserts, check O-ring sizing
+
+### Rod Segment Preparation
+
+Cut fiberglass tubing to desired lengths (50 cm or 100 cm **(Target)** segments are standard). Use steady, even strokes with the hacksaw and rotate the tube to keep the cut square. After cutting, deburr the ends by removing fiberglass fibers with a file and sanding smooth with 400-grit **(Manufacturer spec)** sandpaper.
+
+::: {.callout-note}
+## Rod Assembly Convention
+
+- Rods have Male threads at bottom, Female at top
+- Apply epoxy to flange of insert before installation
+- Ensure shoulder sits flush against tube cut
+- Allow 24 hours cure time before stressing threads
+:::
+
+### Field Assembly Sequence
+
+Assembly proceeds from the bottom (tip) and works upward. Each joint uses thread sealant and an O-ring for waterproofing. The cable is threaded through each segment before connecting.
+
+```{python}
+#| label: fig-field-assembly-sequence
+#| fig-cap: "Six-step assembly sequence: (1) Prepare probe tip, (2) Thread cable through first segment, (3) Add sensor module, (4) Seat O-ring on thread shoulder, (5) Stack additional segments, (6) Install top cap with cable strain relief."
+#| code-fold: true
+
+from matplotlib.patches import Polygon
+from io import BytesIO
+from IPython.display import display, Image as IPImage
+
+fig, axes = plt.subplots(2, 3, figsize=(11, 7))
+
+steps = [
+    ('1. Prepare Tip', 'tip'),
+    ('2. First Segment', 'segment1'),
+    ('3. Add Sensor Module', 'sensor'),
+    ('4. Thread O-Ring', 'oring'),
+    ('5. Stack Segments', 'stack'),
+    ('6. Install Top Cap', 'cap'),
+]
+
+for ax, (title, step) in zip(axes.flat, steps):
+    ax.set_xlim(-2, 2)
+    ax.set_ylim(-0.5, 4)
+    ax.set_aspect('equal')
+    ax.set_title(title, fontsize=10, fontweight='bold', color=COLORS['primary'], pad=8)
+    ax.axis('off')
+
+    if step == 'tip':
+        # Probe tip
+        tip_points = [(-0.15, 0), (0.15, 0), (0.15, 0.8), (0, 1.2), (-0.15, 0.8)]
+        ax.add_patch(Polygon(tip_points, facecolor=COLORS['secondary'],
+                            edgecolor='black', lw=1.5))
+        ax.text(0, 0.5, 'Tip', ha='center', fontsize=8, color='white')
+        ax.annotate('M12 Female\nThreads', xy=(0.15, 0.6), xytext=(1.0, 0.8),
+                   fontsize=7, arrowprops=dict(arrowstyle='->', color=COLORS['gray_dark']))
+        ax.text(0, 3.5, 'Check:', fontsize=8, fontweight='bold', ha='center')
+        ax.text(0, 3.1, '- No damage', fontsize=7, ha='center')
+        ax.text(0, 2.7, '- Thread clean', fontsize=7, ha='center')
+
+    elif step == 'segment1':
+        ax.add_patch(Rectangle((-0.15, 0.5), 0.3, 2.5,
+                              facecolor=COLORS['secondary'], edgecolor='black', lw=1.5))
+        ax.text(0, 1.75, 'Rod', ha='center', fontsize=8, color='white', rotation=90)
+        ax.add_patch(Rectangle((-0.1, 0.2), 0.2, 0.3,
+                              facecolor=COLORS['gray_med'], edgecolor='black', lw=1))
+        ax.annotate('Male\nInsert', xy=(0.1, 0.35), xytext=(1.0, 0.5),
+                   fontsize=7, arrowprops=dict(arrowstyle='->', color=COLORS['gray_dark']))
+        ax.plot([0, 0], [0.5, 3.0], color='#ed8936', lw=2, linestyle='--')
+        ax.annotate('Thread\ncable', xy=(0, 2.5), xytext=(1.0, 2.5),
+                   fontsize=7, arrowprops=dict(arrowstyle='->', color='#ed8936'))
+
+    elif step == 'sensor':
+        ax.add_patch(Rectangle((-0.25, 1.2), 0.5, 1.0,
+                              facecolor=COLORS['success'], edgecolor='black', lw=1.5))
+        ax.text(0, 1.7, 'Sensor\nModule', ha='center', fontsize=7, color='white')
+        ax.add_patch(Rectangle((-0.15, 1.4), 0.3, 0.4,
+                              facecolor='#c6f6d5', edgecolor='black', lw=0.5))
+        ax.add_patch(Rectangle((-0.1, 1.0), 0.2, 0.2,
+                              facecolor=COLORS['gray_med'], edgecolor='black', lw=0.5))
+        ax.add_patch(Rectangle((-0.1, 2.2), 0.2, 0.2,
+                              facecolor=COLORS['gray_med'], edgecolor='black', lw=0.5))
+        ax.annotate('Female (top)', xy=(0.1, 2.3), xytext=(0.8, 2.6),
+                   fontsize=6, arrowprops=dict(arrowstyle='->', color=COLORS['gray_dark']))
+        ax.annotate('Male (bottom)', xy=(0.1, 1.1), xytext=(0.8, 0.8),
+                   fontsize=6, arrowprops=dict(arrowstyle='->', color=COLORS['gray_dark']))
+
+    elif step == 'oring':
+        ax.add_patch(Rectangle((-0.2, 1.0), 0.4, 1.5,
+                              facecolor=COLORS['secondary'], edgecolor='black', lw=1.5))
+        for i in range(6):
+            ty = 1.2 + i * 0.2
+            ax.plot([-0.2, 0.2], [ty, ty], color=COLORS['gray_med'], lw=0.5)
+        ax.add_patch(Circle((0, 2.6), 0.1, facecolor='black', edgecolor='black'))
+        ax.add_patch(Circle((0, 2.6), 0.06, facecolor=COLORS['gray_dark']))
+        ax.annotate('O-Ring\n(10mm ID x 1.5mm)', xy=(0.1, 2.6), xytext=(0.8, 3.0),
+                   fontsize=7, arrowprops=dict(arrowstyle='->', color='black'))
+        ax.text(0, 0.5, 'Seat O-ring on\nthread shoulder', ha='center', fontsize=7)
+
+    elif step == 'stack':
+        segment_colors = [COLORS['secondary'], COLORS['success'], COLORS['secondary']]
+        segment_labels = ['Segment', 'Sensor', 'Segment']
+        y_pos = 0.3
+        for i, (color, label) in enumerate(zip(segment_colors, segment_labels)):
+            height = 0.8 if label == 'Sensor' else 1.0
+            ax.add_patch(Rectangle((-0.15, y_pos), 0.3, height,
+                                   facecolor=color, edgecolor='black', lw=1))
+            y_pos += height
+        ax.annotate('', xy=(-0.4, 1.3), xytext=(-0.4, 1.5),
+                   arrowprops=dict(arrowstyle='<->', color=COLORS['warning']))
+        ax.text(-0.6, 1.4, 'Joint', fontsize=6, va='center', ha='right',
+                color=COLORS['warning'])
+        ax.text(0, 3.5, 'Repeat for\ndesired depth', ha='center', fontsize=8)
+
+    elif step == 'cap':
+        ax.add_patch(Rectangle((-0.15, 0.3), 0.3, 2.5,
+                              facecolor=COLORS['secondary'], edgecolor='black', lw=1))
+        ax.add_patch(FancyBboxPatch((-0.25, 2.8), 0.5, 0.5, boxstyle="round,pad=0.02",
+                                    facecolor=COLORS['gray_dark'], edgecolor='black', lw=1.5))
+        ax.text(0, 3.05, 'Cap', ha='center', fontsize=7, color='white')
+        ax.plot([0, 0.8], [3.3, 3.5], color='#ed8936', lw=2)
+        ax.annotate('Cable exit\nwith strain relief', xy=(0.5, 3.4), xytext=(1.0, 3.6),
+                   fontsize=6, arrowprops=dict(arrowstyle='->', color='#ed8936'))
+        ax.add_patch(FancyBboxPatch((-1.5, 0.3), 1.0, 0.6, boxstyle="round,pad=0.02",
+                                    facecolor='#c6f6d5', edgecolor=COLORS['success']))
+        ax.text(-1.0, 0.6, 'Test all\nconnections', ha='center', fontsize=6)
+
+plt.tight_layout()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
+```
+
+## Base Hub Assembly {#sec-base-hub-assembly}
+
+The base hub houses all electronics in a weatherproof enclosure. The internal layout follows a stacked architecture for easy assembly and maintenance. The backplane PCB (160x120 mm **(Target)**) contains all signal processing circuits organized into functional zones.
+
+```{python}
+#| label: fig-base-hub-stack
+#| fig-cap: "Base hub internal stack layout showing the layered architecture from power shelf at bottom to weatherproof cover at top. The backplane PCB contains all analog and digital circuits."
+#| code-fold: true
+
+from io import BytesIO
+from IPython.display import display, Image as IPImage
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 6)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Title
+ax.text(5, 5.7, 'Base Hub Internal Stack', fontsize=12,
+        fontweight='bold', ha='center', color=COLORS['primary'])
+
+# Enclosure Outline
+ax.add_patch(FancyBboxPatch((1.0, 0.5), 5.0, 4.8, boxstyle="round,pad=0.1",
+                            facecolor='white', edgecolor=COLORS['gray_dark'], lw=2))
+ax.text(3.5, 5.15, 'Weatherproof Enclosure (Bud NBF-32016)',
+        ha='center', fontsize=8, color=COLORS['gray_dark'])
+
+# Stack layers (bottom to top)
+stack_layers = [
+    (0.7, 0.8, 'Power Shelf', '#feebc8', 'LiFePO4 Battery, Fuse Block'),
+    (1.6, 0.6, 'Harness Strain Relief', COLORS['gray_light'], 'Internal ribbon cables'),
+    (2.3, 1.2, 'Backplane PCB (160x120 mm)', '#c6f6d5', 'DDS, TX/RX, ERT, MCU'),
+    (3.6, 0.7, 'Front Panel', '#ebf8ff', 'DB25 Trunk Ports'),
+    (4.4, 0.6, 'Top Cover', COLORS['gray_light'], 'Weatherproof seal'),
+]
+
+for y, h, name, color, desc in stack_layers:
+    ax.add_patch(Rectangle((1.2, y), 4.6, h,
+                           facecolor=color, edgecolor='black', lw=1))
+    ax.text(3.5, y + h/2, name, ha='center', va='center',
+            fontsize=9, fontweight='bold')
+    ax.text(6.0, y + h/2, desc, va='center', fontsize=7, color=COLORS['gray_dark'])
+
+# Backplane Detail (Right Side)
+detail_x = 7.0
+ax.add_patch(FancyBboxPatch((detail_x, 0.8), 2.8, 4.2, boxstyle="round,pad=0.05",
+                            facecolor='white', edgecolor=COLORS['gray_med'], lw=1,
+                            linestyle='--'))
+ax.text(detail_x + 1.4, 4.85, 'Backplane Zones', ha='center', fontsize=9,
+        fontweight='bold', color=COLORS['primary'])
+
+backplane_zones = [
+    ('DDS/TX Driver', '#c6f6d5', 'AD9833, OPA454'),
+    ('RX Front End', '#c6f6d5', 'AD620, INA128'),
+    ('ERT Source', '#feebc8', 'OPA177, REF5025'),
+    ('Lock-In/ADC', '#e9d8fd', 'ADS1256'),
+    ('Control/Sync', '#e9d8fd', 'ESP32, USB-UART'),
+    ('Power', '#feebc8', 'DC-DC, LDO'),
+]
+
+zone_y = 4.4
+for name, color, parts in backplane_zones:
+    zone_y -= 0.55
+    ax.add_patch(Rectangle((detail_x + 0.1, zone_y), 2.6, 0.45,
+                           facecolor=color, edgecolor=COLORS['gray_med'], lw=0.5))
+    ax.text(detail_x + 0.2, zone_y + 0.22, name, fontsize=7, va='center', fontweight='bold')
+    ax.text(detail_x + 2.6, zone_y + 0.22, parts, fontsize=6, va='center',
+            ha='right', color=COLORS['gray_dark'])
+
+# Front Panel Detail
+ax.annotate('6x DB25 Female\n(24 probes max)', xy=(1.2, 3.95), xytext=(0.2, 4.5),
+            fontsize=7, arrowprops=dict(arrowstyle='->', color=COLORS['accent']))
+
+# Connector symbols on front panel layer
+for i in range(6):
+    cx = 1.5 + i * 0.7
+    ax.add_patch(Rectangle((cx, 3.7), 0.4, 0.25,
+                           facecolor=COLORS['gray_med'], edgecolor='black', lw=0.5))
+
+plt.tight_layout()
+buf = BytesIO()
+fig.savefig(buf, format='png', dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
+buf.seek(0)
+plt.close(fig)
+display(IPImage(data=buf.getvalue()))
+```
+
+### Backplane Functional Zones
+
+| Zone | Function | Key Parts |
+|------|----------|-----------|
+| DDS/TX Driver | Sweep generation | AD9833, OPA454 |
+| RX Front End | Signal conditioning | AD620, INA128 |
+| ERT Source | Current injection | OPA177, REF5025 |
+| Lock-In/ADC | Digitization | ADS1256 |
+| Control/Sync | Scheduling, logging | ESP32, USB-UART |
+| Power | Regulation | DC-DC, LDO |
+
+: Backplane PCB functional zones {#tbl-backplane-zones}
+
+## Quality Checks {#sec-quality-checks}
+
+### During Assembly
+
+- O-ring properly seated at each joint
+- No gaps between components
+- Threads fully engaged (hand tight + 1/4 turn)
+- Cable has slack (not stretched at any joint)
+- Joints are flush (smooth to touch)
+
+### After Complete Assembly
+
+**Mechanical Checks:**
+
+- Total length correct for intended depth
+- All joints tight with no visible gaps
+- Probe straight (no bends from misaligned joints)
+- Cable secure at strain relief
+
+**Electrical Checks:**
+
+- All coil leads continuous (no opens) - verify with multimeter
+- Coil inductance in spec (1-2 mH **(Target)**) - verify with LCR meter
+- ERT ring isolation >1 M-ohm **(Target)** between all ring pairs
+- No shorts between any conductors
+- Shield continuity verified end-to-end
+
+## Troubleshooting {#sec-assembly-troubleshooting}
+
+### Thread Issues
+
+| Problem | Solution | Prevention |
+|---------|----------|------------|
+| Threads too tight | Chase threads with tap/die | Print at correct tolerance, post-process |
+| Threads too loose | Apply thread sealant (Teflon tape) | Check print settings, use proper tolerances |
+| Threads stripped | Replace part | Hand-tight + 1/4 turn max, no over-tightening |
+
+: Thread issue troubleshooting guide {#tbl-thread-issues}
+
+### Electrical Issues
+
+| Problem | Solution | Check |
+|---------|----------|-------|
+| Open circuit in coil | Check for broken wire, resolder | Wire may be damaged during assembly |
+| Short between rings | Check for bridging, clean thoroughly | Conductive debris in gaps |
+| Low coil Q factor | Rewrap coil more neatly | Shorted turns from damaged insulation |
+
+: Electrical issue troubleshooting guide {#tbl-electrical-issues}
+
+## Assembly Tips {#sec-assembly-tips}
+
+::: {.callout-tip}
+## General Assembly Tips
+
+- Work clean - Fiberglass dust and epoxy do not mix well
+- Test often - Verify continuity at each stage
+- Do not rush - Allow full cure time for epoxy (24 hours)
+- Label everything - Mark probe ID on each segment
+- Document - Record any deviations or issues
+:::
+
+::: {.callout-tip}
+## Epoxy Tips
+
+- Mix thoroughly (2+ minutes of stirring **(Manufacturer spec)**)
+- Apply thin coats - too much is messy and adds weight
+- Work in well-ventilated area
+- Clean up drips immediately with IPA
+- Allow full cure before stressing joints
+:::
+
+::: {.callout-tip}
+## Thread Tips
+
+- Use cutting oil with tap/die
+- Back out tap every half-turn to clear chips
+- If stuck, back out and clear - do not force
+- Test fit with mating part before committing
+- Apply light lubricant before final assembly
+:::
+
+## Deployment Configuration {#sec-deployment-config}
+
+A typical HIRT survey uses 4-20 probes arranged in a grid pattern. The probe spacing depends on the target depth and desired resolution. For most archaeological and forensic applications, 0.5-1.0 meter spacing **(Target)** provides adequate coverage.
+
+```{python}
+#| label: fig-deployment-scene
+#| fig-cap: "Top view of typical deployment configuration showing 4 probes in a 1-meter grid with cables running to the central hub. Probe spacing is adjustable based on survey requirements."
+#| code-fold: true
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.assembly_3d import create_deployment_scene
+from IPython.display import display, Image
+
+buf = create_deployment_scene()
+display(Image(data=buf.getvalue()))
+```
+
+![3D CAD render of deployment array showing 4 probes inserted into ground with cables running to central hub. Junction caps are visible at ground surface.](../assets/images/assembly/deployment_array.png){#fig-cad-deployment width=80%}
+
+Each probe connects to the central hub via a multi-conductor shielded cable. The zone wiring architecture groups probes into zones of 4, reducing cable management complexity at the hub.
+
+## Post-Assembly {#sec-post-assembly}
+
+After complete assembly, proceed to the following sections for system verification:
+
+1. Complete Testing Procedures (@sec-testing-overview)
+2. Complete Calibration Procedures (@sec-calibration-overview)
+3. Label and register probe in system database
+4. Store properly in protective case until deployment
+
+::: {.callout-warning}
+## Important Reminders
+
+- Allow epoxy to fully cure (24 hours **(Manufacturer spec)**) before field deployment
+- Verify all electrical connections before sealing junction boxes
+- Document probe configuration (sensor positions, coil specs) for each unit
+- Store probes vertically to prevent cable stress at joints
+:::

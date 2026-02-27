@@ -1,0 +1,155 @@
+---
+title: "Data Acquisition"
+---
+
+## Overview {#sec-data-acquisition-overview}
+
+This section covers practical data acquisition procedures for HIRT field measurements. For detailed data format specifications and software compatibility, see the [Data Formats](../developer/data-formats.qmd) section in the Developer Guide.
+
+## The Measurement Matrix Concept
+
+HIRT data acquisition is based on a **transmit-receive (TX-RX) matrix**. For an array of N probes:
+
+- Each probe takes turns acting as the **transmitter** (TX)
+- While transmitting, **all other probes** simultaneously act as receivers (RX)
+- This produces N × (N-1) unique TX-RX measurements per frequency (MIT) or injection pattern (ERT)
+
+For a typical 16-probe array **(Target)**, this yields 240 unique measurements per acquisition cycle—each sampling a different geometric path through the subsurface.
+
+## Probe Coordinate System
+
+Each probe is positioned in 3D space and contains sensors at multiple depths:
+
+| Coordinate | Description | Typical Values |
+|------------|-------------|----------------|
+| X | Horizontal position (grid column) | 0 to 10 m **(Target)** |
+| Y | Horizontal position (grid row) | 0 to 10 m **(Target)** |
+| Z | Vertical depth below surface | 0 to -3 m **(Target)** (negative = below ground) |
+
+: Probe coordinate system {#tbl-probe-coordinates}
+
+Within each probe, multiple sensor rings are spaced along the shaft (e.g., at 0.5 m intervals **(Target)**). A 3 m probe **(Target)** with 0.5 m ring spacing **(Target)** contains **6 electrode rings**, each at a known depth. The complete array therefore samples a 3D volume defined by the probe positions (X, Y) and sensor depths (Z).
+
+## Sequential Acquisition Process
+
+The HIRT controller automates the measurement sequence, cycling through all TX-RX combinations. For MIT measurements, the cycle repeats at each measurement frequency. For ERT, different injection patterns are used.
+
+**Typical acquisition sequence:**
+
+1. **Select TX probe** and configure transmitter
+2. **Activate TX** at specified frequency (MIT) or current (ERT)
+3. **Sample all RX probes** simultaneously
+4. **Record measurements** to data file
+5. **Advance to next TX** and repeat
+
+For a 16-probe array **(Target)** at 5 frequencies **(Target)**, this produces approximately 1,200 MIT measurements per acquisition cycle.
+
+## Building 3D Sensitivity Coverage
+
+Each TX-RX measurement samples a specific region of the subsurface. The **sensitivity volume** for a measurement is the region where changes in conductivity/resistivity would affect the measured signal.
+
+The overlapping sensitivity regions from all TX-RX combinations build complete volumetric coverage. This is the foundation of tomographic reconstruction.
+
+## How a Buried Object Appears in the Data
+
+When a conductive object (such as buried metal) is present in the subsurface, it perturbs the electromagnetic field between TX-RX probe pairs. The strength of this perturbation depends on whether the object lies within the sensitivity region of each measurement. By examining which TX-RX pairs show anomalous readings, the inversion algorithm localizes the object in 3D space.
+
+The pattern of "high" and "low" responses in the measurement matrix reveals:
+
+1. **Which TX-RX pairs detected the anomaly** (elevated responses)
+2. **The approximate target location** (intersection of sensitivity ellipses)
+3. **Target characteristics** (metal shows MIT response, disturbed fill shows ERT response)
+
+## Recording Workflow
+
+The HIRT data recording workflow follows a systematic process from site preparation through data backup:
+
+1. **Site preparation** - Grid layout, obstacle assessment
+2. **Probe deployment** - Insert probes to target depth
+3. **System initialization** - Power-up, cable connections, self-test
+4. **Record metadata** - Site info, probe positions, conditions
+5. **Start logging** - Begin automated measurement cycle
+6. **Measurement loop** - MIT and ERT for each probe pair
+7. **Quality check** - Reciprocity validation, noise assessment
+8. **Field notes** - Document conditions and observations
+9. **Export data** - CSV files and paper log backup
+10. **Backup storage** - Multiple copies before leaving site
+
+## Survey Geometry Documentation
+
+The survey geometry file links probe identifiers to their actual field positions, enabling accurate tomographic reconstruction even when probes deviate from ideal grid locations.
+
+**Filename convention:** `survey_geometry_{YYYY-MM-DD}.csv`
+
+| Field | Description | Units |
+|-------|-------------|-------|
+| probe_id | Probe identifier (matches registry) | String |
+| x_m | X position from grid origin | meters |
+| y_m | Y position from grid origin | meters |
+| z_surface_m | Ground surface elevation (relative) | meters |
+| z_tip_m | Probe tip depth below surface | meters (negative) |
+| status | Deployment status | ACTIVE / PARTIAL / SKIPPED |
+| notes | Field observations | Free text |
+
+: Survey geometry file fields {#tbl-survey-geometry}
+
+### Status Codes
+
+| Status | Meaning | Inversion Handling |
+|--------|---------|-------------------|
+| ACTIVE | Full insertion achieved | All sensors included |
+| PARTIAL | Reduced depth due to obstruction | Exclude sensors below z_tip |
+| SKIPPED | Position not deployed | Omit from geometry |
+
+: Probe status codes and their interpretation {#tbl-status-codes}
+
+::: {.callout-note}
+## Recording Best Practice
+
+Complete the survey geometry file **before** leaving the field site. Position measurements are difficult to reconstruct after extraction. Take photographs of the deployed array with visible probe markers as backup documentation.
+:::
+
+## Coordinate System Convention
+
+For consistency across surveys, adopt a standard local coordinate system:
+
+- **Origin (0, 0, 0):** First probe position or marked survey stake
+- **X-axis:** Primary baseline direction (typically longest dimension)
+- **Y-axis:** Perpendicular to X, following right-hand rule
+- **Z-axis:** Positive upward; surface elevations positive, tip depths negative
+- **Units:** Always meters with two decimal places **(Target)**
+
+When using GPS or total station, record the transformation parameters (origin coordinates, rotation angle) to enable conversion between local and absolute coordinates.
+
+## Data Quality Notes
+
+Field conditions that may affect data quality should be recorded in the paper log or the notes field of individual records. These annotations are critical for proper interpretation during post-processing.
+
+::: {.callout-note}
+## Record in Paper Log or Notes Field
+
+- Soil moisture changes during survey
+- Temperature variations (especially for long surveys)
+- External disturbances (vehicles, people, machinery)
+- Equipment issues or malfunctions
+- Anomalous readings with contextual explanation
+- Probe insertion difficulties or obstructions
+:::
+
+## Best Practices
+
+1. **Verify file integrity** after each section by checking record counts match expected probe pair combinations.
+2. **Backup data** to at least two locations before leaving the field site.
+3. **Timestamp all entries** using ISO 8601 format for unambiguous date/time parsing.
+4. **Document probe positions** with photographs showing grid layout and reference markers.
+5. **Record baseline readings** before and after each survey session to detect drift.
+6. **Note environmental changes** including passing weather fronts, irrigation events, or traffic patterns.
+
+::: {.callout-warning}
+## Data Integrity Warning
+
+- Never modify raw data files after collection
+- Create processed copies for any transformations
+- Maintain chain of custody documentation for forensic applications
+- Store original files in read-only archive locations
+:::

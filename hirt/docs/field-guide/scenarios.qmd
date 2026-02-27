@@ -1,0 +1,848 @@
+---
+title: "Application Scenarios"
+---
+
+## Overview {#sec-application-scenarios}
+
+The HIRT system's modular design enables optimization for diverse field scenarios. This section provides detailed configuration recommendations for three primary application categories: bomb crater investigation, woodland burial search, and swamp/marsh crash sites. Each scenario requires specific probe lengths, spacing, frequency selection, and deployment strategies to maximize detection probability while maintaining operational safety.
+
+Configuration selection depends on several key factors: target depth, soil conditions, site access constraints, and the nature of expected anomalies. The dual-channel MIT+ERT approach provides complementary information: MIT excels at detecting metallic objects (both ferrous and non-ferrous), while ERT maps soil disturbance patterns, moisture variations, and void structures.
+
+## Scenario 1: Bomb Crater Investigation {#sec-bomb-crater}
+
+Bomb crater investigation represents the most demanding HIRT application, requiring deep penetration (3-4+ meters **(Target)**), comprehensive coverage of disturbed fill material, and detection of potentially large metallic masses. Typical crater dimensions range from 10-15 meters diameter with depths of 2-4 meters.
+
+```{python}
+#| label: fig-bomb-crater
+#| fig-cap: "Bomb crater investigation configuration showing perimeter probe deployment around crater margin. Six 3.5m probes at 2m spacing provide comprehensive coverage through crater fill. MIT ray paths (green) interrogate the full volume including potential UXB location at crater base. ERT rings map fill boundaries and wet zones."
+#| echo: false
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib.patches import Rectangle, Circle
+import numpy as np
+
+# Color palette
+COLORS = {
+    'sky': '#e0f2fe',
+    'ground_tan': '#d4a574',
+    'ground_dark': '#8b7355',
+    'gray_dark': '#4a5568',
+    'probe_body': '#718096',
+    'connector': '#2d3748',
+    'ert_ring': '#805ad5',
+    'tx_coil': '#c53030',
+    'rx_coil': '#2b6cb0',
+    'success': '#38a169',
+    'warning': '#ed8936',
+    'primary': '#1a365d',
+}
+
+fig, ax = plt.subplots(figsize=(10.67, 5))
+
+ax.set_xlim(-8, 8)
+ax.set_ylim(-5.5, 2)
+ax.set_aspect('equal')
+
+# Sky region
+ax.fill_between([-8, 8], [0.5, 0.5], [2, 2], color=COLORS['sky'], alpha=0.5)
+
+# Native soil background
+ax.fill_between([-8, 8], [0.5, 0.5], [-5.5, -5.5], color=COLORS['ground_tan'], alpha=0.4)
+
+# Crater rim uplift (ejecta)
+rim_left_x = np.array([-5, -4.5, -3.5, -3])
+rim_left_y = np.array([0.5, 0.7, 0.6, 0.5])
+ax.fill_between(rim_left_x, rim_left_y, 0.5, color='#b8a082', alpha=0.6)
+
+rim_right_x = np.array([3, 3.5, 4.5, 5])
+rim_right_y = np.array([0.5, 0.6, 0.7, 0.5])
+ax.fill_between(rim_right_x, rim_right_y, 0.5, color='#b8a082', alpha=0.6)
+
+# Crater bowl shape (parabolic profile)
+crater_x = np.linspace(-3.5, 3.5, 60)
+crater_y = 0.3 - 3.5 * (1 - (crater_x/3.5)**2)**0.8
+
+# Crater fill (disturbed soil - different layers)
+ax.fill_between(crater_x, crater_y, 0.3, color='#a0aec0', alpha=0.5)
+ax.plot(crater_x, crater_y, color=COLORS['gray_dark'], linewidth=2, linestyle='--',
+        label='Crater boundary')
+
+# Secondary fill layer (more recent)
+crater_y2 = 0.2 - 1.5 * (1 - (crater_x/3.5)**2)**0.6
+ax.fill_between(crater_x, crater_y2, 0.2, color='#c0c8d0', alpha=0.4)
+
+# Water accumulation zone at bottom
+water_x = np.linspace(-1.5, 1.5, 30)
+water_y_top = -2.8 - 0.3 * (1 - (water_x/1.5)**2)
+ax.fill_between(water_x, water_y_top, -3.5, color='#90cdf4', alpha=0.4)
+ax.text(0, -3.2, 'Wet zone', fontsize=7, ha='center', color='#2b6cb0', style='italic')
+
+# Ground surface line
+surface_x = np.array([-8, -5, -4.5, -3.5, -3, 3, 3.5, 4.5, 5, 8])
+surface_y = np.array([0.5, 0.5, 0.7, 0.6, 0.5, 0.5, 0.6, 0.7, 0.5, 0.5])
+ax.plot(surface_x, surface_y, color=COLORS['ground_dark'], linewidth=2.5)
+ax.text(-7, 0.7, 'Ground Surface', fontsize=8, color=COLORS['ground_dark'])
+
+# Fill annotations
+ax.text(0, -0.8, 'Crater Fill\n(disturbed soil)', fontsize=8, ha='center',
+        color=COLORS['gray_dark'], fontweight='bold')
+ax.text(-5.5, -1.5, 'Native\nSoil', fontsize=8, ha='center',
+        color='#8b7355', style='italic')
+
+# Probes around perimeter (3m length, 1.5-2m spacing)
+probe_x = [-6, -4, -1.5, 1.5, 4, 6]
+probe_length = 3.5
+
+for i, px in enumerate(probe_x):
+    # Calculate surface height at probe location
+    if abs(px) <= 3:
+        surface_h = 0.5
+    elif abs(px) < 5:
+        surface_h = 0.6
+    else:
+        surface_h = 0.5
+
+    # Probe rod
+    ax.add_patch(Rectangle((px-0.1, surface_h - probe_length), 0.2, probe_length,
+                           color=COLORS['probe_body'], ec='black', lw=1, zorder=10))
+
+    # Junction box
+    ax.add_patch(Rectangle((px-0.2, surface_h), 0.4, 0.25,
+                           color=COLORS['connector'], ec='black', lw=1, zorder=11))
+
+    # ERT rings (at 0.5m, 1.5m, 2.5m from tip)
+    for depth in [0.5, 1.5, 2.5]:
+        y = surface_h - probe_length + depth
+        ax.add_patch(Rectangle((px-0.15, y-0.04), 0.3, 0.08,
+                               color=COLORS['ert_ring'], ec='black', lw=0.5, zorder=12))
+
+    # TX/RX coils
+    for depth, coil_type in [(1.0, 'tx'), (2.0, 'rx'), (3.0, 'rx')]:
+        y = surface_h - probe_length + depth
+        color = COLORS['tx_coil'] if coil_type == 'tx' else COLORS['rx_coil']
+        ax.add_patch(Circle((px, y), 0.12, color=color, ec='black', lw=0.5, zorder=12))
+
+    # Probe label
+    ax.text(px, surface_h + 0.5, f'P{i+1}', ha='center', fontsize=8, fontweight='bold')
+
+# Ray paths (showing measurement coverage)
+ray_depths = [1.5, 2.5, 3.0]
+for depth in ray_depths:
+    for i, p1 in enumerate(probe_x[:-1]):
+        for p2 in probe_x[i+1:]:
+            if abs(p1 - p2) <= 5:  # Only nearby pairs
+                y1 = 0.5 - probe_length + depth
+                y2 = 0.5 - probe_length + depth
+                ax.plot([p1, p2], [y1, y2], color=COLORS['success'], alpha=0.25, lw=0.8)
+
+# Target UXB at depth
+target = Circle((0, -3.5), 0.45, color=COLORS['warning'], ec='#9b2c2c', lw=2, zorder=20)
+ax.add_patch(target)
+ax.text(0, -3.5, 'UXB', fontsize=7, ha='center', va='center',
+        color='white', fontweight='bold', zorder=21)
+
+# Target annotation
+ax.annotate('Potential UXB\n(strong MIT response)', (0.5, -3.5), (3, -4.5),
+            fontsize=8, ha='left',
+            arrowprops=dict(arrowstyle='->', color=COLORS['warning'], lw=1.5))
+
+# Depth scale
+for d in [1, 2, 3, 4, 5]:
+    ax.axhline(0.5 - d, color='gray', linestyle=':', alpha=0.3, linewidth=0.5)
+    ax.text(7.5, 0.5 - d, f'{d}m', fontsize=7, va='center', color='gray')
+
+# Dimension annotations
+ax.annotate('', xy=(-4, 1.5), xytext=(4, 1.5),
+            arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+ax.text(0, 1.7, '~8m crater diameter', ha='center', fontsize=8)
+
+ax.annotate('', xy=(-6.8, -3.5), xytext=(-6.8, 0.5),
+            arrowprops=dict(arrowstyle='<->', color='black', lw=1))
+ax.text(-7.3, -1.5, '3.5m', fontsize=7, va='center', rotation=90)
+
+# Legend
+legend_elements = [
+    mpatches.Patch(color=COLORS['tx_coil'], label='TX Coil'),
+    mpatches.Patch(color=COLORS['rx_coil'], label='RX Coil'),
+    mpatches.Patch(color=COLORS['ert_ring'], label='ERT Ring'),
+    mpatches.Patch(color='#a0aec0', alpha=0.5, label='Crater Fill'),
+    mpatches.Patch(color=COLORS['warning'], label='Target (UXB)'),
+]
+ax.legend(handles=legend_elements, loc='upper right', fontsize=7, framealpha=0.9)
+
+ax.set_title('Bomb Crater Investigation: Perimeter Probe Deployment',
+            fontsize=11, fontweight='bold', color=COLORS['primary'], pad=10)
+ax.set_ylabel('Depth (m)', fontsize=9)
+ax.set_yticks([0.5, -1.5, -3.5, -5.5])
+ax.set_yticklabels(['0', '2', '4', '6'])
+ax.set_xticks([])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Configuration Parameters
+
+- **Rod Length:** 3.0 m (minimum; 3.5 m preferred for full-depth coverage)
+- **ERT Ring Positions:** 0.5 m, 1.5 m, 2.5 m from probe tip
+- **Probe Spacing:** 1.5-2 m between probes
+- **Section Size:** Covers full crater plus rim (may require multiple sections)
+- **Probe Count:** 20-36 probes depending on crater dimensions
+
+### Measurement Strategy
+
+- **MIT Emphasis:** 2-20 kHz frequency range for aluminum/steel mass detection
+- **ERT Focus:** Map fill bowl geometry and identify wet pockets
+- **Depth Target:** 0-4+ meters **(Target)** (full crater depth plus underlying zone)
+- **Frequency Selection:** Lower frequencies (2-5 kHz) for maximum penetration **(Modeled)**
+- **Integration Time:** 10-30 seconds per measurement for improved SNR at depth
+
+### Deployment Considerations
+
+Crater investigation presents unique challenges including uneven surface topography, loose fill material, and potential UXO hazards. Initial deployment should focus on the crater rim where stable soil provides secure probe anchoring.
+
+- **Rim-First Approach:** Deploy perimeter probes before attempting center insertion
+- **Multiple Overlapping Sections:** Large craters may require 2-3 overlapping arrays
+- **Deep Insertion Protocol:** Use pilot rods to verify probe path before full insertion
+- **Extended Baselines:** ERT corner-to-corner measurements for deep investigation
+
+### Expected Results
+
+MIT measurements will show strong amplitude and phase anomalies from large metallic objects (engine blocks, landing gear, ordnance casings). ERT will map the crater boundary as a resistivity contrast between disturbed fill and native soil. Water accumulation at the crater base appears as low resistivity zones.
+
+## Scenario 2: Woodland Burials {#sec-woodland-burial}
+
+Woodland burial search requires high-resolution detection of relatively shallow targets (0.5-2 m depth **(Target)**) in environments complicated by root systems and organic material. The primary detection mechanism is ERT mapping of disturbed soil zones (grave shafts), supplemented by MIT detection of metallic artifacts.
+
+```{python}
+#| label: fig-woodland-burial
+#| fig-cap: "Woodland burial site configuration showing dense probe array (7 probes, 1m spacing) for shallow target detection. Disturbed soil zone (grave shaft) shows distinct ERT contrast. Tree root systems require careful probe positioning. MIT detects small metallic artifacts (buckles, buttons) within burial context."
+#| echo: false
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, Circle, Ellipse
+import numpy as np
+
+# Color palette
+COLORS = {
+    'sky': '#e0f2fe',
+    'ground_tan': '#d4a574',
+    'ground_dark': '#8b7355',
+    'gray_dark': '#4a5568',
+    'probe_body': '#718096',
+    'connector': '#2d3748',
+    'ert_ring': '#805ad5',
+    'tx_coil': '#c53030',
+    'rx_coil': '#2b6cb0',
+    'success': '#38a169',
+    'purple': '#805ad5',
+    'primary': '#1a365d',
+}
+
+fig, ax = plt.subplots(figsize=(9.23, 5))
+
+ax.set_xlim(-6, 6)
+ax.set_ylim(-3.5, 3)
+ax.set_aspect('equal')
+
+# Sky
+ax.fill_between([-6, 6], [0, 0], [3, 3], color=COLORS['sky'], alpha=0.5)
+
+# Ground
+ax.fill_between([-6, 6], [0, 0], [-3.5, -3.5], color=COLORS['ground_tan'], alpha=0.3)
+ax.axhline(0, color=COLORS['ground_dark'], linewidth=2.5)
+
+# Trees
+for tx in [-5, 5]:
+    # Trunk
+    ax.add_patch(Rectangle((tx-0.2, 0), 0.4, 1.8, color='#553c9a'))
+    # Crown
+    ax.add_patch(Circle((tx, 2.3), 0.7, color=COLORS['success'], alpha=0.8))
+    # Root system (simplified)
+    for angle in [-45, 0, 45]:
+        rad = np.radians(angle - 90)
+        root_len = 1.5
+        end_x = tx + root_len * np.cos(rad)
+        end_y = -root_len * np.sin(rad)
+        ax.plot([tx, end_x], [-0.1, end_y], color='#553c9a', alpha=0.4, lw=2)
+
+# Burial shaft (disturbed soil zone)
+shaft_left = -1.0
+shaft_right = 1.0
+shaft_bottom = -1.8
+
+# Disturbed fill pattern
+ax.fill_between([shaft_left, shaft_right], [shaft_bottom, shaft_bottom], [-0.2, -0.2],
+               color=COLORS['purple'], alpha=0.3)
+ax.plot([shaft_left, shaft_left, shaft_right, shaft_right],
+        [-0.2, shaft_bottom, shaft_bottom, -0.2],
+        color='#553c9a', linewidth=2, linestyle='--')
+
+# Surface depression (subtle)
+surface_x = np.linspace(-1.5, 1.5, 30)
+surface_y = -0.08 * np.exp(-(surface_x**2)/0.8)
+ax.plot(surface_x, surface_y, color=COLORS['ground_dark'], linewidth=2.5)
+
+ax.text(0, -1.0, 'Disturbed\nSoil Zone', fontsize=8, ha='center', va='center',
+        color='#553c9a', fontweight='bold')
+
+# Potential remains indication (subtle)
+ax.add_patch(Ellipse((0, -1.5), 1.0, 0.4, color='#e2e8f0', alpha=0.5))
+
+# Probes (1.6m length, 1m spacing)
+probe_x = [-3, -2, -1, 0, 1, 2, 3]
+probe_length = 1.8
+
+for i, px in enumerate(probe_x):
+    # Probe rod
+    ax.add_patch(Rectangle((px-0.08, -probe_length), 0.16, probe_length,
+                           color=COLORS['probe_body'], ec='black', lw=1, zorder=10))
+
+    # Junction box
+    ax.add_patch(Rectangle((px-0.15, 0), 0.3, 0.2,
+                           color=COLORS['connector'], ec='black', lw=1, zorder=11))
+
+    # ERT rings (at 0.4m & 1.2m from tip)
+    for depth in [0.4, 1.2]:
+        y = -probe_length + depth
+        ax.add_patch(Rectangle((px-0.12, y-0.03), 0.24, 0.06,
+                               color=COLORS['ert_ring'], ec='black', lw=0.5, zorder=12))
+
+    # TX/RX coils
+    for depth, coil_type in [(0.6, 'tx'), (1.0, 'rx'), (1.5, 'rx')]:
+        y = -probe_length + depth
+        color = COLORS['tx_coil'] if coil_type == 'tx' else COLORS['rx_coil']
+        ax.add_patch(Circle((px, y), 0.08, color=color, ec='black', lw=0.5, zorder=12))
+
+    # Probe label
+    ax.text(px, 0.4, f'P{i+1}', ha='center', fontsize=7, fontweight='bold')
+
+# Dense ray paths through burial zone
+for d1 in [0.6, 1.0, 1.5]:
+    for i in range(len(probe_x)-1):
+        for j in range(i+1, min(i+3, len(probe_x))):  # Short baselines
+            y = -probe_length + d1
+            ax.plot([probe_x[i], probe_x[j]], [y, y],
+                   color=COLORS['success'], alpha=0.3, lw=0.8)
+
+# Metallic artifact indication
+artifact = Circle((-0.3, -1.3), 0.1, color='#718096', ec='black', lw=1, zorder=15)
+ax.add_patch(artifact)
+ax.annotate('Metal\nartifact', (-0.3, -1.3), (-2.5, -2.5),
+            fontsize=7, ha='center',
+            arrowprops=dict(arrowstyle='->', color='#718096', lw=1))
+
+# ERT sensitivity zone
+sensitivity = Ellipse((0, -1.0), 4.5, 2.0, color=COLORS['success'], alpha=0.1)
+ax.add_patch(sensitivity)
+
+# Depth markers
+for d in [0.5, 1.0, 1.5, 2.0]:
+    ax.axhline(-d, color='gray', linestyle=':', alpha=0.3, linewidth=0.5)
+    ax.text(5.7, -d, f'{d}m', fontsize=7, va='center', color='gray')
+
+# Annotations
+ax.text(-5, -0.5, 'Root\nZone', fontsize=7, ha='center', color='#553c9a', alpha=0.7)
+ax.text(5, -0.5, 'Root\nZone', fontsize=7, ha='center', color='#553c9a', alpha=0.7)
+
+# Configuration note
+ax.text(0, 2.5, '1.6m probes | 1m spacing | 5-20 kHz MIT | ERT focus',
+        ha='center', fontsize=8, color=COLORS['gray_dark'],
+        bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
+ax.set_title('Woodland Burial Site: Dense Array for Shallow Targets',
+            fontsize=11, fontweight='bold', color=COLORS['primary'], pad=10)
+ax.set_ylabel('Depth (m)', fontsize=9)
+ax.set_yticks([0, -1, -2, -3])
+ax.set_yticklabels(['0', '1', '2', '3'])
+ax.set_xticks([])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Configuration Parameters
+
+- **Rod Length:** 1.6 m (sufficient for typical burial depths)
+- **ERT Ring Positions:** 0.4 m and 1.2 m from probe tip
+- **Probe Spacing:** 1-1.5 m (tight spacing for small targets)
+- **Section Size:** 8x8 m standard search area
+- **Probe Count:** 12-16 probes for comprehensive coverage
+
+### Measurement Strategy
+
+- **ERT Emphasis:** Primary method for grave shaft detection
+- **MIT Frequencies:** 5-20 kHz range (focus on small metallic artifacts)
+- **Target Signatures:** Clusters of small anomalies suggest artifact concentrations **(Modeled)**
+- **Depth Target:** 0-2 m **(Target)** (standard burial depth range)
+- **Multiple Frequencies:** Sweep 5, 10, 20 kHz for sensitivity optimization
+
+### Deployment Considerations
+
+Woodland environments require sensitivity to site preservation. Use shallow insertion where possible and avoid major root systems. Document all surface features that may correlate with subsurface anomalies.
+
+- **Minimal Intrusion:** Shallow insertion protocol, narrow pilot holes
+- **Root Avoidance:** Survey root positions before probe placement
+- **Dense Measurement Pattern:** Short baselines for maximum near-surface resolution
+- **Complementary Methods:** Coordinate with GPR surface survey if available
+
+## Scenario 3: Swamp/Marsh Crash Sites {#sec-swamp-margin}
+
+Waterlogged and marshy terrain presents unique challenges for aircraft crash investigation. When bombers went down in soft, saturated ground, the combination of impact forces and unstable soil caused aircraft---and their crews---to sink progressively deeper over time. Unlike dry-ground crashes where wreckage remains near the surface, marsh impacts can result in debris fields extending 5-10+ meters **(Modeled)** below the current surface level.
+
+The soft, organic-rich soil essentially "swallows" the wreckage: initial impact creates a crater that fills with water and sediment, while the weight of aircraft components causes continued subsidence over decades. This phenomenon is well-documented at WWII crash sites in Poland's Silesian marshlands, the Netherlands' polders, and similar low-lying areas across Europe.
+
+```{python}
+#| label: fig-swamp-margin
+#| fig-cap: "Swamp/marsh crash site configuration showing probe deployment around the impact zone. Soft, saturated soil caused the aircraft to sink progressively deeper over decades. Extended 3.5m probes with low-frequency MIT (2-5 kHz) are essential for detecting debris at 5-8+ meter depths. Deployment platforms may be required due to soft ground conditions."
+#| echo: false
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, Circle, Polygon, FancyBboxPatch
+import numpy as np
+
+# Color palette
+COLORS = {
+    'sky': '#e0f2fe',
+    'ground_tan': '#d4a574',
+    'ground_dark': '#8b7355',
+    'gray_dark': '#4a5568',
+    'probe_body': '#718096',
+    'connector': '#2d3748',
+    'tx_coil': '#c53030',
+    'rx_coil': '#2b6cb0',
+    'success': '#38a169',
+    'warning': '#ed8936',
+    'purple': '#805ad5',
+    'accent': '#3182ce',
+    'primary': '#1a365d',
+    'marsh_green': '#68d391',
+    'peat': '#5d4037',
+    'saturated': '#4a6741',
+}
+
+fig, ax = plt.subplots(figsize=(9, 6))
+
+ax.set_xlim(-8, 8)
+ax.set_ylim(-9, 2.5)
+ax.set_aspect('equal')
+
+# Sky
+ax.fill_between([-8, 8], [0.5, 0.5], [2.5, 2.5], color=COLORS['sky'], alpha=0.5)
+
+# Surface layer - marshy ground with slight depression at crash site
+surface_x = np.array([-8, -5, -3, -1.5, 0, 1.5, 3, 5, 8])
+surface_y = np.array([0.3, 0.3, 0.2, 0.0, -0.2, 0.0, 0.2, 0.3, 0.3])
+ax.fill_between(surface_x, surface_y, -9, color=COLORS['ground_tan'], alpha=0.3)
+
+# Saturated zone (water table near surface)
+ax.fill_between([-8, 8], [-0.5, -0.5], [-9, -9], color=COLORS['saturated'], alpha=0.15)
+
+# Peat/organic layer
+ax.fill_between([-4, 4], [-1, -1], [-3, -3], color=COLORS['peat'], alpha=0.3)
+ax.text(0, -2, 'Peat/organic layer', fontsize=7, ha='center', color='#3e2723', style='italic')
+
+# Disturbed column from crash - shows subsidence path
+disturbed_x = [-2.5, -1.5, -1.8, -2.2, -1.5, 2.5, 1.5, 1.8, 2.2, 1.5]
+disturbed_y = [-0.2, -0.2, -4, -6, -7.5, -7.5, -6, -4, -0.2, -0.2]
+disturbed = Polygon(list(zip(disturbed_x[:5], disturbed_y[:5])) +
+                   list(zip(disturbed_x[5:], disturbed_y[5:])),
+                   closed=True, fill=True, facecolor=COLORS['purple'],
+                   alpha=0.2, edgecolor=COLORS['purple'], linestyle='--', lw=1)
+ax.add_patch(disturbed)
+ax.text(0, -4.5, 'Subsidence\ncolumn', fontsize=7, ha='center', color='#553c9a', style='italic')
+
+# Surface vegetation/marsh indicators
+for x in [-7, -5.5, -4, 4, 5.5, 7]:
+    y = 0.3 if abs(x) > 3 else 0.1
+    # Marsh grass tufts
+    for dx in [-0.1, 0, 0.1]:
+        ax.plot([x+dx, x+dx], [y, y+0.4], color=COLORS['marsh_green'], lw=1.5)
+
+# Water table line
+ax.axhline(-0.5, color='#3182ce', linestyle='--', alpha=0.5, linewidth=1)
+ax.text(7, -0.3, 'Water table', fontsize=6, color='#2b6cb0', ha='right')
+
+# Surface line
+ax.plot(surface_x, surface_y, color=COLORS['ground_dark'], linewidth=2.5)
+
+# Deployment platforms (boards for soft ground)
+for px in [-5, -3, 3, 5]:
+    platform_y = 0.3 if abs(px) > 3.5 else 0.15
+    ax.add_patch(Rectangle((px-0.6, platform_y), 1.2, 0.15,
+                           color='#d69e2e', ec='#975a16', lw=1, zorder=8))
+
+# Probes - perimeter deployment around crash zone
+probe_positions = [(-5, 0.45), (-3, 0.3), (3, 0.3), (5, 0.45)]
+probe_len = 3.5
+
+for i, (px, surface_h) in enumerate(probe_positions):
+    # Probe rod
+    ax.add_patch(Rectangle((px-0.1, surface_h - probe_len), 0.2, probe_len,
+                           color=COLORS['probe_body'], ec='black', lw=1, zorder=10))
+
+    # Junction box
+    ax.add_patch(Rectangle((px-0.18, surface_h), 0.36, 0.22,
+                           color=COLORS['connector'], ec='black', lw=1, zorder=11))
+
+    # Sensors at multiple depths
+    coil_color = COLORS['tx_coil'] if i < 2 else COLORS['rx_coil']
+    for depth in [0.8, 1.8, 2.8, 3.3]:
+        y = surface_h - depth
+        ax.add_patch(Circle((px, y), 0.1, color=coil_color, ec='black', lw=0.5, zorder=12))
+
+    ax.text(px, surface_h + 0.5, f'P{i+1}', ha='center', fontsize=8, fontweight='bold')
+
+# MIT ray paths through target volume
+for i, (px1, _) in enumerate(probe_positions[:2]):
+    for j, (px2, _) in enumerate(probe_positions[2:]):
+        for d1, d2 in [(1.8, 1.8), (2.8, 2.8), (1.8, 2.8), (2.8, 1.8), (3.3, 3.3)]:
+            y1 = 0.35 - d1
+            y2 = 0.35 - d2
+            ax.plot([px1, px2], [y1, y2], color=COLORS['success'], alpha=0.15, lw=0.8)
+
+# Deep debris field
+debris_depths = [(-0.5, -6.5), (0.3, -7.2), (-0.2, -7.8), (0.8, -6.8), (-0.8, -7.5)]
+for dx, dy in debris_depths:
+    size = 0.2 + np.random.rand() * 0.3
+    ax.add_patch(Rectangle((dx-size/2, dy-size/2), size, size*0.6,
+                           color=COLORS['warning'], ec='#9b2c2c', lw=1,
+                           angle=np.random.rand()*30-15, zorder=20))
+
+# Main wreckage mass
+ax.add_patch(Circle((0, -7), 0.6, color=COLORS['warning'], ec='#9b2c2c', lw=2, zorder=20))
+ax.annotate('Aircraft debris\n& remains\n(5-8m depth)', (0, -7), (3.5, -7.5),
+            fontsize=8, ha='left',
+            arrowprops=dict(arrowstyle='->', color=COLORS['warning'], lw=1.5))
+
+# Coverage zone indication
+coverage = Polygon([(-4, -3), (4, -3), (2.5, -8.5), (-2.5, -8.5)],
+                   closed=True, fill=True, facecolor=COLORS['success'],
+                   alpha=0.08, edgecolor=COLORS['success'], linestyle='--', lw=1)
+ax.add_patch(coverage)
+ax.text(0, -5.8, 'Target\nvolume', fontsize=7, ha='center', color='#276749', style='italic')
+
+# Depth markers
+for d in [1, 2, 3, 4, 5, 6, 7, 8]:
+    ax.axhline(0.3 - d, color='gray', linestyle=':', alpha=0.2, linewidth=0.5)
+    ax.text(7.7, 0.3 - d, f'{d}m', fontsize=6, va='center', color='gray')
+
+# Surface indication
+ax.text(-6.5, 1.0, 'Marsh vegetation', fontsize=7, ha='center', color=COLORS['saturated'])
+
+# Configuration note
+ax.text(0, 2.0, '3.5m probes | 2-5 kHz (deep penetration) | Perimeter deployment',
+        ha='center', fontsize=8, color=COLORS['gray_dark'],
+        bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
+# Note about platforms
+ax.text(-5, 1.3, 'Deploy from\nplatforms', fontsize=6, ha='center', color='#975a16')
+
+ax.set_title('Swamp/Marsh Crash Site: Deep Target Recovery in Saturated Ground',
+            fontsize=11, fontweight='bold', color=COLORS['primary'], pad=10)
+ax.set_ylabel('Depth (m)', fontsize=9)
+ax.set_yticks([0.3, -1.7, -3.7, -5.7, -7.7])
+ax.set_yticklabels(['0', '2', '4', '6', '8'])
+ax.set_xticks([])
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+
+plt.tight_layout()
+plt.show()
+```
+
+### The Deep Burial Problem
+
+When aircraft crashed into saturated marshland, several factors combined to drive wreckage deep underground:
+
+1. **Impact penetration:** High-speed impact into soft ground creates an initial crater
+2. **Waterlogging:** The crater immediately fills with groundwater
+3. **Progressive subsidence:** Heavy metal components continue sinking through soft peat and clay
+4. **Sediment accumulation:** Organic material and sediment fill the depression from above
+5. **Decades of compression:** 80+ years of soil compaction further buries the debris
+
+The result: aircraft that hit dry ground remain within 1-2 meters of the surface, while marsh impacts can place wreckage 5-10+ meters deep **(Modeled)**.
+
+### Configuration Parameters
+
+- **Rod Length:** Maximum available (3.0-3.5 m) - depth is the primary challenge
+- **Probe Spacing:** 2-3 m around the perimeter of the suspected impact zone
+- **Section Size:** 8-12 m diameter coverage for typical bomber crash footprint
+- **Probe Count:** 8-12 probes in perimeter configuration
+- **Deployment:** Use platforms/boards on soft ground; may require temporary walkways
+
+### Measurement Strategy
+
+- **Low MIT Frequencies:** 2-5 kHz essential for maximum depth penetration **(Modeled)**
+- **Extended Integration:** 15-30 second measurements for weak deep signals
+- **Multi-Frequency Sweep:** Start at 2 kHz, sweep to 10 kHz to characterize depth
+- **ERT for Context:** Maps saturated zones and disturbed fill boundaries
+- **Repeat Measurements:** Multiple passes to confirm weak signals at detection limits
+
+### Deployment Considerations
+
+Soft ground conditions require careful planning for both safety and data quality:
+
+- **Ground Assessment:** Test soil firmness before committing to probe positions
+- **Deployment Platforms:** Plywood boards or temporary walkways distribute weight
+- **Probe Insertion:** May require pilot holes; avoid forcing probes through root mats
+- **Water Table Effects:** High conductivity of saturated soil limits ERT depth **(Modeled)**; rely primarily on MIT
+- **Seasonal Timing:** Drier seasons may improve access but water table remains high
+- **Extended Survey Time:** Budget 2-3x longer than dry-ground surveys **(Target)**
+
+::: {.callout-warning}
+## Detection Limits
+
+Targets at 6+ meters in conductive saturated soil approach HIRT's detection limits **(Modeled)**. Expect:
+
+- Signal levels 10-20 dB below typical dry-ground responses **(Modeled)**
+- Higher uncertainty in depth estimates
+- Possible false negatives for smaller debris fragments
+- Need for multiple survey passes to confirm anomalies
+
+Consider complementary methods (seismic, coring) for confirmation of deep targets.
+:::
+
+## Scenario Comparison Matrix {#sec-scenario-comparison}
+
+The following comparison summarizes key configuration parameters across all three primary scenarios. Selection depends on target depth, soil conditions, and site access constraints.
+
+| Scenario | Rod Length | Spacing | Frequencies | Depth Target | Key Method |
+|----------|------------|---------|-------------|--------------|------------|
+| Woods Burials | 1.6 m | 1-1.5 m | 5-20 kHz | 0-2 m (Target) | ERT + MIT |
+| Bomb Crater | 3.0 m | 1.5-2 m | 2-20 kHz | 0-4+ m (Target) | MIT + ERT |
+| Swamp/Marsh Crash | 3.0-3.5 m | 2-3 m | 2-5 kHz | 5-8+ m (Target) | Low-freq MIT |
+
+: Summary of configuration parameters by application scenario {#tbl-config-comparison}
+
+## Target Characterization {#sec-target-characterization}
+
+Understanding expected response patterns helps operators identify and classify anomalies during field operations. The dual-channel MIT+ERT approach provides complementary signatures for different target types.
+
+### Interpretation Guidelines
+
+- **Strong MIT + ERT Contrast:** Large metallic object in disturbed context (e.g., UXB in crater)
+- **MIT Only:** Metal object in undisturbed native soil
+- **ERT Only:** Soil disturbance without metallic content (possible burial, cache)
+- **Weak MIT Cluster:** Multiple small metallic artifacts (artifact scatter)
+- **Low ERT Zone:** Water accumulation, saturated fill
+- **High ERT Zone:** Air void, dry compacted material
+
+## Site Assessment and Configuration Selection {#sec-site-assessment}
+
+Proper site assessment is essential for selecting optimal configuration parameters. The decision flow considers target depth, access conditions, soil type, and safety requirements.
+
+### Pre-Deployment Checklist
+
+1. Conduct site safety assessment (UXO clearance if applicable)
+2. Estimate target depth range from historical records or surface features
+3. Evaluate access conditions and identify probe deployment zones
+4. Assess soil type and expected conductivity
+5. Determine required spatial resolution for target detection
+6. Select configuration parameters from scenario guidelines
+7. Plan grid layout and probe numbering scheme
+8. Verify all equipment functionality before deployment
+
+## General Field Procedures {#sec-field-procedures}
+
+### Pre-Deployment
+
+- **Site Assessment:** Evaluate access, safety, and estimated target depth
+- **Configuration Selection:** Choose rod length, spacing, and frequencies per scenario
+- **Grid Planning:** Lay out probe positions with consistent numbering
+- **Equipment Check:** Verify all probes, base hub, tools, and cables
+
+### During Deployment
+
+- **Systematic Approach:** Follow 'set once, measure many' workflow
+- **Quality Control:** Check reciprocity, repeat critical measurements
+- **Documentation:** Record all conditions, anomalies, and deviations
+- **Adaptation:** Adjust strategy based on initial results if necessary
+
+### Post-Deployment
+
+- **Data Backup:** Secure all data immediately upon completion
+- **Quick Analysis:** Generate preliminary plots to verify data quality
+- **Equipment Care:** Clean, inspect, and repair probes as needed
+- **Documentation:** Complete field notes and measurement logs
+
+## Cost and Timeline Planning {#sec-cost-timeline}
+
+Planning a HIRT deployment requires realistic assessment of equipment costs and build timeline. The following estimates assume standard components and moderate fabrication experience.
+
+| Component | Essential (12 probes) | Standard (20 probes) | Complete (24 probes) |
+|-----------|----------------------|---------------------|---------------------|
+| Probes | $840-1,800 (Target) | $1,400-3,000 (Target) | $1,680-3,600 (Target) |
+| Base Hub | $200-500 (Target) | $200-500 (Target) | $200-500 (Target) |
+| Tools/Supplies | $200-400 (Target) | $200-400 (Target) | $200-400 (Target) |
+| **Total** | **$1,200-2,700 (Target)** | **$1,800-3,900 (Target)** | **$2,100-4,500 (Target)** |
+
+: Estimated costs for HIRT system configurations. Actual costs vary by supplier, quantity discounts, and component choices. {#tbl-cost-estimate}
+
+### Build Timeline
+
+- **Week 1-2 (Prototype):** Build 2 prototype probes, document procedures
+- **Week 3 (Calibration):** Bench calibration, test target trials, design refinement
+- **Week 4-5 (Scale-up):** Build 12-20 probes, assemble base hub, field shakedown
+- **Week 6+ (Deployment):** First real section scans, procedure refinement
+
+## Recommendations {#sec-recommendations}
+
+### Start Simple
+
+Begin with the core MIT+ERT system on controlled test sites before attempting operational deployments. Build experience with probe handling, measurement protocols, and data interpretation before addressing complex field scenarios.
+
+### Add Selectively
+
+Optional enhancements (borehole radar, seismic crosshole, magnetometer sweep) should be added based on demonstrated need rather than theoretical benefit. Each addition increases system complexity and field deployment time.
+
+### Maintain Modularity
+
+The modular probe design enables component replacement and configuration adaptation. Maintain this modularity by documenting all modifications and ensuring backward compatibility with existing components.
+
+## Case Studies and Field Validation {#sec-case-studies}
+
+Empirical validation from prototype deployments provides essential ground truth for HIRT performance claims. This section documents field trials and their outcomes to guide expectations for operational surveys.
+
+::: {.callout-note}
+## Case Study Status
+
+The case studies below document planned or in-progress field validation efforts. As HIRT prototype testing continues, this section will be updated with actual measurement results, detection outcomes, and lessons learned. Readers should distinguish between **planned** trials (targets identified, testing pending), **completed** trials (measurements taken, results reported), and **validated** outcomes (excavation confirmed interpretation).
+:::
+
+### Planned Case Study Framework
+
+Each case study follows a standardized documentation format to enable meaningful comparison across sites and configurations:
+
+**Site Context:**
+
+- Location (generalized to protect sensitive sites)
+- Historical background and expected targets
+- Soil type and conditions
+- Access constraints
+
+**Survey Configuration:**
+
+- Probe count, spacing, and depth
+- MIT frequencies employed
+- ERT configuration
+- Total measurement time
+
+**Results Summary:**
+
+- Anomalies detected (number, depth, confidence)
+- Excavation outcomes (if performed)
+- Detection successes and failures
+- Lessons learned
+
+### Case Study 1: Controlled Test Site (Validation Pending) {#sec-case-study-1}
+
+**Purpose:** Establish baseline detection performance using known buried targets.
+
+**Site:** University research field with buried test objects at documented depths.
+
+**Targets:**
+
+- 50 cm steel cylinder at 1.5 m depth
+- 30 cm aluminum plate at 1.0 m depth
+- 2 m × 1 m disturbed fill zone (no metal) at 1.5 m depth
+- Control area with no buried objects
+
+**Configuration:**
+
+- 4×4 probe grid, 1.5 m spacing
+- 1.8 m probe depth
+- MIT frequencies: 2, 5, 10, 20 kHz
+- ERT ring positions: 0.5 m, 1.0 m, 1.5 m
+
+**Status:** Planned. Results will establish SNR baselines, resolution limits, and detection probability for known targets.
+
+### Case Study 2: Historical Crash Site Investigation (Validation Pending) {#sec-case-study-2}
+
+**Purpose:** Assess HIRT performance in operationally representative conditions.
+
+**Site:** WWII aircraft crash site with documented historical records but unexcavated debris field.
+
+**Expected Targets:**
+
+- Engine components (estimated 3-4 m depth **(Modeled)** based on crater fill)
+- Scattered debris field within crater boundary
+- Possible human remains in association with wreckage
+
+**Configuration:**
+
+- Perimeter deployment around crater margin
+- 20 probes at 2 m spacing
+- 3.0 m probe depth
+- Low-frequency emphasis (2-5 kHz) for depth penetration **(Modeled)**
+
+**Status:** Awaiting site access approval. Results will validate deep detection claims and inform recovery operations.
+
+### Case Study 3: Forensic Search Exercise (Validation Pending) {#sec-case-study-3}
+
+**Purpose:** Test woodland burial detection in controlled forensic context.
+
+**Site:** Law enforcement training facility with documented simulated burial sites.
+
+**Targets:**
+
+- Simulated grave shafts at 1-2 m depth
+- Associated metal artifacts (buttons, buckles) placed with simulated remains
+- Control areas with undisturbed native soil
+
+**Configuration:**
+
+- Dense array (1 m spacing) over search area
+- 1.6 m probe depth
+- MIT frequencies: 5, 10, 20 kHz
+- ERT focus for disturbed soil detection
+
+**Status:** Coordination with training facility in progress. Results will validate forensic application claims.
+
+### Reporting Case Study Results
+
+When case studies are completed, results will be reported with the following metrics:
+
+**Detection Performance:**
+
+- True positive rate (targets correctly identified)
+- False positive rate (anomalies without corresponding targets)
+- Detection depth limit (deepest confirmed target)
+- Minimum detectable target size at each depth
+
+**Interpretation Accuracy:**
+
+- Depth estimation error (predicted vs. actual)
+- Lateral position error (predicted vs. actual)
+- Confidence calibration (did HIGH confidence predictions confirm?)
+
+**Operational Metrics:**
+
+- Setup time per probe
+- Total survey duration
+- Data processing time
+- Equipment reliability issues
+
+::: {.callout-tip}
+## Contributing Case Studies
+
+HIRT users who conduct field trials with documented ground truth are encouraged to share results for inclusion in this section. Contact information for case study submission will be provided when the HIRT firmware repository is established. Anonymized site data and standardized reporting ensure useful cross-site comparison while protecting sensitive locations.
+:::
+
+::: {.callout-warning}
+## Critical: UXO Site Safety
+
+- Professional EOD clearance required before ANY probe insertion at suspected UXO sites
+- Never hammer or drive probes - use soft insertion only
+- Maintain appropriate exclusion zones during all operations
+- Monitor groundwater conductivity - elevated levels may indicate corrosion risk
+- Document all anomalies for EOD follow-up before excavation
+:::

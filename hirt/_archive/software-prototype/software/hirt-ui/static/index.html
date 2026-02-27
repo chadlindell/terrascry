@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HIRT Field Controller</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { color: #1a365d; }
+        .status-idle { color: #718096; font-weight: bold; }
+        .status-running { color: #38a169; font-weight: bold; }
+        button { background: #3182ce; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #cbd5e0; cursor: not-allowed; }
+        input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <h1>HIRT Field Controller</h1>
+    
+    <div class="card">
+        <h2>System Status: <span id="status-text" class="status-idle">IDLE</span></h2>
+        <p>Active File: <span id="file-path">None</span></p>
+        <p>Samples Collected: <span id="sample-count">0</span></p>
+    </div>
+
+    <div class="card">
+        <h2>New Survey</h2>
+        <label>Survey Name</label>
+        <input type="text" id="survey-name" value="Site_Alpha_01">
+        
+        <label>Operator</label>
+        <input type="text" id="operator" value="Field_Team_A">
+        
+        <label>Site ID</label>
+        <input type="text" id="site-id" value="UXO_Zone_4">
+        
+        <button id="start-btn" onclick="startScan()">Start Scan</button>
+    </div>
+
+    <script>
+        async def updateStatus() {
+            try {
+                const res = await fetch('/api/scan/status');
+                const data = await res.json();
+                
+                const statusEl = document.getElementById('status-text');
+                statusEl.textContent = data.status.toUpperCase();
+                statusEl.className = data.status === 'running' ? 'status-running' : 'status-idle';
+                
+                document.getElementById('file-path').textContent = data.file || 'None';
+                document.getElementById('sample-count').textContent = data.samples || 0;
+                
+                document.getElementById('start-btn').disabled = (data.status === 'running');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async def startScan() {
+            const payload = {
+                survey_name: document.getElementById('survey-name').value,
+                operator: document.getElementById('operator').value,
+                site_id: document.getElementById('site-id').value
+            };
+            
+            try {
+                const res = await fetch('/api/scan/start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                alert('Scan Started: ' + data.file);
+                updateStatus();
+            } catch (e) {
+                alert('Error: ' + e);
+            }
+        }
+
+        // Poll status every 2 seconds
+        setInterval(updateStatus, 2000);
+        updateStatus();
+    </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+---
+title: "Validation"
+---
+
+## Overview
+
+This section documents validation protocols for verifying HIRT system performance against design specifications. Validation ensures that a newly constructed system meets the requirements for field deployment and provides traceable evidence for HardwareX journal compliance.
+
+::: {.callout-note}
+## Documentation Status
+
+This section contains **Target specifications** that define expected performance. Measured validation data will be added as bench testing is completed. Specifications marked **(Target)** have not yet been validated against physical hardware.
+:::
+
+## Validation vs. Testing
+
+**Testing** (see [Testing & Verification](testing.qmd)) confirms that individual components and assemblies function correctly during the build process.
+
+**Validation** confirms that the complete, integrated system achieves the performance specifications required for its intended use cases.
+
+| Aspect | Testing | Validation |
+|--------|---------|------------|
+| Scope | Components, subsystems | Complete system |
+| Question | Does it work? | Does it work well enough? |
+| Criteria | Pass/fail functional checks | Quantitative performance metrics |
+| Timing | During build | After build, before deployment |
+
+## System-Level Specifications
+
+### MIT-3D Channel
+
+| Parameter | Target | Method | Status |
+|-----------|--------|--------|--------|
+| Operating frequencies | 2, 5, 10, 20, 50 kHz (Target) | Frequency sweep test | Not validated |
+| TX coil current | 10 ± 1 mA RMS (Target) | Oscilloscope measurement | Not validated |
+| RX noise floor | < 100 nV/rt-Hz at 10 kHz (Target) | Spectrum analyzer | Not validated |
+| Dynamic range | > 80 dB (Target) | Calibration target test | Not validated |
+| Phase accuracy | ± 0.5° (Target) | Lock-in verification | Not validated |
+| Inter-probe consistency | < 5% amplitude variation (Target) | Cross-calibration | Not validated |
+
+### ERT-Lite Channel
+
+| Parameter | Target | Method | Status |
+|-----------|--------|--------|--------|
+| Injection current | 0.5, 1.0, 2.0 mA selectable (Target) | Multimeter measurement | Not validated |
+| Current accuracy | ± 2% of setpoint (Target) | Precision resistor test | Not validated |
+| Voltage measurement range | 0.1 mV - 10 V (Target) | Calibration resistor | Not validated |
+| Input impedance | > 10 Mohm (Target) | Impedance meter | Not validated |
+| Reciprocity error | < 3% (typical soil) (Target) | Field reciprocity check | Not validated |
+| Contact resistance tolerance | Up to 10 kohm (Target) | Simulated contact test | Not validated |
+
+### Mechanical
+
+| Parameter | Target | Method | Status |
+|-----------|--------|--------|--------|
+| Probe water resistance | IP67 (1 m, 30 min) (Target) | Submersion test | Not validated |
+| Connector cycles | > 500 insertions (Target) | Lifecycle test | Not validated |
+| Operating temperature | -10°C to +50°C (Target) | Environmental chamber | Not validated |
+| Drop resistance | 1 m onto concrete (Target) | Drop test | Not validated |
+
+## Validation Procedures
+
+### MIT-3D Validation Protocol
+
+**Equipment Required:**
+
+- Calibrated oscilloscope (100 MHz bandwidth or greater) (Manufacturer spec)
+- Signal generator with frequency counter
+- Precision current shunt (0.1%, 10 ohm) (Manufacturer spec)
+- Faraday cage or shielded enclosure
+- Reference calibration targets (aluminum spheres: 5, 10, 25 mm diameter)
+
+**Procedure:**
+
+1. **Baseline Noise Measurement**
+   - Place probe assembly in shielded enclosure
+   - Record RX noise spectrum at each operating frequency
+   - Verify noise floor < 100 nV/rt-Hz (Target) specification
+
+2. **TX Current Verification**
+   - Insert precision shunt in TX coil circuit
+   - Measure RMS current at each frequency
+   - Verify 10 ± 1 mA (Target) across operating range
+
+3. **Phase Accuracy Test**
+   - Apply known reference signal to RX path
+   - Measure reported phase vs. true phase
+   - Verify ± 0.5° (Target) accuracy
+
+4. **Dynamic Range Test**
+   - Position calibration spheres at known distances
+   - Measure response from maximum (5 mm at 0.1 m) to minimum detectable
+   - Calculate and verify > 80 dB (Target) dynamic range
+
+5. **Cross-Probe Calibration**
+   - Use identical calibration target at identical position
+   - Measure response from each probe
+   - Verify < 5% (Target) variation after calibration factor application
+
+### ERT-Lite Validation Protocol
+
+**Equipment Required:**
+
+- Calibrated multimeter (6-digit resolution) (Manufacturer spec)
+- Precision resistor set (0.1%: 10 ohm, 100 ohm, 1 kohm, 10 kohm) (Manufacturer spec)
+- Variable resistance decade box
+- Soil simulation circuit (parallel RC network)
+
+**Procedure:**
+
+1. **Current Source Accuracy**
+   - Connect precision 100 ohm resistor
+   - Measure actual injected current at each setpoint
+   - Verify ± 2% (Target) accuracy
+
+2. **Voltage Measurement Linearity**
+   - Apply known voltages across measurement range
+   - Compare reported values to reference meter
+   - Verify linearity < 0.5% (Target) of full scale
+
+3. **Contact Resistance Tolerance**
+   - Insert series resistance (0, 1 kohm, 5 kohm, 10 kohm) in current path
+   - Verify current regulation maintains accuracy
+   - Document measurement error vs. contact resistance
+
+4. **Reciprocity Bench Test**
+   - Use resistor network simulating soil
+   - Measure forward and reverse transfer impedance
+   - Verify < 1% (Target) bench reciprocity error
+
+### Integrated System Validation
+
+**Test Tank Protocol:**
+
+For systems with access to a controlled test tank:
+
+1. Fill tank with uniform conductivity solution (e.g., 500 µS/cm (Modeled))
+2. Deploy 4-probe minimum configuration
+3. Insert calibration target (metal sphere, PVC cylinder) at known position
+4. Acquire MIT and ERT data
+5. Process through standard inversion workflow
+6. Verify target localization accuracy (position, depth)
+
+**Target Specifications:**
+
+| Parameter | Target | Method |
+|-----------|--------|--------|
+| Lateral localization | ± 0.5 × probe spacing (Target) | Known target test |
+| Depth localization | ± 0.25 m (Target) | Known target test |
+| Size estimation | Within 2× actual (Target) | Known target test |
+
+### Field Validation
+
+**Protocol for First Deployment:**
+
+1. Select site with known buried target (test installation)
+2. Deploy full probe array
+3. Acquire complete MIT + ERT dataset
+4. Process and compare to known target position
+5. Document any discrepancies
+
+**Acceptance Criteria:**
+
+- All probes communicate successfully
+- Reciprocity error < 5% (Target) in field conditions
+- Known target detected and localized within specifications
+- No hardware failures during 4-hour (Target) continuous operation
+
+## Validation Records
+
+For HardwareX compliance, maintain documentation including:
+
+1. **Calibration Certificates** for all test equipment
+2. **Raw Validation Data** (oscilloscope captures, meter readings)
+3. **Calculated Performance Metrics** with uncertainty estimates
+4. **Pass/Fail Determination** for each specification
+5. **Corrective Actions** if specifications not met
+
+### Record Template
+
+```
+HIRT Validation Record
+======================
+System Serial Number: _______________
+Validation Date: _______________
+Operator: _______________
+
+MIT-3D Channel
+--------------
+Noise Floor: _______ nV/rt-Hz (Target: < 100 (Target))  [PASS/FAIL]
+TX Current: _______ mA RMS (Target: 10 ± 1 (Target))  [PASS/FAIL]
+Phase Accuracy: _______ ° (Target: ± 0.5 (Target))    [PASS/FAIL]
+Dynamic Range: _______ dB (Target: > 80 (Target))     [PASS/FAIL]
+
+ERT-Lite Channel
+----------------
+Current Accuracy: _______% (Target: ± 2% (Target))    [PASS/FAIL]
+Reciprocity Error: _______% (Target: < 3% (Target))   [PASS/FAIL]
+Contact Tolerance: _______ kohm (Target: 10 (Target))   [PASS/FAIL]
+
+Integrated System
+-----------------
+Localization Accuracy: _______ m            [PASS/FAIL]
+Continuous Operation: _______ hours         [PASS/FAIL]
+
+Overall Validation: [PASS/FAIL]
+
+Notes: _________________________________________________
+Operator Signature: ____________________________________
+```
+
+## Revalidation Requirements
+
+Revalidate the system after:
+
+- Major firmware updates
+- Component replacement affecting measurement path
+- Physical damage to probes or electronics
+- Extended storage (> 12 months (Target))
+- Any unexplained measurement anomalies
+
+Annual revalidation is recommended for systems in regular use.

@@ -1,0 +1,474 @@
+---
+title: "Physics Theory"
+---
+
+## Overview {#sec-physics-overview}
+
+The HIRT system combines two complementary geophysical sensing modalities: Magneto-Inductive Tomography (MIT-3D) and Electrical Resistivity Tomography (ERT-Lite). Understanding the physics underlying each method is essential for proper system deployment, frequency selection, and data interpretation. This section provides a practical, field-level treatment of the relevant physics principles.
+
+## MIT-3D (Low-Frequency Electromagnetic) {#sec-mit-physics}
+
+### Operating Principle {#sec-mit-principle}
+
+MIT-3D uses oscillating magnetic fields to detect conductive anomalies in the subsurface. A transmit (TX) coil drives a stable sinusoidal current at frequencies between 2-50 kHz, generating a primary magnetic field. When this field encounters conductive material---such as metal objects or high-conductivity soil zones---it induces eddy currents within the conductor.
+
+These eddy currents generate a secondary magnetic field that opposes the primary field. Receive (RX) coils positioned at known distances from the TX coil measure the combined field. The presence of conductive targets manifests as measurable changes in both the **amplitude** and **phase** of the received signal relative to the transmitted waveform.
+
+```{python}
+#| label: fig-tx-rx-waveforms
+#| fig-cap: "TX and RX waveform comparison at 10 kHz. The transmitted signal (top) induces a received signal (bottom) that is both attenuated and phase-shifted. The amplitude ratio and phase lag encode information about the conductivity and geometry of subsurface targets along the TX-RX path."
+#| fig-width: 9
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_tx_rx_waveforms
+import matplotlib.pyplot as plt
+from PIL import Image
+
+buf = create_tx_rx_waveforms()
+img = Image.open(buf)
+plt.figure(figsize=(9, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### Frequency Selection {#sec-frequency-selection}
+
+Operating frequency determines the trade-off between depth penetration and near-surface sensitivity:
+
+- **Lower frequency (2-10 kHz)**: Deeper penetration, better for targets at 2.5-4+ meters
+- **Higher frequency (20-50 kHz)**: Sharper sensitivity near probes, better for 0.5-1.5 meter targets
+- **Multi-frequency sweep**: Recommended for unknown target depths; provides spectral discrimination
+
+| Target Depth | Recommended Frequencies | Integration Time |
+|--------------|------------------------|------------------|
+| 0.5-1.5 m (shallow) | 20-50 kHz | 1-3 sec |
+| 1.5-2.5 m (mid-range) | 10-20 kHz | 3-5 sec |
+| 2.5-4 m (deep) | 2-10 kHz | 5-15 sec |
+| >4 m (very deep) | 2-5 kHz | 10-30 sec |
+
+: Target-dependent frequency selection guidelines. Higher frequencies provide sharper near-surface resolution while lower frequencies enable deeper penetration. Longer integration times improve SNR at all frequencies. {#tbl-frequency-selection}
+
+## Electromagnetic Skin Depth {#sec-skin-depth}
+
+Electromagnetic skin depth ($\delta$) defines how deeply alternating EM fields penetrate into conductive media before being attenuated to 1/e (~37%) of their surface value. This fundamental parameter is given by:
+
+$$
+\delta = \sqrt{\frac{2}{\omega \mu \sigma}}
+$$ {#eq-skin-depth}
+
+where $\omega = 2\pi f$ is the angular frequency, $\mu = \mu_0 \mu_r$ is the magnetic permeability (typically $\mu_0 = 4\pi \times 10^{-7}$ H/m for non-magnetic soils), and $\sigma$ is the electrical conductivity in S/m.
+
+For practical field calculations, this simplifies to:
+
+$$
+\delta \approx 503 \sqrt{\frac{\rho}{f}} \text{ meters}
+$$ {#eq-skin-depth-practical}
+
+where $\rho$ is resistivity in ohm-meters and $f$ is frequency in Hz. This approximation assumes non-magnetic soil ($\mu_r = 1$).
+
+**Example:** At 10 kHz in 100 $\Omega \cdot$m soil: $\delta \approx 503 \sqrt{100/10000} = 503 \times 0.1 = 50.3$ m. This confirms that skin depth is not the limiting factor for HIRT at typical operating frequencies and soil conditions.
+
+| Conductivity (S/m) | 2 kHz | 5 kHz | 10 kHz | 20 kHz | 50 kHz |
+|-------------------|-------|-------|--------|--------|--------|
+| 0.01 (dry sand) | 112 m | 71 m | 50 m | 35 m | 22.5 m |
+| 0.1 (moist sand) | 35.6 m | 22.5 m | 15.9 m | 11.2 m | 7.1 m |
+| 0.5 (wet clay) | 15.9 m | 10.1 m | 7.1 m | 5.0 m | 3.2 m |
+| 1.0 (saturated clay) | 11.2 m | 7.1 m | 5.0 m | 3.6 m | 2.3 m |
+
+: Skin depth values for typical soil conductivities across the HIRT operating frequency range. Even in the most conductive soils, skin depth exceeds typical investigation depths at HIRT frequencies. {#tbl-skin-depth}
+
+```{python}
+#| label: fig-skin-depth
+#| fig-cap: "Electromagnetic skin depth versus frequency for five soil types spanning the conductivity range from dry sand (0.001 S/m) to saline/contaminated soil (1.0 S/m). The green shaded region indicates the HIRT operating range (2-50 kHz). The dashed line marks 10 kHz, a typical operating frequency."
+#| fig-width: 9
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_skin_depth_plot
+
+buf = create_skin_depth_plot()
+img = Image.open(buf)
+plt.figure(figsize=(9, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-note}
+## Key Insight: Skin Depth vs. Coupling Geometry
+
+- Skin depth alone does NOT limit MIT investigation depth in most field conditions
+- Even in saturated clay at 50 kHz, skin depth (2.3 m) exceeds typical probe spacing
+- The practical depth limitation is coil coupling geometry (1/r^3 decay), not skin depth
+- Effective MIT depth is approximately 1-2x probe spacing in near-field conditions
+:::
+
+## MIT Coil Coupling and 1/r^3 Decay {#sec-coupling-decay}
+
+In the near-field regime where HIRT operates, the magnetic field coupling between TX and RX coils decays as the cube of the separation distance. This 1/r^3 relationship is the fundamental limitation on MIT investigation depth---not electromagnetic skin depth.
+
+The magnetic dipole field strength at distance r from a coil is proportional to 1/r^3 for the near-field component (which dominates at distances much less than the wavelength). For a round-trip measurement (TX to target to RX), the sensitivity can decay as fast as 1/r^6 depending on target geometry.
+
+```{python}
+#| label: fig-coupling-decay
+#| fig-cap: "Magnetic coupling decay versus distance. The MIT near-field coupling (1/r^3) decays much faster than ERT geometric spreading (1/r^2). The green shaded region indicates typical HIRT probe spacing (1.5-3.5 m). Signal strength drops below practical detection thresholds beyond ~4-5 m separation."
+#| fig-width: 8
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_coupling_decay_plot
+
+buf = create_coupling_decay_plot()
+img = Image.open(buf)
+plt.figure(figsize=(8, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+This rapid decay has important implications for system design:
+
+- **Probe spacing**: Maximum useful TX-RX separation is ~3-4 m for typical targets
+- **Array density**: Dense probe arrays (1-2 m spacing) provide better coverage than sparse arrays
+- **Signal processing**: High dynamic range ADCs required to capture both strong and weak paths
+- **Integration time**: Longer measurement integration needed for distant TX-RX pairs
+
+### SNR Optimization {#sec-snr-optimization}
+
+Signal-to-noise ratio (SNR) for MIT measurements depends on several controllable factors:
+
+$$
+\text{SNR} \propto D_m^{3/2} \times I \times \sqrt{t_{int}}
+$$ {#eq-snr-scaling}
+
+where $D_m$ is coil diameter, $I$ is transmit current, and $t_{int}$ is integration time.
+
+Key optimization strategies:
+
+- **Coil diameter**: The most important factor---SNR scales as $D_m^{3/2}$. Doubling coil diameter increases SNR by ~2.8x
+- **Integration time**: Provides linear improvement with square root of time---4x longer integration yields 2x SNR improvement
+- **Transmit current**: Linear relationship---doubling current doubles SNR (within thermal limits)
+
+The depth of investigation (DOI) has a modest relationship with noise floor: DOI $\propto$ noise$^{-0.2}$. Reducing noise by a factor of 10 extends DOI by approximately 1.6x. This relationship reinforces that geometric factors (probe depth and spacing) remain the primary determinants of investigation depth.
+
+## ERT-Lite (Galvanic Method) {#sec-ert-physics}
+
+### Operating Principle {#sec-ert-principle}
+
+Electrical Resistivity Tomography injects electrical current through the subsurface and measures the resulting voltage distribution. Two electrodes inject a known current (typically 0.5-2 mA for safety), while other electrodes measure voltage differences. The ratio V/I, combined with the electrode geometry, yields the apparent resistivity $\rho_a$ of the material between electrodes.
+
+Unlike MIT, ERT does not respond to metallic targets directly. Instead, it detects **resistivity contrasts** such as disturbed fill, moisture variations, compacted layers, voids, and the boundaries of burial pits. The combination of MIT (metal-sensitive) and ERT (structure-sensitive) provides comprehensive target characterization.
+
+### Geometric Factor K {#sec-geometric-factor}
+
+The geometric factor K converts measured V/I ratios to apparent resistivity:
+
+$$
+\rho_a = K \times \frac{V}{I}
+$$ {#eq-apparent-resistivity}
+
+For HIRT's borehole electrode geometry, the geometric factor is approximately:
+
+$$
+K \approx \pi \times L
+$$ {#eq-geometric-factor}
+
+where L is the separation distance between current injection electrodes.
+
+::: {.callout-note}
+## Derivation of K = piL for Crosshole Ring Electrodes
+
+The simplified $K \approx \pi L$ relationship for HIRT assumes:
+
+1. **Cylindrical symmetry:** Current flows radially outward from ring electrodes into a homogeneous half-space
+2. **Ring electrode approximation:** Each ring acts as a line source at depth, with current density uniform around the ring circumference
+3. **Infinite medium correction:** The $2\pi$ factor for full-space reduces to $\pi$ for practical borehole measurements where current primarily flows laterally through the formation between probes
+4. **Potential electrode at midpoint:** Voltage is measured at the potential electrode(s) located between or adjacent to current electrodes
+
+For a two-electrode (pole-pole) configuration with current injection at ring A and return at ring B separated by distance L, the potential difference measured at a ring between them follows: $V \approx \frac{I \rho}{\pi L}$, yielding $K \approx \pi L$.
+
+This approximation is valid within +/-15% for typical HIRT geometries (L = 0.5-2.5 m, ring width << L). More accurate geometric factors can be computed numerically for specific electrode arrangements using finite element modeling.
+:::
+
+| Configuration | L (electrode separation) | K |
+|---------------|-------------------------|---|
+| A(0.5m) to B(1.5m) | 1.0 m | 3.14 ohm-m |
+| A(0.5m) to C(2.5m) | 2.0 m | 6.28 ohm-m |
+| A(0.5m) to D(3.0m) | 2.5 m | 7.85 ohm-m |
+
+: ERT geometric factors for HIRT ring electrode configurations. Larger electrode separations provide greater depth of investigation but lower resolution. {#tbl-geometric-factors}
+
+```{python}
+#| label: fig-ert-geometric
+#| fig-cap: "ERT Wenner array configuration showing current injection electrodes (C1, C2) and potential measurement electrodes (P1, P2). Red curves indicate current flow lines; blue dashed lines show equipotential surfaces. The green ellipse marks the zone of maximum sensitivity. The geometric factor K = 2*pi*a for equal electrode spacing a."
+#| fig-width: 9
+#| fig-height: 4
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_ert_geometric_factor
+
+buf = create_ert_geometric_factor()
+img = Image.open(buf)
+plt.figure(figsize=(9, 4))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### Depth of Investigation {#sec-ert-depth}
+
+The ERT depth of investigation (DOI) is approximately 1.5x the maximum electrode separation. For HIRT probe configurations:
+
+- **1.5 m probes** (rings at 0.5m, 1.5m): DOI = 2-3 m
+- **3.0 m probes** (rings at 0.5m, 1.5m, 2.5m): DOI = 3-5 m (edge cases to 6 m)
+
+## Multi-Frequency Response {#sec-multi-frequency}
+
+Different subsurface features exhibit characteristic frequency-dependent responses that enable target discrimination. The frequency response of metallic targets depends on both target size and material conductivity: larger targets and higher-conductivity metals (copper, aluminum) show stronger low-frequency responses, while smaller targets require higher frequencies for adequate skin depth penetration into the metal volume. Non-metallic soil disturbances and moisture contrasts show broader, less frequency-dependent signatures that help distinguish them from metal.
+
+```{python}
+#| label: fig-frequency-response
+#| fig-cap: "Multi-frequency target discrimination. Metal targets (red) show strong response at lower frequencies with characteristic roll-off. Soil disturbances (purple, dashed) exhibit broader frequency response. The combined signal (gray, dotted) can be decomposed through multi-frequency analysis. The green region indicates the HIRT sweep range (2-50 kHz)."
+#| fig-width: 9
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_frequency_response
+
+buf = create_frequency_response()
+img = Image.open(buf)
+plt.figure(figsize=(9, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+Multi-frequency sweeps enable:
+
+- **Target classification**: Metal vs. soil anomaly discrimination based on spectral signature
+- **Depth estimation**: Lower frequencies see deeper; response vs. frequency constrains depth
+- **Size estimation**: Larger metal objects have lower characteristic frequencies
+- **Conductivity mapping**: Frequency response shape indicates soil conductivity distribution
+
+## Why Crosshole Geometry Beats Surface Methods {#sec-crosshole-advantage}
+
+HIRT's borehole/crosshole tomography provides fundamental physics advantages over surface geophysical methods for targets deeper than approximately 1.5 m. These advantages stem from the geometry of measurement ray paths and the resulting illumination angles.
+
+### Surface vs. Crosshole: A Medical Analogy {#sec-surface-crosshole-comparison}
+
+The distinction between surface and crosshole geophysics parallels the difference between medical X-ray imaging and CT scanning. A single X-ray provides a 2D projection of 3D anatomy---all structures along the ray path collapse into a single shadow. Computed tomography (CT) surrounds the patient with detectors, acquiring projections from hundreds of angles to reconstruct true 3D anatomy.
+
+**Surface geophysical methods** operate like X-rays: all sensors are above the target, looking downward. They measure the integrated response along a single dominant direction. A target at 2 m depth produces nearly the same surface signature whether it sits at 1.8 m or 2.2 m depth---vertical resolution is inherently poor because all ray paths travel steeply through the target zone.
+
+**Crosshole tomography** operates like CT scanning: probes surround the target volume, acquiring measurements from many angles. A target at 2 m depth is illuminated horizontally, diagonally, and from below by ray paths connecting different probe pairs. This angular diversity enables true 3D reconstruction with isotropic resolution---the ability to distinguish targets separated by similar distances horizontally or vertically.
+
+This is not merely an improvement in data processing; it is a fundamental physics advantage driven by measurement geometry. You cannot compute tomography from surface data because the ray paths lack angular diversity. Crosshole geometry provides that diversity by design.
+
+### Ray Path Geometry {#sec-ray-paths}
+
+**Surface methods** must send energy down to a target and receive the return signal---doubling the path length and exponentially increasing attenuation. Sensitivity decreases as 1/r^2 to 1/r^4 with depth. More critically, nearly all energy travels vertically through the target, providing excellent lateral resolution but poor vertical discrimination.
+
+**Crosshole methods** send signals horizontally through the target volume. Energy travels directly between probes at depth, with sensitivity concentrated precisely where targets are located. This geometry provides 2-5x better resolution than surface methods at depths exceeding 2 m (*theoretical advantage based on ray coverage geometry; field validation pending*), with approximately isotropic resolution in all three dimensions.
+
+```{python}
+#| label: fig-ray-path-comparison
+#| fig-cap: "Comparison of (a) surface and (b) crosshole ray path geometries. Surface sensors create curved, indirect paths with poor sensitivity at depth. Crosshole probes provide direct, straight paths through the target volume. The checkmark in (b) indicates confident target detection; the question mark in (a) indicates ambiguous response at depth."
+#| fig-width: 10
+#| fig-height: 4.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_ray_path_comparison
+
+buf = create_ray_path_comparison()
+img = Image.open(buf)
+plt.figure(figsize=(10, 4.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### Illumination Angles and Angular Diversity {#sec-illumination-angles}
+
+The fundamental advantage of crosshole geometry lies in angular diversity---the range of angles from which energy interrogates the target. Surface methods illuminate targets from a narrow cone of angles (typically 60-80 degrees from vertical), while crosshole methods provide illumination from nearly all directions in the horizontal plane and many angles in the vertical plane.
+
+Consider a 0.5 m diameter spherical target at 2.5 m depth in a 3-probe HIRT array with 2 m spacing. The target experiences:
+
+- **12 unique ray paths** between probe pairs (3 probes * 4 measurement depths * 2 channels = 24 measurement geometries)
+- **Angular coverage** spanning 180 degrees in horizontal plane
+- **Vertical angles** from -45 to +45 degrees relative to target center
+
+This angular diversity directly translates to reconstruction quality. Tomographic inversion requires measurements that sample the target from multiple perspectives. A general rule: resolution improves linearly with the number of independent viewing angles up to approximately 20-30 angles, after which diminishing returns occur.
+
+::: {.visual-placeholder}
+**Figure Concept**: Illumination angle comparison diagram
+
+A side-by-side comparison showing ray path angles for surface vs. crosshole geometry:
+
+**Left panel (Surface ERT/MIT):**
+- Show 5-7 surface sensors arranged in a line above ground
+- Draw ray paths from each sensor down to a target at 2.5 m depth
+- All rays converge downward in a narrow cone (60-80 deg from vertical)
+- Color-code rays by angle: steep (red), moderate (orange), shallow (yellow)
+- Annotate: "All rays from above - poor vertical resolution"
+
+**Right panel (HIRT Crosshole):**
+- Show 3 probes at 2 m spacing inserted to 3 m depth
+- Draw ray paths connecting probes at multiple depths through a target at 2.5 m
+- Include horizontal rays (green), ascending rays (blue), descending rays (purple)
+- Show angular coverage: 180 deg horizontal, +/- 45 deg vertical
+- Annotate: "Rays from all directions - isotropic 3D resolution"
+
+**Bottom comparison:**
+- Small polar plot for each showing angular coverage
+- Surface: narrow wedge (60-80 deg)
+- Crosshole: nearly full circle coverage
+
+Scale: use consistent 1 m grid spacing. Target shown as 0.5 m sphere at 2.5 m depth.
+
+**Type**: diagram
+:::
+
+Surface methods concentrate their ray paths in the vertical direction. A Wenner array with 1 m electrode spacing samples the subsurface primarily along near-vertical current paths. The resulting sensitivity pattern is pancake-shaped: excellent lateral resolution but poor depth discrimination. Targets at 2.0 m vs. 2.5 m depth may show <10% difference in measured apparent resistivity.
+
+Crosshole methods distribute ray paths across many angles. The sensitivity pattern is approximately spherical around each probe, with maximum sensitivity along the direct probe-to-probe lines. Targets at 2.0 m vs. 2.5 m depth show >50% difference in affected ray paths, enabling confident depth determination.
+
+### Resolution Comparison: Surface vs. Crosshole {#sec-resolution-comparison}
+
+The following table quantifies the resolution advantage of crosshole geometry at depth. Resolution is defined as the minimum separation at which two point targets can be distinguished with >80% confidence in inverted models.
+
+| Method | Lateral Resolution | Vertical Resolution | Resolution at 3 m Depth | Depth Limit |
+|--------|-------------------|---------------------|----------------------|-------------|
+| Surface Magnetometry | 1-2 m | Poor (>3 m) | ~2 m lateral | 3-4 m (ferrous only) |
+| GPR (100 MHz) | 0.3-0.5 m (shallow) | 0.05-0.1 m (shallow) | >1 m (clay absorbs signal) | 0.5-2 m in clay |
+| Surface ERT (Wenner) | ~1x spacing | ~0.5x spacing | 2-3 m lateral | 4-6 m |
+| EM31/CMD | 1-2 m | Poor (>3 m) | ~2 m lateral | 3-5 m (conductive) |
+| **HIRT Crosshole MIT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-4 m** |
+| **HIRT Crosshole ERT** | **0.5-1x spacing** | **0.3-0.5x spacing** | **0.75-1.5 m (isotropic)** | **3-5 m** |
+
+: Resolution comparison across geophysical methods at typical HIRT investigation depths. Note that HIRT provides approximately isotropic resolution (similar in all directions), while surface methods show 3-6x worse vertical than lateral resolution. {#tbl-resolution-comparison}
+
+The key distinction is **isotropic vs. anisotropic resolution**. Surface methods provide good lateral resolution but poor vertical resolution because all ray paths are steeply inclined. Crosshole methods provide similar resolution in all three dimensions because ray paths sample all orientations.
+
+### Why This Matters for HIRT Applications {#sec-crosshole-applications}
+
+The resolution and angular diversity advantages of crosshole geometry directly address the core challenges in HIRT target scenarios.
+
+#### Bomb Crater Investigations {#sec-bomb-crater-applications}
+
+Unexploded bombs buried at 2-4 m depth in craters backfilled with mixed soil, rubble, and organic debris present multiple challenges:
+
+- **Vertical stratification**: Craters fill in layers over decades. Surface methods cannot distinguish a target at 2.5 m depth in fill layer 3 from a target at 3.5 m depth in fill layer 5. HIRT's vertical resolution (0.5-1 m) enables layer-by-layer reconstruction.
+
+- **Multiple targets**: Bomb fragments, shrapnel, vehicle debris, and potentially human remains may cluster within a 2 m radius. Surface magnetometry sees this as a single diffuse anomaly. HIRT resolves individual objects separated by >0.75 m.
+
+- **Non-ferrous detection**: Aluminum aircraft debris lacks magnetic signature but strongly affects MIT measurements. ERT detects the void or disturbed soil around buried objects.
+
+#### Woodland Burial Detection {#sec-burial-applications}
+
+Clandestine burials in wooded areas at 1-3 m depth:
+
+- **Surface clutter**: Tree roots, stones, animal burrows, and soil heterogeneity create overwhelming noise in surface measurements. HIRT probes are inserted below the root zone; measurements occur in undisturbed soil below 0.5 m.
+
+- **Depth determination**: Legal and operational decisions depend on accurate depth. "Approximately 2 m" from surface ERT is insufficient. HIRT provides depth estimates with +/- 0.3 m confidence.
+
+- **Disturbance geometry**: The 3D shape of disturbed soil (rectangular pit vs. natural void) aids classification. This requires 3D imaging, which crosshole geometry provides but surface methods cannot.
+
+#### Swamp/Marsh Crash Sites {#sec-swamp-applications}
+
+Aircraft wreckage in saturated, highly conductive soils at 2-5 m depth:
+
+- **GPR failure**: High conductivity limits GPR penetration to <0.5 m. HIRT MIT operates at frequencies (2-10 kHz) where skin depth exceeds 10 m even in saturated soil.
+
+- **Depth penetration**: ERT performance improves with soil conductivity (better current injection). Surface ERT depth limit is ~4 m; HIRT extends this to 5-6 m in favorable conditions.
+
+- **Debris field mapping**: Crash debris scatters over 10-30 m laterally and 3-5 m vertically. True 3D reconstruction is essential for recovery planning. Surface methods provide 2D projections that cannot distinguish a compact debris field at 3 m from a dispersed field spanning 2-4 m depth.
+
+### Additional Crosshole Advantages {#sec-crosshole-benefits}
+
+Beyond resolution and angular diversity, crosshole methods offer several practical advantages:
+
+- **No surface interference**: Measurements occur below near-surface heterogeneity, fill, roots, and cultural noise (fences, vehicles)
+- **True 3D sampling**: Multiple ray paths at different angles enable tomographic reconstruction---not pseudo-depth estimation from diffraction patterns
+- **Superior depth discrimination**: Targets at 3 m vs. 4 m depth are clearly distinguishable; surface methods show nearly identical responses
+- **Scalable depth**: Surface method depth is fixed by the instrument design. HIRT investigation depth scales with probe insertion depth (up to physical limits of ~5 m).
+
+```{python}
+#| label: fig-resolution-depth
+#| fig-cap: "Spatial resolution versus investigation depth. Surface methods (dashed gray) show quadratic degradation of resolution with depth. HIRT crosshole methods (solid green) maintain approximately linear resolution scaling. The red dashed line indicates typical UXB diameter (~0.5 m). The orange shaded region marks typical UXB burial depths (2-4 m)."
+#| fig-width: 8
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.physics import create_resolution_depth_plot
+
+buf = create_resolution_depth_plot()
+img = Image.open(buf)
+plt.figure(figsize=(8, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Depth of Investigation Summary {#sec-depth-summary}
+
+The effective investigation depth depends on probe configuration, soil conditions, and the measurement technique (MIT vs. ERT). The following table summarizes depth capabilities with associated confidence levels:
+
+| Configuration | MIT Depth | ERT Depth | Combined Claim |
+|---------------|-----------|-----------|----------------|
+| 1.5 m probes, 2 m spacing | 2-3 m | 2-3 m | 2-3 m (HIGH confidence) |
+| 3.0 m probes, 2 m spacing | 3-4 m | 3-5 m | 3-5 m (MEDIUM confidence) |
+| Edge cases (conductive soil) | 2-3 m | 4-6 m | Up to 6 m (LOW confidence) |
+
+: Depth of investigation summary by configuration and confidence level. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions. {#tbl-depth-summary}
+
+**Rule of thumb:** With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT).
+
+## When Crosshole Wins vs. Loses {#sec-crosshole-tradeoffs}
+
+The physics supports strategic use of both surface and crosshole methods. Understanding their respective strengths enables optimal workflow design.
+
+**HIRT crosshole geometry is SUPERIOR for:**
+
+- Targets deeper than 1.5-2 m
+- 3D localization requirements
+- Conductive soils where GPR fails
+- Distinguishing multiple targets at similar depths
+- Non-ferrous (aluminum) target detection
+
+**Surface methods remain SUPERIOR for:**
+
+- Rapid large-area screening (10x faster coverage)
+- Shallow targets (<1 m) where GPR resolution excels
+- Purely ferrous targets (magnetometry)
+- Initial site characterization before targeted investigation
+
+::: {.callout-tip}
+## Recommended Workflow
+
+- **Stage 1:** Surface screening (magnetometry, GPR, EM31) to identify anomalies quickly over large areas
+- **Stage 2:** HIRT crosshole follow-up to characterize identified anomalies with superior 3D resolution
+- This two-stage approach leverages the strengths of both methods while minimizing deployment time
+:::
+
+## References {#sec-physics-references}
+
+1. Wait, J.R. (1951). The magnetic dipole over the horizontally stratified earth. *Canadian Journal of Physics*, 29(6), 577-592. [DOI: 10.1139/p51-061](https://doi.org/10.1139/p51-061)
+
+2. Ward, S.H., & Hohmann, G.W. (1988). Electromagnetic theory for geophysical applications. In *Electromagnetic Methods in Applied Geophysics*, Vol. 1, Theory. Society of Exploration Geophysicists. [DOI: 10.1190/1.9781560802631.ch4](https://doi.org/10.1190/1.9781560802631.ch4)
+
+3. Telford, W.M., Geldart, L.P., & Sheriff, R.E. (1990). *Applied Geophysics*, 2nd Edition. Cambridge University Press. [DOI: 10.1017/CBO9781139167932](https://doi.org/10.1017/CBO9781139167932)
+
+4. Griffiths, D.H., & Barker, R.D. (1993). Two-dimensional resistivity imaging and modelling in areas of complex geology. *Journal of Applied Geophysics*, 29(3-4), 211-226. [DOI: 10.1016/0926-9851(93)90005-J](https://doi.org/10.1016/0926-9851(93)90005-J)
+
+5. Butler, D.K. (2001). Potential fields methods for location of unexploded ordnance. *The Leading Edge*, 20(8), 890-895. [DOI: 10.1190/1.1487298](https://doi.org/10.1190/1.1487298)
+
+6. Fernandez, J.P., et al. (2010). Realistic subsurface anomaly discrimination using electromagnetic induction and an SVM classifier. *EURASIP Journal on Advances in Signal Processing*, 2010, Article 6. [DOI: 10.1155/2010/616365](https://doi.org/10.1155/2010/616365)

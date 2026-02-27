@@ -1,0 +1,472 @@
+---
+title: "Ethics, Legal, and Safety"
+---
+
+## Introduction {#sec-ethics-intro}
+
+HIRT deployment at sensitive archaeological, forensic, or humanitarian demining sites requires strict adherence to safety protocols, legal requirements, and ethical guidelines. This section provides comprehensive guidance for safe and responsible operations, with particular emphasis on unexploded ordnance (UXO) site safety.
+
+## Human Remains Protocol {#sec-human-remains}
+
+HIRT surveys at sites potentially containing human remains must be treated as **forensic/archaeological contexts**. The following requirements apply:
+
+- Obtain all **permits and permissions** before deployment
+- Follow jurisdictional requirements (heritage boards, war graves authorities)
+- Maintain proper chain of custody for any findings
+- Document all activities thoroughly with photographs and written records
+- Coordinate with relevant authorities before, during, and after surveys
+
+## UXO Risk Assessment {#sec-uxo-risk}
+
+::: {.callout-warning}
+## CRITICAL WARNING
+
+- WWII sites can contain live ordnance
+- Standard insertion methodology is DANGEROUS at UXO sites
+- Never drive or hammer probes until area is cleared by qualified EOD/UXO professionals
+:::
+
+### Pre-Survey Requirements {#sec-pre-survey}
+
+Before any HIRT deployment at a suspected UXO site, the following requirements must be satisfied:
+
+1. Coordinate with explosive ordnance disposal (EOD) teams
+2. Obtain professional EOD sweep clearance for the survey area
+3. Follow established UXO clearance protocols for the jurisdiction
+4. Maintain safe standoff distances during all operations
+5. Establish clear emergency evacuation procedures
+
+### Active Signal Safety (HERO Protocols) {#sec-hero-safety}
+
+The HIRT system operates in the 2-50 kHz range, which classifies it as an active emitter under **HERO (Hazards of Electromagnetic Radiation to Ordnance)** standards.
+
+**The Risk:** While standard WWII magnetic mines targeted DC or low-frequency (<10 Hz) signatures, the 2-50 kHz AC signal can induce eddy currents in **Electro-Explosive Devices (EEDs)** found in some German and Allied bombs (e.g., electric fuzes).
+
+**Required Protocol:**
+1.  **Treat as HERO UNSAFE:** Until specific ordnance types are ruled out, assume the probe's electromagnetic field can trigger EEDs.
+2.  **Passive Scan First:** Use the magnetometer sensors *passively* (MIT transmitter OFF) to scan the look-ahead buffer (1.5 - 2.0 meters).
+3.  **Clearance:** Only activate the MIT transmitter once the immediate volume is confirmed clear of ferrous anomalies.
+
+### "Permit to Dig" Requirements {#sec-permit-to-dig}
+
+In jurisdictions such as the UK (under **CIRIA C681**) and EU conflict zones, a "Permit to Dig" is strictly conditional.
+
+**Workflow for HIRT Deployment:**
+1.  **Detailed Risk Assessment (DRA):** Must be completed by a competent UXO specialist before any site work.
+2.  **Non-Intrusive Survey:** Surface magnetometry to clear the general area.
+3.  **Intrusive MagCone/Probe:** Use passive magnetometry to clear the specific probe insertion point to depth.
+4.  **Certificate:** Obtain a *UXO Clearance Certificate* for the specific coordinate.
+5.  **Permit Issuance:** The Permit to Dig is issued only after the Clearance Certificate is attached.
+
+### Critical Problems with Standard Procedures {#sec-critical-problems}
+
+The standard HIRT insertion methodology ("drive pilot rod to depth, wiggle to 12-14 mm, remove") presents unacceptable risks at UXO sites:
+
+- **Mechanical trigger risk:** Driving a steel rod into ground containing potential ordnance could trigger detonation
+- **No risk analysis:** Standard procedures lack risk analysis for probe insertion near UXB
+- **Electrical interaction:** ERT current injection (0.5-2 mA) could theoretically interact with sensitive fuzes
+- **Transient hazards:** No overvoltage protection specified (12V/0.5 ohm = 24A transient on short)
+
+```{python}
+#| label: fig-safety-flowchart
+#| fig-cap: "UXO site safety protocol decision flowchart. Each survey must complete all safety checks before proceeding with probe insertion."
+#| fig-width: 8
+#| fig-height: 6
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.axis('off')
+
+def add_box(ax, x, y, text, color='#e8f4f8'):
+    box = FancyBboxPatch((x-1.2, y-0.3), 2.4, 0.6, boxstyle="round,pad=0.05",
+                         facecolor=color, edgecolor='black', lw=1.5)
+    ax.add_patch(box)
+    ax.text(x, y, text, ha='center', va='center', fontsize=8, fontweight='bold')
+
+ax.text(5, 7.5, 'UXO Site Safety Protocol', ha='center', fontsize=12, fontweight='bold')
+
+add_box(ax, 5, 6.5, 'EOD Clearance?', '#fff3cd')
+add_box(ax, 2.5, 5.5, 'STOP - Get Clearance', '#f8d7da')
+add_box(ax, 7.5, 5.5, 'Check Conductivity', '#e8f4f8')
+add_box(ax, 7.5, 4.5, '<5500 uS/cm?', '#fff3cd')
+add_box(ax, 5, 3.5, 'HALT - Evacuate', '#f8d7da')
+add_box(ax, 9.5, 3.5, 'Proceed Carefully', '#d4edda')
+add_box(ax, 7.5, 2.5, 'Soft Insert Only', '#d4edda')
+add_box(ax, 7.5, 1.5, 'Monitor Continuously', '#d4edda')
+
+ax.annotate('', xy=(3.7, 5.5), xytext=(5, 6.2), arrowprops=dict(arrowstyle='->', color='red'))
+ax.text(3.5, 5.9, 'No', fontsize=8, color='red')
+ax.annotate('', xy=(6.3, 5.5), xytext=(5, 6.2), arrowprops=dict(arrowstyle='->', color='green'))
+ax.text(6.5, 5.9, 'Yes', fontsize=8, color='green')
+ax.annotate('', xy=(7.5, 4.8), xytext=(7.5, 5.2), arrowprops=dict(arrowstyle='->', color='black'))
+ax.annotate('', xy=(6.3, 3.5), xytext=(7.5, 4.2), arrowprops=dict(arrowstyle='->', color='red'))
+ax.text(6.5, 3.9, 'No', fontsize=8, color='red')
+ax.annotate('', xy=(8.7, 3.5), xytext=(7.5, 4.2), arrowprops=dict(arrowstyle='->', color='green'))
+ax.text(8.5, 3.9, 'Yes', fontsize=8, color='green')
+ax.annotate('', xy=(7.5, 2.8), xytext=(8.3, 3.2), arrowprops=dict(arrowstyle='->', color='black'))
+ax.annotate('', xy=(7.5, 1.8), xytext=(7.5, 2.2), arrowprops=dict(arrowstyle='->', color='black'))
+
+plt.tight_layout()
+plt.show()
+```
+
+### Required Safety Measures for UXO Sites {#sec-safety-measures}
+
+| Protocol | Action |
+|----------|--------|
+| Pre-survey EOD clearance | Professional EOD sweep before ANY insertion |
+| Safe standoff perimeter | Minimum 100m exclusion zone during insertion |
+| Soft insertion only | Hand auger or water-jet only (NO hammering) |
+| Conductivity pre-check | Check soil conductivity before deep insertion |
+| Personnel limits | Minimum personnel in hazard zone |
+| Communications | Constant radio contact with safe zone |
+
+: Required safety measures for UXO site operations {#tbl-safety-measures}
+
+## Conductivity Threshold Monitoring {#sec-conductivity-monitoring}
+
+Research (Waga et al. 2026) indicates that conductivity >6,000 uS/cm at WWII bomb craters signals chemical activation risk, potentially leading to spontaneous explosions. HIRT's ERT-Lite system provides continuous conductivity monitoring capability.
+
+```{python}
+#| label: fig-risk-matrix
+#| fig-cap: "Conductivity-based risk assessment matrix. Operations must halt immediately if conductivity exceeds 5,500 uS/cm."
+#| fig-width: 8
+#| fig-height: 4
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(8, 4))
+
+zones = [
+    (0, 3000, 'GREEN\nSafe', '#28a745'),
+    (3000, 5500, 'YELLOW\nCaution', '#ffc107'),
+    (5500, 8000, 'RED\nHALT', '#dc3545')
+]
+
+for start, end, label, color in zones:
+    ax.axvspan(start, end, alpha=0.7, color=color)
+    ax.text((start + end) / 2, 0.5, label, ha='center', va='center',
+            fontsize=14, fontweight='bold', color='white' if color != '#ffc107' else 'black')
+
+ax.set_xlim(0, 8000)
+ax.set_ylim(0, 1)
+ax.set_xlabel('Soil Conductivity (uS/cm)', fontsize=11)
+ax.set_title('UXO Site Conductivity Risk Assessment', fontsize=12, fontweight='bold')
+ax.set_yticks([])
+ax.axvline(x=3000, color='black', linestyle='--', lw=1)
+ax.axvline(x=5500, color='black', linestyle='--', lw=2)
+
+plt.tight_layout()
+plt.show()
+```
+
+### Safety Thresholds {#sec-safety-thresholds}
+
+| Conductivity | Status | Action |
+|--------------|--------|--------|
+| <3,000 uS/cm | GREEN (Safe) | Normal operations |
+| 3,000-5,500 uS/cm | YELLOW (Caution) | Increased monitoring, limit insertion depth |
+| >5,500 uS/cm | RED (Halt) | STOP all insertion, evacuate to safe zone, consult EOD |
+
+: Conductivity safety thresholds for UXO site operations {#tbl-conductivity-thresholds}
+
+### Time-Lapse Monitoring Schedule {#sec-monitoring-schedule}
+
+For extended UXO site investigations, implement the following monitoring schedule:
+
+| Phase | Timing | Metrics | Action |
+|-------|--------|---------|--------|
+| Baseline | Day 0 | Full MIT + ERT survey | Establish reference values |
+| Early detection | Day 7-14 | Conductivity only | Alert if >10% change |
+| Long-term | Monthly | Full ERT | Track redox boundary evolution |
+| Pre-excavation | 24-48h before | Full survey | Final safety check |
+
+: Recommended time-lapse monitoring schedule for UXO sites {#tbl-monitoring-schedule}
+
+## Rim-Only Deployment {#sec-rim-deployment}
+
+For craters with suspected UXB at center, deploy probes **around the perimeter only**. This approach maintains survey geometry while avoiding direct insertion over suspected ordnance.
+
+```{python}
+#| label: fig-rim-deployment
+#| fig-cap: "Rim-only deployment pattern for high-risk craters. Probes are positioned around the perimeter, maintaining safe standoff from the central exclusion zone."
+#| fig-width: 6
+#| fig-height: 6
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(6, 6))
+
+# Crater outline
+theta = np.linspace(0, 2*np.pi, 100)
+ax.fill(2*np.cos(theta), 2*np.sin(theta), color='#dc3545', alpha=0.3, label='Exclusion Zone')
+ax.plot(2*np.cos(theta), 2*np.sin(theta), 'r--', lw=2)
+
+# Safe deployment zone
+ax.fill(3.5*np.cos(theta), 3.5*np.sin(theta), color='#28a745', alpha=0.2)
+ax.plot(3.5*np.cos(theta), 3.5*np.sin(theta), 'g-', lw=1)
+
+# Probes around perimeter
+probe_angles = np.linspace(0, 2*np.pi, 12, endpoint=False)
+for angle in probe_angles:
+    x, y = 3*np.cos(angle), 3*np.sin(angle)
+    ax.plot(x, y, 'ko', markersize=10)
+    ax.plot(x, y, 'b^', markersize=6)
+
+ax.text(0, 0, 'DANGER\nZONE', ha='center', va='center', fontsize=10, fontweight='bold', color='red')
+ax.text(0, -4.2, 'Rim-Only Deployment Pattern', ha='center', fontsize=11, fontweight='bold')
+ax.set_xlim(-5, 5)
+ax.set_ylim(-5, 5)
+ax.set_aspect('equal')
+ax.axis('off')
+ax.legend(loc='upper right')
+
+plt.tight_layout()
+plt.show()
+```
+
+::: {.callout-note}
+## HIRT Early Warning Capability
+
+- Volumetric 3D resistivity (vs. single-point measurements)
+- Gradient detection identifies active redox boundaries
+- Non-magnetic operation safe near UXB
+- "Set Once; Measure Many" enables time-lapse without repeated insertion
+:::
+
+## Minimal Intrusion Principles {#sec-minimal-intrusion}
+
+HIRT operations should always prioritize minimal site disturbance. The following principles guide responsible deployment:
+
+- Prefer **rim/perimeter probing** over direct insertion into suspected areas
+- Use **shallow depths** when possible to achieve survey objectives
+- Employ **pilot holes** to minimize ground disturbance volume
+- **Avoid inserting probes into suspected burial voids** without explicit authorization
+- Document all probe insertion points and depths for site records
+
+## Field Safety Checklist {#sec-field-checklist}
+
+The following checklist must be completed before commencing any HIRT survey at a UXO-suspected site. All critical items (marked with a star) are mandatory.
+
+```{python}
+#| label: fig-safety-checklist
+#| fig-cap: "UXO site safety checklist. All critical items (marked with star) must be verified before operations commence."
+#| fig-width: 8
+#| fig-height: 5
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.axis('off')
+
+checklist = [
+    ('*', 'EOD professional clearance obtained', True),
+    ('*', 'Emergency evacuation plan established', True),
+    ('*', 'Radio communication verified', True),
+    ('*', 'Safe zone perimeter marked (100m+)', True),
+    ('', 'Weather conditions acceptable', False),
+    ('*', 'Conductivity baseline <3000 uS/cm', True),
+    ('', 'Equipment safety check complete', False),
+    ('*', 'Minimum personnel in hazard zone', True),
+    ('', 'Site documentation prepared', False),
+    ('*', 'EOD contact on standby', True),
+]
+
+ax.text(0.5, 0.95, 'UXO Site Safety Checklist', ha='center', va='top',
+        transform=ax.transAxes, fontsize=14, fontweight='bold')
+ax.text(0.5, 0.88, '(* = Critical - Must verify before operations)', ha='center', va='top',
+        transform=ax.transAxes, fontsize=9, style='italic', color='#666')
+
+for i, (star, text, critical) in enumerate(checklist):
+    y = 0.8 - i * 0.07
+    color = '#dc3545' if critical else '#333'
+    marker = '[ ] ' + star + ' ' if star else '[ ]   '
+    ax.text(0.1, y, marker + text, transform=ax.transAxes, fontsize=10,
+            fontfamily='monospace', color=color, fontweight='bold' if critical else 'normal')
+
+plt.tight_layout()
+plt.show()
+```
+
+## General Field Safety {#sec-general-safety}
+
+Beyond UXO-specific protocols, all HIRT field operations must adhere to general safety practices:
+
+- Maintain clear communication protocols between all team members
+- Use appropriate personal protective equipment (PPE) for site conditions
+- Have emergency contact information readily available and posted
+- Follow local environmental regulations for equipment deployment
+- Respect site boundaries and access restrictions at all times
+- Conduct daily equipment safety checks before deployment
+- Maintain first aid kit and emergency supplies on site
+
+## Forensic Data Integrity and Chain of Custody {#sec-chain-of-custody}
+
+HIRT surveys conducted in support of criminal investigations, human rights documentation, or conflict archaeology must adhere to forensic standards that ensure data integrity and admissibility in legal proceedings. The chain of custody establishes an auditable record from data collection through analysis to final reporting.
+
+### Why Chain of Custody Matters {#sec-custody-rationale}
+
+HIRT-derived evidence may support criminal prosecutions, civil litigation, or international tribunals investigating war crimes or mass atrocities. Data integrity depends on documented procedures that satisfy three core requirements:
+
+**Authenticity**: Proof that the data originated from the stated location and time, collected by identified personnel using verified equipment. Metadata linking survey data to specific GPS coordinates, timestamps, and operator credentials establishes this foundation.
+
+**Continuity**: An unbroken record of who handled the data, when transfers occurred, and what actions were performed. Gaps in documentation raise questions about potential tampering or contamination that can render evidence inadmissible.
+
+**Integrity**: Verification that the data remains unchanged from the moment of collection. Cryptographic hash functions (MD5, SHA-256) provide mathematical proof that files have not been altered, even inadvertently.
+
+Without rigorous chain of custody protocols, scientifically valid HIRT results may be excluded from legal proceedings, undermining investigations and delaying justice. The following procedures establish forensic-grade documentation standards.
+
+### Data Collection Protocol {#sec-collection-protocol}
+
+Every HIRT survey conducted for forensic purposes must capture comprehensive metadata at the time of data collection. The following fields are mandatory:
+
+**Survey Identification**: Assign a unique identifier using the format `[DATE]-[SITE]-[OPERATOR]`, for example: `20260130-KAMPALA-SMITH`. This identifier must appear in all filenames, field notes, and documentation associated with the survey.
+
+**Temporal Documentation**: Configure the data acquisition system to embed UTC timestamps in all data files. Record the local time zone offset in field notes. Document start and end times for each measurement sequence.
+
+**Operator Credentials**: Record the full name, professional affiliation, and relevant certifications of all personnel involved in data collection. For court proceedings, investigators may need to verify operator qualifications, training records, and prior experience with HIRT methodology.
+
+**Equipment Traceability**: Log the serial numbers of all HIRT probes, data loggers, GPS units, and calibration standards used during the survey. Maintain calibration certificates and instrument service records. This documentation supports Daubert admissibility standards for scientific evidence.
+
+**Instrument Settings**: Record all acquisition parameters including MIT transmit frequency, ERT current levels, measurement averaging periods, and filter settings. Changes to these parameters during the survey must be documented with justification.
+
+### Field Documentation {#sec-field-documentation}
+
+Comprehensive field records establish the context surrounding HIRT data collection. The following documentation is required:
+
+**Site Photography**: Capture wide-angle photographs showing the overall site context before probe insertion. Document each probe location with close-up photographs showing ground conditions, vegetation, and any surface disturbances. Photograph the probe insertion process and final installation. After data collection, photograph the site in its restored condition. Include a scale reference and magnetic compass orientation in all images.
+
+**Geolocation Data**: Record GPS coordinates (WGS84 datum) for every probe location using a survey-grade GPS receiver with sub-meter accuracy. Document the GPS dilution of precision (DOP) values and satellite constellation at the time of measurement. For legal proceedings, investigators may need to verify that probe locations match witness testimony or satellite imagery.
+
+**Environmental Conditions**: Log weather conditions (temperature, precipitation, wind), soil moisture observations, and vegetation type. These factors affect both HIRT measurements and site preservation. Unusual conditions (recent flooding, drought, ground freezing) warrant specific documentation.
+
+**Witness Signatures**: In some jurisdictions, forensic surveys require witness verification. Have an independent observer sign field notes confirming that procedures were followed and no data manipulation occurred. The witness should have no direct involvement in the investigation to maintain independence.
+
+**Field Sketches**: Draw scaled diagrams showing probe locations relative to permanent landmarks. These sketches provide redundant verification of GPS data and help future investigators relocate survey positions years later if needed for re-investigation.
+
+### Data Handling Procedures {#sec-data-handling}
+
+Once HIRT data is collected, strict handling protocols prevent inadvertent modification or loss:
+
+**Original File Preservation**: Immediately after data acquisition, copy raw data files to write-protected media (SD card with physical write-lock, optical disc, or write-once storage). Never perform analysis on original files. All processing, filtering, and inversion must occur on working copies.
+
+**Cryptographic Hash Verification**: Immediately after data collection, compute MD5 and SHA-256 hash values for all data files. Record these hashes in a signed log file. Before any analysis, verify that hash values match the originals, proving no modification has occurred. Modern forensic software automates this process.
+
+**Secure Storage**: Store original data files in access-controlled storage with audit logging. Use encrypted storage for sensitive investigations. Maintain at least three independent copies (onsite, offsite, and cloud backup) to prevent loss from equipment failure or disasters.
+
+**Access Logging**: Maintain a digital log recording every access to HIRT data files, including date, time, user identity, and actions performed (read, copy, analyze). This audit trail proves that only authorized personnel handled the evidence.
+
+**Backup Procedures**: Implement automated daily backups with verification. Store backup media in a geographically separate location from primary data. Test restoration procedures quarterly to ensure backups are functional.
+
+### Transfer Protocols {#sec-transfer-protocols}
+
+When HIRT data must be transferred between investigators, agencies, or laboratories, document the handoff:
+
+**Physical Media Transfer**: When transferring data on external drives or optical media, use a chain of custody form documenting the transferring party, receiving party, date, time, and contents. Both parties sign the form. Package media in tamper-evident bags with serialized seals.
+
+**Digital Transfer**: For network transfer, use encrypted protocols (SFTP, encrypted email, secure cloud services with end-to-end encryption). Log the transfer event including source IP address, destination, file names, and hash values before and after transfer to verify integrity.
+
+**Third-Party Analysis**: When sending HIRT data to external laboratories or expert consultants, establish written agreements specifying data handling requirements, storage security, and destruction procedures. Require the recipient to acknowledge chain of custody requirements in writing.
+
+**International Transfer**: Cross-border data transfers may trigger export controls, data privacy regulations (GDPR), or sovereign restrictions on forensic evidence. Consult legal counsel before transferring HIRT data internationally, particularly for human rights investigations in active conflict zones.
+
+### Reporting Requirements {#sec-reporting-requirements}
+
+Forensic reports incorporating HIRT data must satisfy elevated documentation standards:
+
+**Methodology Section**: Describe the HIRT measurement principle, probe configuration, survey geometry, and data processing workflow in sufficient detail that an independent expert could evaluate the scientific validity. Reference published literature validating the MIT-3D and ERT-Lite methods.
+
+**Software Documentation**: Identify all software used in data processing and inversion, including version numbers and configuration settings. For proprietary software, provide vendor contact information. For custom code, archive source code with version control history.
+
+**Limitations and Uncertainty**: Explicitly state measurement uncertainties, depth resolution limits, and factors that could affect interpretation (soil heterogeneity, cultural interference, data gaps). Provide confidence levels for specific findings. Courts expect scientific witnesses to acknowledge limitations, not claim absolute certainty.
+
+**Operator Qualifications**: Include a brief statement of the operator's education, training, and prior experience conducting HIRT surveys. List relevant certifications, publications, or expert testimony experience. This establishes qualifications under Daubert or Frye admissibility standards.
+
+**Peer Review**: For high-stakes legal proceedings, consider having HIRT data independently reviewed by a qualified geophysicist not involved in the original investigation. Peer review strengthens scientific credibility and anticipates challenges from opposing experts.
+
+### Chain of Custody Form Template {#sec-custody-form}
+
+The following template satisfies minimum documentation requirements for forensic HIRT data transfers:
+
+::: {.callout-note appearance="minimal"}
+## HIRT Data Chain of Custody Form
+
+**Case Identifier:** ___________________________
+**Survey ID:** ___________________________
+**Date of Collection:** ___________________________
+
+---
+
+**Evidence Description:**
+
+- Data file names: ___________________________
+- Number of files: ___________________________
+- Storage media: ___________________________
+- Total data volume: ___________________________
+
+**Hash Values (at time of collection):**
+
+- MD5: ___________________________
+- SHA-256: ___________________________
+
+---
+
+**Transfer Log:**
+
+| Date/Time | Released By (Signature) | Received By (Signature) | Purpose | Location |
+|-----------|------------------------|------------------------|---------|----------|
+| | | | | |
+| | | | | |
+| | | | | |
+| | | | | |
+
+---
+
+**Special Handling Instructions:**
+_________________________________________________________
+_________________________________________________________
+
+**Disposition (Final):**
+Returned to originator [ ]  Permanently archived [ ]  Destroyed [ ]
+
+Date: ___________  Authorized By: ___________________________
+
+:::
+
+### Applicable Standards and Guidance {#sec-custody-standards}
+
+HIRT forensic data handling should align with established standards from the following organizations:
+
+- **ASTM E1492-23**: Standard Practice for Receiving, Documenting, Storing, and Retrieving Evidence in a Forensic Science Laboratory
+- **ISO/IEC 27037:2012**: Guidelines for identification, collection, acquisition, and preservation of digital evidence
+- **SWGDE Best Practices for Computer Forensics** (Scientific Working Group on Digital Evidence)
+- **NIJ Electronic Crime Scene Investigation Guide** (US National Institute of Justice)
+
+Where specific HIRT protocols are not addressed by existing standards, adopt the most conservative interpretation from adjacent forensic disciplines (digital forensics, geophysical survey, archaeological excavation).
+
+## Summary: Recommended Protocol {#sec-protocol-summary}
+
+For UXO sites requiring time-lapse monitoring, implement the following protocol:
+
+1. Baseline ERT survey of crater perimeter (Day 0)
+2. Weekly monitoring of conductivity trends
+3. Alert threshold set at >10% change from baseline
+4. Halt excavation immediately at >5,500 uS/cm
+5. Consult EOD team for any anomalous readings
+
+## References {#sec-ethics-references .unnumbered}
+
+1. OSCE Guidelines for Humanitarian Demining Operations (2024). Organization for Security and Co-operation in Europe.
+2. IMAS 07.11: Land Release. International Mine Action Standards, 3rd Edition (2023).
+3. ASTM D7128-18: Standard Guide for Using the Seismic-Reflection Method for Shallow Subsurface Investigation.
+4. US Army Corps of Engineers (2018). Engineering and Design: Ordnance and Explosives Response. EM 200-1-15.

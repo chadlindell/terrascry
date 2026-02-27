@@ -1,0 +1,19 @@
+Component,Description,Quantity per Probe,Part Number / ASIN,Supplier,Unit Cost,Total Cost (20 probes),Notes
+Rod sections,Fiberglass tube 0.472\" OD × 0.394\" ID × 48\",1-2,Goodwinds 170028,Goodwinds,$14.25,$285,Trim to 1.0-1.5 m; order two per probe for 3 m reach
+Carbon tube upgrade,Carbon fiber tube 12mm × 10mm × 500mm,0-3,B08CVTXYQ9 (ARRIS),Amazon,$9.50,$0-570,Optional lightweight upper sections
+Threaded couplers,3D printed M12×1.5 coupler 45 mm,0-1,HIRT-micro-coupler,Print in-house,$2.50,$0-50,PETG 100% infill + post-tap
+Probe tip,3D printed tapered nose cone,1,HIRT-micro-tip,Print in-house,$1.50,$30,PETG 100% infill, epoxy-soaked threads
+Surface junction box,3D printed Ø25 mm × 35 mm pod,1,HIRT-micro-head,Print in-house,$2.75,$55,PETG w/ cable gland hole
+Seals,O-ring AS568A-012 Buna-N 70A,2,9262K611,McMaster-Carr,$0.63,$25.20,Seats in rod coupler
+Epoxy,Loctite Marine Epoxy syringe 1919325,0.05,$1919325,Amazon/Home Depot,$6.98,$139.60,Shared across ~20 probes (estimate)
+Cable gland,IP68 M12 nylon gland,1,B07PPDPZKX,Amazon,$1.20,$24,One per junction box
+Strain relief kit,Heat-shrink assortment FP-301,0.05,3M1188-ND,Digi-Key,$28.00,$28,Kit covers ~20 probes
+Cable,Shielded 2-twisted-pair 24 AWG,3 m,BEL8723-ND,Digi-Key,$2.90,$58,Route coils + rings
+Ferrite rod cores,6 mm × 50 mm ferrite rod,2,623-1020,Fair-Rite via Mouser,$3.25,$130,TX and RX cores
+Magnet wire,34 AWG polyimide enamel 1/4 lb,0.05,MW-34-1/4,Digi-Key,$28.00,$28,Shares across multiple probes (~6 probes per spool)
+Coil potting,Thin epoxy (West 105/205 kit),0.02,105B-205A,West System,$39.00,$39,One kit per batch ~20 probes
+Ring electrodes,304 SS strip 0.25\" × 0.005\",2,K&S #87125,Amazon/Hobby,$1.40,$56,Cut to 3-5 mm bands
+ERT ring collars,3D printed insulating collar,2-3,HIRT-ert-collar,Print in-house,$0.70,$28,PETG 100% infill
+Electrode wire,Shielded twisted pair 26 AWG,3 m,A1176C-100-ND,Digi-Key,$2.35,$47,Alpha Wire 1176C
+Heat-shrink ring cover,3/4\" polyolefin tubing,0.1,MAF3/4-100-0,Wirefy/Amazon,$12.00,$12,Shared spool for 20 probes
+Label set,Weatherproof ID labels,0.05,1610-PPCL,Brother,$18.00,$18,One cartridge for many probes

@@ -1,0 +1,355 @@
+---
+title: "Calibration"
+---
+
+## Overview {#sec-calibration-overview}
+
+This section provides detailed calibration procedures for HIRT probes before field deployment. Calibration ensures accurate and consistent measurements across all probes in the array. The dual-channel nature of HIRT (MIT and ERT) requires calibration of both subsystems, along with system-level verification to ensure the complete measurement chain performs within specification.
+
+Proper calibration is essential for scientific data quality. Without it, probe-to-probe variations can introduce systematic errors that compromise tomographic reconstruction. The procedures outlined here establish traceability from individual components through to array-level cross-calibration.
+
+## Calibration Principles {#sec-calibration-principles}
+
+### Why Calibrate? {#sec-why-calibrate}
+
+1. **Probe-to-probe consistency** - Ensure all probes give comparable readings under identical conditions
+2. **Accuracy** - Relate measurements to physical units (mH, ohms, volts)
+3. **Drift compensation** - Account for component aging and environmental effects
+4. **Quality assurance** - Verify proper assembly and function before deployment
+
+```{python}
+#| label: fig-calibration-hierarchy
+#| fig-cap: "Calibration hierarchy showing the progression from component-level measurements through array-level cross-calibration. Each level builds upon the previous, increasing overall system confidence."
+#| fig-width: 9
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.calibration import create_calibration_hierarchy
+import matplotlib.pyplot as plt
+from PIL import Image
+
+buf = create_calibration_hierarchy()
+img = Image.open(buf)
+plt.figure(figsize=(9, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### Key Parameters and Tolerances {#sec-key-parameters}
+
+| Parameter | Target | Tolerance | Measurement Freq |
+|-----------|--------|-----------|------------------|
+| Coil Inductance | 1.5 mH (Target) | +/-10% | 1 kHz |
+| Coil Q Factor @ 2 kHz | >=25 (Target) | Minimum | 2 kHz |
+| Coil Q Factor @ 10 kHz | >=30 (Target) | Minimum | 10 kHz |
+| Coil Q Factor @ 50 kHz | >=20 (Target) | Minimum | 50 kHz |
+| Coil DC Resistance | <8 ohm (Target) | Maximum | DC |
+| Self-Resonant Freq | >200 kHz (Target) | Minimum | VNA sweep |
+| TX-RX Coupling | <-40 dB (Target) | Maximum | 10 kHz |
+| DDS Frequency | Commanded | +/-1% (Target) | All |
+| TX Amplitude | Design spec | +/-10% (Target) | All |
+| RX Gain | Design spec | +/-10% (Target) | All |
+| ERT Current | Commanded | +/-5% (Target) | DC |
+| Reciprocity | A->B = B->A | +/-5% (Target) | All |
+
+: Calibration parameters and acceptance tolerances. All thresholds are (Target) unless otherwise noted. {#tbl-calibration-params}
+
+### Expected Data Error Thresholds {#sec-error-thresholds}
+
+Based on published practices in the geophysical literature (SimPEG, pyGIMLi), the following measurement repeatability thresholds establish pass/fail criteria for quality control:
+
+| Measurement Type | Expected Error | QC Threshold | Notes |
+|------------------|----------------|--------------|-------|
+| MIT amplitude | 3-5% (Target) | <5% (Target) | Relative measurement-to-measurement |
+| MIT phase | 2-3 deg (Target) | <5 deg (Target) | Absolute phase accuracy |
+| ERT resistance | 3-5% (Target) | <5% (Target) | Relative error typical for DC resistivity |
+| Reciprocity | <3% (Target) | <5% (Target) | A->B vs B->A difference |
+
+: Expected measurement error thresholds for QC pass/fail determination {#tbl-error-thresholds}
+
+These thresholds are consistent with standard inversion software defaults (e.g., pyGIMLi uses 3% relative error for ERT (Manufacturer spec); SimPEG recommends 5-10% data uncertainty for DC resistivity (Manufacturer spec)). Measurements exceeding these thresholds should be flagged for review and potential re-acquisition.
+
+## Calibration Workflow {#sec-calibration-workflow}
+
+The calibration workflow proceeds through three main phases: MIT calibration (air baseline, known resistor test, frequency sweep), ERT calibration (ring isolation, contact resistance, current source verification), and target response characterization (metal target tests, distance sweeps, lookup table generation).
+
+```{python}
+#| label: fig-calibration-workflow
+#| fig-cap: "Complete calibration workflow showing the three-phase approach: MIT calibration (blue), ERT calibration (green), and target response characterization (orange). Checkmarks indicate verification points where data is recorded."
+#| fig-width: 10
+#| fig-height: 7
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.flowcharts import create_calibration_workflow
+
+buf = create_calibration_workflow()
+img = Image.open(buf)
+plt.figure(figsize=(10, 7))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Required Equipment {#sec-calibration-equipment}
+
+| Equipment | Purpose | Notes |
+|-----------|---------|-------|
+| LCR Meter | Coil measurements | Set to 10 kHz |
+| Oscilloscope | Signal verification | 50 MHz minimum (Target) |
+| Multimeter | V/I/R measurements | 6-digit preferred |
+| Function Generator | Signal injection | 1 Hz - 100 kHz |
+| Known Test Targets | Coupling verification | Al plate, steel bar |
+| Test Medium | ERT testing | Sand box, known resistivity |
+| Reference Probe | Cross-calibration | If available |
+
+: Required calibration equipment {#tbl-calibration-equipment}
+
+### Environment Requirements {#sec-environment-requirements}
+
+- Temperature: 20-25C (stable, within +/-2C during calibration) (Target)
+- EMI: Minimize interference sources (turn off nearby equipment, use shielded area)
+- Warm-up time: Allow 15-30 minutes for equipment stabilization (Target)
+- Humidity: <80% RH to prevent condensation on probe surfaces (Target)
+
+## Air Calibration Setup {#sec-air-calibration}
+
+Air calibration establishes the baseline response of the probe when isolated from all external influences. The probe is suspended on a non-metallic stand (wood, PVC, or fiberglass) at least 1 meter (Target) from any metal objects. This measurement provides the 'zero' reference for subsequent target detection.
+
+```{python}
+#| label: fig-air-calibration-setup
+#| fig-cap: "Air calibration test setup showing probe suspended on non-metallic stand with test equipment connections. The 1-meter exclusion zone ensures no spurious coupling from nearby metal objects."
+#| fig-width: 10
+#| fig-height: 5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.calibration import create_air_calibration_setup
+
+buf = create_air_calibration_setup()
+img = Image.open(buf)
+plt.figure(figsize=(10, 5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## Coil Calibration Procedures {#sec-coil-calibration}
+
+### TX Coil Inductance {#sec-tx-inductance}
+
+1. Connect LCR meter to TX coil leads (ensure proper polarity)
+2. Set measurement frequency to 1 kHz (reference frequency)
+3. Measure inductance (L) and record in mH
+4. Compare to specification: target 1.5 mH (Target), tolerance +/-10% (1.35-1.65 mH)
+5. Record Pass/Fail status on calibration sheet
+
+### TX Coil Q Factor (Multi-Frequency) {#sec-tx-q-factor}
+
+The Q factor must be measured across the full operating frequency range:
+
+| Frequency | Minimum Q | Notes |
+|-----------|-----------|-------|
+| 2 kHz | >=25 (Target) | Deep penetration mode |
+| 10 kHz | >=30 (Target) | Primary operating frequency |
+| 50 kHz | >=20 (Target) | High-resolution mode |
+
+**Procedure:**
+
+1. Using same LCR meter setup as inductance measurement
+2. Measure Q factor at 2 kHz, 10 kHz, and 50 kHz
+3. Alternatively, calculate: $Q = (2\pi fL) / R$ where R is the measured ESR
+4. All three frequency points must pass minimum Q thresholds
+5. Low Q indicates: winding issues, wrong core material, excessive self-capacitance, or core saturation
+
+**Self-Resonant Frequency Check:**
+
+If VNA available, sweep 100 kHz - 1 MHz to identify the self-resonant frequency (SRF). Target: SRF > 200 kHz (Target). If SRF falls within operating range (2-50 kHz), the coil must be rewound with single-layer technique to reduce parasitic capacitance.
+
+### RX Coil Parameters {#sec-rx-coil-params}
+
+Repeat the inductance and Q factor measurements for the RX coil. The RX coil specifications should match the TX coil within tolerance to ensure balanced coupling characteristics. Record all measurements on the calibration sheet.
+
+## TX Chain Calibration {#sec-tx-calibration}
+
+### DDS Frequency Accuracy {#sec-dds-frequency}
+
+Verify the DDS (Direct Digital Synthesis) generates correct frequencies across the operating range. Test at: 2, 5, 10, 20, and 50 kHz. Measure each commanded frequency with an oscilloscope and calculate frequency error.
+
+$$
+\text{Error (\%)} = \frac{f_{\text{actual}} - f_{\text{commanded}}}{f_{\text{commanded}}} \times 100
+$$
+
+Expected accuracy: +/-1% or better (Target). Larger errors indicate DDS programming issues or clock reference problems.
+
+### TX Output Amplitude {#sec-tx-amplitude}
+
+- DDS output: ~0.6 V RMS typical (Modeled) (before driver stage)
+- Driver output: 1-5 V RMS (design dependent) (Target)
+- Gain should be 2-5x across frequency range (Target)
+- Check for flat frequency response (+/-1 dB) (Target)
+
+## RX Chain Calibration {#sec-rx-calibration}
+
+### RX Chain Gain {#sec-rx-gain}
+
+Verify RX amplification chain gain by injecting a known test signal at the RX input and measuring output at each stage. A typical test signal is 1 mV at 10 kHz (Target). Measure at preamp output, instrumentation amplifier output, and ADC input. Calculate gain at each stage and total system gain.
+
+### RX Noise Floor {#sec-rx-noise-floor}
+
+1. Place probe in quiet environment (away from metal objects)
+2. Apply no input signal (or short input terminals)
+3. Measure output noise amplitude over 10-second window
+4. Record multiple measurements and calculate standard deviation
+5. Target: Noise floor < 1% of full scale (Target)
+
+## Known-Target Test Setup {#sec-known-target-setup}
+
+The known-target test verifies that the complete MIT system detects conductive targets with the expected amplitude and phase response. Two probes are set up 1-3 meters apart (Target) with a known target (aluminum plate or steel bar) placed between them. This test validates both the detection sensitivity and the multi-frequency response characteristics.
+
+```{python}
+#| label: fig-known-target-setup
+#| fig-cap: "Known-target test configuration with two probes and calibration target. The aluminum plate provides a non-magnetic conductive target, allowing verification of eddy current detection without ferrous interference."
+#| fig-width: 10
+#| fig-height: 5.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.calibration import create_known_target_setup
+
+buf = create_known_target_setup()
+img = Image.open(buf)
+plt.figure(figsize=(10, 5.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+### Expected Results {#sec-expected-results}
+
+- Amplitude reduction: 10-50% depending on target size and distance (Modeled)
+- Phase lag: 5-30 degrees depending on frequency and target conductivity (Modeled)
+- Lower frequencies show deeper sensitivity (skin depth effect)
+- Response should scale predictably with target distance
+
+### Reciprocity Verification {#sec-reciprocity-verification}
+
+Reciprocity checks are essential for validating measurement quality. For both MIT and ERT, swapping transmitter and receiver should yield equivalent measurements within error bounds:
+
+$$
+\frac{|M_{A \rightarrow B} - M_{B \rightarrow A}|}{(M_{A \rightarrow B} + M_{B \rightarrow A})/2} \times 100\% < 5\% \text{ (Target)}
+$$ {#eq-reciprocity}
+
+where $M$ represents the measured quantity (voltage ratio for MIT, apparent resistivity for ERT).
+
+::: {.callout-tip}
+## Reciprocity Check Protocol
+
+1. Measure forward path (A transmit -> B receive)
+2. Measure reciprocal path (B transmit -> A receive)
+3. Calculate percent difference using @eq-reciprocity
+4. Flag measurements exceeding 5% (Target) for investigation
+5. Common causes of poor reciprocity: loose connections, electrode corrosion, coupling variations
+:::
+
+Systematic reciprocity errors indicate calibration drift or hardware issues. Random reciprocity failures suggest environmental noise or poor electrode contact. The pyGIMLi crosshole ERT examples recommend filtering data points with reciprocal error exceeding 5% (Manufacturer spec) before inversion.
+
+## Calibration Data Analysis {#sec-data-analysis}
+
+Calibration data should be plotted to verify system behavior matches expected models. The amplitude response shows the normalized signal strength versus frequency for both baseline (air) and with-target conditions. The phase response shows the phase angle change introduced by the target. Both measurements should fall within specified tolerances.
+
+```{python}
+#| label: fig-calibration-data-chart
+#| fig-cap: "Representative calibration data showing (a) amplitude response and (b) phase response across the MIT operating frequency range. Error bars indicate measurement uncertainty. The phase shift between baseline and with-target conditions provides target characterization information."
+#| fig-width: 10
+#| fig-height: 4.5
+
+import sys; sys.path.insert(0, '..') if '..' not in sys.path else None
+from diagrams.calibration import create_calibration_data_chart
+
+buf = create_calibration_data_chart()
+img = Image.open(buf)
+plt.figure(figsize=(10, 4.5))
+plt.imshow(img)
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+```
+
+## ERT Calibration {#sec-ert-calibration}
+
+### Ring Isolation Verification {#sec-ring-isolation}
+
+Verify electrical isolation between ERT rings to ensure independent measurements. Measure resistance between all ring pairs, between rings and ground, and between rings and the probe rod. All measurements should exceed 1 M-ohm (Target). Lower values indicate contamination or insulation failure.
+
+### Current Source Calibration {#sec-current-source-calibration}
+
+1. Connect current source to test load (1 k-ohm precision resistor) (Target)
+2. Set commanded current level (start at 1 mA)
+3. Measure actual current with calibrated multimeter
+4. Calculate calibration factor: Cal = I_actual / I_commanded
+5. Test across full range: 0.5, 1.0, 1.5, 2.0 mA (Target)
+6. Record all values and average calibration factor
+
+## Error Analysis and Uncertainty Budget {#sec-error-analysis}
+
+Scientific data reporting requires characterizing not just the measured value, but its uncertainty. The HIRT system has both systematic errors (consistent offsets that can be removed via calibration) and random errors (unpredictable fluctuations reduced by averaging).
+
+| Source | Type | Magnitude | Distribution |
+|--------|------|-----------|--------------|
+| Reference Resistor | Systematic | 0.1% (Manufacturer spec) | Rectangular |
+| ADC Quantization | Random | < 1 uV (Modeled) | Uniform |
+| Thermal Drift | Systematic | 50 ppm/C (Modeled) | Linear |
+| Probe Geometry | Random | +/- 1 cm (Target) | Normal |
+| Combined Uncertainty | Mixed | ~1-2% (Modeled) | (k=2) |
+
+: Typical uncertainty budget for HIRT measurements {#tbl-uncertainty-budget}
+
+All final data products should be reported with 95% confidence intervals (k=2):
+
+$$
+\text{Measurement} = X \pm 2\sigma
+$$
+
+## Field Quick-Check Procedure {#sec-field-quick-check}
+
+Before each field deployment, perform these abbreviated checks to verify system readiness. This procedure takes approximately 15-30 minutes (Target) and can identify common issues before they affect data collection.
+
+::: {.callout-note}
+## Pre-Deployment Quick Check
+
+- Visual inspection: No visible damage, all connections secure
+- Power check: System powers on, LEDs functioning, communication established
+- Coil quick test: TX/RX connected (~1-2 mH) (Target), Q factor reasonable (>20) (Target)
+- ERT quick test: Rings isolated (>1 M-ohm) (Target), no shorts to ground
+- Coupling verification: Wave hand near coil and observe response
+:::
+
+## Recalibration Schedule {#sec-recalibration-schedule}
+
+| Trigger | Action |
+|---------|--------|
+| Before each field deployment | Quick check |
+| After repairs or modifications | Full calibration |
+| If measurements become inconsistent | Full calibration |
+| Every 6 months minimum | Full calibration |
+| After environmental exposure | Full calibration |
+
+: Recalibration schedule triggers and actions {#tbl-recalibration-schedule}
+
+Calibration is considered valid if: all measurements are within specifications, no repairs or modifications have been made since calibration, system performance remains consistent, and the calibration validity period has not expired (typically 6 months) (Target).
+
+## Documentation Requirements {#sec-calibration-documentation}
+
+Maintain complete calibration records for all probes in the system. Records should include probe identification, calibration date, calibrator name, all measured values with units, pass/fail status for each parameter, and recalibration due date. Store records in both digital and printed formats.
+
+::: {.callout-warning}
+## Calibration Record Retention
+
+- All probes must have current calibration records
+- Records must be available during field operations
+- Out-of-tolerance conditions must be documented
+- Probes failing calibration must not be deployed
+:::

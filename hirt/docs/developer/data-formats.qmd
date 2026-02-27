@@ -1,0 +1,200 @@
+---
+title: "Data Formats"
+---
+
+## Overview
+
+This section specifies the data formats and file organization for HIRT measurements. Consistent data formats ensure reliable post-processing and long-term data management. For field acquisition procedures, see the [Data Acquisition](../field-guide/data-acquisition.qmd) section.
+
+All data files use CSV (Comma-Separated Values) format for maximum compatibility with analysis software. Field logs supplement electronic records with contextual information that may affect data interpretation.
+
+## File Organization
+
+- **One CSV file per section** for MIT data
+- **One CSV file per section** for ERT data
+- **One registry file** for all probes (shared across surveys)
+- **Paper log** for conditions and notes (backup)
+
+### Naming Convention
+
+- MIT: `MIT_S{section_id}_{date}.csv`
+- ERT: `ERT_S{section_id}_{date}.csv`
+- Registry: `probe_registry.csv`
+- Field Log: `field_log_{date}.txt`
+- Geometry: `survey_geometry_{date}.csv`
+
+## MIT Record Format {#sec-mit-format}
+
+Each MIT measurement records the electromagnetic coupling between a transmitter-receiver probe pair. The record captures both the measurement geometry (which probes, which zone) and the signal parameters (amplitude, phase, frequency) needed for tomographic reconstruction.
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| timestamp | Measurement time | ISO 8601 or Unix |
+| section_id | Survey section identifier | String (e.g., "S01") |
+| zone_id | Zone Hub identifier | String (e.g., "ZA") |
+| tx_probe_id | Transmitting probe ID | String (e.g., "P01") |
+| rx_probe_id | Receiving probe ID | String (e.g., "P02") |
+| freq_hz | Measurement frequency | Hz |
+| amp | Signal amplitude | V or normalized |
+| phase_deg | Phase angle | Degrees |
+| tx_current_mA | TX coil current | mA |
+
+: MIT record format fields {#tbl-mit-format}
+
+### Example MIT Record
+
+```csv
+timestamp,section_id,zone_id,tx_probe_id,rx_probe_id,freq_hz,amp,phase_deg,tx_current_mA
+2024-03-15T10:30:15Z,S01,ZA,P01,P02,2000,0.0125,45.2,10.5
+2024-03-15T10:30:16Z,S01,ZA,P01,P02,5000,0.0098,52.1,10.5
+2024-03-15T10:30:17Z,S01,ZA,P01,P02,10000,0.0072,61.8,10.4
+```
+
+## ERT Record Format {#sec-ert-format}
+
+ERT measurements record the voltage response to injected current, capturing the electrode geometry and the resulting potential. HIRT uses a sequential ring-pair measurement approach where current is injected between two rings on one probe, and voltage is measured at corresponding ring positions on adjacent probes.
+
+::: {.callout-note}
+## ERT Electrode Configuration: Ring-Pair Sequential Measurements
+
+HIRT's borehole geometry uses a simplified three-electrode approach per measurement:
+
+- **A (inject_pos):** Current injection ring (e.g., Ring A at 0.5m on Probe P01)
+- **B (inject_neg):** Current return ring (e.g., Ring B at 1.5m on Probe P01, or ring on adjacent probe)
+- **M (sense):** Voltage measurement ring (e.g., Ring A at 0.5m on Probe P02)
+
+The reference potential (N) is implicitly the surface ground connection shared by all probes.
+:::
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| timestamp | Measurement time | ISO 8601 |
+| section_id | Survey section identifier | String |
+| zone_id | Zone Hub identifier | String |
+| inject_pos_id | Positive current probe/ring ID | String (e.g., P01_RA) |
+| inject_neg_id | Negative current probe/ring ID | String (e.g., P01_RB) |
+| sense_id | Voltage sensing probe/ring ID | String (e.g., P02_RA) |
+| volt_mV | Measured voltage (vs. ground) | mV |
+| current_mA | Injected current | mA |
+| polarity | Current direction | +1 or -1 |
+| notes | Additional notes | Free text |
+
+: ERT record format fields. Probe/ring IDs use format P{nn}_R{A|B|C} to identify both probe number and ring position. {#tbl-ert-format}
+
+### Example ERT Record
+
+```csv
+timestamp,section_id,inject_pos_id,inject_neg_id,sense_id,volt_mV,current_mA,polarity,notes
+2024-03-15T10:45:12Z,S01,P01_RA,P01_RB,P02_RA,12.5,1.2,+1,
+2024-03-15T10:45:13Z,S01,P01_RA,P01_RB,P02_RB,8.3,1.2,+1,
+2024-03-15T10:45:14Z,S01,P01_RA,P01_RB,P03_RA,6.1,1.2,+1,
+2024-03-15T10:45:15Z,S01,P01_RA,P01_RB,P02_RA,-12.4,1.2,-1,reversed polarity
+```
+
+## Probe Registry {#sec-probe-registry}
+
+Each probe in the HIRT system has a registry entry documenting its physical characteristics and calibration status. The probe registry is a shared file that applies across all surveys.
+
+| Field | Description | Units/Format |
+|-------|-------------|--------------|
+| probe_id | Unique probe identifier | String |
+| coil_L_mH | TX coil inductance | mH |
+| coil_Q | Coil Q factor | Dimensionless |
+| rx_gain_dB | RX amplifier gain | dB |
+| ring_depths_m | ERT ring depths | m (comma-separated) |
+| firmware_rev | Firmware version | String |
+| calibration_date | Last calibration date | YYYY-MM-DD |
+| notes | Additional notes | Free text |
+
+: Probe registry fields {#tbl-probe-registry}
+
+### Example Probe Registry
+
+```csv
+probe_id,coil_L_mH,coil_Q,rx_gain_dB,ring_depths_m,firmware_rev,calibration_date,notes
+P01,1.2,25,40,0.5,1.5,v1.2,2024-03-10,
+P02,1.15,28,40,0.5,1.5,v1.2,2024-03-10,
+P03,1.18,26,40,0.5,1.5,v1.2,2024-03-10,
+```
+
+## Survey Geometry File {#sec-survey-geometry-format}
+
+The survey geometry file links probe identifiers to their actual field positions.
+
+**Filename convention:** `survey_geometry_{YYYY-MM-DD}.csv`
+
+| Field | Description | Units |
+|-------|-------------|-------|
+| probe_id | Probe identifier (matches registry) | String |
+| x_m | X position from grid origin | meters |
+| y_m | Y position from grid origin | meters |
+| z_surface_m | Ground surface elevation (relative) | meters |
+| z_tip_m | Probe tip depth below surface | meters (negative) |
+| status | Deployment status | ACTIVE / PARTIAL / SKIPPED |
+| notes | Field observations | Free text |
+
+### Example Survey Geometry File
+
+```csv
+probe_id,x_m,y_m,z_surface_m,z_tip_m,status,notes
+P01,0.00,0.00,0.00,-3.00,ACTIVE,reference origin
+P02,2.05,0.12,0.00,-2.95,ACTIVE,offset 12cm for surface root
+P03,4.00,0.00,0.00,-3.00,ACTIVE,
+P04,6.00,0.00,0.00,-3.00,ACTIVE,
+P05,,,,,SKIPPED,large oak tree at position
+P06,1.85,1.92,0.15,-2.10,PARTIAL,hit rock layer at 2.1m
+P07,4.00,2.00,0.08,-3.00,ACTIVE,
+P08,6.10,2.05,-0.05,-3.00,ACTIVE,minor offset for puddle
+```
+
+## Metadata Requirements {#sec-metadata}
+
+### Site Information
+
+- Site name and GPS coordinates
+- Survey date and time (start/end)
+- Team members present
+- Weather conditions (temperature, precipitation, wind)
+- Soil type and estimated moisture content
+- Site access notes and restrictions
+
+### Measurement Parameters
+
+- Frequency list for MIT measurements
+- Current levels for ERT measurements
+- Probe spacing configuration
+- Insertion depths achieved
+- Grid coordinates and orientation
+
+## Software Compatibility Roadmap {#sec-software-compatibility}
+
+The CSV data formats described above are designed as raw intermediate storage. Future software tools will provide import scripts to convert these raw logs into standard formats for open-source inversion frameworks:
+
+- **EIDORS (Matlab/Octave):** Import script will generate .mat structures for MIT-3D finite element reconstruction.
+- **pyGIMLi (Python):** Converters will map ERT data to the Unified Data Format for coupled inversion.
+- **ResIPy:** Direct import support for ERT .csv files is planned.
+
+## Data Storage Best Practices
+
+### File Organization
+
+Organize survey data in a hierarchical directory structure:
+
+```
+data/
++-- 2024-03-15/
+|   +-- MIT_S01_2024-03-15.csv
+|   +-- MIT_S02_2024-03-15.csv
+|   +-- ERT_S01_2024-03-15.csv
+|   +-- ERT_S02_2024-03-15.csv
+|   +-- field_log_2024-03-15.txt
++-- survey_geometry_2024-03-15.csv
++-- probe_registry.csv
+```
+
+### Backup Procedures
+
+- Copy raw data to at least two independent storage locations
+- Verify file integrity using checksums (MD5 or SHA-256)
+- Store originals in read-only archive locations
+- Create processed copies for any transformations

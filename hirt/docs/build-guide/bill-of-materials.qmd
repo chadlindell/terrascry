@@ -1,0 +1,563 @@
+---
+title: "Bill of Materials"
+---
+
+## Overview {#sec-bom-overview}
+
+This section provides comprehensive bills of materials (BOMs) for building the HIRT system, including per-probe components, base hub components, and shared equipment. The micro-probe design (16mm OD, passive probes) minimizes cost while maintaining measurement quality.
+
+The modular architecture allows builders to scale the system from a minimal single-probe test setup to full 25+ probe arrays. Component selection prioritizes availability, cost-effectiveness, and ease of assembly while meeting performance specifications.
+
+::: {.callout-tip}
+## Hardware Documentation Reference
+
+Detailed, up-to-date BOMs with specific part numbers are maintained in the hardware documentation:
+
+- **Probe BOM:** `/hardware/bom/probe-bom.md` - Per-probe components, costs, and procurement tips
+- **Base Hub BOM:** `/hardware/bom/base-hub-bom.md` - Central electronics components with detailed specifications
+- **Shared Components:** `/hardware/bom/shared-components-bom.md` - Common components used across multiple assemblies
+- **Procurement Guide:** `/hardware/bom/PROCUREMENT.md` - Supplier recommendations and ordering strategies
+
+The tables in this section summarize the BOMs; refer to the hardware documentation for exact part numbers and current pricing.
+:::
+
+## Cost Summary {#sec-cost-summary}
+
+## System Cost Estimate (20-Probe Array)
+
+The following table presents the estimated cost ranges for a complete 20-probe HIRT system based on 2026 manufacturing projections.
+
+| Category | Cost Range | Notes |
+|----------|------------|-------|
+| Probes (20 units) | $840-1,100 | CNC Delrin/Nylon mechanics |
+| Electronics (Hubs) | $450-600 | 3x Hubs (active architecture) |
+| Cabling | $300-400 | Trunk + Extensions |
+| Assembly Labor | $600-800 | In-house @ $30/hr |
+| Contingency | $300-400 | Buffer for price hikes |
+| **Total** | **$2,150-2,850** | **~$125 per probe** |
+
+: 20-Probe HIRT System Cost Estimate **(Target, 2026 projection)** {#tbl-system-cost}
+
+::: {.callout-warning}
+## 2026 Supply Chain Alert: Semiconductor Price Hike
+
+**Critical:** Analog Devices (ADI) has announced a **10-30% price increase** effective February 1, 2026. This affects key components including the AD8421, AD9837, and AD7124. Builders are strongly advised to procure these silicon components immediately to lock in current pricing.
+:::
+
+```{python}
+#| label: fig-cost-breakdown
+#| fig-cap: "Cost distribution for a 25-probe HIRT system showing the relative investment in each component category. Probes represent the largest expense due to quantity."
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Cost categories with mid-range estimates
+categories = ['Probes\n(25 units)', 'Base Hub', 'Cables/\nConnectors',
+              'Tools/\nEquipment', 'Consumables']
+costs = [2000, 375, 500, 750, 150]
+total = sum(costs)
+
+# Colors
+colors = ['#3182ce', '#38a169', '#ed8936', '#63b3ed', '#805ad5']
+
+fig, ax = plt.subplots(figsize=(8, 5))
+
+# Explode the largest segment slightly
+explode = (0.05, 0, 0, 0, 0)
+
+# Create pie chart
+wedges, texts, autotexts = ax.pie(
+    costs,
+    explode=explode,
+    labels=categories,
+    colors=colors,
+    autopct=lambda pct: f'${int(pct/100*total):,}\n({pct:.1f}%)',
+    startangle=90,
+    pctdistance=0.65,
+    labeldistance=1.15
+)
+
+# Style the text
+for text in texts:
+    text.set_fontsize(9)
+    text.set_fontweight('bold')
+for autotext in autotexts:
+    autotext.set_fontsize(8)
+    autotext.set_color('white')
+    autotext.set_fontweight('bold')
+
+# Add center circle for donut effect
+center_circle = plt.Circle((0, 0), 0.35, fc='white')
+ax.add_patch(center_circle)
+
+# Add total in center
+ax.text(0, 0.05, 'Total', ha='center', va='center', fontsize=10, fontweight='bold')
+ax.text(0, -0.12, '~$3,775', ha='center', va='center', fontsize=12, fontweight='bold')
+
+ax.set_title('25-Probe HIRT System Cost Distribution', fontsize=12, fontweight='bold', pad=15)
+
+plt.tight_layout()
+plt.show()
+```
+
+## Cost Per Probe Breakdown
+
+Each passive probe consists of mechanical, sensing, and interconnection components. The following breakdown shows typical costs for a single probe unit.
+
+| Component | Cost |
+|-----------|------|
+| Mechanical (rod, tip, coupler) | $35-55 |
+| ERT (rings, collars) | $5-10 |
+| Coils (ferrite, wire) | $10-15 |
+| Short Cable (1m) | $10-15 |
+| Hardware (epoxy, o-rings) | $5-10 |
+| **Total per probe** | **$70-120** |
+
+: Per-Probe Cost Breakdown (Passive Design) **(Target)** {#tbl-probe-cost}
+
+## Cost Reduction Options
+
+- **Bulk ordering:** 20%+ savings on quantities >50 units
+- **Local sourcing:** Reduce shipping costs for common components
+- **Simpler design:** Passive probes vs active for significant savings
+- **DIY coils:** Wind your own coils vs purchasing pre-wound
+- **Generic parts:** Use non-branded components where precision is not critical
+
+## Manufacturing Cost Analysis {#sec-manufacturing-costs}
+
+Detailed cost modeling for a 20-probe system reveals that electronics and probe mechanics represent the primary cost drivers. Per-board PCBA costs for the Base Hub run $145-185 per board in low-volume (5-unit) production runs **(Target, 2026 projection)**, driven largely by high-value Analog Devices silicon (AD8421, AD7124-8, AD9837) which is subject to a 10-30% price increase announced for February 2026.
+
+CNC-machined probe components (Delrin tips and Nylon couplers) cost $3.80-6.00 per unit at 100-unit quantities **(Target)**, with costs dominated by machine time rather than material. Increasing batch sizes to 500 units could reduce mechanical costs by 30-40% through better setup amortization.
+
+::: {.callout-tip}
+## Cost Optimization Opportunity
+
+Shrinking the Base Hub PCB from 150x100mm to 100x100mm would qualify for promotional fabrication rates at services like JLCPCB, potentially reducing bare board costs from ~$12 to ~$2 per unit. This optimization is recommended for Rev C if layout constraints permit.
+:::
+
+```{python}
+#| label: fig-component-categories
+#| fig-cap: "HIRT component categories showing the relationship between per-probe components, base hub electronics, shared equipment, and optional active probe upgrades."
+#| code-fold: true
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Rectangle
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 8)
+ax.set_aspect('equal')
+ax.axis('off')
+
+# Title
+ax.text(5, 7.5, 'HIRT Component Categories', ha='center', va='center',
+        fontsize=14, fontweight='bold', color='#2c5282')
+
+# Define category boxes
+categories = [
+    {
+        'name': 'Per-Probe\nComponents',
+        'x': 1.5, 'y': 5.5, 'width': 3, 'height': 1.8,
+        'color': '#3182ce',
+        'items': ['Mechanical (rod, tip)', 'Coils (ferrite, wire)',
+                 'ERT rings/collars', 'Cable/connector']
+    },
+    {
+        'name': 'Base Hub\nComponents',
+        'x': 5.5, 'y': 5.5, 'width': 3, 'height': 1.8,
+        'color': '#38a169',
+        'items': ['Power system', 'ERT current source',
+                 'Sync/clock', 'Control MCU']
+    },
+    {
+        'name': 'Shared\nEquipment',
+        'x': 1.5, 'y': 2.5, 'width': 3, 'height': 1.8,
+        'color': '#63b3ed',
+        'items': ['Test equipment', 'Tools',
+                 'Consumables', 'Bulk cables']
+    },
+    {
+        'name': 'Optional\nActive Electronics',
+        'x': 5.5, 'y': 2.5, 'width': 3, 'height': 1.8,
+        'color': '#ed8936',
+        'items': ['MCU (ESP32)', 'DDS signal gen',
+                 'Preamp/ADC', 'Custom PCB']
+    }
+]
+
+for cat in categories:
+    box = FancyBboxPatch(
+        (cat['x'], cat['y'] - cat['height']/2),
+        cat['width'], cat['height'],
+        boxstyle="round,pad=0.05,rounding_size=0.15",
+        facecolor=cat['color'],
+        edgecolor='white',
+        linewidth=2,
+        alpha=0.9
+    )
+    ax.add_patch(box)
+
+    ax.text(cat['x'] + cat['width']/2, cat['y'] + 0.5,
+            cat['name'], ha='center', va='center',
+            fontsize=10, fontweight='bold', color='white')
+
+    item_text = '\n'.join([f'  {item}' for item in cat['items']])
+    ax.text(cat['x'] + 0.15, cat['y'] - 0.1, item_text,
+            ha='left', va='top', fontsize=7, color='white',
+            linespacing=1.3)
+
+# Cost annotations
+cost_info = [
+    (1.5, 4.7, '$60-100\nper probe'),
+    (5.5, 4.7, '$300-450\ntotal'),
+    (1.5, 1.7, '$500-1,000\none-time'),
+    (5.5, 1.7, '+$50-80\nper probe')
+]
+
+for x, y, text in cost_info:
+    ax.text(x + 1.5, y, text, ha='center', va='top',
+            fontsize=8, fontweight='bold', color='#2c5282',
+            bbox=dict(boxstyle='round,pad=0.3', facecolor='white',
+                     edgecolor='#a0aec0', alpha=0.9))
+
+# Connection arrows
+ax.annotate('', xy=(5.5, 5.5), xytext=(4.5, 5.5),
+            arrowprops=dict(arrowstyle='<->', color='#4a5568', lw=2))
+ax.text(5, 5.9, 'Connects via\ncables', ha='center', va='bottom', fontsize=7,
+        color='#4a5568')
+
+# Legend
+ax.text(5, 0.5,
+        'Passive probes: Lower cost, simpler assembly, recommended for most applications\n'
+        'Active probes: Higher performance, more complex, for demanding applications',
+        ha='center', va='center', fontsize=8, style='italic', color='#718096',
+        bbox=dict(boxstyle='round,pad=0.5', facecolor='#f7fafc', edgecolor='none'))
+
+plt.tight_layout()
+plt.show()
+```
+
+## Per-Probe Bill of Materials {#sec-per-probe-bom}
+
+## Mechanical Components
+
+| Ref | Component | Description | Qty | Unit Cost (100 qty) |
+|-----|-----------|-------------|-----|---------------------|
+| ROD1 | Fiberglass Tube | 16mm OD x 12mm ID x 1.5m | 1.5 | $10.00 |
+| TIP1 | Probe Tip | CNC Delrin (Acetal) | 1 | $3.80-5.50 |
+| CPL1 | Rod Coupler | CNC Nylon 6/6 | 1 | $4.20-6.00 |
+| JB1 | Junction Box | 3D printed PETG / CNC | 1 | $3-5 |
+
+: Per-Probe Mechanical Components. CNC unit costs reflect 100-unit production runs via on-demand services (Xometry/Protolabs). Probe tips: $3.80-5.50/unit **(Target)**; Couplers: $4.20-6.00/unit **(Target)**. Setup costs (~$100) amortized across the batch. {#tbl-mechanical}
+
+## Coil Components
+
+| Ref | Component | Description | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| L1 | Ferrite Rod | 6-8mm x 40-80mm MnZn | 1-2 | $2-5 |
+| W1 | Magnet Wire | 34-38 AWG, 50m | 1 | $3-5 |
+
+: Per-Probe Coil Components {#tbl-coils}
+
+## ERT Components
+
+| Ref | Component | Description | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| R1-R3 | ERT Rings | Stainless steel 3-5mm bands | 2-3 | $1-2 ea |
+| C1-C3 | Ring Collars | 3D printed PETG | 2-3 | $0.50 ea |
+
+: Per-Probe ERT Components {#tbl-ert}
+
+## Hardware
+
+| Ref | Component | Description | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| HW1 | O-Rings | M12 size, nitrile | 4 | $0.50 ea |
+| HW2 | Epoxy | 2-part structural | - | $5/probe |
+
+: Per-Probe Hardware {#tbl-hardware}
+
+## Cable and Connectors
+
+| Ref | Component | Description | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| CBL1 | Shielded Cable | 6-conductor, 3-5m | 1 | $10-15 |
+| CON1 | Connector | 12-pin Phoenix | 1 | $5-8 |
+
+: Per-Probe Cable and Connectors {#tbl-cables}
+
+::: {.callout-note}
+## Total Per Passive Probe
+
+- Estimated cost: ~$60-100 per passive probe
+- Assembly time: 2-4 hours per probe
+- Required skills: Basic soldering, 3D printing, mechanical assembly
+:::
+
+## Active Probe Electronics (Optional)
+
+For applications requiring higher performance, active probes with in-probe electronics can be built. These include signal generation, amplification, and digitization circuitry.
+
+| Ref | Component | Part Number | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| U1 | MCU | ESP32-WROOM-32 | 1 | $5-8 |
+| U2 | DDS | AD9833BRMZ | 1 | $8-12 |
+| U3 | TX Op-Amp | OPA454AIDDAR | 1 | $6-10 |
+| U4 | RX Preamp | AD620ARZ | 1 | $6-10 |
+| U5 | Inst Amp | INA128PAG4 | 1 | $6-10 |
+| U6 | ADC | ADS1256IDBR | 1 | $10-15 |
+| U7 | Mux | CD4051BE | 1 | $1-2 |
+| U8 | LDO | AMS1117-3.3 | 1 | $0.50 |
+| PCB | Custom PCB | - | 1 | $5-10 |
+| - | Passives | Resistors, caps | - | $5 |
+
+: Active Probe Electronics (Optional Add-on) {#tbl-active}
+
+::: {.callout-note}
+Additional cost per active probe: ~$50-80. Active probes provide improved signal-to-noise ratio and reduced cable effects but require more complex assembly.
+:::
+
+## Base Hub Bill of Materials {#sec-hub-bom}
+
+The base hub provides power distribution, synchronization, and data collection for all connected probes. One hub supports up to 25 probes.
+
+## Power System
+
+| Ref | Component | Part Number | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| BAT1 | Battery | 12V 12Ah LiFePO4 | 1 | $60-100 |
+| F1 | Fuse Holder | 0287005.PXCN | 1 | $3 |
+| F2 | Fuse | 5A fast-blow | 5 | $1 ea |
+| REG1 | 5V Regulator | LM2596 Module | 1 | $3-5 |
+| REG2 | 3.3V Regulator | AMS1117-3.3 | 1 | $0.50 |
+| SW1 | Power Switch | DPST 10A | 1 | $3-5 |
+| TB1 | Terminal Block | Multi-position | 1 | $10-15 |
+
+: Base Hub Power System Components {#tbl-power}
+
+## ERT Current Source
+
+| Ref | Component | Part Number | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| U1 | Voltage Ref | REF5025AIDGKR | 1 | $4-6 |
+| U2 | Op-Amp | OPA277PAG4 | 1 | $4-6 |
+| U3 | Inst Amp | INA128PAG4 | 1 | $6-10 |
+| K1 | Relay | G5V-2-H1 | 1 | $3-5 |
+| R1-R4 | Precision R | 0.1% various | 10 | $0.50 ea |
+| R5 | Sense R | 10 ohm 0.1% | 1 | $1 |
+
+: ERT Current Source Components {#tbl-ert-source}
+
+## Sync/Clock Distribution
+
+| Ref | Component | Part Number | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| Y1 | Oscillator | ECS-100-10-30B-TR | 1 | $3-5 |
+| U1-U3 | Buffer | SN74HC244N | 3 | $1 ea |
+
+: Sync/Clock Distribution Components {#tbl-sync}
+
+## Communication
+
+| Ref | Component | Part Number | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| U1 | RS485 | MAX485ESA+ | 1 | $2-4 |
+| U2 | USB-Serial | CP2102 Module | 1 | $3-5 |
+| J1 | RJ45 Jack | - | 1 | $2 |
+
+: Communication Interface Components {#tbl-comm}
+
+## Control
+
+| Ref | Component | Part Number | Qty | Unit Cost | Rev |
+|-----|-----------|-------------|-----|-----------|-----|
+| U1 | MCU | ESP32 DevKit | 1 | $8-12 | A/B |
+| U2 | ADC | **AD7124-8BRUZ** | 1 | $12-18 | **B** |
+| U2 | ADC (Legacy) | ADS1256IDBR | 1 | $10-15 | A |
+| SD1 | SD Card | Micro SD module | 1 | $3-5 | A/B |
+
+: Control System Components (Rev B uses AD7124-8) {#tbl-control}
+
+## Enclosure and Connectors
+
+| Ref | Component | Description | Qty | Unit Cost | Rev |
+|-----|-----------|-------------|-----|-----------|-----|
+| ENC1 | Enclosure | IP65 200x150x100mm | 1 | $30-50 | A/B |
+| PG1-PG20 | Cable Glands | PG11 or M20 | 20 | $1 ea | A/B |
+| CON1-CON20 | Probe Connectors | 12-pin Phoenix | 20 | $5 ea | A/B |
+| CON-HUB | Hub Connector | **Weipu SP29 (26-pin)** | 2 | $15-25 ea | **B** |
+| CON-HUB | Hub Connector (Legacy) | DB25 | 2 | $5 ea | A |
+
+: Enclosure and Connector Components (Rev B uses Weipu SP29 IP68) {#tbl-enclosure}
+
+::: {.callout-note}
+## Total Base Hub Cost (2026 Estimate)
+
+- **PCBA:** ~$145-185 per board in 5-unit runs **(Target, 2026 projection)**
+  - Bare PCB: ~$12
+  - Active components (ADI silicon): ~$45
+  - Passive components: ~$25
+  - Assembly labor: ~$20
+  - Component sourcing overhead: ~$15
+- **Total Unit Cost:** ~$200-250 including enclosure
+- **Note:** Boards larger than 100x100mm lose promotional pricing at many fabrication services
+:::
+
+## Shared Equipment Bill of Materials {#sec-shared-bom}
+
+## Connectors and Cables
+
+| Ref | Component | Description | Qty | Unit Cost |
+|-----|-----------|-------------|-----|-----------|
+| CBL1 | Probe Cable | Belden 3066A 12-pair, 5m | 20 | $15 ea |
+| CBL2 | Power Cable | 14 AWG 2-conductor | 10m | $10 |
+| CON1 | Phoenix Headers | 12-pos pluggable | 20 | $5 ea |
+| CON2 | DC Jack | 5.5x2.1mm panel | 1 | $2 |
+
+: Shared Cables and Connectors {#tbl-shared-cables}
+
+## Test Equipment (Recommended)
+
+| Item | Description | Est. Cost | Notes |
+|------|-------------|-----------|-------|
+| DMM | Digital Multimeter | $50-100 | Fluke or equivalent |
+| LCR | LCR Meter | $100-300 | For coil testing |
+| Scope | Oscilloscope | $300-500 | 2-ch, 50MHz min |
+| PS | Bench Power Supply | $50-100 | Adjustable, current limit |
+
+: Recommended Test Equipment {#tbl-test-equip}
+
+## Tools
+
+| Item | Description | Est. Cost |
+|------|-------------|-----------|
+| Soldering | Iron + solder | $50-100 |
+| Tap/Die | M12x1.75 set | $30-50 |
+| Crimpers | For connectors | $30-50 |
+| Heat Gun | For shrink tubing | $30-50 |
+| Hand Tools | Screwdrivers, pliers | $50 |
+
+: Required Tools {#tbl-tools}
+
+## Consumables
+
+| Item | Description | Est. Cost |
+|------|-------------|-----------|
+| Solder | 60/40 or lead-free | $15 |
+| Flux | Rosin flux | $10 |
+| Heat Shrink | Assorted sizes | $15 |
+| Epoxy | 2-part structural | $20 |
+| Cable Ties | Assorted | $10 |
+| IPA | Isopropyl alcohol | $10 |
+
+: Consumables {#tbl-consumables}
+
+## Procurement Guide {#sec-procurement}
+
+## Recommended Suppliers
+
+### Electronics
+
+- **DigiKey** (www.digikey.com) - Wide selection, fast shipping
+- **Mouser** (www.mouser.com) - Good for precision components
+- **Newark** (www.newark.com) - Alternative source
+
+### Mechanical
+
+- **McMaster-Carr** (www.mcmaster.com) - Hardware, tubing
+- **Grainger** (www.grainger.com) - Industrial supplies
+- **Amazon** - General supplies
+
+### 3D Printing
+
+- Local print shop
+- **Shapeways** (www.shapeways.com) - Online service
+- **JLCPCB** (www.jlcpcb.com) - Also offers 3D printing
+
+### PCB Fabrication
+
+- **JLCPCB** (www.jlcpcb.com) - Low cost, fast
+- **PCBWay** (www.pcbway.com) - Good quality
+- **OSH Park** (oshpark.com) - US-based, quality
+
+## Key Part Numbers Reference
+
+### Rev B Components (Recommended)
+
+| Component | DigiKey PN | Mouser PN | Notes |
+|-----------|------------|-----------|-------|
+| AD9833BRMZ | AD9833BRMZ-REEL | 584-AD9833BRMZ | DDS |
+| **AD7124-8BRUZ** | AD7124-8BRUZ-ND | 584-AD7124-8BRUZ | **Primary ADC (Rev B)** |
+| AD8421BRZ | AD8421BRZ-ND | 584-AD8421BRZ | RX preamp |
+| INA188ID | INA188ID-ND | 595-INA188ID | Zero-drift preamp (optional) |
+| INA128PAG4 | INA128PAG4-ND | 595-INA128PAG4 | Gain stage |
+| OPA454AIDDAR | OPA454AIDDAR-ND | 595-OPA454AIDDAR | TX driver |
+| REF5025AIDGKR | REF5025AIDGKR-ND | 595-REF5025AIDGKR | Voltage reference |
+| ESP32-WROOM-32 | 1904-1009-1-ND | 356-ESP32-WROOM-32 | MCU |
+| Weipu SP29-26 | N/A | N/A | Order direct from Weipu or AliExpress |
+
+: Key Part Numbers for Rev B Build {#tbl-part-numbers}
+
+### Legacy Components (Rev A)
+
+| Component | DigiKey PN | Mouser PN | Notes |
+|-----------|------------|-----------|-------|
+| ADS1256IDBR | ADS1256IDBR-ND | 595-ADS1256IDBR | Legacy ADC (Rev A) |
+| AD620ARZ | AD620ARZ-ND | 584-AD620ARZ | Legacy preamp (Rev A) |
+| DB25 Connector | Various | Various | Legacy hub connector |
+
+: Legacy Part Numbers (Rev A - Not Recommended for New Builds) {#tbl-part-numbers-legacy}
+
+::: {.callout-warning}
+## Component Revision Notice
+
+**New builds should use Rev B components.** The AD7124-8 and Weipu SP29 provide significant improvements in power efficiency, integration, and field reliability. Legacy components are documented for maintenance of existing systems only.
+:::
+
+## Procurement Tips
+
+1. **Order extras:** Add 10-20% for spares and mistakes
+2. **Check MOQ:** Some parts have minimum order quantities
+3. **Lead times:** Check availability before ordering
+4. **Substitutes:** Have backup part numbers identified
+5. **Consolidate:** Combine orders to reduce shipping costs
+
+## Alternative Components {#sec-alternatives}
+
+The following tables provide alternative component options for situations where primary components are unavailable or when different performance characteristics are desired.
+
+## Coil Alternatives
+
+| Original | Alternative | Notes |
+|----------|-------------|-------|
+| 6-8mm ferrite rod | 10mm rod | Larger = more signal, larger diameter |
+| 30 AWG magnet wire | 28-34 AWG | Trade-off: turns vs resistance |
+
+: Coil Component Alternatives {#tbl-coil-alt}
+
+## ERT Ring Alternatives
+
+| Original | Alternative | Notes |
+|----------|-------------|-------|
+| Stainless steel band | Copper tape | Lower cost, easier to work with |
+| 3D printed collar | Heat shrink tube | Simpler mounting |
+
+: ERT Ring Alternatives {#tbl-ert-alt}
+
+## Electronics Alternatives
+
+| Original (Rev B) | Alternative | Notes |
+|------------------|-------------|-------|
+| AD7124-8 ADC | ADS1261 | TI ecosystem, similar integration |
+| AD7124-8 ADC | ADS1256 | Legacy option, requires more external components |
+| AD8421 preamp | INA188 | Zero-drift, better DC stability, higher broadband noise |
+| AD9833 DDS | AD9837 | Smaller footprint (LFCSP), lower power (8.5 mW) |
+| AD9833 DDS | Si5351 | More outputs, different interface |
+| Weipu SP29 | CNLINKO LP-24 | Snap-lock (faster), 24 pins only |
+
+: Electronics Alternatives {#tbl-elec-alt}
+
+::: {.callout-note}
+For assembly procedures, see @sec-assembly-overview. For mechanical specifications, see @sec-mech-overview. For electronics schematics, see @sec-electronics-overview.
+:::

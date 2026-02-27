@@ -1,0 +1,1685 @@
+---
+title: "Data Interpretation"
+---
+
+## Overview {#sec-interpretation-overview}
+
+This section provides comprehensive guidance on interpreting HIRT field data, including depth of investigation, lateral resolution, and what each measurement method detects. Effective interpretation requires understanding both the physics of the measurements and the geological/archaeological context of the survey site.
+
+## Data Processing Pipeline {#sec-processing-pipeline}
+
+HIRT data processing follows a systematic pipeline from raw field acquisition through final interpretation. Each stage validates and refines the data to produce reliable subsurface images.
+
+```{python}
+#| label: fig-processing-pipeline
+#| fig-cap: "HIRT data processing pipeline from raw field measurements through tomographic inversion to final 3D visualization. Processing times shown are typical for a 4x4 probe grid survey."
+
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Polygon
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'secondary': '#2c5282',
+    'accent': '#3182ce',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'gray_dark': '#4a5568',
+    'light_blue': '#ebf8ff',
+    'light_green': '#c6f6d5',
+    'light_orange': '#feebc8',
+    'light_purple': '#e9d8fd',
+}
+
+fig, ax = plt.subplots(figsize=(11, 6.5))
+ax.set_xlim(0, 11)
+ax.set_ylim(0, 6.5)
+ax.set_aspect('equal')
+ax.axis('off')
+
+ax.text(5.5, 6.2, 'HIRT Data Processing Pipeline', ha='center',
+        fontsize=12, fontweight='bold', color=COLORS['primary'])
+
+def draw_process_box(ax, x, y, w, h, text, color):
+    ax.add_patch(FancyBboxPatch((x - w/2, y - h/2), w, h,
+                 boxstyle="round,pad=0.03", facecolor=color,
+                 edgecolor='black', linewidth=1))
+    lines = text.split('\n')
+    for i, line in enumerate(lines):
+        ax.text(x, y + (len(lines)/2 - i - 0.5) * 0.2, line,
+               ha='center', va='center', fontsize=8, fontweight='bold')
+
+def draw_flow_arrow(ax, start, end):
+    ax.annotate('', xy=end, xytext=start,
+               arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+
+def draw_terminal(ax, x, y, w, h, text, color):
+    ax.add_patch(FancyBboxPatch((x - w/2, y - h/2), w, h,
+                 boxstyle="round,pad=0.3", facecolor=color,
+                 edgecolor='black', linewidth=1.5))
+    ax.text(x, y, text, ha='center', va='center', fontsize=9, fontweight='bold')
+
+# Main stages (top row)
+main_stages = [
+    (1.2, 4.5, 'Raw Field\nData', COLORS['light_blue'], 'ADC samples\nfrom probes'),
+    (3.5, 4.5, 'Filter &\nAverage', COLORS['light_green'], 'Noise\nreduction'),
+    (5.8, 4.5, 'Background\nRemoval', COLORS['light_green'], 'Anomaly\nextraction'),
+    (8.1, 4.5, 'Reciprocity\nCheck', COLORS['light_orange'], 'QA/QC\nvalidation'),
+]
+
+# Inversion stages (bottom row)
+inversion_stages = [
+    (1.2, 2.0, 'Tomographic\nInversion', COLORS['light_purple'], 'SIRT/ART\nalgorithms'),
+    (3.5, 2.0, 'MIT/ERT\nFusion', COLORS['light_green'], 'Multi-modal\nintegration'),
+    (5.8, 2.0, '3D Model\nGeneration', COLORS['light_blue'], 'Voxel grid\nbuilding'),
+    (8.1, 2.0, 'Visualization\n& Report', COLORS['light_orange'], 'Depth slices\nisosurfaces'),
+]
+
+for x, y, text, color, detail in main_stages:
+    draw_process_box(ax, x, y, 1.8, 1.0, text, color)
+    ax.text(x, y - 0.75, detail, ha='center', va='top', fontsize=6,
+            color=COLORS['gray_dark'], style='italic')
+
+for x, y, text, color, detail in inversion_stages:
+    draw_process_box(ax, x, y, 1.8, 1.0, text, color)
+    ax.text(x, y - 0.75, detail, ha='center', va='top', fontsize=6,
+            color=COLORS['gray_dark'], style='italic')
+
+# Horizontal arrows (top row)
+for i in range(len(main_stages) - 1):
+    draw_flow_arrow(ax, (main_stages[i][0] + 0.9, 4.5),
+                    (main_stages[i+1][0] - 0.9, 4.5))
+
+# Vertical transition
+draw_flow_arrow(ax, (8.1, 4.0), (8.1, 3.3))
+ax.annotate('', xy=(1.2, 2.5), xytext=(8.1, 3.0),
+            arrowprops=dict(arrowstyle='->', color='black', lw=1.5,
+                           connectionstyle='angle,angleA=0,angleB=90'))
+
+# Horizontal arrows (bottom row)
+for i in range(len(inversion_stages) - 1):
+    draw_flow_arrow(ax, (inversion_stages[i][0] + 0.9, 2.0),
+                    (inversion_stages[i+1][0] - 0.9, 2.0))
+
+# Terminal nodes
+draw_terminal(ax, 0.3, 4.5, 0.6, 0.5, 'IN', COLORS['light_blue'])
+draw_flow_arrow(ax, (0.6, 4.5), (0.3, 4.5))
+draw_flow_arrow(ax, (8.1 + 0.9, 2.0), (10.0, 2.0))
+draw_terminal(ax, 10.3, 2.0, 0.8, 0.5, 'END', COLORS['light_green'])
+
+# Time estimates
+ax.text(2.35, 5.3, '~1-5s', fontsize=7, ha='center', color=COLORS['accent'])
+ax.text(4.65, 5.3, '~2-5s', fontsize=7, ha='center', color=COLORS['accent'])
+ax.text(6.95, 5.3, '~1-2s', fontsize=7, ha='center', color=COLORS['accent'])
+ax.text(2.35, 1.0, '~30-60s', fontsize=7, ha='center', color=COLORS['accent'])
+ax.text(4.65, 1.0, '~5-10s', fontsize=7, ha='center', color=COLORS['accent'])
+ax.text(6.95, 1.0, '~10-20s', fontsize=7, ha='center', color=COLORS['accent'])
+
+# Phase labels
+ax.text(0.2, 5.5, 'DATA\nACQUISITION', fontsize=7, va='center',
+        fontweight='bold', color=COLORS['accent'], rotation=90)
+ax.text(0.2, 2.5, 'INVERSION\n& OUTPUT', fontsize=7, va='center',
+        fontweight='bold', color=COLORS['purple'], rotation=90)
+
+plt.tight_layout()
+plt.show()
+```
+
+## Processing Stages
+
+1. **Data Acquisition:** Raw ADC samples collected from probe pairs
+2. **Filter and Average:** Noise reduction through digital filtering and stacking
+3. **Background Removal:** Subtract homogeneous response to isolate anomalies
+4. **Reciprocity Check:** Validate A-to-B equals B-to-A for quality assurance
+5. **Tomographic Inversion:** Reconstruct 3D conductivity/resistivity distribution
+6. **MIT/ERT Fusion:** Combine multi-modal data for comprehensive interpretation
+7. **3D Model Generation:** Build voxel grid from inverted data
+8. **Visualization:** Generate depth slices, isosurfaces, and reports
+
+## Depth of Investigation {#sec-depth-investigation}
+
+The achievable investigation depth depends on several factors including probe depth, probe spacing, soil conductivity, and measurement frequency. Understanding these relationships is essential for survey planning and result interpretation.
+
+## Factors Affecting Depth
+
+- **Probe depth:** Deeper insertion enables deeper sensitivity
+- **Probe spacing:** Wider spacing increases depth but reduces lateral resolution
+- **Soil conductivity:** Lower conductivity enables deeper signal penetration
+- **Frequency (MIT):** Lower frequency provides deeper sensitivity
+- **Current geometry (ERT):** Longer baselines enable deeper investigation
+
+| Configuration | MIT Depth | ERT Depth | Combined | Confidence |
+|---------------|-----------|-----------|----------|------------|
+| 1.5m probes, 1.5m spacing | 1.5-2.5m | 2-3m | 2-3m | HIGH |
+| 1.5m probes, 2.0m spacing | 2-3m | 2-3m | 2-3m | HIGH |
+| 3.0m probes, 2.0m spacing | 3-4m | 3-5m | 3-5m | MEDIUM |
+| 3.0m probes, 2.5m spacing | 3-4m | 4-6m | 4-6m | LOW |
+
+: Depth of investigation by configuration {#tbl-depth-investigation}
+
+::: {.callout-note}
+The commonly cited '3-6m' depth range represents favorable conditions only. For most field conditions, expect 2-4m typical depth, with up to 5-6m achievable in optimal soil conditions with longer probes and wider spacing.
+:::
+
+## Lateral Resolution {#sec-lateral-resolution}
+
+Lateral resolution approximately equals 0.5 to 1.5 times the probe spacing. Tighter spacing provides finer resolution but requires more survey time, while wider spacing offers faster coverage with coarser resolution.
+
+| Spacing | Lateral Resolution | Best Application |
+|---------|-------------------|------------------|
+| 1.0 m | 0.5-1.5 m | High-resolution burial/artifact search |
+| 1.5 m | 0.75-2.25 m | Standard WWII crash investigation |
+| 2.0 m | 1.0-3.0 m | Large feature reconnaissance |
+
+: Resolution by probe spacing {#tbl-resolution}
+
+## HIRT vs Surface Methods {#sec-hirt-vs-surface}
+
+HIRT's crosshole geometry provides 2-5 times better resolution than surface methods at depths greater than 2m (*modeled estimate based on ray coverage analysis; field validation pending*). This advantage increases with depth due to direct ray paths and elimination of surface clutter.
+
+| Method | Lateral Res. | Depth Res. | At 3m Depth |
+|--------|--------------|------------|-------------|
+| Surface Magnetometry | 1-2m | Poor | ~2m lateral |
+| GPR (in sand) | 0.3-0.5m | 0.05-0.1m | Degrades to 1m+ |
+| GPR (in clay) | Limited | Limited | Often fails |
+| Surface ERT (Wenner) | ~1x spacing | ~0.5x spacing | ~2-3m |
+| HIRT (1.5m spacing) | 0.75-1.5m | 0.5-0.75m | ~1m lateral |
+| HIRT (2m spacing) | 1-2m | 0.5-1m | ~1.5m lateral |
+
+: Resolution comparison: HIRT vs surface methods {#tbl-method-comparison}
+
+::: {.callout-note}
+## Why HIRT Achieves Better Resolution
+
+- Direct ray paths through target volume (not down-and-back)
+- No surface clutter from topography and cultural noise
+- True 3D sampling enables genuine tomographic reconstruction
+- Better depth discrimination between targets at different depths
+:::
+
+## Anomaly Classification {#sec-anomaly-classification}
+
+MIT and ERT respond differently to various subsurface features. Understanding these response characteristics enables accurate classification of detected anomalies.
+
+```{python}
+#| label: fig-anomaly-classification
+#| fig-cap: "Anomaly classification chart showing expected MIT and ERT response levels for common target types encountered in archaeological and forensic investigations."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Rectangle, Circle
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'accent': '#3182ce',
+    'gray_dark': '#4a5568',
+    'gray_light': '#a0aec0',
+    'light_blue': '#ebf8ff',
+}
+
+fig, ax = plt.subplots(figsize=(10, 7))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 7)
+ax.axis('off')
+
+ax.text(5, 6.7, 'Anomaly Classification: MIT vs ERT Response', ha='center',
+        fontsize=12, fontweight='bold', color=COLORS['primary'])
+
+categories = [
+    ('Metal Objects', 'Strong', 'Weak/None', COLORS['warning'],
+     ['Engine parts', 'Aircraft wreckage', 'Artifacts']),
+    ('Conductive Soil', 'Moderate', 'Moderate', COLORS['orange'],
+     ['Wet clay', 'Saline zones', 'Contamination']),
+    ('Disturbed Fill', 'Weak', 'Strong', COLORS['purple'],
+     ['Crater fill', 'Grave shafts', 'Backfill']),
+    ('Voids/Air', 'None', 'Strong', COLORS['gray_light'],
+     ['Cavities', 'Collapsed zones', 'Air pockets']),
+    ('Moisture Zones', 'Weak', 'Strong', COLORS['accent'],
+     ['Water table', 'Wet pockets', 'Seepage']),
+]
+
+headers = ['Target Type', 'MIT Response', 'ERT Response', 'Examples']
+x_positions = [1.2, 3.5, 5.5, 8.0]
+
+for i, (header, x) in enumerate(zip(headers, x_positions)):
+    ax.add_patch(FancyBboxPatch((x - 0.9, 5.8), 1.8 if i < 3 else 3.2, 0.5,
+                                 boxstyle="round,pad=0.02",
+                                 facecolor=COLORS['primary'],
+                                 edgecolor='black', lw=1))
+    ax.text(x, 6.05, header, ha='center', va='center',
+            fontsize=9, fontweight='bold', color='white')
+
+for row_idx, (target_type, mit, ert, color, examples) in enumerate(categories):
+    y = 5.2 - row_idx * 1.0
+
+    ax.add_patch(FancyBboxPatch((0.3, y - 0.35), 1.8, 0.7,
+                                 boxstyle="round,pad=0.02",
+                                 facecolor=color, alpha=0.3,
+                                 edgecolor=color, lw=1.5))
+    ax.text(1.2, y, target_type, ha='center', va='center', fontsize=8,
+            fontweight='bold', color=COLORS['gray_dark'])
+
+    ax.add_patch(FancyBboxPatch((2.6, y - 0.35), 1.8, 0.7,
+                                 boxstyle="round,pad=0.02",
+                                 facecolor='white', edgecolor=COLORS['gray_light'], lw=0.5))
+    ax.text(3.5, y, mit, ha='center', va='center', fontsize=8)
+
+    mit_level = {'Strong': 0.9, 'Moderate': 0.5, 'Weak': 0.25, 'None': 0.0}[mit]
+    ax.add_patch(Rectangle((2.7, y - 0.25), 1.6 * mit_level, 0.15,
+                           facecolor=COLORS['success'], alpha=0.7))
+
+    ax.add_patch(FancyBboxPatch((4.6, y - 0.35), 1.8, 0.7,
+                                 boxstyle="round,pad=0.02",
+                                 facecolor='white', edgecolor=COLORS['gray_light'], lw=0.5))
+    ax.text(5.5, y, ert, ha='center', va='center', fontsize=8)
+
+    ert_level = {'Strong': 0.9, 'Moderate': 0.5, 'Weak': 0.25, 'None': 0.0, 'Weak/None': 0.1}[ert]
+    ax.add_patch(Rectangle((4.7, y - 0.25), 1.6 * ert_level, 0.15,
+                           facecolor=COLORS['orange'], alpha=0.7))
+
+    ax.add_patch(FancyBboxPatch((6.4, y - 0.35), 3.2, 0.7,
+                                 boxstyle="round,pad=0.02",
+                                 facecolor='white', edgecolor=COLORS['gray_light'], lw=0.5))
+    examples_text = ', '.join(examples)
+    ax.text(8.0, y, examples_text, ha='center', va='center', fontsize=7,
+            style='italic', color=COLORS['gray_dark'])
+
+ax.add_patch(Rectangle((0.5, 0.3), 0.4, 0.15, facecolor=COLORS['success'], alpha=0.7))
+ax.text(1.0, 0.375, 'MIT Response Level', fontsize=7, va='center')
+ax.add_patch(Rectangle((3.5, 0.3), 0.4, 0.15, facecolor=COLORS['orange'], alpha=0.7))
+ax.text(4.0, 0.375, 'ERT Response Level', fontsize=7, va='center')
+
+ax.add_patch(FancyBboxPatch((6.0, 0.1), 3.8, 0.6,
+                             boxstyle="round,pad=0.05",
+                             facecolor=COLORS['light_blue'],
+                             edgecolor=COLORS['accent'], lw=1.5))
+ax.text(7.9, 0.4, 'KEY: Combine MIT + ERT for complete picture',
+        ha='center', va='center', fontsize=8, fontweight='bold',
+        color=COLORS['primary'])
+
+plt.tight_layout()
+plt.show()
+```
+
+## MIT (Magneto-Inductive Tomography) Detection
+
+- **Metal objects:** Strong response to aluminum, steel, and iron
+- **Conductive regions:** Moderate response to saline water, clay layers
+- **Eddy current anomalies:** Metallic wreckage produces characteristic signatures
+- Phase lag indicates conductivity; amplitude indicates size/distance
+- Higher frequencies provide better near-surface sensitivity
+
+## ERT (Electrical Resistivity) Detection
+
+- **Disturbed fill:** Different compaction and moisture than native soil
+- **Moisture variations:** Wet zones appear as low resistivity
+- **Crater walls:** Clear boundaries between fill and native soil
+- **Voids:** Air-filled spaces show very high resistivity
+- Depth slices reveal layering and lateral extent of features
+
+## Example Tomogram Interpretation {#sec-example-tomogram}
+
+The following example demonstrates combined MIT and ERT interpretation for a simulated WWII crash site investigation. Note how the complementary data streams provide more complete subsurface characterization than either method alone.
+
+```{python}
+#| label: fig-tomogram-example
+#| fig-cap: "Example tomogram showing MIT conductivity (top left), ERT resistivity (top right), and combined interpretation (bottom). The metal target within the disturbed fill zone is identified as a high-priority excavation target."
+
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+}
+
+fig = plt.figure(figsize=(11, 6), constrained_layout=True)
+gs = fig.add_gridspec(2, 3, width_ratios=[1, 1, 0.05], hspace=0.15, wspace=0.2)
+
+# MIT tomogram
+ax_mit = fig.add_subplot(gs[0, 0])
+x = np.linspace(0, 5, 100)
+z = np.linspace(0, 4, 80)
+X, Z = np.meshgrid(x, z)
+
+target_x, target_z = 2.5, 2.5
+distance = np.sqrt((X - target_x)**2 + (Z - target_z)**2)
+mit_data = np.exp(-distance**2 / 0.3) * 100
+mit_data += np.random.randn(*mit_data.shape) * 2
+mit_data = np.clip(mit_data, 0, 100)
+
+im_mit = ax_mit.imshow(mit_data, extent=[0, 5, 4, 0], cmap='hot',
+                       aspect='auto', vmin=0, vmax=100)
+ax_mit.set_xlabel('Distance (m)', fontsize=9)
+ax_mit.set_ylabel('Depth (m)', fontsize=9)
+ax_mit.set_title('MIT Conductivity (mS/m)', fontsize=10, fontweight='bold',
+                 color=COLORS['primary'])
+ax_mit.plot(target_x, target_z, 'w+', markersize=12, markeredgewidth=2)
+ax_mit.annotate('Metal\nTarget', (target_x, target_z), (target_x + 1, target_z - 0.5),
+                fontsize=8, color='white', fontweight='bold',
+                arrowprops=dict(arrowstyle='->', color='white', lw=1.5))
+
+for probe_x in [0.5, 4.5]:
+    ax_mit.axvline(probe_x, color='cyan', linestyle='--', alpha=0.5, lw=1)
+    ax_mit.text(probe_x, 0.2, 'Probe', fontsize=7, ha='center', color='cyan')
+
+# ERT tomogram
+ax_ert = fig.add_subplot(gs[0, 1])
+ert_data = np.ones_like(X) * 50
+crater_center_x = 2.5
+for i, depth in enumerate(z):
+    crater_width = max(0, 2.0 - 0.4 * depth)
+    mask = np.abs(X[i, :] - crater_center_x) < crater_width
+    if depth < 3.5:
+        ert_data[i, mask] = 30 + np.random.randn(np.sum(mask)) * 3
+
+moisture_dist = np.sqrt((X - 2.8)**2 + (Z - 3.0)**2)
+ert_data -= np.exp(-moisture_dist**2 / 0.15) * 20
+ert_data = np.clip(ert_data, 10, 80)
+
+im_ert = ax_ert.imshow(ert_data, extent=[0, 5, 4, 0], cmap='viridis_r',
+                       aspect='auto', vmin=10, vmax=80)
+ax_ert.set_xlabel('Distance (m)', fontsize=9)
+ax_ert.set_ylabel('Depth (m)', fontsize=9)
+ax_ert.set_title('ERT Resistivity (ohm-m)', fontsize=10, fontweight='bold',
+                 color=COLORS['primary'])
+
+crater_outline_x = [0.5, 1.5, 2.0, 2.5, 3.0, 3.5, 4.5]
+crater_outline_z = [0.5, 1.5, 2.5, 3.5, 2.5, 1.5, 0.5]
+ax_ert.plot(crater_outline_x, crater_outline_z, 'w--', lw=2, alpha=0.7)
+ax_ert.annotate('Fill\nBoundary', (3.5, 1.5), (4.2, 0.8),
+                fontsize=8, color='white', fontweight='bold',
+                arrowprops=dict(arrowstyle='->', color='white', lw=1.5))
+
+ax_cb = fig.add_subplot(gs[0, 2])
+ax_cb.axis('off')
+
+# Combined interpretation
+ax_combined = fig.add_subplot(gs[1, :2])
+combined_data = np.zeros((*mit_data.shape, 3))
+mit_norm = mit_data / 100
+combined_data[:, :, 0] = mit_norm * 0.8
+ert_norm = 1 - (ert_data - 10) / 70
+combined_data[:, :, 1] = ert_norm * 0.6
+combined_data[:, :, 2] = ert_norm * 0.8
+combined_data = np.clip(combined_data, 0, 1)
+
+ax_combined.imshow(combined_data, extent=[0, 5, 4, 0], aspect='auto')
+ax_combined.set_xlabel('Distance (m)', fontsize=9)
+ax_combined.set_ylabel('Depth (m)', fontsize=9)
+ax_combined.set_title('Combined MIT + ERT Interpretation', fontsize=10,
+                      fontweight='bold', color=COLORS['primary'])
+
+ax_combined.plot(target_x, target_z, 'w+', markersize=15, markeredgewidth=3)
+ax_combined.annotate('HIGH PRIORITY:\nMetal in Fill', (target_x, target_z),
+                     (target_x + 1.2, target_z + 0.8),
+                     fontsize=9, color='white', fontweight='bold',
+                     bbox=dict(boxstyle='round', facecolor='red', alpha=0.7),
+                     arrowprops=dict(arrowstyle='->', color='white', lw=2))
+
+ax_combined.annotate('Disturbed\nFill Zone', (2.5, 1.5), (0.5, 0.8),
+                     fontsize=8, color='white',
+                     arrowprops=dict(arrowstyle='->', color='white', lw=1.5))
+
+legend_elements = [
+    mpatches.Patch(facecolor='red', alpha=0.7, label='MIT: High conductivity (metal)'),
+    mpatches.Patch(facecolor='blue', alpha=0.7, label='ERT: Low resistivity (wet fill)'),
+    mpatches.Patch(facecolor='purple', alpha=0.7, label='Combined: Target in disturbed zone'),
+]
+ax_combined.legend(handles=legend_elements, loc='lower right', fontsize=7,
+                   framealpha=0.9)
+
+fig.suptitle('Example Tomogram: WWII Crash Site Investigation',
+             fontsize=12, fontweight='bold', color=COLORS['primary'])
+
+plt.show()
+```
+
+## Interpretation Notes
+
+- MIT clearly identifies the metal concentration at 2.5m depth
+- ERT reveals the crater fill geometry and moisture distribution
+- Combined view shows the target context within disturbed ground
+- High-priority designation indicates both metal and disturbed fill present
+
+## Combined Interpretation Strategy {#sec-combined-strategy}
+
+Effective HIRT interpretation combines MIT and ERT results with site context and historical information. The following decision tree provides systematic guidance for prioritizing investigation targets.
+
+```{python}
+#| label: fig-decision-tree
+#| fig-cap: "Data interpretation decision tree for prioritizing HIRT survey results. Begin with data quality verification, then evaluate MIT and ERT anomalies to assign investigation priority levels."
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch, Polygon, Circle
+import numpy as np
+
+COLORS = {
+    'primary': '#1a365d',
+    'success': '#38a169',
+    'warning': '#c53030',
+    'orange': '#ed8936',
+    'purple': '#805ad5',
+    'accent': '#3182ce',
+    'gray_dark': '#4a5568',
+    'gray_light': '#a0aec0',
+    'light_blue': '#ebf8ff',
+    'light_green': '#c6f6d5',
+    'light_orange': '#feebc8',
+    'light_red': '#fed7d7',
+    'light_purple': '#e9d8fd',
+}
+
+def draw_process_box(ax, x, y, w, h, text, color):
+    ax.add_patch(FancyBboxPatch((x - w/2, y - h/2), w, h,
+                 boxstyle="round,pad=0.03", facecolor=color,
+                 edgecolor='black', linewidth=1))
+    lines = text.split('\n')
+    for i, line in enumerate(lines):
+        ax.text(x, y + (len(lines)/2 - i - 0.5) * 0.18, line,
+               ha='center', va='center', fontsize=7, fontweight='bold')
+
+def draw_decision_diamond(ax, x, y, size, text, color):
+    half = size / 2
+    points = [(x, y + half), (x + half, y), (x, y - half), (x - half, y)]
+    patch = Polygon(points, facecolor=color, edgecolor='black', linewidth=1)
+    ax.add_patch(patch)
+    ax.text(x, y, text, ha='center', va='center', fontsize=6)
+
+def draw_terminal(ax, x, y, w, h, text, color):
+    ax.add_patch(FancyBboxPatch((x - w/2, y - h/2), w, h,
+                 boxstyle="round,pad=0.3", facecolor=color,
+                 edgecolor='black', linewidth=1.5))
+    ax.text(x, y, text, ha='center', va='center', fontsize=8, fontweight='bold')
+
+def draw_flow_arrow(ax, start, end, label=None):
+    ax.annotate('', xy=end, xytext=start,
+               arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+    if label:
+        mid_x = (start[0] + end[0]) / 2 + 0.15
+        mid_y = (start[1] + end[1]) / 2
+        ax.text(mid_x, mid_y, label, fontsize=6, color='black')
+
+fig, ax = plt.subplots(figsize=(12, 10))
+ax.set_xlim(0, 12)
+ax.set_ylim(0, 10)
+ax.set_aspect('equal')
+ax.axis('off')
+
+ax.text(5.5, 8.7, 'Data Interpretation Decision Tree', ha='center',
+        fontsize=12, fontweight='bold', color=COLORS['primary'])
+
+# Start
+draw_terminal(ax, 5.5, 8.2, 2.5, 0.5, 'START: Data QC', COLORS['light_green'])
+
+# First decision
+draw_decision_diamond(ax, 5.5, 7.0, 1.4, 'Reciprocity\nOK?', COLORS['light_blue'])
+draw_flow_arrow(ax, (5.5, 7.95), (5.5, 7.7))
+
+# Poor reciprocity path
+draw_flow_arrow(ax, (4.8, 7.0), (3.0, 7.0), 'No')
+draw_process_box(ax, 1.8, 7.0, 1.8, 0.8, 'Check\nconnections\n& reacquire', COLORS['light_red'])
+draw_flow_arrow(ax, (1.8, 7.4), (1.8, 8.2))
+ax.annotate('', xy=(5.5, 8.2), xytext=(2.7, 8.2),
+            arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+
+# Good data path
+draw_flow_arrow(ax, (5.5, 6.3), (5.5, 5.7), 'Yes')
+draw_decision_diamond(ax, 5.5, 5.2, 1.4, 'MIT\nAnomaly?', COLORS['light_blue'])
+
+# Strong MIT path
+draw_flow_arrow(ax, (6.2, 5.2), (8.0, 5.2), 'Strong')
+draw_decision_diamond(ax, 9.0, 5.2, 1.2, 'ERT\nContrast?', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (9.0, 4.6), (9.0, 3.8), 'Yes')
+draw_process_box(ax, 9.0, 3.3, 2.0, 0.8, 'Metal in\ndisturbed zone\n(HIGH priority)', COLORS['light_red'])
+
+draw_flow_arrow(ax, (9.6, 5.2), (10.3, 5.2), 'No')
+draw_process_box(ax, 10.3, 5.2, 1.2, 0.6, 'Isolated\nmetal', COLORS['light_orange'])
+
+# Weak/No MIT path
+draw_flow_arrow(ax, (5.5, 4.5), (5.5, 3.8), 'Weak/None')
+draw_decision_diamond(ax, 5.5, 3.3, 1.4, 'ERT\nAnomaly?', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (6.2, 3.3), (7.5, 3.3), 'Yes')
+draw_decision_diamond(ax, 8.3, 3.3, 1.0, 'High\nor Low\nR?', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (8.8, 3.3), (10.0, 3.3), 'High')
+draw_process_box(ax, 10.0, 3.3, 1.5, 0.6, 'Void or\ndry zone', COLORS['light_purple'])
+
+draw_flow_arrow(ax, (8.3, 2.8), (8.3, 2.2), 'Low')
+draw_process_box(ax, 8.3, 1.7, 1.8, 0.7, 'Wet fill or\nclay layer', COLORS['light_blue'])
+
+draw_flow_arrow(ax, (5.5, 2.6), (5.5, 1.8), 'No')
+draw_process_box(ax, 5.5, 1.3, 2.2, 0.8, 'Homogeneous\nground\n(no targets)', COLORS['light_green'])
+
+# Priority legend
+ax.add_patch(FancyBboxPatch((0.5, 0.3), 10.0, 0.8,
+                             boxstyle="round,pad=0.02",
+                             facecolor=COLORS['light_blue'], alpha=0.3,
+                             edgecolor=COLORS['accent'], lw=1.5))
+
+priority_items = [
+    (1.5, 0.7, 'HIGH', COLORS['warning'], 'Metal + Disturbed'),
+    (4.0, 0.7, 'MEDIUM', COLORS['orange'], 'Metal or Fill only'),
+    (6.8, 0.7, 'LOW', COLORS['success'], 'Minor anomalies'),
+    (9.2, 0.7, 'NONE', COLORS['gray_light'], 'No targets'),
+]
+
+for x, y, label, color, desc in priority_items:
+    ax.add_patch(Circle((x - 0.3, y), 0.15, facecolor=color, edgecolor='black', lw=1))
+    ax.text(x, y, f'{label}:', fontsize=8, fontweight='bold', va='center')
+    ax.text(x + 0.8, y, desc, fontsize=7, va='center', color=COLORS['gray_dark'])
+
+plt.tight_layout()
+plt.show()
+```
+
+## Example Interpretation Scenarios
+
+### Scenario 1: Bomb Crater Investigation
+
+- **MIT:** Metal parts detected near crater base (aluminum/steel fragments)
+- **ERT:** Fill bowl geometry visible, wet pockets at base, clear crater walls
+- **Interpretation:** Classic impact crater with retained metallic debris
+
+### Scenario 2: Woods Burial Search
+
+- **MIT:** Small metallic clusters (buckles, dog tags, buttons)
+- **ERT:** Rectangular disturbed zone with different moisture profile
+- **Interpretation:** Possible grave shaft requiring careful investigation
+
+### Scenario 3: Aircraft Wreckage
+
+- **MIT:** Large conductive masses (engine block, landing gear)
+- **ERT:** Disturbed ground pattern, possible fuel contamination zones
+- **Interpretation:** Significant wreckage concentration warranting excavation
+
+## Data Quality Indicators {#sec-quality-indicators}
+
+## Good Data Characteristics
+
+- Consistent reciprocity (A-to-B approximately equals B-to-A)
+- Smooth spatial variations without erratic jumps
+- Expected depth sensitivity matching configuration
+- Stable baseline measurements over survey duration
+
+::: {.callout-warning}
+## Problematic Data Warning Signs
+
+- Poor reciprocity indicates coupling problems or calibration drift
+- Noisy/spiky readings suggest connection issues or EMI
+- No depth sensitivity may indicate inadequate spacing or frequency
+- Inconsistent repeats require checking timebase and connectors
+:::
+
+## Field Expectations and Detection Limits {#sec-detection-limits}
+
+## Typical Anomaly Sizes
+
+| Target Type | Typical Size | Expected Response |
+|-------------|--------------|-------------------|
+| Large metal (engine) | 1-3 m | Strong MIT response |
+| Small metal (artifacts) | 0.1-0.5 m | Weaker MIT, requires tight spacing |
+| Grave shaft | 0.5-1.5 m wide | Clear ERT contrast |
+| Crater fill | 10-15 m diameter | ERT shows boundaries clearly |
+
+: Typical anomaly sizes and expected responses {#tbl-anomaly-sizes}
+
+## Detection Limits
+
+- **MIT:** Can detect ~0.1m metal at 1-2m depth (size dependent)
+- **ERT:** Can resolve ~0.5m features at 1-2m depth
+- **Depth:** Practical limit 2-4m typical with 3m probes (5-6m in optimal conditions)
+
+## Post-Survey Workflow {#sec-post-survey}
+
+1. **QA/QC:** Verify data quality and reciprocity
+2. **Inversion:** Reconstruct 3D models using appropriate algorithms
+3. **Fusion:** Combine MIT and ERT results for complete picture
+4. **Visualization:** Generate depth slices and 3D isosurfaces
+5. **Interpretation:** Correlate anomalies with site context
+6. **Reporting:** Document findings with confidence assessments
+7. **Planning:** Recommend excavation priorities and methods
+
+::: {.callout-note}
+## Key Interpretation Principles
+
+- Always combine MIT and ERT for complete subsurface picture
+- Consider site history and expected target characteristics
+- Use confidence levels to guide excavation prioritization
+- Document interpretation rationale for future reference
+:::
+
+## MIT+ERT Data Fusion Workflow {#sec-data-fusion-workflow}
+
+Combining MIT and ERT data provides more reliable interpretation than either method alone. This section describes systematic procedures for fusing multi-modal HIRT data into unified interpretation products.
+
+### Why Data Fusion Matters
+
+MIT and ERT measure fundamentally different physical properties:
+
+- **MIT:** Responds to electrical conductivity (metals, saline water, clay) and magnetic permeability (ferrous metals)
+- **ERT:** Responds to bulk resistivity (soil moisture, compaction, voids, organics)
+
+Targets that appear similar in one modality often have distinct signatures in the other. Data fusion leverages these differences to reduce interpretation ambiguity and increase detection confidence.
+
+### Fusion Approaches {#sec-fusion-approaches}
+
+Three complementary fusion strategies address different interpretation goals:
+
+**1. Sequential Interpretation (Recommended for Most Applications)**
+
+Process each modality independently, then correlate results:
+
+1. Invert MIT data → Generate conductivity tomogram
+2. Invert ERT data → Generate resistivity tomogram
+3. Identify anomalies in each tomogram independently
+4. Cross-reference anomaly locations between modalities
+5. Classify targets based on combined signature (see @sec-anomaly-classification)
+
+This approach preserves the independent information from each channel and allows assessment of single-channel reliability.
+
+**2. Joint Inversion (Advanced)**
+
+Simultaneously invert MIT and ERT data with structural coupling:
+
+- Shared mesh and regularization encourages consistent boundaries
+- Requires careful weighting of different data types
+- Best suited for research applications with experienced operators
+- Software: SimPEG, pyGIMLi support joint inversion workflows
+
+**3. Probability Fusion (Decision Support)**
+
+Combine detection probabilities rather than physical parameters:
+
+1. Generate anomaly probability maps for each modality (P_MIT, P_ERT)
+2. Combine using Bayesian framework: P_combined = f(P_MIT, P_ERT, P_prior)
+3. Prior probability P_prior incorporates site context (historical records, surface indicators)
+4. Output: unified probability map for excavation prioritization
+
+### Practical Fusion Workflow {#sec-practical-fusion}
+
+For standard HIRT surveys, the following workflow balances rigor with practicality:
+
+**Step 1: Independent Processing**
+
+- Process MIT data through lock-in detection, background removal, and inversion
+- Process ERT data through reciprocity check, background removal, and inversion
+- Generate depth slices at consistent intervals (0.5 m recommended)
+
+**Step 2: Co-Registration**
+
+- Verify both inversions use the same coordinate system and mesh
+- Generate overlay visualizations at each depth slice
+- Use consistent color scales: hot colormap for MIT conductivity, viridis_r for ERT resistivity
+
+**Step 3: Anomaly Correlation**
+
+For each identified anomaly, assess:
+
+| Question | MIT Evidence | ERT Evidence | Interpretation |
+|----------|--------------|--------------|----------------|
+| Is target metallic? | Strong anomaly | Weak/none | Isolated metal object |
+| Is target in disturbed soil? | Any response | Low-R zone with geometry | Fill/burial context |
+| Is target metallic IN disturbed soil? | Strong anomaly | Co-located low-R zone | High-priority (crash site/burial) |
+| Is anomaly natural? | None | Diffuse/irregular zone | Root mass, clay lens, moisture |
+
+: Anomaly correlation decision matrix. {#tbl-anomaly-correlation}
+
+**Step 4: Confidence Assignment**
+
+Assign confidence based on multi-modal support:
+
+- **HIGH:** Corroborating evidence from both MIT and ERT matching expected signature
+- **MEDIUM:** Strong signal in one modality, weak/ambiguous in other
+- **LOW:** Weak signals in both modalities, or contradictory indications
+- **NATURAL:** ERT anomaly without MIT support in appropriate context
+
+**Step 5: Report Generation**
+
+Produce unified interpretation products:
+
+- Combined tomogram overlays (red=MIT conductivity, blue=ERT resistivity, purple=both)
+- Anomaly summary table with location, depth, signature type, confidence
+- Recommended excavation priorities based on combined assessment
+
+### Fusion Artifacts and Pitfalls {#sec-fusion-pitfalls}
+
+Be aware of potential fusion artifacts:
+
+**Registration Errors:** If MIT and ERT inversions use slightly different coordinate systems, apparent co-location may be spurious. Always verify grid alignment before fusion.
+
+**Resolution Mismatch:** MIT and ERT have different spatial resolution characteristics. A small metal object may produce a tight MIT anomaly but appear smeared in ERT. Do not require exact geometric match.
+
+**Depth Discrepancy:** The same target may appear at slightly different depths in MIT vs ERT inversions due to different sensitivity functions. Allow ±0.5 m depth tolerance when correlating.
+
+**Over-Interpretation:** The temptation to find corroborating evidence can lead to confirmation bias. Apply consistent criteria regardless of desired outcome.
+
+::: {.callout-tip}
+## Fusion Best Practice
+
+When MIT and ERT disagree (one shows anomaly, other shows nothing), investigate before dismissing either result. Check for:
+
+- Measurement quality issues in the "silent" channel
+- Physical reasons for single-channel response (e.g., non-metallic disturbed soil for ERT-only)
+- Position or depth offset between apparent anomaly locations
+:::
+
+## Target Signature Catalogue {#sec-signature-catalogue}
+
+Effective interpretation requires recognizing characteristic patterns produced by different subsurface features. This catalogue provides reference signatures for common targets encountered in archaeological and forensic investigations. Learning to distinguish these patterns from natural variations and false positives is fundamental to confident field interpretation.
+
+Each signature is presented with its physical explanation, expected MIT and ERT responses, and distinguishing characteristics. Use this catalogue in combination with site context and the decision tree (@fig-decision-tree) to build interpretation confidence progressively throughout the survey.
+
+### Metallic Object Signatures (MIT-3D) {#sec-metal-signatures}
+
+Metallic objects generate electromagnetic responses through eddy current induction. The signature characteristics depend on the metal's conductivity, magnetic permeability, size, and geometry. MIT-3D detects all metals, including aluminum and brass, which are invisible to traditional ferrous-only magnetometers.
+
+::: {.visual-placeholder}
+**Figure Concept**: Metallic Object Signature Comparison
+
+A 2x3 panel diagram showing MIT-3D response patterns for different metal types at 2m depth:
+
+**Top row (Amplitude response):**
+- Panel 1: Large ferrous object (engine block) - very strong, localized peak, high amplitude
+- Panel 2: Non-ferrous aluminum (aircraft skin fragment) - moderate amplitude, broader spread
+- Panel 3: Small ferrous artifact (buckle, tool) - weak but distinct peak
+
+**Bottom row (Phase response):**
+- Panel 1: Ferrous - strong phase shift (high magnetic permeability effect)
+- Panel 2: Non-ferrous - moderate phase shift (conductivity effect only)
+- Panel 3: Small ferrous - detectable phase shift despite weak amplitude
+
+Each panel shows crosshole measurement geometry with probes at edges, target location marked, and color-scaled response (hot colormap for amplitude, coolwarm for phase). Include depth scale (0-4m vertical) and lateral distance (0-5m horizontal). Annotations indicate physical mechanism: "Eddy currents + magnetic", "Eddy currents only", "Size-limited response".
+
+**Type**: diagram
+:::
+
+**Ferrous Metal (Iron/Steel):** Aircraft engines, landing gear, bomb casings, and steel artifacts produce the strongest MIT responses. The combination of high electrical conductivity and magnetic permeability creates intense eddy currents and magnetic field distortion. We observe both high amplitude and significant phase shift relative to the excitation signal. Large ferrous masses (>50 kg) are detectable at full depth range, while smaller objects (<5 kg) require closer probe spacing for reliable detection.
+
+**Non-Ferrous Metal (Aluminum, Brass, Copper):** Aircraft structural components, ammunition casings, and decorative artifacts produce moderate MIT responses. These materials lack magnetic permeability but still support eddy currents due to high conductivity. The amplitude is typically 30-60% lower than equivalent-sized ferrous objects, and phase shift is reduced because the magnetic component is absent. Aluminum is particularly important for WWII aircraft investigation, as fuselage skin and structural members are often the largest surviving components.
+
+**Size vs Depth Relationship:** Target detectability follows an approximate cube-law: doubling the distance reduces the signal by a factor of eight. A 10 cm metal artifact detectable at 1 m depth becomes nearly invisible at 2 m depth, while a 1 m engine component remains clearly detectable at 3 m. For planning purposes, assume minimum detectable size scales linearly with depth: at 1 m depth detect 5 cm objects, at 2 m detect 10 cm objects, at 3 m detect 15-20 cm objects (conservative estimate).
+
+**Multiple Objects vs Single Large Object:** A cluster of small metal fragments can mimic a single large object in MIT data. Distinguishing these cases requires examining the spatial distribution: a discrete large object produces a smooth, symmetric anomaly peak, while a scatter field shows multiple local maxima or an elongated, irregular high-response zone. If ERT shows a disturbed fill zone matching the MIT anomaly extent, the scatter field interpretation becomes more likely---consistent with impact debris distribution.
+
+::: {.visual-placeholder}
+**Figure Concept**: Size-Depth Detection Relationships
+
+A scatter plot with detection zones showing MIT-3D sensitivity as a function of target size and depth:
+
+- X-axis: Target depth (0-5 m)
+- Y-axis: Minimum detectable metal size (0-50 cm diameter sphere equivalent)
+- Detection zones shaded by confidence: HIGH (green, depth <2m), MEDIUM (yellow, 2-4m), LOW (orange, 4-5m), UNDETECTABLE (gray, >5m)
+- Diagonal boundary lines showing detection limit for different probe spacings: 1.0m, 1.5m, 2.0m spacing
+- Example targets plotted as symbols: engine (large circle, 80cm), landing gear (medium circle, 40cm), buckle (small circle, 5cm), aircraft skin fragment (ellipse, 30x60cm)
+- Annotation showing cube-law relationship: "Signal $\propto$ 1/r$^3$"
+- Color coding by metal type: ferrous (red symbols), non-ferrous (blue symbols)
+
+**Type**: diagram
+:::
+
+### Soil Disturbance Signatures (ERT-Lite) {#sec-soil-signatures}
+
+Electrical resistivity tomography reveals subsurface boundaries through resistivity contrast. Disturbed soil has different compaction, moisture content, and composition than the surrounding native material. These differences persist for decades or centuries, making ERT ideal for detecting historical excavations, burials, and impact craters.
+
+::: {.visual-placeholder}
+**Figure Concept**: Soil Disturbance Signature Catalogue
+
+A 2x2 grid showing ERT-Lite resistivity tomograms for archeological features:
+
+**Top-left: Backfilled Excavation (Bomb Crater)**
+- Vertical cross-section showing bowl-shaped low-resistivity zone (20-40 ohm-m) surrounded by higher-resistivity native soil (60-80 ohm-m)
+- Clear boundary transition at crater wall
+- Moisture accumulation at base causing lowest resistivity zone
+- Annotation: "Looser fill retains more moisture"
+
+**Top-right: Void/Cavity (Collapsed Tunnel)**
+- High-resistivity anomaly (>150 ohm-m) in moderate-resistivity soil (50-70 ohm-m)
+- Air-filled space shows as bright zone
+- Annotation: "Air = infinite resistivity"
+
+**Bottom-left: Decomposition Products (Burial)**
+- Moderate to low resistivity zone (30-50 ohm-m) in rectangular geometry
+- Vertical extent showing shaft depth
+- Annotation: "Organic decomposition → conductive leachate"
+
+**Bottom-right: Compacted vs Loose Fill**
+- Side-by-side comparison showing compacted (60 ohm-m) vs loose (35 ohm-m) backfill in similar geometry
+- Annotation: "Compaction reduces moisture retention"
+
+All panels show 0-4m depth, 0-5m lateral extent, with probe positions marked at edges. Use viridis_r colormap for resistivity (low=dark, high=bright).
+
+**Type**: diagram
+:::
+
+**Backfilled Excavation:** Bomb craters, trenches, and archaeological excavations refilled with soil show characteristic resistivity patterns. The backfill is typically less compacted than the native soil, creating larger pore spaces that retain more moisture. This produces a low-resistivity anomaly (20-50% lower than background) matching the excavation geometry. Bomb craters show a bowl or cone shape in vertical cross-section, while burial shafts appear as vertical or slightly tilted rectangular zones. The boundary between fill and native soil often appears as a sharp resistivity gradient, making crater wall mapping reliable.
+
+**Void/Cavity:** Air-filled spaces, including collapsed tunnels, animal burrows, root cavities, and natural karst features, produce high-resistivity anomalies. Air has effectively infinite resistivity, so even a small void creates a distinct signature. Voids can be challenging to distinguish from very dry, sandy zones without supporting evidence. Size estimation is reliable for voids >30 cm, while smaller features may be under-resolved due to spatial averaging in the inversion.
+
+**Decomposition Products:** Organic decomposition releases conductive fluids (leachate) that reduce resistivity in the immediate vicinity. Burial sites often show a moderate low-resistivity zone (10-30% lower than background) with elongated geometry matching the grave shaft. This signature is most pronounced in the first decades after burial and gradually weakens as decomposition products migrate or are consumed by biological activity. Very old burials may show only the fill disturbance without a strong decomposition signature.
+
+**Compacted vs Loose Fill:** The degree of compaction significantly affects resistivity. Well-compacted fill (e.g., deliberately backfilled and tamped) approaches native soil resistivity, producing a weak anomaly. Loosely deposited fill (e.g., rapid crater backfilling) shows strong resistivity contrast. This distinction helps interpret site formation processes: deliberate concealment tends to show better compaction than hasty abandonment or natural infilling.
+
+::: {.visual-placeholder}
+**Figure Concept**: ERT Signature Decision Tree
+
+A flowchart for classifying ERT anomalies based on resistivity characteristics:
+
+**Start:** Resistivity Anomaly Detected
+
+**First Decision Diamond:** Higher or Lower than Background?
+- **Higher →** "Void, dry zone, or resistive inclusion"
+  - **Sub-decision:** Geometry regular or irregular?
+    - Regular (rectangular/circular) → "Possible cavity or dry fill"
+    - Irregular (branching/networked) → "Roots or natural features"
+- **Lower →** "Conductive feature (wet, clay, decomposition)"
+  - **Sub-decision:** Geometry?
+    - Bowl/cone shaped → "Crater or pit"
+    - Rectangular/linear → "Trench, burial shaft, or foundation"
+    - Diffuse/irregular → "Moisture zone or clay layer"
+
+**Terminal boxes** color-coded by interpretation confidence:
+- High confidence: Crater (strong geometry match)
+- Medium confidence: Burial (requires MIT correlation)
+- Low confidence: Natural feature (needs additional context)
+
+**Type**: diagram
+:::
+
+### Combined Signatures (Dual-Channel Fusion) {#sec-combined-signatures}
+
+The true power of HIRT emerges when MIT and ERT data are interpreted together. Certain target types produce characteristic dual-channel signatures that provide much higher identification confidence than either method alone. Recognizing these combined patterns is the key to effective field interpretation.
+
+::: {.visual-placeholder}
+**Figure Concept**: Dual-Channel Signature Catalogue
+
+A 3-column by 3-row grid showing MIT, ERT, and combined interpretation for three scenarios:
+
+**Row 1: Bomb Crater with Metallic Debris**
+- MIT panel: Strong localized metal response at crater base (2.5m depth)
+- ERT panel: Bowl-shaped low-resistivity fill zone (3m diameter, 3.5m deep)
+- Combined panel: Overlay showing metal target within disturbed zone, labeled "HIGH PRIORITY"
+- Caption: "Classic impact crater signature"
+
+**Row 2: Burial with Metal Artifacts**
+- MIT panel: Small discrete metal responses (buckle, buttons) at 1.8m depth
+- ERT panel: Rectangular low-resistivity shaft (0.8m x 2.0m x 2.5m deep)
+- Combined panel: Metal artifacts aligned with shaft geometry, labeled "BURIAL PROBABLE"
+- Caption: "Associated metal artifacts increase confidence"
+
+**Row 3: Natural Feature Mimicking Target**
+- MIT panel: Weak/no metal response
+- ERT panel: Low-resistivity zone (irregular geometry)
+- Combined panel: Labeled "NATURAL: Root mass or clay lens"
+- Caption: "ERT anomaly without MIT correlation suggests natural origin"
+
+All panels use consistent geometry (4m depth, 5m lateral) with probe positions marked. MIT uses hot colormap, ERT uses viridis_r, combined uses false-color overlay (red=MIT, blue=ERT, purple=both).
+
+**Type**: diagram
+:::
+
+**Bomb Crater with Metallic Debris:** The canonical forensic target combines a clear bowl-shaped ERT disturbance with strong MIT responses concentrated near the crater base or scattered throughout the fill. This signature indicates impact with retained metallic components (engine parts, munitions casings, structural debris). The MIT anomaly location within the ERT geometry provides excavation guidance: metal at the base suggests impact burial, while metal distributed throughout suggests fragmentation and scatter during infilling. Excavation priority is HIGH for this signature.
+
+**Burial with Metal Artifacts:** Archaeological or forensic burials sometimes contain metal artifacts: buttons, buckles, coins, dog tags, personal effects, or decorative items. The combined signature shows a modest rectangular ERT disturbance (grave shaft geometry) with small, discrete MIT anomalies aligned with the shaft. The presence of metal increases burial identification confidence significantly, as natural features rarely produce this combination. If MIT shows no response, the ERT shaft alone has MEDIUM priority and requires careful excavation to confirm.
+
+**Natural Features Mimicking Targets:** Tree root masses, clay lenses, perched water zones, and natural soil heterogeneity can produce ERT anomalies similar to archaeological features. The key discriminator is the MIT channel: natural features almost never produce metal responses unless the site has modern contamination (fence posts, utility lines). An ERT anomaly without corresponding MIT response warrants skepticism unless other evidence supports artificial origin. Consider the site context: a low-resistivity zone in a forested area is more likely a root mass than in an open field.
+
+### False Positive Examples {#sec-false-positives}
+
+Recognizing common false positive sources prevents wasted excavation effort and builds interpretation expertise. These features produce anomalies resembling targets of interest but originate from benign or natural sources.
+
+::: {.visual-placeholder}
+**Figure Concept**: Common False Positive Signatures
+
+A 2x2 grid showing typical false positive scenarios:
+
+**Top-left: Buried Utility Pipe**
+- MIT panel: Strong linear metal response (if metallic pipe) or weak response (PVC)
+- ERT panel: Linear low-resistivity feature (moisture accumulation along trench)
+- Combined panel: Straight-line geometry inconsistent with archaeological features
+- Annotation: "Linear = modern utility, not impact crater"
+
+**Top-right: Natural Mineralization**
+- MIT panel: Diffuse, irregular metal response (magnetite, iron-rich soil)
+- ERT panel: Moderate resistivity variation matching geology, not excavation geometry
+- Combined panel: Gradual transitions, no sharp boundaries
+- Annotation: "Natural gradients lack sharp edges"
+
+**Bottom-left: Root Mass**
+- MIT panel: No response
+- ERT panel: Low-resistivity branching/networked pattern
+- Combined panel: Irregular geometry inconsistent with excavation
+- Annotation: "Branching pattern characteristic of roots"
+
+**Bottom-right: Perched Water Table**
+- MIT panel: Weak response (slightly conductive)
+- ERT panel: Low-resistivity layer at consistent depth across survey
+- Combined panel: Lateral continuity inconsistent with discrete target
+- Annotation: "Regional feature, not localized disturbance"
+
+Use consistent color scales and layout as previous signature diagrams.
+
+**Type**: diagram
+:::
+
+**Utility Pipes:** Modern subsurface infrastructure produces some of the strongest MIT and ERT anomalies. Metallic pipes (steel, cast iron, copper) generate intense MIT responses, while PVC pipes create modest ERT anomalies due to moisture accumulation in the installation trench. The distinguishing feature is geometry: utilities follow straight lines or gentle curves aligned with surface infrastructure, while archaeological features have more irregular shapes. Historical maps and local knowledge help identify likely utility corridors.
+
+**Natural Mineralization:** Iron-rich soil layers, magnetite deposits, and mineralized groundwater create broad, diffuse MIT responses that can be mistaken for scattered metallic debris. The key discriminator is spatial pattern: natural mineralization produces gradual variations and regional trends, while anthropogenic metal shows discrete, localized anomalies. ERT helps differentiate: natural mineralization typically lacks the sharp resistivity boundaries characteristic of excavated features.
+
+**Root Masses:** Large tree roots, particularly in disturbed or filled soil, produce complex ERT signatures. The branching, networked geometry is characteristic: roots radiate from a central point (tree trunk) with decreasing diameter and irregular spacing. Decomposing roots may show low resistivity from moisture retention and organic matter. The MIT channel is diagnostic: roots produce no metal response unless the tree is associated with modern infrastructure (fence staples, nails, wire). Sites with significant vegetation require careful interpretation to distinguish roots from genuine archaeological features.
+
+**Perched Water Table:** Seasonal or permanent perched water zones create laterally extensive low-resistivity layers. Unlike discrete targets, these features extend across the entire survey area at relatively consistent depth. Temporal variation helps identify this false positive: measurements taken in different seasons or after rainfall show different resistivity, while archaeological features remain stable. Water table position often correlates with stratigraphy (clay aquitard) or topography (low-lying areas).
+
+::: {.callout-tip}
+## Building Interpretation Expertise
+
+Confident interpretation develops through experience with known targets. When possible:
+
+1. **Test on known features:** Survey documented features (capped wells, marked burials, historical excavations) to calibrate expectations
+2. **Correlate with excavation results:** When targets are excavated, compare the actual findings to the geophysical signature
+3. **Document ambiguous cases:** Build a personal reference library of uncertain signatures and their eventual interpretation
+4. **Combine methods:** Use HIRT with complementary techniques (GPR, magnetometry) to cross-validate interpretations
+
+The signature catalogue provides a starting framework, but site-specific experience is invaluable for developing the interpretive intuition that distinguishes expert practitioners.
+:::
+
+## Mathematical Basis of Reconstruction {#sec-math-basis}
+
+For scientific rigor, it is important to define the physical models governing the reconstruction algorithms. The inversion process solves the 'inverse problem': finding the subsurface property distribution that best explains the measured data.
+
+## Forward Models
+
+**MIT (Quasi-Static Maxwell's Equations):** The secondary magnetic field B_s generated by eddy currents in a conductive medium is governed by:
+
+$$\nabla \times \mathbf{E} = -i \omega \mathbf{B}$$
+
+$$\nabla \times \mathbf{H} = \sigma \mathbf{E} + \mathbf{J}_s$$
+
+Where $\sigma$ is conductivity, $\omega$ is angular frequency, and $\mathbf{J}_s$ is the source current.
+
+**ERT (Poisson's Equation):** The electric potential $\phi$ distribution due to a current source $I$ in a medium of conductivity $\sigma$ is governed by:
+
+$$\nabla \cdot (\sigma \nabla \phi) = -I \delta(\mathbf{r} - \mathbf{r}_s)$$
+
+## Inverse Problem Formulation
+
+The reconstruction minimizes an objective function $\Phi$ comprising data mismatch and model roughness (regularization):
+
+$$\Phi(\mathbf{m}) = \| \mathbf{d}_{obs} - F(\mathbf{m}) \|^2 + \lambda \| \mathbf{R} \mathbf{m} \|^2$$
+
+Where $\mathbf{d}_{obs}$ is observed data, $F(\mathbf{m})$ is the forward model output for model $\mathbf{m}$, $\mathbf{R}$ is the roughness matrix, and $\lambda$ is the regularization parameter. This is typically solved using a Gauss-Newton iterative update:
+
+$$\mathbf{m}_{k+1} = \mathbf{m}_k - (\mathbf{J}^T \mathbf{J} + \lambda \mathbf{R}^T \mathbf{R})^{-1} \mathbf{J}^T (\mathbf{d}_{obs} - F(\mathbf{m}_k))$$
+
+Where $\mathbf{J}$ is the Sensitivity Matrix (Jacobian) describing how data changes with model parameters.
+
+## Inversion Best Practices {#sec-inversion-best-practices}
+
+Based on established practices in SimPEG and pyGIMLi, the following guidelines optimize inversion results for HIRT data:
+
+### Regularization Parameters {#sec-regularization-params}
+
+For crosshole/borehole geometries, anisotropic regularization improves results:
+
+| Parameter | Surface Survey | Crosshole Survey | Notes |
+|-----------|---------------|------------------|-------|
+| zWeight | 1.0 | 0.3-0.5 | Reduced vertical smoothing for crosshole |
+| Lateral smoothing | Standard | Standard | Maintain lateral continuity |
+| Alpha_s (smallness) | 0.001-0.01 | 0.001-0.01 | Model norm regularization |
+| Alpha_x/y/z (smoothness) | 1.0 | 1.0/1.0/0.3 | Directional smoothness weights |
+
+: Recommended regularization parameters for different survey geometries {#tbl-regularization}
+
+The reduced zWeight (0.3-0.5) for crosshole surveys allows sharper vertical boundaries---appropriate when horizontal ray paths provide good vertical resolution. This follows pyGIMLi crosshole ERT best practices.
+
+### Starting Model Selection {#sec-starting-model}
+
+The starting model significantly affects inversion convergence and final results:
+
+- **Default starting model**: Use background resistivity estimate, typically ln(100 $\Omega \cdot$m) = ln(0.01 S/m)
+- **Site-specific**: If prior information exists (e.g., from surface surveys), use that as the starting model
+- **Homogeneous half-space**: Appropriate when no prior information is available
+
+::: {.callout-note}
+## SimPEG Convention
+SimPEG uses log-conductivity (ln $\sigma$) parameterization. A starting model of ln(0.01) corresponds to 100 $\Omega \cdot$m resistivity. This ensures positivity and improves numerical stability.
+:::
+
+### Mesh Design Guidelines {#sec-mesh-guidelines}
+
+Proper mesh design ensures numerical accuracy without excessive computation:
+
+| Element | Guideline | Rationale |
+|---------|-----------|-----------|
+| Cell size at electrodes | ~10% of electrode spacing | Resolves current injection |
+| Cell size in target zone | ~25% of expected feature size | Adequate resolution |
+| Padding cells | 3-5 layers, expanding | Boundary condition stability |
+| Mesh type (ERT) | Tetrahedral or OcTree | Handles topography and refinement |
+
+: Mesh design guidelines for HIRT inversion {#tbl-mesh-guidelines}
+
+For HIRT's ~0.5m ring electrode spacing, cells near electrodes should be ~5 cm. For the target zone between probes, 10-25 cm cells typically provide adequate resolution while maintaining computational efficiency.
+
+### Data Uncertainty Propagation {#sec-uncertainty-propagation}
+
+Quantifying uncertainty enables confidence assessment of interpreted features. Error propagation tracks how measurement uncertainties translate into model uncertainties through the inversion process.
+
+#### Sources of Measurement Error
+
+HIRT measurements are subject to several error sources that must be quantified:
+
+| Error Source | MIT Typical | ERT Typical | Mitigation |
+|--------------|-------------|-------------|------------|
+| Instrument noise | 2-5% | 1-3% | Averaging, filtering |
+| Electrode contact | N/A | 2-10% | Contact resistance check |
+| Position uncertainty | 1-3% | 1-3% | Careful surveying |
+| Temperature drift | 1-2% | 1-2% | Reference measurements |
+| Reciprocity error | 2-5% | 2-5% | QC during acquisition |
+| **Combined (RSS)** | **3-8%** | **3-12%** | All above measures |
+
+: Typical measurement error sources and magnitudes. {#tbl-error-sources}
+
+**Assigning Data Weights:** Data weights $w_i$ in the inversion are typically set as the inverse of estimated standard deviation:
+
+$$w_i = \frac{1}{\sigma_i} = \frac{1}{\epsilon_r \cdot |d_i|}$$
+
+Where $\epsilon_r$ is the relative error (typically 3-5% for HIRT) and $d_i$ is the measured datum.
+
+#### Error Propagation Through Inversion
+
+The relationship between data uncertainty and model uncertainty is governed by the model resolution matrix:
+
+$$\mathbf{R} = (\mathbf{J}^T \mathbf{W} \mathbf{J} + \lambda \mathbf{R}_m^T \mathbf{R}_m)^{-1} \mathbf{J}^T \mathbf{W} \mathbf{J}$$
+
+Where $\mathbf{J}$ is the Jacobian, $\mathbf{W}$ is the data weight matrix, and $\mathbf{R}_m$ is the model regularization matrix. The diagonal elements of $\mathbf{R}$ indicate how well each model parameter is resolved by the data.
+
+**Model Covariance:** The model parameter covariance matrix is:
+
+$$\mathbf{C}_m = (\mathbf{J}^T \mathbf{W} \mathbf{J} + \lambda \mathbf{R}_m^T \mathbf{R}_m)^{-1} \sigma_d^2$$
+
+The diagonal elements provide parameter standard deviations; off-diagonal elements reveal parameter correlations.
+
+#### Practical Uncertainty Assessment
+
+For routine surveys, the following practical approach provides actionable uncertainty estimates:
+
+**Step 1: Assign Data Weights**
+
+- Start with uniform 5% relative error assumption
+- Increase weights for measurements with poor reciprocity (>5%)
+- Decrease weights for repeated measurements that show consistency
+
+**Step 2: Run Multiple Inversions**
+
+Generate an ensemble of models by perturbing the data:
+
+1. Add Gaussian noise to measured data: $d_i^{(k)} = d_i + N(0, \sigma_i)$
+2. Invert each perturbed dataset independently
+3. Compute mean and standard deviation of model parameters across ensemble
+
+Minimum recommended: 20 realizations; robust estimate: 50-100 realizations.
+
+**Step 3: Calculate DOI Index**
+
+The Depth of Investigation (DOI) index identifies regions where inversion results are constrained by data vs. dominated by regularization:
+
+1. Run inversion with two different reference models (e.g., 10× and 0.1× background)
+2. DOI = (m_1 - m_2) / (m_ref1 - m_ref2)
+3. DOI < 0.1: Well-constrained by data
+4. DOI > 0.3: Poorly constrained, regularization-dominated
+
+**Step 4: Report Uncertainty with Results**
+
+Every interpretation should include:
+
+- Estimated parameter uncertainty (from ensemble or covariance analysis)
+- DOI map showing sensitivity coverage
+- Confidence level assignment based on combined criteria:
+  - HIGH: Feature appears in >90% of inversion realizations, DOI < 0.1
+  - MEDIUM: Feature appears in 70-90% of realizations, DOI < 0.2
+  - LOW: Feature appears in 50-70% of realizations, or DOI > 0.2
+
+#### Uncertainty Visualization
+
+Effective uncertainty communication requires appropriate visualization:
+
+- **Parameter uncertainty maps:** Show standard deviation at each voxel
+- **Confidence contours:** Overlay $1\sigma$ and $2\sigma$ contours on tomograms
+- **DOI masks:** Gray out or fade regions with DOI > threshold
+- **Ensemble statistics:** Report median ± interquartile range for key features
+
+::: {.callout-important}
+## Reporting Uncertainty is Mandatory
+
+Tomographic images without uncertainty estimates can be seriously misleading. A sharp-looking anomaly in a region with poor sensitivity (high DOI) may be an artifact of regularization, not a real target. Always report uncertainty alongside interpretation.
+:::
+
+## Irregular Array Considerations {#sec-irregular-array}
+
+Field conditions rarely permit perfect grid placement. This section addresses how the HIRT inversion process handles real-world array geometries including offset probes, missing positions, partial-depth insertions, and surface topography.
+
+### Key Principle: Inversion Uses Actual Positions
+
+Modern tomographic inversion algorithms (SimPEG, pyGIMLi, EIDORS) construct the sensitivity matrix from **actual electrode positions**, not idealized grid coordinates. This means:
+
+- A probe offset by 30 cm is correctly incorporated if its position is accurately recorded
+- Irregular spacing does not inherently degrade inversion quality
+- **Accurate position documentation** (see @sec-survey-geometry) is more important than achieving perfect grid geometry
+
+::: {.callout-note}
+## Don't Force the Grid
+
+It is better to install a probe at an offset position and record the actual coordinates than to skip the position entirely or force a probe into an unsuitable location. The inversion will correctly account for the actual geometry.
+:::
+
+### Impact of Array Irregularities
+
+| Condition | Impact on Coverage | Impact on Resolution | Mitigation |
+|-----------|-------------------|---------------------|------------|
+| Probe offset <0.5 m | Minimal | Negligible | Record actual position |
+| Probe offset 0.5-1.0 m | Minor local asymmetry | Slight local reduction | Document reason; may affect nearby sensitivity |
+| Missing probe | Reduced ray coverage in gap | Lower resolution in affected zone | Uncertainty increases; report reduced confidence |
+| Partial depth (>50% achieved) | Upper sensors valid | Normal for shallower portion | Exclude sensors below tip depth |
+| Partial depth (<50% achieved) | Limited value | Significantly reduced | Consider omitting from inversion |
+| Surface topography >0.5 m | Requires mesh adjustment | Minor if accounted for | Use actual Z coordinates |
+
+: Impact of array irregularities on inversion results {#tbl-irregularity-impact}
+
+### Handling Missing Probes
+
+When a grid position cannot be deployed (large obstruction, unsafe access), the resulting gap affects the survey as follows:
+
+**Coverage Effects:**
+
+- Ray paths through the gap region have reduced density
+- Anomalies within the gap may be under-resolved or missed
+- Edge effects may extend ~1 spacing distance into the covered area
+
+**Uncertainty Assessment:**
+
+- The DOI (Depth of Investigation) index will show reduced confidence in the gap
+- Report the gap location in survey documentation
+- Consider the gap when interpreting results---absence of anomaly in a gap does not confirm absence of targets
+
+**Mitigation Strategies:**
+
+1. **Asymmetric infill:** Add extra probes on the opposite side of the gap if possible
+2. **Overlap surveys:** Extend adjacent survey sections to cover the gap from different angles
+3. **Surface methods:** Supplement with GPR or magnetometry over the gap area
+
+### Partial-Depth Probe Processing
+
+When a probe achieves only partial insertion depth, follow this protocol:
+
+1. **Record actual tip depth** in survey geometry file (z_tip_m field)
+2. **Identify valid sensors:** Only electrodes/coils above the tip contribute valid measurements
+3. **Configure inversion:** Exclude electrode positions below z_tip from the forward model
+4. **Adjust sensitivity weights:** The partial probe provides reduced vertical coverage
+
+**Example:** A probe designed for 3 m depth reaches only 2.1 m due to rock:
+
+- Sensors at 0.5 m, 1.0 m, 1.5 m, 2.0 m depths: **VALID**
+- Sensors at 2.5 m, 3.0 m depths: **EXCLUDE** (below probe tip)
+- The probe contributes to the inversion for the upper 2.1 m only
+
+### Topography Corrections
+
+When surface elevation varies significantly across the survey area (>50 cm total variation), topographic correction improves inversion accuracy:
+
+**Mesh Generation:**
+
+- Use recorded z_surface_m values to define the model surface
+- Finite element mesh conforms to actual topography
+- Electrode positions placed at correct 3D coordinates
+
+**Practical Guidelines:**
+
+| Terrain | Mesh Approach | Coordinate Handling |
+|---------|--------------|---------------------|
+| Flat (<20 cm variation) | 2.5D or flat 3D | Ignore Z_surface |
+| Gentle slope | 3D with surface | Relative elevations |
+| Crater/depression | Full 3D topography | Careful boundary definition |
+| Complex (berms, trenches) | Detailed surface survey | Total station or RTK-GPS |
+
+: Topographic correction approaches by terrain type {#tbl-topography-correction}
+
+### Confidence Reporting for Irregular Arrays
+
+When reporting results from surveys with irregular geometry, include:
+
+1. **Array completeness:** Percentage of planned positions achieved (e.g., "22 of 25 probes deployed")
+2. **Gap locations:** Map showing skipped positions and their obstruction reasons
+3. **Partial probes:** List of probes with reduced depth and actual tip positions
+4. **Affected zones:** Identify interpretation areas where confidence is reduced
+5. **DOI visualization:** Include Depth of Investigation map showing sensitivity coverage
+
+::: {.callout-warning}
+## Interpreting Gaps
+
+The absence of an anomaly within or near a gap does **not** confirm that the area is clear. Reduced coverage means reduced detection capability. Always note gap locations when reporting "no targets found" conclusions.
+:::
+
+### Software Workflow for Irregular Arrays
+
+When processing data from irregular arrays:
+
+1. **Import geometry:** Load survey_geometry.csv with actual positions
+2. **Flag excluded sensors:** Mark partial-probe sensors as inactive
+3. **Build mesh:** Generate finite element mesh conforming to actual geometry
+4. **Calculate sensitivity:** Jacobian matrix computed for actual electrode positions
+5. **Run inversion:** Standard workflow proceeds with irregular geometry
+6. **Assess uncertainty:** DOI index reveals coverage limitations
+7. **Visualize results:** Overlay probe positions and gaps on tomograms
+
+## Uncertainty, Limitations, and Failure Modes {#sec-uncertainty-limitations}
+
+Scientific credibility requires explicit acknowledgment of measurement limitations and sources of uncertainty. This section documents the physical constraints, detection limits, and common failure modes that affect HIRT survey results. Understanding these limitations enables realistic survey planning and prevents overinterpretation of tomographic images.
+
+### Resolution Limits {#sec-resolution-limits}
+
+Tomographic imaging systems cannot resolve features arbitrarily small or closely spaced. The achievable resolution is fundamentally limited by wavelength, probe spacing, and measurement geometry. These limits apply regardless of data quality or inversion algorithm sophistication.
+
+#### Lateral Resolution Constraints
+
+The lateral resolution between probes depends primarily on probe spacing and measurement density. As a practical guideline, HIRT can resolve lateral features with dimensions approximately 0.5 to 1.5 times the probe spacing. Tighter spacing improves resolution but increases survey time and cost.
+
+**Physical Basis:** Lateral resolution is governed by ray coverage density. For crosshole geometry, the ray density between adjacent probes is high, while rays between distant probes pass through a larger volume. Small targets positioned exactly halfway between probes produce maximum signal, while targets offset toward one probe are partially obscured by the limited angular coverage.
+
+| Probe Spacing | Minimum Feature Size | Practical Resolution | Notes |
+|---------------|---------------------|---------------------|-------|
+| 1.0 m | 0.5 m | 0.75-1.0 m | High-resolution search mode |
+| 1.5 m | 0.75 m | 1.0-1.5 m | Standard archaeological survey |
+| 2.0 m | 1.0 m | 1.5-2.0 m | Reconnaissance/large features |
+| 2.5 m | 1.25 m | 2.0-2.5 m | Coarse regional survey |
+
+: Lateral resolution limits by probe spacing {#tbl-lateral-resolution}
+
+**Key Limitation:** Two anomalies separated by less than the minimum feature size will appear as a single blurred target in the tomogram. This is not an inversion failure but a fundamental limit of the measurement geometry.
+
+#### Depth Resolution Constraints
+
+Vertical resolution depends on different physics for the two sensing modalities:
+
+**MIT Depth Resolution:** The MIT channel's depth resolution is primarily controlled by frequency. Higher frequencies provide better near-surface resolution but suffer stronger attenuation with depth. Lower frequencies penetrate deeper but blur shallow features. For typical HIRT operation at 2-10 kHz, the vertical resolution is approximately:
+
+$$\Delta z_{MIT} \approx 0.5 \sqrt{\frac{2}{\omega \mu_0 \sigma}}$$
+
+Where $\omega = 2\pi f$ is angular frequency, $\mu_0$ is permeability, and $\sigma$ is soil conductivity. For 5 kHz in soil with 10 mS/m conductivity, this yields approximately 0.5-0.8 m vertical resolution.
+
+**ERT Depth Resolution:** The ERT channel's depth resolution depends on electrode spacing along the probe. With electrodes at 0.5 m vertical spacing, features separated by less than 0.25-0.5 m vertically will blur together. The resolution degrades with distance from the probe centerline according to:
+
+$$\Delta z_{ERT} \approx 0.5 s_{electrode} \left(1 + \frac{r}{d}\right)$$
+
+Where $s_{electrode}$ is the vertical electrode spacing, $r$ is the distance from the probe, and $d$ is the probe spacing. Near the probes, vertical resolution is excellent (0.25-0.3 m), but between probes it degrades to 0.5-0.8 m.
+
+#### Resolution Degradation with Depth
+
+All tomographic methods suffer resolution degradation with increasing depth below the probe tips. For HIRT, sensitivity falls approximately exponentially with depth below the deepest sensor:
+
+- **0-0.5 m below probe tip:** Moderate sensitivity, resolution degrades by ~30%
+- **0.5-1.0 m below tip:** Weak sensitivity, resolution degrades by ~60%
+- **>1.0 m below tip:** Very weak sensitivity, detection unreliable
+
+This depth degradation results from the increasing distance to sensors and the widening angular uncertainty cone. Targets located below the probe array have limited ray coverage, leading to smearing and reduced confidence.
+
+::: {.callout-warning}
+## Do Not Extend Inversions Beyond Probe Depth
+
+While it is mathematically possible to extend the inversion mesh below the probe tips, results in this region are highly uncertain and often artifacts. Report survey depth as probe insertion depth, not inversion mesh extent.
+:::
+
+### Detection Limits {#sec-detection-limits-detailed}
+
+Detection limits define the minimum target size or contrast that produces a statistically significant anomaly above the noise floor. These limits depend on target depth, contrast, and background noise conditions.
+
+#### Minimum Detectable Object Size
+
+The minimum detectable object size depends on depth, conductivity contrast, and signal-to-noise ratio. Based on forward modeling and field experience, HIRT detection limits are approximately:
+
+**MIT Detection Limits (Metallic Targets):**
+
+| Target Type | Depth | Minimum Size | SNR Requirement | Confidence |
+|-------------|-------|--------------|-----------------|-----------|
+| Aluminum/steel (high contrast) | 1 m | 0.1 m diameter | >5:1 | HIGH |
+| Aluminum/steel (high contrast) | 2 m | 0.3 m diameter | >5:1 | MEDIUM |
+| Aluminum/steel (high contrast) | 3 m | 0.5 m diameter | >5:1 | LOW |
+| Low-contrast metal (corroded) | 1 m | 0.3 m diameter | >3:1 | MEDIUM |
+| Low-contrast metal (corroded) | 2 m | 0.8 m diameter | >3:1 | LOW |
+
+: MIT detection limits for metallic targets {#tbl-mit-detection}
+
+**ERT Detection Limits (Resistivity Contrasts):**
+
+| Target Type | Depth | Minimum Size | Contrast Requirement | Confidence |
+|-------------|-------|--------------|---------------------|-----------|
+| Disturbed fill (2:1 resistivity) | 1 m | 0.5 m | >50% contrast | HIGH |
+| Disturbed fill (2:1 resistivity) | 2 m | 0.75 m | >50% contrast | MEDIUM |
+| Disturbed fill (2:1 resistivity) | 3 m | 1.0 m | >50% contrast | LOW |
+| Weak contrast (<1.5:1) | 1 m | 1.0 m | >30% contrast | MEDIUM |
+| Weak contrast (<1.5:1) | 2 m | May not detect | >30% contrast | LOW/NONE |
+
+: ERT detection limits for resistivity contrasts {#tbl-ert-detection}
+
+**Critical Observation:** A small metallic object (e.g., 5 cm artifact) at 2 m depth is **below the detection limit** despite being real. The absence of an MIT anomaly does not confirm the absence of small artifacts.
+
+#### Signal-to-Noise Considerations
+
+Detection requires the target signal to exceed the noise floor by a statistically significant margin. HIRT noise sources include:
+
+- **Johnson-Nyquist noise:** Thermal noise in electronics (unavoidable, ~1-5 nV/$\sqrt{\text{Hz}}$)
+- **EM interference:** Power lines, radio transmitters, active equipment (highly variable, 10-1000x thermal noise)
+- **Geologic noise:** Natural conductivity variations in soil (site-dependent, can mask weak targets)
+- **Coupling variations:** Electrode contact resistance drift during survey (2-5% typical)
+- **Reciprocity errors:** Non-symmetric forward/reverse measurements indicate noise/drift (should be <5%)
+
+For reliable detection, the target signal must exceed the combined noise by at least 3:1 ratio (preferably 5:1 for high confidence). When the SNR falls below 3:1, the anomaly may be real but cannot be distinguished from noise with confidence.
+
+::: {.callout-note}
+## Interpreting Weak Anomalies
+
+When an anomaly has SNR between 2:1 and 3:1, report it as "possible target, low confidence" rather than definitive detection. Such anomalies may warrant further investigation but should not drive excavation decisions alone.
+:::
+
+### The Non-Uniqueness Problem {#sec-non-uniqueness}
+
+Geophysical inversion suffers from a fundamental theoretical limitation: multiple different subsurface models can produce nearly identical measured data. This is known as the "non-uniqueness problem" or "equivalence principle" in inverse theory. Understanding non-uniqueness is essential to avoid overconfident interpretation.
+
+#### Why Inversion Results Are "Most Likely" Not "Certain"
+
+The inversion process finds a subsurface model that minimizes the misfit between observed and predicted data while satisfying regularization constraints. However, this model is not unique. Other models with different conductivity distributions, different target shapes, or different depths may fit the data equally well within measurement uncertainty.
+
+**Mathematical Perspective:** The inverse problem is underdetermined. The number of model parameters (conductivity values at thousands of mesh cells) greatly exceeds the number of independent measurements (hundreds to thousands of probe-pair measurements). The regularization term forces the inversion to prefer smooth models, but this introduces bias toward gradual transitions rather than sharp boundaries.
+
+**Practical Implication:** A tomogram showing a high-conductivity anomaly at 2.5 m depth could represent:
+
+- A single large metallic object at 2.5 m depth
+- Multiple smaller objects distributed over 2-3 m depth range
+- A conductive soil layer combined with a smaller metal target
+- Any combination of the above that produces the same integrated response
+
+The inversion has no way to distinguish between these scenarios based solely on the measured data.
+
+#### The Role of Prior Information and Constraints
+
+Non-uniqueness is mitigated (but not eliminated) by incorporating prior information:
+
+- **Site history:** Expected target types constrain interpretation (bomb crater suggests impact debris)
+- **Geological context:** Soil type and layering informs background model
+- **Regularization constraints:** Smoothness assumptions favor gradual variations
+- **Multi-modal fusion:** MIT and ERT together reduce ambiguity (metal vs. disturbed soil)
+- **Depth constraints:** Targets below probe depth are highly uncertain
+
+When multiple models fit the data, report the simplest model consistent with the data and site context. Document alternative interpretations and their relative likelihood.
+
+::: {.callout-important}
+## Reporting Non-Unique Interpretations
+
+When the inversion admits multiple plausible interpretations, report all reasonable scenarios with confidence levels rather than selecting a single "best" interpretation. Example: "High-conductivity anomaly at 2-3 m depth: MOST LIKELY metallic debris, POSSIBLE concentrated clay lens, LESS LIKELY deep groundwater."
+:::
+
+### What "No Anomaly" Actually Means {#sec-no-anomaly-meaning}
+
+The phrase "no anomaly detected" is frequently misunderstood. It does **not** mean "the subsurface is definitely clear of targets." It means "no statistically significant deviation from the background model was observed within the detection limits of this survey." This distinction is critical for forensic and archaeological reporting.
+
+#### Why Absence of Evidence Is Not Evidence of Absence
+
+A survey showing no anomalies could indicate:
+
+1. **No targets present** within the survey volume (desired conclusion)
+2. **Targets present but below detection limit** (too small, too deep, insufficient contrast)
+3. **Targets masked by background heterogeneity** (geologic noise exceeds target signal)
+4. **Targets outside the surveyed volume** (incorrect survey location)
+5. **Instrument failure or calibration error** (undetected measurement problem)
+
+Without additional information, these scenarios cannot be distinguished. A "clear" tomogram provides evidence for scenario 1 but does not rule out scenarios 2-5.
+
+#### Appropriate Language for Negative Results
+
+When reporting negative results (no anomalies detected), use language that acknowledges detection limits:
+
+**GOOD:** "No significant MIT or ERT anomalies were detected in the 4x4 probe grid covering 12 m x 12 m to 3 m depth. If metallic debris or disturbed fill is present within this volume, it is smaller than the detection limits (~0.3 m metal, ~0.75 m fill at 2 m depth) or masked by geologic variability."
+
+**BAD:** "The survey proves that no aircraft wreckage is present in the search area."
+
+The good example acknowledges the detection limits and geologic context. The bad example makes an unwarranted absolute claim.
+
+#### Confidence in Negative Results
+
+Negative results can be assigned confidence levels based on survey coverage and site context:
+
+- **HIGH confidence negative:** Dense probe grid, excellent data quality, geologically uniform site, expected target is large (e.g., engine block)
+- **MEDIUM confidence negative:** Standard grid, good data quality, moderate geologic noise, target size near detection limit
+- **LOW confidence negative:** Sparse grid, poor data quality, high geologic noise, small expected targets
+
+Always document the basis for assigning confidence to negative results.
+
+### Common Failure Modes {#sec-failure-modes}
+
+HIRT surveys can fail to produce reliable results due to instrument problems, field errors, or unfavorable site conditions. Recognizing failure modes during data collection enables corrective action before leaving the field.
+
+#### Poor Electrode Contact (ERT)
+
+**Symptom:** ERT measurements show erratic variability, failed reciprocity checks (>10% error), or unreasonably high apparent resistivity (>10 kOhm).
+
+**Cause:** Inadequate electrical contact between ring electrodes and surrounding soil. Common causes include:
+
+- Dry sandy soil with very high contact resistance
+- Probes inserted into rocky soil with air gaps
+- Corroded or dirty electrode surfaces
+- Incomplete probe insertion (electrodes above ground surface)
+
+**Detection:** Reciprocity checks during acquisition reveal contact problems. Forward (A-to-B) and reverse (B-to-A) measurements should agree within 5%. Larger discrepancies indicate contact issues.
+
+**Mitigation:**
+
+1. **Pre-insertion treatment:** Wet the insertion hole before deploying probe (in dry sand)
+2. **Conductive gel:** Apply bentonite slurry or conductive gel around electrodes
+3. **Mechanical contact:** Tamp soil around probes to eliminate air gaps
+4. **Electrode cleaning:** Inspect and clean corroded electrodes before deployment
+
+If contact cannot be improved, exclude affected electrodes from inversion rather than accepting unreliable data.
+
+#### Electromagnetic Interference (MIT)
+
+**Symptom:** MIT phase and amplitude measurements drift over time, show periodic variation, or jump when equipment is moved. High-frequency noise in the signal.
+
+**Cause:** External EM fields couple into the receive coils, overwhelming the weak secondary field from subsurface conductors. Common sources include:
+
+- Power lines (50/60 Hz fundamental and harmonics)
+- Radio transmitters (AM broadcast, communications towers)
+- Active electrical equipment (generators, welders, vehicles)
+- Metal fences or infrastructure (re-radiate EM fields)
+- Lightning storms (atmospheric noise)
+
+**Detection:** Monitor background signal with TX coil disabled. If the RX coil shows significant pickup, EM interference is present.
+
+**Mitigation:**
+
+1. **Site selection:** Avoid proximity to power lines and active equipment
+2. **Shielding:** Use mu-metal shields around RX coils (adds complexity)
+3. **Frequency selection:** Choose measurement frequency away from interference harmonics (e.g., use 2.7 kHz instead of 2.5 kHz to avoid 50 Hz harmonics)
+4. **Time-domain gating:** Operate in pulsed mode and gate out interference (requires firmware modification)
+5. **Notch filtering:** Digital notch filter at power line frequency (risks removing target signal)
+
+If interference cannot be reduced below SNR >5:1, consider the site unsuitable for MIT measurements.
+
+#### Geometric Errors in Probe Placement
+
+**Symptom:** Inversion results show unrealistic features aligned with probe positions, poor fit between forward model and data, or asymmetric anomalies that should be symmetric.
+
+**Cause:** Recorded probe positions do not match actual field positions. Common causes include:
+
+- Transcription errors when recording coordinates
+- GPS/measurement errors (especially in wooded areas)
+- Unlabeled or swapped probe positions
+- Incorrectly measured probe depths (includes rod segments not inserted)
+
+**Detection:** Reciprocity checks can reveal position errors when geometric errors are large (>0.5 m). Visual inspection of probe labels confirms identity.
+
+**Mitigation:**
+
+1. **Redundant measurement:** Record positions with two independent methods (tape + GPS)
+2. **Labeled probes:** Clearly label each probe with position ID
+3. **Photo documentation:** Photograph probe grid from multiple angles
+4. **Immediate QC:** Check reciprocity in the field before moving to next site
+
+If position errors are discovered after data collection, re-survey the site or exclude affected probes from inversion.
+
+#### Temperature and Moisture Drift
+
+**Symptom:** ERT baseline resistivity shifts during survey duration. MIT phase drifts slowly over time. Measurements do not repeat after 30-60 minutes.
+
+**Cause:** Soil properties change due to temperature or moisture variations during the survey. Examples include:
+
+- Morning dew evaporation changes shallow soil resistivity
+- Rainfall during survey changes moisture content
+- Freeze-thaw cycles in cold climates
+- Diurnal temperature swing affects electronics calibration
+
+**Detection:** Repeat a reference measurement (same probe pair) periodically. If the reference drifts >5%, environmental conditions are changing.
+
+**Mitigation:**
+
+1. **Rapid acquisition:** Complete survey quickly to minimize environmental changes
+2. **Weather monitoring:** Avoid surveys during or immediately after precipitation
+3. **Temperature compensation:** Apply temperature correction to resistivity data (1-2% per degree C)
+4. **Baseline re-measurement:** Re-measure baseline model before inversion if drift detected
+
+If drift exceeds 10%, the survey data may be unreliable. Consider re-surveying under stable conditions.
+
+#### Soil Heterogeneity Masking Targets
+
+**Symptom:** Tomograms show complex resistivity variations but no clear discrete anomalies. Difficult to distinguish targets from background geology.
+
+**Cause:** Natural geologic variability produces signals similar in magnitude to expected target anomalies. Examples include:
+
+- Glacial till with variable clay content
+- Weathered bedrock with irregular fracturing
+- Paleochannels or buried stream beds
+- Root systems and organic layers
+- Previous land disturbance (agriculture, construction)
+
+**Detection:** Background resistivity varies by >30% across the survey area. High RMS misfit after inversion indicates poor fit between smooth model and heterogeneous reality.
+
+**Mitigation:**
+
+1. **Increase probe density:** Tighter spacing may resolve targets from background
+2. **Multi-frequency MIT:** Different frequencies respond differently to geology vs. metal
+3. **Time-lapse:** Soil properties change over time; metal targets do not (requires repeat survey)
+4. **Background characterization:** Survey an off-target area to establish geologic baseline
+
+If geologic noise is comparable to expected target signal, acknowledge in the report that detection capability is limited.
+
+### Confidence Levels and Reporting Guidelines {#sec-confidence-reporting}
+
+Assigning confidence levels to interpretations provides users with actionable information about uncertainty. The following framework guides consistent confidence assessment.
+
+#### Confidence Level Definitions
+
+**HIGH Confidence:**
+
+- Anomaly SNR >5:1
+- Appears consistently across multiple inversions with perturbed data
+- Supported by both MIT and ERT channels (for appropriate target types)
+- Matches expected target signature based on site history
+- Falls within DOI (Depth of Investigation) region of good sensitivity
+- Reciprocity errors <5% for involved measurements
+
+**MEDIUM Confidence:**
+
+- Anomaly SNR 3:1 to 5:1
+- Appears in >70% of inversion realizations
+- Supported by one channel (MIT or ERT), ambiguous in other channel
+- Plausible based on site context but not definitive
+- Near edge of DOI region
+- Reciprocity errors 5-10%
+
+**LOW Confidence:**
+
+- Anomaly SNR 2:1 to 3:1
+- Appears in 50-70% of inversion realizations
+- Weak signature, near detection limit
+- Multiple plausible interpretations (non-uniqueness)
+- Outside DOI region or at edge of survey coverage
+- Reciprocity errors >10% or data quality concerns
+
+**INSUFFICIENT DATA:**
+
+- Anomaly SNR <2:1
+- Does not appear consistently in multiple inversions
+- No physical explanation for signal
+- Likely artifact or noise
+
+Report "insufficient data" features as "possible anomaly requiring further investigation" rather than as confirmed targets.
+
+#### Criteria for Assigning Confidence
+
+When assigning confidence to an interpreted feature, evaluate all available indicators:
+
+| Criterion | HIGH | MEDIUM | LOW | Insufficient |
+|-----------|------|--------|-----|--------------|
+| SNR | >5:1 | 3-5:1 | 2-3:1 | <2:1 |
+| Reciprocity error | <5% | 5-10% | >10% | Poor/failed |
+| Multi-modal support | Both MIT+ERT | One channel | Weak both | Neither |
+| Model consistency | >90% realizations | 70-90% | 50-70% | <50% |
+| DOI region | Core sensitivity | Moderate | Edge/low | Outside DOI |
+| Site context | Expected signature | Plausible | Ambiguous | Unexplained |
+
+: Confidence level criteria for HIRT interpretation {#tbl-confidence-criteria}
+
+Assign the **lowest** confidence level from any category. For example, if an anomaly has high SNR but poor reciprocity, assign LOW confidence overall.
+
+#### When to Recommend Additional Investigation
+
+The purpose of HIRT survey is to guide excavation priorities, not to replace excavation. Recommend additional investigation (excavation, augering, or supplementary geophysics) when:
+
+- **HIGH confidence anomaly:** Proceed with excavation or recovery operations
+- **MEDIUM confidence anomaly:** Consider targeted augering or secondary geophysics to confirm before full excavation
+- **LOW confidence anomaly:** Document location; investigate only if no higher-priority targets exist
+- **Insufficient data:** Do not base decisions on unreliable data; re-survey if the area is critical
+
+For forensic applications (crash site investigation, remains recovery), even LOW confidence anomalies may warrant investigation if the site context supports the interpretation.
+
+::: {.callout-note}
+## Transparent Uncertainty Builds Trust
+
+Explicitly reporting confidence levels and acknowledging limitations builds credibility with stakeholders. Users appreciate honest assessment more than overconfident claims that fail during excavation.
+:::
+
+### Limitations Summary
+
+HIRT is a powerful subsurface imaging tool, but it operates within fundamental physical and practical constraints:
+
+**Physical Limits:**
+
+- Lateral resolution ~0.5-1.5x probe spacing
+- Depth resolution ~0.3-0.8 m depending on modality and frequency
+- Detection limited by target size, depth, and contrast
+- Sensitivity degrades below probe tips and at survey edges
+
+**Practical Limits:**
+
+- Soil heterogeneity can mask small targets
+- EM interference limits MIT performance near infrastructure
+- Poor electrode contact degrades ERT data quality
+- Position errors introduce geometric artifacts
+- Environmental drift during long surveys
+
+**Interpretation Limits:**
+
+- Multiple subsurface models can fit the same data (non-uniqueness)
+- "No anomaly" does not prove absence of targets below detection limit
+- Confidence decreases with depth and distance from probes
+- Small or low-contrast targets may be undetectable
+
+Effective use of HIRT requires understanding these limitations during survey design, data acquisition, and interpretation. When constraints are respected and acknowledged, HIRT provides actionable subsurface information for archaeological and forensic investigations.

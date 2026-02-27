@@ -1,0 +1,246 @@
+---
+title: "Field Checklists"
+---
+
+This section provides comprehensive checklists for HIRT field operations. These checklists ensure consistent, safe, and thorough survey procedures from initial planning through final data archival. Print these pages for use in the field.
+
+## 16.1 Pre-Deployment Checklist
+
+### Permits and Legal
+
+::: {.callout-warning}
+- [ ] Permits/ethics & UXO clearance confirmed
+- [ ] Site access permissions obtained
+- [ ] Team members briefed on legal/ethical requirements
+- [ ] Emergency contacts documented
+:::
+
+### Equipment Preparation
+
+- [ ] Probe calibration sheet packed
+- [ ] All probes tested and functional
+- [ ] Batteries charged; spares packed
+- [ ] Base hub tested and ready
+- [ ] Cables tested for continuity
+- [ ] Spare probes available (2-4 recommended)
+
+### Tools and Supplies
+
+- [ ] Pilot rods available
+- [ ] Driver/extraction tools
+- [ ] Flags, tapes for marking
+- [ ] GPS/total station for coordinates
+- [ ] Notebooks and data loggers
+- [ ] Field diagnostic kit (multimeter, spare parts)
+
+### Documentation
+
+- [ ] Field log templates prepared
+- [ ] Probe registry updated
+- [ ] Site maps/plans available
+- [ ] Previous survey data (if applicable)
+
+## 16.2 On-Site Checklist
+
+### Site Setup
+
+- [ ] Establish control area (background scan location)
+- [ ] Lay out section grid
+- [ ] Record coordinates (GPS/total station)
+- [ ] Document site conditions (soil, moisture, weather)
+- [ ] Mark probe positions with flags
+
+### Probe Deployment
+
+- [ ] Insert probes systematically
+- [ ] Verify depths & IDs match records
+- [ ] Connect Probes to Zone Boxes
+- [ ] Connect Zone Boxes to Central Hub via Trunk Cables
+- [ ] Verify Trunk Cable connectors are tight/screwed in
+- [ ] Run diagnostic continuity scan from Hub
+
+### Data Collection
+
+- [ ] Run background scan (control area)
+- [ ] Run MIT sweep (all TX; multi-freq)
+    - [ ] Verify all frequencies measured
+    - [ ] Check for saturation or errors
+- [ ] Run ERT patterns (2-4 baselines; flip polarity)
+    - [ ] Verify current injection working
+    - [ ] Check voltage readings reasonable
+- [ ] QC repeats (5-10% of pairs)
+    - [ ] Verify reciprocity (A->B approx B->A)
+    - [ ] Check consistency
+
+### Quality Control
+
+- [ ] Monitor data quality in real-time
+- [ ] Note any anomalies or issues
+- [ ] Document any disturbances
+- [ ] Verify time synchronization
+- [ ] Check for ground loops or noise
+
+### Section Completion
+
+- [ ] All measurements completed
+- [ ] Data backed up (if possible on-site)
+- [ ] Extract probes carefully
+- [ ] Move to next section (keep overlap if possible)
+- [ ] Update field log
+
+## 16.3 Post-Deployment Checklist
+
+### Data Management
+
+- [ ] Back up CSVs to secure storage
+- [ ] Photo log of the grid (if taken)
+- [ ] Quick sanity plots (amp/phase vs distance)
+- [ ] Verify data completeness
+- [ ] Organize files by section/date
+
+### Equipment Care
+
+- [ ] Decontaminate/inspect probes
+- [ ] Note any repairs needed
+- [ ] Clean connectors and cables
+- [ ] Check for damage
+- [ ] Store equipment properly
+
+### Post-Survey Documentation
+
+- [ ] Complete field notes
+- [ ] Update probe registry with any changes
+- [ ] Document any issues encountered
+- [ ] Note lessons learned
+- [ ] Prepare preliminary report (if needed)
+
+### Follow-Up Actions
+
+- [ ] Review data quality
+- [ ] Identify any missing measurements
+- [ ] Plan next steps (additional sections, processing)
+- [ ] Schedule equipment maintenance
+- [ ] Update procedures based on experience
+
+## 16.4 Emergency Procedures
+
+In the event of an emergency, use these checklists to ensure proper response and documentation. Safety is the top priority in all situations.
+
+### Safety Incidents
+
+::: {.callout-warning}
+- [ ] Stop work immediately if unsafe conditions
+- [ ] Evacuate if necessary
+- [ ] Contact emergency services
+- [ ] Document incident
+- [ ] Report to site supervisor
+:::
+
+### Equipment Failure
+
+::: {.callout-caution}
+- [ ] Isolate failed component
+- [ ] Use spare if available
+- [ ] Document failure for repair
+- [ ] Continue with remaining probes if possible
+- [ ] Adjust survey plan if needed
+:::
+
+### Data Loss Response
+
+::: {.callout-caution}
+- [ ] Attempt recovery if possible
+- [ ] Document what was lost
+- [ ] Re-measure if critical
+- [ ] Improve backup procedures
+- [ ] Learn from incident
+:::
+
+## 16.5 UXO Site Safety Visual
+
+For humanitarian demining or UXO-sensitive sites, the following checklist provides critical safety requirements that must be completed before operations begin.
+
+::: {.callout-important}
+## UXO Site Safety Checklist
+
+**Before ANY field operations at UXO-sensitive sites:**
+
+- [ ] EOD clearance certificate obtained
+- [ ] Safety briefing completed for all team members
+- [ ] Designated safe zones marked
+- [ ] Emergency evacuation routes identified
+- [ ] Communication protocols established
+- [ ] Personal protective equipment verified
+- [ ] First aid capabilities confirmed on-site
+:::
+
+## 16.6 Field Log Template
+
+Use this template to record daily survey activities. Make copies as needed for each day of fieldwork. Complete entries help with data processing and future reference.
+
+### Daily Entry
+
+| Field | Value |
+|-------|-------|
+| Date | _________________________ |
+| Site | _________________________ |
+| Section | _________________________ |
+| Team | _________________________ |
+| Weather | _________________________ |
+| Soil conditions | _________________________ |
+
+### Measurements
+
+| Field | Value |
+|-------|-------|
+| Probes deployed | _________________________ |
+| MIT frequencies | _________________________ |
+| ERT baselines | _________________________ |
+| Start time | _________________________ |
+| End time | _________________________ |
+| Issues encountered | _________________________ |
+
+### Notes
+
+```
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+
+_______________________________________________________________
+```
+
+---
+
+**Completed by:** _________________________
+
+**Signature:** _________________________
+
+**Date:** _________________________
+
+## 16.7 Quick Reference Summary
+
+Summary of critical items that must be verified at each phase:
+
+| Phase | Critical Items | Sign-Off |
+|-------|---------------|----------|
+| Pre-Deployment | Permits confirmed, Equipment tested, Batteries charged, Spares packed | [ ] |
+| Site Setup | Grid marked, Coordinates recorded, Conditions documented | [ ] |
+| Data Collection | Background scan done, MIT sweep complete, ERT patterns run, QC repeats done | [ ] |
+| Post-Survey | Data backed up, Equipment cleaned, Notes completed | [ ] |
+
+::: {.callout-note}
+## Important Notes
+
+- Print multiple copies of this section for field use
+- Laminate checklists for durability in wet conditions
+- Complete ALL items before moving to next phase
+- Document any deviations from standard procedures
+- Keep completed logs for project records
+:::

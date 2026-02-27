@@ -1,0 +1,181 @@
+---
+title: "Contributing"
+---
+
+## Overview
+
+HIRT is open-source scientific hardware, and we welcome contributions from researchers, engineers, and practitioners. This guide explains how to contribute effectively to the project.
+
+## Ways to Contribute
+
+### Documentation
+
+- Fix typos, clarify explanations, improve examples
+- Add case studies from your field deployments
+- Translate documentation for other languages
+- Create tutorials for specific use cases
+
+### Hardware Design
+
+- Propose improvements to mechanical design
+- Suggest component alternatives or upgrades
+- Share modifications that work well in specific environments
+- Document build experiences and lessons learned
+
+### Software and Firmware
+
+- Improve data processing algorithms
+- Add features to acquisition software
+- Develop inversion workflow tools
+- Create visualization utilities
+
+### Testing and Validation
+
+- Share field validation data
+- Report performance in different soil conditions
+- Document edge cases and failure modes
+- Provide comparison data with other methods
+
+## Getting Started
+
+### 1. Familiarize Yourself with the Project
+
+- Read through the [Technical Manual](../index.qmd)
+- Understand the [Theory](../theory/physics.qmd) behind HIRT
+- Review the current [Roadmap](roadmap.qmd)
+
+### 2. Set Up Your Development Environment
+
+For documentation contributions:
+
+```bash
+# Clone the repository
+git clone https://github.com/hirt-project/hirt.git
+cd hirt
+
+# Install Quarto (documentation system)
+# See: https://quarto.org/docs/get-started/
+
+# Preview documentation locally
+cd docs
+quarto preview
+```
+
+For firmware contributions:
+
+```bash
+# Install PlatformIO or Arduino IDE
+# See firmware/README.md for specific requirements
+```
+
+### 3. Find Something to Work On
+
+- Check the issue tracker for open issues
+- Look for issues tagged "good first issue" or "help wanted"
+- Review the [Roadmap](roadmap.qmd) for planned features
+
+## Contribution Workflow
+
+### For Documentation
+
+1. **Fork** the repository on GitHub
+2. **Create a branch** for your changes: `git checkout -b docs/improve-calibration-section`
+3. **Make your changes** following the style guide
+4. **Test locally** with `quarto preview`
+5. **Commit** with a clear message
+6. **Push** to your fork
+7. **Open a Pull Request** with description of changes
+
+### For Code/Firmware
+
+1. **Open an issue first** to discuss your proposed change
+2. **Fork** the repository
+3. **Create a feature branch**: `git checkout -b feature/add-temperature-compensation`
+4. **Write tests** for new functionality
+5. **Ensure existing tests pass**
+6. **Document** your changes
+7. **Open a Pull Request**
+
+## Style Guidelines
+
+### Documentation Style
+
+Follow the conventions in [CLAUDE.md](../../CLAUDE.md):
+
+- **Narrative prose** for theory and explanations
+- **Lists and tables** for procedures and quick reference
+- **Active voice** preferred
+- **Present tense** for describing how things work
+- **First person plural** ("We selected...") for design decisions
+
+### Code Style
+
+- Use consistent indentation (spaces, not tabs)
+- Include meaningful comments for complex logic
+- Follow existing naming conventions in the codebase
+- Keep functions focused and well-documented
+
+### Commit Messages
+
+Write clear, descriptive commit messages:
+
+```
+Good: "Add temperature compensation to ERT channel calibration"
+Bad:  "Fixed stuff"
+```
+
+For larger changes, use the format:
+
+```
+Short summary (50 chars or less)
+
+More detailed explanation if needed. Wrap at 72 characters.
+Explain what and why, not how (the code shows how).
+
+- Bullet points are fine
+- Reference issues: Fixes #123
+```
+
+## Reporting Issues
+
+When reporting a bug or problem:
+
+1. **Search existing issues** first to avoid duplicates
+2. **Use the issue template** if provided
+3. Include:
+   - Clear description of the problem
+   - Steps to reproduce
+   - Expected vs. actual behavior
+   - System details (hardware version, firmware version, soil conditions)
+   - Relevant data files or screenshots
+
+## Code of Conduct
+
+- Be respectful and constructive
+- Focus on the technical merits
+- Welcome newcomers
+- Acknowledge contributions from others
+
+## Recognition
+
+Contributors are recognized in:
+
+- The project README
+- Release notes for significant contributions
+- Academic publications when appropriate (with permission)
+
+## Questions?
+
+- Open a discussion on GitHub Discussions
+- Tag your issue with "question" for general inquiries
+- For sensitive matters, contact the maintainers directly
+
+## Acknowledgements
+
+HIRT's documentation structure follows patterns established by the [OhmPi project](https://ohmpi.org/), whose peer-reviewed open-hardware publication in HardwareX demonstrated that open-source geophysical instrumentation can achieve rigorous scientific standards. We are grateful to the OhmPi team for paving the way.
+
+The layered "onion model" documentation approach—from field operations through build guides to deep theory—enables users with different needs to engage at appropriate levels without requiring full technical depth.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the same license as the project (see repository for details).

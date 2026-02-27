@@ -1,0 +1,43 @@
+---
+title: "HIRT: Hybrid Inductive-Resistivity Tomography"
+---
+
+# Preface {.unnumbered}
+
+This whitepaper provides comprehensive documentation for the HIRT (Hybrid Inductive-Resistivity Tomography) system, a dual-channel subsurface imaging platform designed for archaeological and forensic investigations.
+
+## About This Document
+
+HIRT was developed to address a critical gap in accessible subsurface imaging technology. While commercial crosshole tomography systems exist, their cost ($50,000-200,000+) places them beyond the reach of most research institutions, humanitarian organizations, and archaeological teams. HIRT achieves comparable capabilities at a fraction of the cost ($1,800-3,900), enabling professional-grade 3D subsurface imaging for applications including:
+
+- **WWII crash site investigations** - Locating aircraft remains and crew
+- **UXO (unexploded ordnance) detection** - Pre-clearance assessment for bomb disposal
+- **Forensic archaeology** - Non-destructive grave detection and characterization
+- **Archaeological prospection** - Mapping subsurface features before excavation
+
+## Document Organization
+
+This whitepaper is organized into four main parts:
+
+**Part I: Foundations** covers the theoretical basis for HIRT, including the physics of electromagnetic induction and electrical resistivity, system architecture, and the rationale for design decisions.
+
+**Part II: Building** provides complete instructions for constructing a HIRT system, from bill of materials through assembly, testing, and calibration.
+
+**Part III: Field Operations** details deployment procedures, data recording protocols, interpretation guidelines, and troubleshooting.
+
+**Part IV: Reference** includes glossary, quick reference cards, field checklists, application scenarios, and development roadmap.
+
+## Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.0 | January 2026 | Complete rewrite in Quarto; unified content architecture |
+| 1.x | 2025 | Initial PDF generator implementation |
+
+## Acknowledgments
+
+HIRT development has been supported by the collaborative efforts of researchers, engineers, and field specialists who share a commitment to accessible technology for humanitarian applications.
+
+---
+
+*This document is generated from source files using Quarto. For the latest version, build instructions, and source files, see the project repository.*
