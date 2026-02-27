@@ -1,0 +1,45 @@
+name: GeoSim CI
+
+on:
+  push:
+    paths:
+      - 'geosim/**'
+      - 'shared/**'
+    branches: [main]
+  pull_request:
+    paths:
+      - 'geosim/**'
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: cd geosim && pip install -e ".[dev]"
+
+      - name: Run tests
+        run: cd geosim && pytest tests/ -v --tb=short
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint
+        run: cd geosim && ruff check geosim/

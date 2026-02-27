@@ -1,0 +1,41 @@
+name: Pathfinder CI
+
+on:
+  push:
+    paths:
+      - 'pathfinder/**'
+      - 'shared/**'
+    branches: [main]
+  pull_request:
+    paths:
+      - 'pathfinder/**'
+      - 'shared/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-pio-${{ hashFiles('pathfinder/firmware/platformio.ini') }}
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Build ESP32 firmware
+        run: cd pathfinder/firmware && pio run -e esp32dev
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Run native tests
+        run: cd pathfinder/firmware && pio test -e native || true

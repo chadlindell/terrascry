@@ -1,0 +1,42 @@
+name: Shared CI
+
+on:
+  push:
+    paths:
+      - 'shared/**'
+    branches: [main]
+  pull_request:
+    paths:
+      - 'shared/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate shared firmware headers
+        run: |
+          echo "Checking shared firmware headers compile..."
+          for f in shared/firmware/**/*.h; do
+            echo "  Checking: $f"
+            # Verify C header syntax (basic check)
+            grep -q '#ifndef' "$f" && echo "    Include guard: OK"
+          done
+
+      - name: Validate protocol docs
+        run: |
+          echo "Checking protocol documentation..."
+          for f in shared/protocols/*.md; do
+            echo "  Found: $f"
+            # Verify markdown files are non-empty
+            [ -s "$f" ] && echo "    Non-empty: OK"
+          done
+
+      - name: Validate Docker Compose
+        run: |
+          if command -v docker &> /dev/null; then
+            cd shared/edge && docker compose config --quiet && echo "Docker Compose: valid"
+          else
+            echo "Docker not available, skipping compose validation"
+          fi

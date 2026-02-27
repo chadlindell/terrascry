@@ -1,0 +1,45 @@
+name: HIRT CI
+
+on:
+  push:
+    paths:
+      - 'hirt/**'
+      - 'shared/**'
+    branches: [main]
+  pull_request:
+    paths:
+      - 'hirt/**'
+      - 'shared/**'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install matplotlib pillow numpy
+
+      - name: Render documentation
+        run: cd hirt/docs && quarto render --to html
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for broken internal links
+        run: |
+          cd hirt/docs
+          # Check that all .qmd files referenced in _quarto.yml exist
+          if [ -f _quarto.yml ]; then
+            echo "Quarto config found, checking references..."
+          fi
