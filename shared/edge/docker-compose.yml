@@ -1,0 +1,80 @@
+# TERRASCRY Edge Deployment — NVIDIA Jetson AGX Orin
+#
+# Docker Compose for field edge compute node.
+# Runs MQTT broker, per-instrument processing pipelines,
+# and optional cloud bridge.
+#
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose up mosquitto       # Broker only
+#   docker compose logs -f pathfinder # Follow Pathfinder logs
+
+version: "3.8"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"    # MQTT
+      - "9001:9001"    # WebSocket (for browser dashboards)
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-W", "3"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  pathfinder-pipeline:
+    build: ./containers/pathfinder
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0   # RPLiDAR C1
+    environment:
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: "1883"
+      SURVEY_DATA_DIR: /data/pathfinder
+    volumes:
+      - survey-data:/data
+
+  hirt-pipeline:
+    build: ./containers/hirt
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    runtime: nvidia   # GPU access for CuPy-accelerated inversion
+    environment:
+      MQTT_BROKER: mosquitto
+      MQTT_PORT: "1883"
+      SURVEY_DATA_DIR: /data/hirt
+    volumes:
+      - survey-data:/data
+
+  cloud-bridge:
+    build: ./containers/bridge
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    environment:
+      MQTT_LOCAL: mosquitto:1883
+      MQTT_CLOUD: ${CLOUD_MQTT_ENDPOINT:-disabled}
+    profiles:
+      - cloud   # Only start with: docker compose --profile cloud up
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
+  survey-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/nvme/terrascry-data   # NVMe SSD on Jetson
