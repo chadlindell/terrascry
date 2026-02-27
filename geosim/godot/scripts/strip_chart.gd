@@ -88,13 +88,34 @@ func _val_to_y(val: float, height: float) -> float:
 	return height * (1.0 - normalized)
 
 
-func _gradient_color(value_nT: float) -> Color:
-	var abs_val: float = absf(value_nT)
-	if abs_val < 1.0:
-		return Color.GREEN
-	elif abs_val < 10.0:
-		return Color.YELLOW
-	elif abs_val < 100.0:
-		return Color.ORANGE_RED
-	else:
-		return Color.RED
+func _gradient_color(display_value: float) -> Color:
+	var abs_val: float = absf(display_value)
+	match SurveyManager.current_instrument:
+		SurveyManager.Instrument.EM_FDEM:
+			if abs_val < 10.0:
+				return Color.GREEN
+			elif abs_val < 100.0:
+				return Color.YELLOW
+			elif abs_val < 1000.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED
+		SurveyManager.Instrument.RESISTIVITY:
+			if abs_val > 80.0:
+				return Color.GREEN
+			elif abs_val > 30.0:
+				return Color.YELLOW
+			elif abs_val > 10.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED
+		_:
+			# nT instruments (gradiometer, metal detector)
+			if abs_val < 1.0:
+				return Color.GREEN
+			elif abs_val < 10.0:
+				return Color.YELLOW
+			elif abs_val < 100.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED

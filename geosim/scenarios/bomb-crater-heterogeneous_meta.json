@@ -1,0 +1,23 @@
+{
+  "resolution": 505,
+  "height_min_m": -2.7867179401167435,
+  "height_max_m": 0.7716661057073184,
+  "height_range_m": 3.558384045824062,
+  "world_size_x_m": 35.0,
+  "world_size_y_m": 35.0,
+  "survey_x_extent": [
+    0.0,
+    25.0
+  ],
+  "survey_y_extent": [
+    0.0,
+    25.0
+  ],
+  "terrain_margin_m": 5.0,
+  "center_x_m": 12.5,
+  "center_y_m": 12.5,
+  "surface_elevation_m": 0.0,
+  "ue_scale_xy_cm": 3500.0,
+  "ue_scale_z_cm": 355.8384045824062,
+  "ue_offset_z_cm": -278.67179401167436
+}

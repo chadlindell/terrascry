@@ -305,6 +305,65 @@ The inverse problem is underdetermined. The number of model parameters (thousand
 
 **Depth Discrepancy:** Same target may appear at slightly different depths. Allow ±0.5 m **(Modeled)** tolerance.
 
+## Forward Modeling Examples {#sec-forward-examples}
+
+The following synthetic examples demonstrate expected HIRT responses for the four primary validation scenarios. These provide baseline expectations for field data interpretation and serve as test cases for inversion software development.
+
+### Scenario 1: Aluminum Bomb Body (MIT Response)
+
+A 500 lb bomb casing (aluminum, 0.36 m diameter, 1.2 m length) buried at 3.0 m depth in moderately conductive soil (σ = 20 mS/m).
+
+**MIT forward model parameters:**
+- TX coil: 50-turn, 10 mm dia, driven at 10 kHz, 50 mA
+- Probe configuration: 8 probes at 1.5 m spacing, 3.0 m insertion depth
+- Target conductivity: σ_Al = 3.77 × 10⁷ S/m
+- Induced eddy current moment scales with σ × volume × ω × B_primary **(Modeled)**
+
+**Expected responses:**
+- TX-RX pairs straddling the target: amplitude perturbation ~0.1-1% of primary field **(Modeled)**
+- Phase shift: 5-15° from purely reactive (indicates conductive target) **(Modeled)**
+- Spatial pattern: maximum response for ray paths passing through target center
+- The aluminum casing produces strong eddy currents detectable by MIT but invisible to magnetometry
+
+### Scenario 2: Grave Shaft (ERT Response)
+
+A 0.6 × 2.0 m grave shaft, 0.3-1.5 m depth, backfilled with disturbed soil (ρ = 30 Ω·m in host soil of ρ = 100 Ω·m).
+
+**ERT forward model parameters:**
+- 12 probes at 1.0 m spacing, 1.5 m insertion depth
+- Ring electrodes at 0.5 m intervals (3 per probe)
+- Wenner-alpha and dipole-dipole measurement sequences
+
+**Expected responses:**
+- Resistivity anomaly: -70% contrast (30 Ω·m vs 100 Ω·m) **(Modeled)**
+- Detectable with crosshole geometry to 1.5 m depth with 1.5 m probes **(Modeled)**
+- Surface ERT would show diffuse, poorly resolved anomaly at this depth
+- Crosshole ERT resolves shaft dimensions to ±0.3 m lateral, ±0.2 m vertical **(Modeled)**
+
+### Scenario 3: Scattered Metallic Debris (Combined MIT + ERT)
+
+Multiple small metal fragments (0.05-0.2 m) scattered in a 5 m diameter zone at 1-3 m depth, typical of a bomb crater with fragmentation.
+
+**Expected responses:**
+- MIT: Multiple small anomalies, individually weak but clustered spatially **(Modeled)**
+- ERT: Disturbed soil zone visible as resistivity anomaly; individual fragments too small to resolve **(Modeled)**
+- Combined interpretation: MIT locates metal, ERT maps disturbance extent — together they reconstruct the crater fill pattern **(Modeled)**
+
+### Scenario 4: Heterogeneous Crater Fill
+
+A 10 m diameter bomb crater filled with mixed rubble, soil, water-saturated zones, and void spaces. Host soil: 80 Ω·m. Fill: 15-200 Ω·m (heterogeneous).
+
+**Expected responses:**
+- ERT: Complex resistivity pattern reflecting fill heterogeneity **(Modeled)**
+- MIT: Metal fragments produce discrete anomalies within the broader fill **(Modeled)**
+- This is the most challenging scenario — requires 3D joint inversion to interpret correctly
+- Minimum recommended configuration: 16 probes, 2.0 m spacing, 3.0 m depth **(Modeled)**
+
+::: {.callout-note}
+## Validation Status
+All forward modeling examples above are **(Modeled)** based on analytical approximations and published results for comparable geometries. Full numerical forward modeling using SimPEG or pyGIMLi is planned for Phase 2 development and will upgrade these claims to **(Modeled — Numerical)** with quantitative response values.
+:::
+
 ## Software Compatibility
 
 HIRT data can be processed with standard open-source inversion frameworks:

@@ -19,6 +19,8 @@ var _stakes_node: Node3D
 var _tape_node: Node3D
 var _equipment_node: Node3D
 var _pin_flags_node: Node3D
+var _crew_node: Node3D
+var _crew_meta: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -40,9 +42,16 @@ func _ready() -> void:
 	_pin_flags_node.name = "PinFlags"
 	add_child(_pin_flags_node)
 
+	_crew_node = Node3D.new()
+	_crew_node.name = "FieldCrew"
+	add_child(_crew_node)
+
+	set_process(true)
+
 
 ## Set up all site dressing from scenario info.
-func setup(terrain: Node, x_ext: Vector2, y_ext: Vector2, surface_elev: float) -> void:
+func setup(terrain: Node, x_ext: Vector2, y_ext: Vector2, surface_elev: float,
+		scenario_data: Dictionary = {}) -> void:
 	_terrain = terrain
 	_x_extent = x_ext
 	_y_extent = y_ext
@@ -52,6 +61,7 @@ func setup(terrain: Node, x_ext: Vector2, y_ext: Vector2, surface_elev: float) -
 	_create_boundary_tape()
 	_create_datum_marker()
 	_create_equipment_area()
+	_create_field_crew(scenario_data)
 
 
 ## Add pin flags along planned survey lines.
@@ -60,6 +70,19 @@ func add_survey_line_flags(lines: Array) -> void:
 	if lines.is_empty():
 		return
 	_create_pin_flags(lines)
+
+
+func _process(_delta: float) -> void:
+	# Subtle idle breathing/sway for procedural crew to avoid static mannequins.
+	for crew in _crew_meta:
+		var node: Node3D = crew.get("node", null) as Node3D
+		if node == null:
+			continue
+		var phase := float(crew.get("phase", 0.0))
+		var base_y := float(crew.get("base_y", 0.0))
+		var t := Time.get_ticks_msec() / 1000.0
+		node.position.y = base_y + sin(t * 1.3 + phase) * 0.012
+		node.rotation.y = float(crew.get("base_rot", 0.0)) + sin(t * 0.35 + phase) * 0.06
 
 
 ## Get terrain height at world position, with fallback.
@@ -490,3 +513,287 @@ func _create_pin_flags(lines: Array) -> void:
 
 	tab_multi.multimesh = tab_mm
 	_pin_flags_node.add_child(tab_multi)
+
+
+# ---------- Z6: Field Crew ----------#
+
+func _create_field_crew(scenario_data: Dictionary) -> void:
+	_clear_children(_crew_node)
+	_crew_meta.clear()
+
+	# Place 2-3 field crew members near equipment area
+	var eq_x := _x_extent.y + 2.5
+	var eq_z := _y_extent.x - 0.5
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(str(scenario_data.get("name", "")) + "crew")
+
+	var crew_positions: Array[Vector2] = [
+		Vector2(eq_x + 0.3, eq_z + 1.5),   # Near table
+		Vector2(eq_x - 1.5, eq_z + 0.8),    # Near tripod
+		Vector2(eq_x + 1.0, eq_z - 0.3),    # Near cases
+	]
+
+	var vest_colors := [
+		Color(0.9, 0.5, 0.0),   # Orange hi-vis
+		Color(0.9, 0.85, 0.0),  # Yellow hi-vis
+		Color(0.0, 0.6, 0.3),   # Green
+	]
+
+	for i in range(mini(crew_positions.size(), 3)):
+		var crew_pos: Vector2 = crew_positions[i]
+		var h := _get_height(crew_pos.x, crew_pos.y)
+		var crew_member := _build_crew_figure(vest_colors[i], rng)
+		var base_rot := rng.randf_range(-PI, PI)
+		crew_member.position = Vector3(crew_pos.x, h, crew_pos.y)
+		crew_member.rotation.y = base_rot
+		_crew_node.add_child(crew_member)
+		_crew_meta.append({
+			"node": crew_member,
+			"base_y": h,
+			"base_rot": base_rot,
+			"phase": rng.randf() * TAU,
+		})
+
+	# Traffic cones near boundary
+	_create_traffic_cones()
+
+	# Safety sign near datum
+	_create_safety_sign()
+
+
+func _build_crew_figure(vest_color: Color, rng: RandomNumberGenerator) -> Node3D:
+	## Build a simple procedural crew figure (capsule body, sphere head, hi-vis vest).
+	var figure := Node3D.new()
+	figure.name = "CrewMember"
+
+	var skin_color := Color(0.72, 0.55, 0.42)
+	var pants_color := Color(0.18, 0.20, 0.22)
+	var boot_color := Color(0.12, 0.10, 0.08)
+	var hardhat_color := Color(0.95, 0.95, 0.95)
+
+	# Boots
+	for x_off in [-0.08, 0.08]:
+		var boot := MeshInstance3D.new()
+		var boot_mesh := BoxMesh.new()
+		boot_mesh.size = Vector3(0.08, 0.15, 0.12)
+		boot.mesh = boot_mesh
+		boot.position = Vector3(x_off, 0.075, 0)
+		var boot_mat := StandardMaterial3D.new()
+		boot_mat.albedo_color = boot_color
+		boot_mat.roughness = 0.8
+		boot.material_override = boot_mat
+		figure.add_child(boot)
+
+	# Legs
+	for x_off in [-0.06, 0.06]:
+		var leg := MeshInstance3D.new()
+		var leg_mesh := CylinderMesh.new()
+		leg_mesh.top_radius = 0.04
+		leg_mesh.bottom_radius = 0.045
+		leg_mesh.height = 0.7
+		leg.mesh = leg_mesh
+		leg.position = Vector3(x_off, 0.5, 0)
+		var leg_mat := StandardMaterial3D.new()
+		leg_mat.albedo_color = pants_color
+		leg_mat.roughness = 0.7
+		leg.material_override = leg_mat
+		figure.add_child(leg)
+
+	# Torso (capsule)
+	var torso := MeshInstance3D.new()
+	var torso_mesh := CapsuleMesh.new()
+	torso_mesh.radius = 0.12
+	torso_mesh.height = 0.5
+	torso.mesh = torso_mesh
+	torso.position = Vector3(0, 1.1, 0)
+	var vest_mat := StandardMaterial3D.new()
+	vest_mat.albedo_color = vest_color
+	vest_mat.roughness = 0.5
+	vest_mat.emission_enabled = true
+	vest_mat.emission = vest_color * 0.15
+	vest_mat.emission_energy_multiplier = 0.3
+	torso.material_override = vest_mat
+	figure.add_child(torso)
+
+	# Reflective stripes on vest
+	for stripe_y in [0.95, 1.25]:
+		var stripe := MeshInstance3D.new()
+		var stripe_mesh := CylinderMesh.new()
+		stripe_mesh.top_radius = 0.125
+		stripe_mesh.bottom_radius = 0.125
+		stripe_mesh.height = 0.02
+		stripe.mesh = stripe_mesh
+		stripe.position = Vector3(0, stripe_y, 0)
+		var stripe_mat := StandardMaterial3D.new()
+		stripe_mat.albedo_color = Color(0.85, 0.85, 0.85)
+		stripe_mat.roughness = 0.2
+		stripe_mat.metallic = 0.3
+		stripe.material_override = stripe_mat
+		figure.add_child(stripe)
+
+	# Arms
+	for x_off in [-0.16, 0.16]:
+		var arm := MeshInstance3D.new()
+		var arm_mesh := CylinderMesh.new()
+		arm_mesh.top_radius = 0.03
+		arm_mesh.bottom_radius = 0.035
+		arm_mesh.height = 0.55
+		arm.mesh = arm_mesh
+		arm.position = Vector3(x_off, 0.95, 0)
+		arm.rotation.z = x_off * 1.5  # Slightly angled outward
+		var arm_mat := StandardMaterial3D.new()
+		arm_mat.albedo_color = vest_color.darkened(0.1)
+		arm_mat.roughness = 0.5
+		arm.material_override = arm_mat
+		figure.add_child(arm)
+
+	# Head
+	var head := MeshInstance3D.new()
+	var head_mesh := SphereMesh.new()
+	head_mesh.radius = 0.09
+	head_mesh.height = 0.18
+	head.mesh = head_mesh
+	head.position = Vector3(0, 1.45, 0)
+	var skin_mat := StandardMaterial3D.new()
+	skin_mat.albedo_color = skin_color
+	skin_mat.roughness = 0.7
+	head.material_override = skin_mat
+	figure.add_child(head)
+
+	# Hard hat
+	var hat := MeshInstance3D.new()
+	var hat_mesh := SphereMesh.new()
+	hat_mesh.radius = 0.11
+	hat_mesh.height = 0.10
+	hat.mesh = hat_mesh
+	hat.position = Vector3(0, 1.52, 0)
+	var hat_mat := StandardMaterial3D.new()
+	hat_mat.albedo_color = hardhat_color
+	hat_mat.roughness = 0.3
+	hat.material_override = hat_mat
+	figure.add_child(hat)
+
+	# Hat brim
+	var brim := MeshInstance3D.new()
+	var brim_mesh := CylinderMesh.new()
+	brim_mesh.top_radius = 0.12
+	brim_mesh.bottom_radius = 0.12
+	brim_mesh.height = 0.01
+	brim.mesh = brim_mesh
+	brim.position = Vector3(0, 1.48, 0)
+	brim.material_override = hat_mat
+	figure.add_child(brim)
+
+	return figure
+
+
+func _create_traffic_cones() -> void:
+	## Place traffic cones at survey boundary corners and equipment area entrance.
+	var cone_mat := StandardMaterial3D.new()
+	cone_mat.albedo_color = Color(1.0, 0.4, 0.0)
+	cone_mat.roughness = 0.5
+
+	var stripe_mat := StandardMaterial3D.new()
+	stripe_mat.albedo_color = Color(0.95, 0.95, 0.95)
+	stripe_mat.roughness = 0.2
+	stripe_mat.metallic = 0.3
+
+	var base_mat := StandardMaterial3D.new()
+	base_mat.albedo_color = Color(0.12, 0.12, 0.12)
+	base_mat.roughness = 0.6
+
+	# Place cones at corners and equipment access
+	var cone_positions: Array[Vector2] = [
+		Vector2(_x_extent.y + 0.3, _y_extent.x - 0.3),
+		Vector2(_x_extent.y + 0.3, _y_extent.x + 0.3),
+		Vector2(_x_extent.y + 2.0, _y_extent.x - 2.0),
+	]
+
+	for pos in cone_positions:
+		var h := _get_height(pos.x, pos.y)
+		var cone_group := Node3D.new()
+		cone_group.position = Vector3(pos.x, h, pos.y)
+
+		# Base (flat square)
+		var base := MeshInstance3D.new()
+		var base_mesh := BoxMesh.new()
+		base_mesh.size = Vector3(0.25, 0.02, 0.25)
+		base.mesh = base_mesh
+		base.position = Vector3(0, 0.01, 0)
+		base.material_override = base_mat
+		cone_group.add_child(base)
+
+		# Cone body
+		var cone := MeshInstance3D.new()
+		var cone_mesh := CylinderMesh.new()
+		cone_mesh.top_radius = 0.01
+		cone_mesh.bottom_radius = 0.08
+		cone_mesh.height = 0.35
+		cone_mesh.radial_segments = 8
+		cone.mesh = cone_mesh
+		cone.position = Vector3(0, 0.195, 0)
+		cone.material_override = cone_mat
+		cone_group.add_child(cone)
+
+		# Reflective stripe
+		var stripe := MeshInstance3D.new()
+		var stripe_mesh := CylinderMesh.new()
+		stripe_mesh.top_radius = 0.035
+		stripe_mesh.bottom_radius = 0.055
+		stripe_mesh.height = 0.05
+		stripe_mesh.radial_segments = 8
+		stripe.mesh = stripe_mesh
+		stripe.position = Vector3(0, 0.28, 0)
+		stripe.material_override = stripe_mat
+		cone_group.add_child(stripe)
+
+		_equipment_node.add_child(cone_group)
+
+
+func _create_safety_sign() -> void:
+	## Place a safety/survey sign near the datum point.
+	var sign_x := _x_extent.x - 0.5
+	var sign_z := _y_extent.x - 0.5
+	var h := _get_height(sign_x, sign_z)
+
+	# Sign post
+	var post := MeshInstance3D.new()
+	var post_mesh := CylinderMesh.new()
+	post_mesh.top_radius = 0.012
+	post_mesh.bottom_radius = 0.012
+	post_mesh.height = 0.8
+	post.mesh = post_mesh
+	post.position = Vector3(sign_x, h + 0.4, sign_z)
+	var metal_mat := StandardMaterial3D.new()
+	metal_mat.albedo_color = Color(0.5, 0.5, 0.52)
+	metal_mat.roughness = 0.3
+	metal_mat.metallic = 0.6
+	post.material_override = metal_mat
+	_equipment_node.add_child(post)
+
+	# Sign board
+	var board := MeshInstance3D.new()
+	var board_mesh := BoxMesh.new()
+	board_mesh.size = Vector3(0.3, 0.2, 0.005)
+	board.mesh = board_mesh
+	board.position = Vector3(sign_x, h + 0.75, sign_z)
+	var board_mat := StandardMaterial3D.new()
+	board_mat.albedo_color = Color(0.95, 0.95, 0.0)
+	board_mat.roughness = 0.3
+	board.material_override = board_mat
+	_equipment_node.add_child(board)
+
+	# Sign text
+	var label := Label3D.new()
+	label.text = "SURVEY\nIN PROGRESS"
+	label.font_size = 28
+	label.pixel_size = 0.002
+	label.position = Vector3(sign_x, h + 0.75, sign_z + 0.004)
+	label.modulate = Color(0.1, 0.1, 0.1)
+	label.outline_size = 2
+	label.outline_modulate = Color(0, 0, 0)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_equipment_node.add_child(label)
+
+

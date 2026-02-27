@@ -22,6 +22,7 @@ enum Instrument {
 	MAG_GRADIOMETER,
 	EM_FDEM,
 	RESISTIVITY,
+	METAL_DETECTOR,
 }
 
 ## Operator modes
@@ -134,6 +135,7 @@ func _determine_available_instruments() -> void:
 
 	# Prefer server-provided instrument list (Phase Q)
 	var server_instruments: Array = scenario_info.get("available_instruments", [])
+	print("[SurveyManager] Server instrument list: %s" % [server_instruments])
 	if not server_instruments.is_empty():
 		for inst_name in server_instruments:
 			match inst_name:
@@ -146,21 +148,32 @@ func _determine_available_instruments() -> void:
 				"resistivity":
 					if not available_instruments.has(Instrument.RESISTIVITY):
 						available_instruments.append(Instrument.RESISTIVITY)
+				"metal_detector":
+					if not available_instruments.has(Instrument.METAL_DETECTOR):
+						available_instruments.append(Instrument.METAL_DETECTOR)
 		if available_instruments.is_empty():
 			available_instruments.append(Instrument.MAG_GRADIOMETER)
-		return
+	else:
+		# Fallback: heuristic based on scenario name/metadata
+		available_instruments.append(Instrument.MAG_GRADIOMETER)
 
-	# Fallback: heuristic based on scenario name/metadata
-	available_instruments.append(Instrument.MAG_GRADIOMETER)
+		var has_hirt: bool = scenario_info.get("has_hirt", false)
+		var sname: String = scenario_info.get("name", "").to_lower()
+		if sname.contains("crater") or sname.contains("swamp") or sname.contains("crash") \
+				or has_hirt:
+			available_instruments.append(Instrument.EM_FDEM)
 
-	var has_hirt: bool = scenario_info.get("has_hirt", false)
-	var name: String = scenario_info.get("name", "").to_lower()
-	if name.contains("crater") or name.contains("swamp") or name.contains("crash") \
-			or has_hirt:
-		available_instruments.append(Instrument.EM_FDEM)
+		if sname.contains("swamp") or sname.contains("crash") or has_hirt:
+			available_instruments.append(Instrument.RESISTIVITY)
 
-	if name.contains("swamp") or name.contains("crash") or has_hirt:
-		available_instruments.append(Instrument.RESISTIVITY)
+	# Metal detector always available — uses query_field which works on any scenario
+	if not available_instruments.has(Instrument.METAL_DETECTOR):
+		available_instruments.append(Instrument.METAL_DETECTOR)
+
+	var names := []
+	for inst in available_instruments:
+		names.append(Instrument.keys()[inst])
+	print("[SurveyManager] Available instruments: %s" % [names])
 
 
 ## Cycle to next available instrument.
@@ -193,6 +206,8 @@ static func instrument_name(inst: Instrument) -> String:
 			return "EM (FDEM)"
 		Instrument.RESISTIVITY:
 			return "Resistivity (ERT)"
+		Instrument.METAL_DETECTOR:
+			return "Metal Detector"
 		_:
 			return "Unknown"
 
@@ -206,6 +221,8 @@ static func instrument_units(inst: Instrument) -> String:
 			return "ppm"
 		Instrument.RESISTIVITY:
 			return "Ohm-m"
+		Instrument.METAL_DETECTOR:
+			return "nT"
 		_:
 			return ""
 
@@ -219,5 +236,7 @@ static func instrument_query_command(inst: Instrument) -> String:
 			return "query_em_response"
 		Instrument.RESISTIVITY:
 			return "query_apparent_resistivity"
+		Instrument.METAL_DETECTOR:
+			return "query_field"
 		_:
 			return "query_gradient"

@@ -508,9 +508,11 @@ func _build_drone_model() -> void:
 	sensor.position = Vector3(0, -0.06, 0)
 	_drone_model.add_child(sensor)
 
-	# Landing skids — 2 thin bars beneath body
+	# Landing skids — 2 thin bars beneath body with vertical legs
 	var skid_mat := StandardMaterial3D.new()
 	skid_mat.albedo_color = Color(0.3, 0.3, 0.32)
+	skid_mat.roughness = 0.4
+	skid_mat.metallic = 0.3
 	for side in [-1.0, 1.0]:
 		var skid := MeshInstance3D.new()
 		skid.name = "Skid_%s" % ("L" if side < 0 else "R")
@@ -518,5 +520,104 @@ func _build_drone_model() -> void:
 		skid_mesh.size = Vector3(0.01, 0.01, 0.3)
 		skid.mesh = skid_mesh
 		skid.material_override = skid_mat
-		skid.position = Vector3(side * 0.1, -0.05, 0)
+		skid.position = Vector3(side * 0.1, -0.08, 0)
 		_drone_model.add_child(skid)
+
+		# Vertical legs connecting body to skid
+		for z_off in [-0.1, 0.1]:
+			var leg := MeshInstance3D.new()
+			var leg_mesh := CylinderMesh.new()
+			leg_mesh.top_radius = 0.004
+			leg_mesh.bottom_radius = 0.004
+			leg_mesh.height = 0.06
+			leg.mesh = leg_mesh
+			leg.material_override = skid_mat
+			leg.position = Vector3(side * 0.1, -0.04, z_off)
+			_drone_model.add_child(leg)
+
+	# LED indicators — front green, rear red (navigation lights)
+	var led_green_mat := StandardMaterial3D.new()
+	led_green_mat.albedo_color = Color(0.1, 0.9, 0.1)
+	led_green_mat.emission_enabled = true
+	led_green_mat.emission = Color(0.2, 1.0, 0.2)
+	led_green_mat.emission_energy_multiplier = 3.0
+
+	var led_red_mat := StandardMaterial3D.new()
+	led_red_mat.albedo_color = Color(0.9, 0.1, 0.1)
+	led_red_mat.emission_enabled = true
+	led_red_mat.emission = Color(1.0, 0.2, 0.2)
+	led_red_mat.emission_energy_multiplier = 3.0
+
+	# Front LEDs (green)
+	for x_off in [-0.08, 0.08]:
+		var led := MeshInstance3D.new()
+		var led_mesh := SphereMesh.new()
+		led_mesh.radius = 0.006
+		led_mesh.height = 0.012
+		led.mesh = led_mesh
+		led.material_override = led_green_mat
+		led.position = Vector3(x_off, 0.0, -0.13)
+		_drone_model.add_child(led)
+
+	# Rear LEDs (red)
+	for x_off in [-0.08, 0.08]:
+		var led := MeshInstance3D.new()
+		var led_mesh := SphereMesh.new()
+		led_mesh.radius = 0.006
+		led_mesh.height = 0.012
+		led.mesh = led_mesh
+		led.material_override = led_red_mat
+		led.position = Vector3(x_off, 0.0, 0.13)
+		_drone_model.add_child(led)
+
+	# Camera gimbal underneath center
+	var gimbal_mat := StandardMaterial3D.new()
+	gimbal_mat.albedo_color = Color(0.25, 0.25, 0.28)
+	gimbal_mat.roughness = 0.3
+	gimbal_mat.metallic = 0.2
+
+	# Gimbal mount bracket
+	var gimbal_bracket := MeshInstance3D.new()
+	var bracket_mesh := BoxMesh.new()
+	bracket_mesh.size = Vector3(0.04, 0.015, 0.04)
+	gimbal_bracket.mesh = bracket_mesh
+	gimbal_bracket.material_override = gimbal_mat
+	gimbal_bracket.position = Vector3(0, -0.04, -0.05)
+	_drone_model.add_child(gimbal_bracket)
+
+	# Camera body
+	var camera_body := MeshInstance3D.new()
+	var cam_mesh := BoxMesh.new()
+	cam_mesh.size = Vector3(0.03, 0.025, 0.035)
+	camera_body.mesh = cam_mesh
+	camera_body.material_override = gimbal_mat
+	camera_body.position = Vector3(0, -0.055, -0.05)
+	_drone_model.add_child(camera_body)
+
+	# Camera lens
+	var lens := MeshInstance3D.new()
+	var lens_mesh := CylinderMesh.new()
+	lens_mesh.top_radius = 0.008
+	lens_mesh.bottom_radius = 0.008
+	lens_mesh.height = 0.008
+	lens.mesh = lens_mesh
+	lens.rotation.x = deg_to_rad(90)
+	var lens_mat := StandardMaterial3D.new()
+	lens_mat.albedo_color = Color(0.05, 0.05, 0.08)
+	lens_mat.roughness = 0.1
+	lens_mat.metallic = 0.5
+	lens.material_override = lens_mat
+	lens.position = Vector3(0, -0.055, -0.072)
+	_drone_model.add_child(lens)
+
+	# Battery pack underneath body
+	var battery := MeshInstance3D.new()
+	var batt_mesh := BoxMesh.new()
+	batt_mesh.size = Vector3(0.10, 0.025, 0.06)
+	battery.mesh = batt_mesh
+	var batt_mat := StandardMaterial3D.new()
+	batt_mat.albedo_color = Color(0.12, 0.12, 0.15)
+	batt_mat.roughness = 0.5
+	battery.material_override = batt_mat
+	battery.position = Vector3(0, -0.04, 0.04)
+	_drone_model.add_child(battery)

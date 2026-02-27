@@ -70,7 +70,7 @@ HIRT is optimized for three primary application scenarios, each with specific co
 
 ```{python}
 #| label: fig-capabilities
-#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at depths exceeding 2 meters (Modeled). Cost savings of 95%+ (Target) make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
+#| fig-cap: "Key HIRT capabilities infographic. The crosshole geometry provides true 3D tomographic imaging with 2-5x better resolution than surface methods at investigation depths of 2-6 m (Modeled; see @sec-depth-investigation for configuration-specific depth claims). Cost savings of 95%+ (Target) make professional-grade subsurface imaging accessible to research institutions and humanitarian organizations."
 #| fig-width: 10
 #| fig-height: 4.5
 
@@ -89,14 +89,14 @@ plt.show()
 Surface GPR and magnetometry are excellent screening tools but can yield ambiguous results in complex conditions. HIRT's crosshole geometry provides superior performance through direct measurement paths:
 
 - **True tomographic coverage** through the target volume (not surface extrapolation)
-- **2-5x better resolution** than surface methods at depths exceeding 2 meters (Modeled)
+- **2-5x better resolution** than surface methods at depths of 2-6 m **(Modeled)**---see [Uncertainty: Depth of Investigation](../theory/uncertainty.qmd#sec-depth-investigation) for configuration-specific claims
 - **Superior depth discrimination** - targets at 3m vs 4m are clearly distinguishable (Target)
 - **Non-ferrous detection** - aluminum aircraft parts that magnetometry cannot sense
 - **3D localization** with measured positions rather than estimated pseudo-depth
 
 ```{python}
 #| label: fig-depth-investigation
-#| fig-cap: "Depth of investigation ranges by HIRT configuration. The typical surface method limit (~1.5m) (Modeled) is shown for comparison. Confidence levels indicate the reliability of detection at different depths and soil conditions."
+#| fig-cap: "Depth of investigation ranges by HIRT configuration: 2-4 m typical with 1.5-3.0 m probes, up to 5-6 m in low-conductivity soils with 3.0 m probes and wide spacing (Modeled). The typical surface method limit (~1.5 m) is shown for comparison. See @tbl-depth-investigation for authoritative depth claims by configuration and confidence level."
 #| fig-width: 9
 #| fig-height: 4
 

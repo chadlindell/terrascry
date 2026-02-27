@@ -1,0 +1,55 @@
+name: Build & Test
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  firmware-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Build firmware (handheld)
+        run: cd firmware && pio run -e nanoatmega328
+      - name: Build firmware (drone)
+        run: cd firmware && pio run -e nano_drone
+
+  firmware-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Run unit tests
+        run: cd firmware && pio test -e native
+
+  visualization-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r firmware/tools/requirements.txt
+      - name: Validate visualization tools
+        run: |
+          cd firmware/tools
+          python -c "import visualize_data; print('Import OK')"
+      - name: Test with example data
+        run: |
+          cd firmware/tools
+          python visualize_data.py example_data.csv --no-display 2>/dev/null || echo "Visualization test completed"

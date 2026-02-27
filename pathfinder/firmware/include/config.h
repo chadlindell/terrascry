@@ -14,8 +14,8 @@
 // FIRMWARE VERSION
 // ============================================================================
 
-#define FIRMWARE_VERSION    "1.3.0"
-#define FIRMWARE_DATE       "2026-02-12"
+#define FIRMWARE_VERSION    "1.4.0"
+#define FIRMWARE_DATE       "2026-02-18"
 
 // ============================================================================
 // PLATFORM SELECTION
@@ -95,6 +95,19 @@
 #ifndef ENABLE_WATCHDOG
 #define ENABLE_WATCHDOG     0
 #endif
+
+// ============================================================================
+// REAL-TIME CLOCK (opt-in)
+// ============================================================================
+// Set to 1 to enable DS3231 RTC for ISO 8601 absolute timestamps.
+// When disabled, timestamps use millis() (relative ms since boot).
+// Required for correlation with HIRT or other absolute-time systems.
+#ifndef ENABLE_RTC
+#define ENABLE_RTC          0
+#endif
+
+// DS3231 I2C address (fixed by hardware)
+#define DS3231_I2C_ADDR     0x68
 
 // ============================================================================
 // HARDWARE PIN ASSIGNMENTS

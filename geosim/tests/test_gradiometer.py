@@ -40,6 +40,13 @@ class TestPathfinderConfig:
         assert offsets[-1] == pytest.approx(0.75)
         assert offsets[0] + offsets[-1] == pytest.approx(0.0)
 
+    def test_drone_platform_defaults(self):
+        """Drone profile defaults to 2 pairs and higher sample rate."""
+        config = PathfinderConfig(platform="drone")
+        assert config.num_pairs == 2
+        assert config.sample_rate == pytest.approx(20.0)
+        assert config.gps_quality is True
+
 
 class TestWalkPath:
     """Tests for walk path generation."""
@@ -155,6 +162,72 @@ class TestSimulateSurvey:
         peak_y = data['lat'][peak_idx]
 
         assert abs(peak_y - 5.0) < 1.0, f"Peak at y={peak_y}, expected near 5.0"
+
+    def test_extended_telemetry_columns_present(self):
+        """Simulation returns enriched pose/IMU telemetry fields."""
+        sources = [{'position': [5, 5, -1], 'moment': [0, 0, 1.0]}]
+        positions, timestamps, headings = generate_walk_path(
+            start=(0, 0), end=(0, 10), speed=1.0, sample_rate=10.0
+        )
+        data = simulate_survey(
+            positions, timestamps, headings, sources, add_noise=False
+        )
+
+        expected = {
+            'x_east', 'y_north', 'heading_deg', 'speed_mps',
+            'distance_m', 'line_id', 'imu_roll_deg', 'imu_pitch_deg',
+        }
+        assert expected.issubset(data.keys())
+        assert len(data['heading_deg']) == len(data['timestamp'])
+
+    def test_line_id_marks_turns_in_zigzag(self):
+        """line_id identifies main lines and marks turns as -1."""
+        sources = [{'position': [5, 5, -1], 'moment': [0, 0, 1.0]}]
+        positions, timestamps, headings = generate_zigzag_path(
+            origin=(0.0, 0.0), width=5.0, length=8.0, line_spacing=1.0, speed=1.0, sample_rate=10.0
+        )
+        data = simulate_survey(
+            positions, timestamps, headings, sources, add_noise=False
+        )
+        assert np.any(data['line_id'] >= 0)
+        assert np.any(data['line_id'] == -1)
+
+    def test_gps_dropout_zeroes_coordinates(self):
+        """No-fix samples are zeroed when gps_fix_behavior='zero'."""
+        sources = [{'position': [5, 5, -1], 'moment': [0, 0, 1.0]}]
+        positions, timestamps, headings = generate_walk_path(
+            start=(0, 0), end=(0, 10), speed=1.0, sample_rate=10.0
+        )
+        cfg = PathfinderConfig(
+            gps_origin=(51.0, 18.0),
+            gps_quality=True,
+            gps_dropout_rate=1.0,
+            gps_fix_behavior="zero",
+        )
+        data = simulate_survey(
+            positions, timestamps, headings, sources, config=cfg, add_noise=False
+        )
+        assert data["fix_quality"][0] == 1
+        assert np.all(data["fix_quality"][1:] == 0)
+        assert np.all(data["lat"][1:] == 0.0)
+        assert np.all(data["lon"][1:] == 0.0)
+
+    def test_channel_offsets_apply_without_noise(self):
+        """Per-channel calibration offsets are applied deterministically."""
+        sources = []
+        positions = np.array([[0.0, 0.0]])
+        timestamps = np.array([0.0])
+        headings = np.array([0.0])
+        cfg = PathfinderConfig(
+            channel_offset_top_adc=[100, 100, 100, 100],
+            channel_offset_bot_adc=[150, 150, 150, 150],
+        )
+        data = simulate_survey(
+            positions, timestamps, headings, sources, config=cfg, add_noise=False
+        )
+        assert int(data["g1_top"][0]) == 100
+        assert int(data["g1_bot"][0]) == 150
+        assert int(data["g1_grad"][0]) == 50
 
 
 class TestCSVExport:

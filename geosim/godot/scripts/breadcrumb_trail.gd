@@ -16,6 +16,7 @@ const COLOR_BAD := Color(0.9, 0.2, 0.2, 0.8)        # quality=0 or 3
 
 var _count := 0
 var _surface_elevation := 0.0
+var _terrain: Node = null
 
 
 func _ready() -> void:
@@ -26,8 +27,9 @@ func _ready() -> void:
 
 
 func _on_scenario_loaded(info: Dictionary) -> void:
-	var terrain: Dictionary = info.get("terrain", {})
-	_surface_elevation = terrain.get("surface_elevation", 0.0)
+	var terrain_data: Dictionary = info.get("terrain", {})
+	_surface_elevation = terrain_data.get("surface_elevation", 0.0)
+	_terrain = get_parent().get_node_or_null("Terrain")
 
 
 func _on_state_changed(new_state: SurveyManager.State) -> void:
@@ -76,8 +78,11 @@ func _on_sample_recorded(sample_index: int) -> void:
 	# Position: convert from GeoSim to Godot
 	var gs_pos := Vector3(sample.get("x_e", 0.0), sample.get("y_n", 0.0), sample.get("z_up", 0.0))
 	var godot_pos := CoordUtil.to_godot(gs_pos)
-	# Place just above terrain surface
-	godot_pos.y = _surface_elevation + 0.01
+	# Place just above actual terrain surface (follows heightmap + craters)
+	if _terrain and _terrain.has_method("get_height_at"):
+		godot_pos.y = _terrain.get_height_at(godot_pos.x, godot_pos.z) + 0.01
+	else:
+		godot_pos.y = _surface_elevation + 0.01
 
 	var t := Transform3D.IDENTITY
 	t.origin = godot_pos

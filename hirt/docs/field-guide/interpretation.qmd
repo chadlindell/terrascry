@@ -164,7 +164,7 @@ Understanding what HIRT *cannot* detect is as important as understanding what it
 
 - **MIT:** Can detect ~0.1m metal at 1-2m depth (size dependent)
 - **ERT:** Can resolve ~0.5m features at 1-2m depth
-- **Depth:** Practical limit 2-4m typical with 3m probes (5-6m in optimal conditions)
+- **Depth:** 2-4 m typical investigation depth with 1.5-3.0 m probes in most soil conditions; up to 5-6 m in low-conductivity soils with 3.0 m probes and wide spacing **(Modeled)**---see [Uncertainty: Depth of Investigation](../theory/uncertainty.qmd#sec-depth-investigation) for detailed claims by configuration
 
 ::: {.callout-important}
 ## What "No Anomaly" Actually Means

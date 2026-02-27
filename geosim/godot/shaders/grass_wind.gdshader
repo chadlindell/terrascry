@@ -1,8 +1,9 @@
 shader_type spatial;
-render_mode cull_disabled, shadows_disabled;
+render_mode cull_disabled;
 
 // Procedural grass blade shader with wind sway animation.
-// Features: secondary flutter, curved blade tips, rim lighting, waxy sheen.
+// Features: secondary flutter, curved blade tips, rim lighting, waxy sheen,
+// optional blade texture for alpha/color, distance fade.
 // Uses Y-axis billboard quads via MultiMeshInstance3D.
 
 uniform vec3 grass_color_base : source_color = vec3(0.25, 0.40, 0.15);
@@ -12,11 +13,22 @@ uniform float wind_speed : hint_range(0.0, 5.0) = 1.5;
 uniform float wind_turbulence : hint_range(0.0, 2.0) = 0.3;
 uniform float alpha_cutoff : hint_range(0.0, 1.0) = 0.3;
 uniform vec3 player_world_pos = vec3(0.0, 0.0, 0.0);
+uniform sampler2D blade_texture : source_color, filter_linear_mipmap;
+uniform bool use_texture = false;
+
+// Distance fade
+uniform float fade_start : hint_range(5.0, 40.0) = 18.0;
+uniform float fade_end : hint_range(10.0, 60.0) = 30.0;
+
+varying float v_camera_dist;
 
 void vertex() {
-	// Wind displacement — stronger at top of blade (VERTEX.y > 0)
 	float height_factor = clamp(VERTEX.y, 0.0, 1.0);
 	vec3 world_pos = (MODEL_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+
+	// Camera distance for fade
+	vec3 cam_pos = (INV_VIEW_MATRIX * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+	v_camera_dist = length(world_pos - cam_pos);
 
 	float wind_phase = world_pos.x * 0.7 + world_pos.z * 0.5 + TIME * wind_speed;
 
@@ -39,29 +51,48 @@ void vertex() {
 	if (dist > 0.01) {
 		vec2 push_dir = normalize(to_player) * push * 0.4;
 		VERTEX.xz += push_dir;
-		VERTEX.y -= push * 0.15; // flatten toward ground
+		VERTEX.y -= push * 0.15;
 	}
 }
 
 void fragment() {
-	// Gradient from base to tip color based on UV.y
+	// Distance fade — cull blades beyond fade_end
+	float fade = 1.0 - smoothstep(fade_start, fade_end, v_camera_dist);
+	if (fade < 0.01) {
+		discard;
+	}
+
 	vec3 color = mix(grass_color_base, grass_color_tip, UV.y);
 
-	// Slight variation from facing angle
+	float alpha_val;
+	if (use_texture) {
+		vec4 tex_sample = texture(blade_texture, UV);
+		color *= tex_sample.rgb;
+		alpha_val = tex_sample.a;
+	} else {
+		float blade_shape = 1.0 - abs(UV.x * 2.0 - 1.0);
+		blade_shape *= smoothstep(0.0, 0.1, UV.y) * smoothstep(1.0, 0.7, UV.y);
+		alpha_val = blade_shape > alpha_cutoff ? 1.0 : 0.0;
+	}
+
+	// Apply distance fade to alpha
+	alpha_val *= fade;
+
 	float ndv = abs(dot(NORMAL, VIEW));
 	color *= mix(0.85, 1.0, ndv);
 
-	// Rim lighting — fake subsurface scattering on edges facing away from view
+	// Rim lighting — fake subsurface scattering on edges
 	float rim = 1.0 - ndv;
 	color *= mix(1.0, 1.4, rim * 0.3);
 
+	// SSS backlight for grass blades
+	float backlight = max(dot(-NORMAL, VIEW), 0.0);
+	color += vec3(0.15, 0.25, 0.08) * backlight * 0.2;
+
 	ALBEDO = color;
-	ROUGHNESS = 0.65; // Waxy cuticle sheen
+	ROUGHNESS = 0.65;
 	METALLIC = 0.0;
 
-	// Alpha: fade out edges of the quad for soft grass blades
-	float blade_shape = 1.0 - abs(UV.x * 2.0 - 1.0);
-	blade_shape *= smoothstep(0.0, 0.1, UV.y) * smoothstep(1.0, 0.7, UV.y);
-	ALPHA = blade_shape > alpha_cutoff ? 1.0 : 0.0;
+	ALPHA = alpha_val;
 	ALPHA_SCISSOR_THRESHOLD = alpha_cutoff;
 }

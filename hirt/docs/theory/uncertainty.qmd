@@ -8,7 +8,14 @@ Scientific credibility requires explicit acknowledgment of measurement limitatio
 
 Understanding these limitations enables realistic survey planning and prevents overinterpretation of tomographic images.
 
-## Depth of Investigation
+## Depth of Investigation {#sec-depth-investigation}
+
+::: {.callout-important}
+## Canonical Depth Claims
+This section is the authoritative source for HIRT depth of investigation claims.
+All other sections reference these values. When citing depth capabilities, always
+include the probe configuration, soil conditions, and confidence level.
+:::
 
 The achievable investigation depth depends on several factors including probe depth, probe spacing, soil conductivity, and measurement frequency.
 
@@ -32,7 +39,7 @@ The achievable investigation depth depends on several factors including probe de
 : Depth of investigation by configuration {#tbl-depth-investigation}
 
 ::: {.callout-note}
-The commonly cited 3-6m **(Modeled)** depth range represents favorable conditions only. For most field conditions, expect 2-4m **(Modeled)** typical depth, with up to 5-6m **(Modeled)** achievable in optimal soil conditions with longer probes and wider spacing.
+2-4 m typical investigation depth with 1.5-3.0 m probes in most soil conditions **(Modeled)**. Up to 5-6 m achievable in low-conductivity soils with 3.0 m probes and wide spacing **(Modeled)**.
 :::
 
 ## Resolution Limits

@@ -22,3 +22,9 @@ htmlcov/
 *.import
 
 .ruff_cache/
+
+# Engine evaluation (large binary assets, not core project)
+engine_eval/
+output/
+*.pid
+*.log

@@ -107,6 +107,45 @@ plt.show()
 - Effective MIT depth is approximately 1-2x probe spacing in near-field conditions
 :::
 
+### Frequency-Dependent Conductivity {#sec-cole-cole}
+
+The skin depth calculations in @tbl-skin-depth assume frequency-independent conductivity σ. In practice, real soils exhibit frequency-dependent electrical properties described by the Cole-Cole model:
+
+$$\sigma(\omega) = \sigma_0 \left[1 + \frac{m}{1-m}\left(1 - \frac{1}{1 + (i\omega\tau)^c}\right)\right]$$
+
+where:
+- σ₀ = DC conductivity (S/m)
+- m = chargeability (dimensionless, 0-1)
+- τ = relaxation time (seconds)
+- c = frequency exponent (0-1, typically 0.1-0.5 for soils)
+
+**Impact on HIRT operating range (2-50 kHz):**
+
+For typical soils, the Cole-Cole dispersion produces:
+
+| Soil Type | σ₀ (mS/m) | Chargeability m | τ (ms) | σ at 10 kHz / σ₀ |
+|-----------|-----------|-----------------|--------|-------------------|
+| Clean sand | 1-5 | 0.01-0.05 | 0.1-1 | ~1.01 (negligible) |
+| Clay | 20-100 | 0.05-0.2 | 1-100 | ~1.05-1.15 |
+| Mineralized soil | 10-50 | 0.1-0.5 | 0.1-10 | ~1.1-1.4 |
+| Contaminated soil | 50-500 | 0.2-0.6 | 1-100 | ~1.2-1.8 |
+
+: Frequency-dependent conductivity at 10 kHz relative to DC for typical soils **(Modeled, from published Cole-Cole parameters)**. {#tbl-cole-cole}
+
+**Practical implications for HIRT:**
+
+1. **Clean sand and low-clay soils:** Cole-Cole effects are negligible (<5% conductivity increase). Skin depth calculations from @tbl-skin-depth remain valid without correction.
+
+2. **Clay-rich soils:** Moderate frequency dependence (5-15%) means effective conductivity at MIT frequencies is slightly higher than DC measurements suggest. This reduces skin depth by ~3-7% — within the uncertainty of field conductivity estimates.
+
+3. **Highly mineralized or contaminated soils:** Significant frequency dependence (20-80%) can meaningfully reduce skin depth at higher MIT frequencies. **For surveys in mineralized ground, use the lowest practical MIT frequency** to minimize Cole-Cole effects on penetration depth.
+
+4. **Multi-frequency MIT advantage:** By operating MIT at multiple frequencies (e.g., 2, 10, 50 kHz), HIRT can potentially *measure* the Cole-Cole dispersion itself, providing additional characterization of soil type and contamination state. This is a future research direction.
+
+::: {.callout-warning}
+The skin depth values in @tbl-skin-depth assume DC conductivity. In mineralized or contaminated soils, actual skin depth at 50 kHz may be 10-30% less than tabulated values. For conservative survey planning in unknown soil conditions, use the 50 kHz skin depth column as the minimum expected penetration.
+:::
+
 ## MIT Coil Coupling and 1/r^3 Decay {#sec-coupling-decay}
 
 In the near-field regime where HIRT operates, the magnetic field coupling between TX and RX coils decays as the cube of the separation distance. This 1/r^3 relationship is the fundamental limitation on MIT investigation depth---not electromagnetic skin depth.
@@ -208,6 +247,55 @@ Three factors make the HIRT operating range specifically relevant to ordnance sa
 3. **Below HERO test thresholds:** Many ordnance types were characterized for HERO susceptibility only at radar frequencies (MHz-GHz). The kHz range is less well-characterized, creating uncertainty about safe exposure limits for specific ordnance types.
 
 For the complete safety protocol derived from this physics, including NATO HERO standards and safe standoff distances, see [Safety: HERO Analysis](../getting-started/safety.qmd#sec-hero-analysis).
+
+## Self-Generated Electromagnetic Noise {#sec-self-noise}
+
+HIRT's safety analysis addresses external ordnance hazards extensively (see @sec-em-ordnance above), but the system's own electronics also generate magnetic fields that could interfere with MIT measurements. This section quantifies those fields.
+
+### TX Coil Self-Field {#sec-tx-self-field}
+
+The MIT transmit current (10-50 mA) **(Target)** generates the intended measurement field. At the TX coil itself, this field is substantial (~100 uT at 1 cm). However, at RX coil locations (minimum 1.0 m separation in crosshole geometry), the field decays as 1/r^3:
+
+$$
+B_{TX \rightarrow RX} = \frac{\mu_0}{4\pi} \frac{m_{TX}}{r^3}
+$$ {#eq-tx-rx-field}
+
+For a 50-turn, 10 mm diameter coil with 50 mA current:
+
+- Magnetic moment: m = NIA = 50 x 0.05 x pi(0.005)^2 = 2.0 x 10^-4 A-m^2
+- At r = 1.0 m: B = 20 nT **(Modeled)**
+- At r = 2.0 m: B = 2.5 nT **(Modeled)**
+
+This IS the measurement signal --- it is what HIRT is designed to detect. Changes in this field due to subsurface conductivity are the MIT measurement. The secondary field from a conductive target is typically 0.01-1% of the primary field at the RX coil, meaning the system must resolve signals of 0.2 pT to 200 pT against a 2.5-20 nT primary field **(Modeled)**.
+
+### Digital Electronics Noise {#sec-digital-noise}
+
+The ESP32 microcontroller, ADC, and DDS generate broadband digital switching noise:
+
+- ESP32 clock: 240 MHz --- well above MIT operating band (2-50 kHz)
+- DDS (AD9833): 25 MHz reference clock
+- ADC (AD7124-8): SPI clock up to 4.92 MHz
+
+**At MIT operating frequencies (2-50 kHz):**
+
+Digital clock harmonics at these frequencies are present but weak. Typical microcontroller emissions at 1 cm distance are approximately 1-10 nT. At RX coil distances (>=1.0 m in a separate probe):
+
+- Attenuation from distance (1/r^3 for near-field): factor of >=10^6
+- Expected interference at RX: **<<1 pT** --- negligible compared to TX measurement signal **(Modeled)**
+
+The probe-based architecture provides the critical advantage here. Because the TX electronics reside in the base hub and the TX coil sits at the end of a cable in the probe, the digital noise sources are physically separated from the measurement volume by at least 1 m of cable length plus the hub-to-probe distance. The RX coil in its separate probe is even further removed from all electronics.
+
+### Mitigation {#sec-noise-mitigation}
+
+The probe-based architecture inherently separates electronics from sensors:
+
+- TX electronics in base hub -> cable -> TX coil in probe (physically separated)
+- RX coil in separate probe -> cable -> RX electronics in base hub
+- Cross-probe separation >=1.0 m provides natural EMI isolation
+
+**No additional shielding is required for digital electronics noise** **(Modeled)**. The lock-in amplifier's narrow-band detection further rejects out-of-band interference. The lock-in detects only signals at the exact TX frequency and phase, rejecting broadband digital noise by 60-80 dB **(Modeled)**.
+
+The combination of geometric separation (>=10^6 attenuation), frequency separation (digital clocks at MHz vs. MIT at kHz), and lock-in detection (60-80 dB rejection of out-of-band signals) provides three independent layers of noise isolation. Even if one layer underperforms, the remaining two are sufficient to keep self-generated noise well below the measurement threshold.
 
 ## ERT-Lite (Galvanic Method) {#sec-ert-physics}
 
@@ -465,15 +553,18 @@ plt.show()
 
 The effective investigation depth depends on probe configuration, soil conditions, and the measurement technique (MIT vs. ERT). The following table summarizes depth capabilities with associated confidence levels:
 
-| Configuration | MIT Depth | ERT Depth | Combined Claim |
-|---------------|-----------|-----------|----------------|
-| 1.5 m probes, 2 m spacing | 2-3 m | 2-3 m | 2-3 m (HIGH confidence) |
-| 3.0 m probes, 2 m spacing | 3-4 m | 3-5 m | 3-5 m (MEDIUM confidence) |
-| Edge cases (conductive soil) | 2-3 m | 4-6 m | Up to 6 m (LOW confidence) |
+| Configuration | MIT Depth | ERT Depth | Combined | Confidence |
+|---------------|-----------|-----------|----------|------------|
+| 1.5m probes, 1.5m spacing | 1.5-2.5m **(Modeled)** | 2-3m **(Modeled)** | 2-3m **(Modeled)** | HIGH |
+| 1.5m probes, 2.0m spacing | 2-3m **(Modeled)** | 2-3m **(Modeled)** | 2-3m **(Modeled)** | HIGH |
+| 3.0m probes, 2.0m spacing | 3-4m **(Modeled)** | 3-5m **(Modeled)** | 3-5m **(Modeled)** | MEDIUM |
+| 3.0m probes, 2.5m spacing | 3-4m **(Modeled)** | 4-6m **(Modeled)** | 4-6m **(Modeled)** | LOW |
 
-: Depth of investigation summary by configuration and confidence level **(Modeled)**. Conservative claims are appropriate for field planning; extended depths may be achievable under favorable conditions. Field validation pending. {#tbl-depth-summary}
+: Depth of investigation summary by configuration and confidence level **(Modeled)**. This table mirrors @tbl-depth-investigation in [Uncertainty and Limitations](uncertainty.qmd#sec-depth-investigation), which is the authoritative source for depth claims. Field validation pending. {#tbl-depth-summary}
 
-**Rule of thumb:** With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT).
+**Rule of thumb:** With rods inserted to depth D, the sensitivity volume typically extends D to 1.5D below the surface. Actual depth depends on soil conductivity, probe spacing, measurement frequency (MIT), and current injection geometry (ERT). Expect 2-4 m typical investigation depth with 1.5-3.0 m probes in most soil conditions, up to 5-6 m in low-conductivity soils with 3.0 m probes and wide spacing **(Modeled)**.
+
+See @sec-depth-investigation in [Uncertainty and Limitations](uncertainty.qmd#sec-depth-investigation) for detailed depth capabilities by configuration.
 
 ## When Crosshole Wins vs. Loses {#sec-crosshole-tradeoffs}
 

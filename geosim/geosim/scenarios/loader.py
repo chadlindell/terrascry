@@ -46,15 +46,52 @@ class BuriedObject:
 
 @dataclass
 class SoilLayer:
-    """A horizontal soil layer."""
+    """A horizontal soil layer.
+
+    Supports optional Archie's Law parameters for environment-dependent
+    conductivity. When Archie params are set, ``effective_conductivity(env)``
+    computes conductivity from current environmental conditions. Otherwise
+    the static ``conductivity`` value is used.
+    """
 
     name: str
     z_top: float  # top surface z-coordinate (meters, negative = below ground)
     z_bottom: float  # bottom surface z-coordinate
-    conductivity: float = 0.01  # S/m
+    conductivity: float = 0.01  # S/m (static fallback)
     relative_permittivity: float = 10.0
     susceptibility: float = 0.0
     color: str = "#8B7355"  # for visualization
+    # Archie's Law parameters (optional)
+    porosity: float | None = None
+    archie_a: float | None = None
+    archie_m: float | None = None
+    archie_n: float | None = None
+    surface_conductivity: float | None = None
+
+    @property
+    def has_archie_params(self) -> bool:
+        """True if all Archie parameters are set."""
+        return all(v is not None for v in (
+            self.porosity, self.archie_a, self.archie_m,
+            self.archie_n, self.surface_conductivity,
+        ))
+
+    def effective_conductivity(self, env=None) -> float:
+        """Compute conductivity, using Archie's Law if params are set.
+
+        Parameters
+        ----------
+        env : SoilEnvironment or None
+            Current environmental conditions. If None or Archie params
+            are not set, returns the static conductivity value.
+        """
+        if env is None or not self.has_archie_params:
+            return self.conductivity
+        from geosim.environment import archie_conductivity
+        return archie_conductivity(
+            self.porosity, self.archie_a, self.archie_m,
+            self.archie_n, self.surface_conductivity, env,
+        )
 
 
 @dataclass
@@ -113,6 +150,10 @@ class ProbeConfig:
         Depths of ring electrodes relative to probe top.
     coil_depths : list[float]
         Depths of EM coils relative to probe top.
+    tilt_deg : float
+        Probe tilt from vertical in degrees (0 = vertical).
+    azimuth_deg : float
+        Tilt azimuth in degrees, clockwise from North.
     """
 
     position: list[float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
@@ -120,6 +161,8 @@ class ProbeConfig:
     orientation: str = "vertical"
     ring_depths: list[float] = field(default_factory=list)
     coil_depths: list[float] = field(default_factory=list)
+    tilt_deg: float = 0.0
+    azimuth_deg: float = 0.0
 
 
 @dataclass
@@ -140,8 +183,17 @@ class HIRTConfig:
 
     probes: list[ProbeConfig] = field(default_factory=list)
     frequencies: list[float] = field(default_factory=lambda: [1000.0, 5000.0, 25000.0])
-    injection_current: float = 0.01  # 10 mA
+    injection_current: float = 0.001  # A; kept for backward compatibility (ERT current)
     array_type: str = "crosshole"
+    section_id: str = "S01"
+    zone_id: str = "ZA"
+    mit_tx_current_mA: float = 10.0
+    ert_current_mA: float = 1.0
+    mit_settle_ms: int = 10
+    ert_settle_ms: int = 50
+    adc_averaging: int = 16
+    reciprocity_qc_pct: float = 5.0
+    include_intra_probe: bool = False
 
 
 @dataclass
@@ -168,6 +220,7 @@ class Scenario:
     metadata: dict[str, Any] = field(default_factory=dict)
     hirt_config: HIRTConfig | None = None
     anomaly_zones: list[AnomalyZone] = field(default_factory=list)
+    soil_environment: dict[str, Any] | None = None  # default env conditions
 
     @property
     def magnetic_sources(self) -> list[dict]:
@@ -331,6 +384,11 @@ def load_scenario(path: str | Path) -> Scenario:
             relative_permittivity=layer_data.get('relative_permittivity', 10.0),
             susceptibility=layer_data.get('susceptibility', 0.0),
             color=layer_data.get('color', '#8B7355'),
+            porosity=layer_data.get('porosity'),
+            archie_a=layer_data.get('archie_a'),
+            archie_m=layer_data.get('archie_m'),
+            archie_n=layer_data.get('archie_n'),
+            surface_conductivity=layer_data.get('surface_conductivity'),
         ))
 
     terrain = Terrain(
@@ -390,13 +448,33 @@ def load_scenario(path: str | Path) -> Scenario:
                 orientation=p_data.get('orientation', 'vertical'),
                 ring_depths=p_data.get('ring_depths', []),
                 coil_depths=p_data.get('coil_depths', []),
+                tilt_deg=p_data.get('tilt_deg', 0.0),
+                azimuth_deg=p_data.get('azimuth_deg', 0.0),
             ))
+        ert_current_mA = float(
+            hirt_data.get(
+                'ert_current_mA',
+                float(hirt_data.get('injection_current', 0.001)) * 1000.0,
+            )
+        )
         hirt_config = HIRTConfig(
             probes=probes,
             frequencies=hirt_data.get('frequencies', [1000.0, 5000.0, 25000.0]),
-            injection_current=hirt_data.get('injection_current', 0.01),
+            injection_current=hirt_data.get('injection_current', ert_current_mA / 1000.0),
             array_type=hirt_data.get('array_type', 'crosshole'),
+            section_id=hirt_data.get('section_id', 'S01'),
+            zone_id=hirt_data.get('zone_id', 'ZA'),
+            mit_tx_current_mA=hirt_data.get('mit_tx_current_mA', 10.0),
+            ert_current_mA=ert_current_mA,
+            mit_settle_ms=hirt_data.get('mit_settle_ms', 10),
+            ert_settle_ms=hirt_data.get('ert_settle_ms', 50),
+            adc_averaging=hirt_data.get('adc_averaging', 16),
+            reciprocity_qc_pct=hirt_data.get('reciprocity_qc_pct', 5.0),
+            include_intra_probe=hirt_data.get('include_intra_probe', False),
         )
+
+    # Parse soil environment defaults (optional)
+    soil_env_data = data.get('soil_environment')
 
     scenario = Scenario(
         name=data.get('name', path.stem),
@@ -407,6 +485,7 @@ def load_scenario(path: str | Path) -> Scenario:
         metadata=data.get('metadata', {}),
         hirt_config=hirt_config,
         anomaly_zones=anomaly_zones,
+        soil_environment=soil_env_data,
     )
 
     # Auto-compute induced moments for objects that don't have explicit ones
@@ -442,6 +521,15 @@ def save_scenario(scenario: Scenario, path: str | Path) -> None:
                     'relative_permittivity': layer.relative_permittivity,
                     'susceptibility': layer.susceptibility,
                     'color': layer.color,
+                    **(
+                        {
+                            'porosity': layer.porosity,
+                            'archie_a': layer.archie_a,
+                            'archie_m': layer.archie_m,
+                            'archie_n': layer.archie_n,
+                            'surface_conductivity': layer.surface_conductivity,
+                        } if layer.has_archie_params else {}
+                    ),
                 }
                 for layer in scenario.terrain.layers
             ],
@@ -468,6 +556,10 @@ def save_scenario(scenario: Scenario, path: str | Path) -> None:
         ],
         'metadata': scenario.metadata,
     }
+
+    # Serialize soil environment if present
+    if scenario.soil_environment:
+        data['soil_environment'] = scenario.soil_environment
 
     # Serialize anomaly zones if present
     if scenario.anomaly_zones:
@@ -499,9 +591,20 @@ def save_scenario(scenario: Scenario, path: str | Path) -> None:
                     'orientation': p.orientation,
                     'ring_depths': p.ring_depths,
                     'coil_depths': p.coil_depths,
+                    'tilt_deg': p.tilt_deg,
+                    'azimuth_deg': p.azimuth_deg,
                 }
                 for p in hc.probes
             ],
+            'section_id': hc.section_id,
+            'zone_id': hc.zone_id,
+            'mit_tx_current_mA': hc.mit_tx_current_mA,
+            'ert_current_mA': hc.ert_current_mA,
+            'mit_settle_ms': hc.mit_settle_ms,
+            'ert_settle_ms': hc.ert_settle_ms,
+            'adc_averaging': hc.adc_averaging,
+            'reciprocity_qc_pct': hc.reciprocity_qc_pct,
+            'include_intra_probe': hc.include_intra_probe,
         }
 
     path = Path(path)

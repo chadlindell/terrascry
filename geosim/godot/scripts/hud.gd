@@ -59,9 +59,62 @@ var _compass_label: Label
 var _crosshair: Control
 var _controls_label: Label
 
+## Display mode toggle (F key)
+enum DisplayMode { SCIENTIFIC, INSTRUMENT }
+var _display_mode: DisplayMode = DisplayMode.SCIENTIFIC
+
+## Instrument view panel (skeuomorphic)
+var _instrument_panel: PanelContainer
+var _inst_target_id_label: Label
+var _inst_depth_label: Label
+var _inst_ferrous_label: Label
+var _inst_ground_mineral_bar: ProgressBar
+var _inst_signal_label: Label
+var _inst_mode_label: Label
+var _inst_channel_labels: Array = []  ## 4 Labels for per-channel bars
+var _inst_adc_label: Label
+var _inst_battery_label: Label
+var _inst_gps_label: Label
+var _inst_sample_counter: Label
+var _inst_status_led: ColorRect
+
+## Current gradient value for instrument panel
+var current_gradient := 0.0
+
+## Extra data from enriched server responses
+var _last_target_id := 0
+var _last_depth_estimate := 0.0
+var _last_ground_mineral := 0.0
+var _last_ferrous_ratio := 0.0
+var _last_per_channel: Array = [0.0, 0.0, 0.0, 0.0]
+var _last_adc_counts: Array = [0, 0, 0, 0]
+var _battery_voltage := 8.2  ## Simulated LiPo discharge
+
+## EM FDEM instrument data
+var _last_response_real := 0.0
+var _last_response_imag := 0.0
+var _last_em_frequency := 10000.0
+## ERT instrument data
+var _last_apparent_rho := 0.0
+
+## Instrument group containers
+var _inst_md_group: VBoxContainer
+var _inst_pf_group: VBoxContainer
+var _inst_em_group: VBoxContainer
+var _inst_ert_group: VBoxContainer
+## EM FDEM labels
+var _inst_em_inphase_label: Label
+var _inst_em_quad_label: Label
+var _inst_em_conductivity_label: Label
+var _inst_em_freq_label: Label
+## ERT labels
+var _inst_ert_rho_label: Label
+var _inst_ert_array_label: Label
+var _inst_ert_contact_label: Label
+
 ## Tracking
 var _reading_count := 0
-var _peak_gradient_nT := 0.0
+var _peak_display_value := 0.0
 var _recent_readings: PackedFloat64Array = []
 var _recent_speeds: PackedFloat64Array = []
 
@@ -77,9 +130,37 @@ func _ready() -> void:
 	_update_visibility(SurveyManager.current_state)
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F:
+			_toggle_display_mode()
+
+
+func _toggle_display_mode() -> void:
+	if _display_mode == DisplayMode.SCIENTIFIC:
+		_display_mode = DisplayMode.INSTRUMENT
+	else:
+		_display_mode = DisplayMode.SCIENTIFIC
+	_update_display_mode_visibility()
+
+
+func _update_display_mode_visibility() -> void:
+	var is_instrument: bool = (_display_mode == DisplayMode.INSTRUMENT)
+	if _instrument_panel:
+		_instrument_panel.visible = is_instrument and visible
+
+
 func _process(delta: float) -> void:
 	if not visible:
 		return
+
+	# Simulate battery discharge (8.2V -> 7.3V over ~60 min)
+	_battery_voltage = maxf(7.3, _battery_voltage - delta * 0.00025)
+
+	# Update instrument panel if visible
+	if _instrument_panel and _instrument_panel.visible:
+		_update_instrument_panel()
+
 	# Update compass bearing from operator heading
 	if _compass_label and SurveyManager.active_operator:
 		var heading: float = SurveyManager.active_operator.get("heading") if SurveyManager.active_operator.get("heading") != null else 0.0
@@ -121,9 +202,9 @@ func _update_visibility(state: SurveyManager.State) -> void:
 
 	if _controls_label:
 		if is_drone:
-			_controls_label.text = "WASD=Fly | Q/Z=Alt | E=Autopilot | C=Camera | Esc=Pause | H=Targets"
+			_controls_label.text = "WASD=Fly | Q/Z=Alt | E=Autopilot | C=Camera | Esc=Pause | H=Targets | F=Display"
 		else:
-			_controls_label.text = "WASD=Move | Esc=Pause | Tab=Instrument | Space=Mark | V=VCO | H=Targets | T=Tool"
+			_controls_label.text = "WASD=Move | Esc=Pause | Tab=Instrument | Space=Mark | V=VCO | H=Targets | T=Tool | F=Display"
 
 
 func _on_connection_changed(connected: bool) -> void:
@@ -136,7 +217,7 @@ func _on_instrument_changed(instrument: SurveyManager.Instrument) -> void:
 		_instrument_label.add_theme_color_override("font_color", Color.CYAN)
 
 	# Reset peak for new instrument
-	_peak_gradient_nT = 0.0
+	_peak_display_value = 0.0
 	if _peak_label:
 		_peak_label.text = "Peak: -- "
 
@@ -164,23 +245,31 @@ func update_reading(gradient: float, world_pos: Vector3) -> void:
 	if _recent_readings.size() > 20:
 		_recent_readings = _recent_readings.slice(_recent_readings.size() - 20)
 
-	var gradient_nT := gradient * 1e9
 	var units := SurveyManager.instrument_units(SurveyManager.current_instrument)
 
-	if abs(gradient_nT) > abs(_peak_gradient_nT):
-		_peak_gradient_nT = gradient_nT
+	# Convert raw reading to display units based on instrument
+	var display_value: float
+	match SurveyManager.current_instrument:
+		SurveyManager.Instrument.MAG_GRADIOMETER, SurveyManager.Instrument.METAL_DETECTOR:
+			display_value = gradient * 1e9  # Tesla -> nT
+		SurveyManager.Instrument.EM_FDEM:
+			display_value = gradient * 1e6  # ratio -> ppm
+		SurveyManager.Instrument.RESISTIVITY:
+			display_value = gradient  # already Ohm-m
+		_:
+			display_value = gradient * 1e9
+
+	if abs(display_value) > abs(_peak_display_value):
+		_peak_display_value = display_value
 
 	# Main reading display
 	if _gradient_label:
-		if SurveyManager.current_instrument == SurveyManager.Instrument.MAG_GRADIOMETER:
-			_gradient_label.text = "%.1f %s" % [gradient_nT, units]
-		else:
-			_gradient_label.text = "%.4f %s" % [gradient, units]
-		_gradient_label.add_theme_color_override("font_color", _gradient_color(gradient_nT))
+		_gradient_label.text = "%.1f %s" % [display_value, units]
+		_gradient_label.add_theme_color_override("font_color", _reading_color(display_value))
 
 	# Peak
 	if _peak_label:
-		_peak_label.text = "Peak: %.1f %s" % [_peak_gradient_nT, units]
+		_peak_label.text = "Peak: %.1f %s" % [_peak_display_value, units]
 
 	# Position (local)
 	if _position_label:
@@ -192,7 +281,18 @@ func update_reading(gradient: float, world_pos: Vector3) -> void:
 
 	# Strip chart
 	if _strip_chart:
-		_strip_chart.add_value(gradient_nT)
+		_strip_chart.add_value(display_value)
+
+	# Add extra data in scientific view when available
+	if _display_mode == DisplayMode.SCIENTIFIC:
+		if _gradient_label and _last_target_id > 0:
+			var extra := " [TID:%02d]" % _last_target_id
+			_gradient_label.text += extra
+		if _inst_ground_mineral_bar:
+			_inst_ground_mineral_bar.value = _last_ground_mineral
+
+	# Keep track of current gradient for instrument panel
+	current_gradient = gradient
 
 	# Recording indicator
 	if _record_indicator:
@@ -201,6 +301,166 @@ func update_reading(gradient: float, world_pos: Vector3) -> void:
 			# Blink effect
 			var t := Time.get_ticks_msec() / 500
 			_record_indicator.modulate.a = 1.0 if t % 2 == 0 else 0.5
+
+
+## Update enriched instrument data from server responses.
+func update_instrument_data(data: Dictionary) -> void:
+	_last_target_id = data.get("target_id", 0)
+	_last_depth_estimate = data.get("depth_estimate", 0.0)
+	_last_ground_mineral = data.get("ground_mineral_level", 0.0)
+	_last_ferrous_ratio = data.get("ferrous_ratio", 0.0)
+	_last_per_channel = data.get("per_channel", [0.0, 0.0, 0.0, 0.0])
+	_last_adc_counts = data.get("adc_counts", [0, 0, 0, 0])
+	_last_response_real = data.get("response_real", 0.0)
+	_last_response_imag = data.get("response_imag", 0.0)
+	_last_em_frequency = data.get("em_frequency", _last_em_frequency)
+	_last_apparent_rho = data.get("apparent_resistivity", 0.0)
+
+
+func _update_instrument_panel() -> void:
+	var inst := SurveyManager.current_instrument
+	# Show/hide instrument groups
+	if _inst_md_group:
+		_inst_md_group.visible = (inst == SurveyManager.Instrument.METAL_DETECTOR)
+	if _inst_pf_group:
+		_inst_pf_group.visible = (inst == SurveyManager.Instrument.MAG_GRADIOMETER)
+	if _inst_em_group:
+		_inst_em_group.visible = (inst == SurveyManager.Instrument.EM_FDEM)
+	if _inst_ert_group:
+		_inst_ert_group.visible = (inst == SurveyManager.Instrument.RESISTIVITY)
+	match inst:
+		SurveyManager.Instrument.METAL_DETECTOR:
+			_update_metal_detector_panel()
+		SurveyManager.Instrument.MAG_GRADIOMETER:
+			_update_pathfinder_panel()
+		SurveyManager.Instrument.EM_FDEM:
+			_update_em_fdem_panel()
+		SurveyManager.Instrument.RESISTIVITY:
+			_update_ert_panel()
+		_:
+			_update_pathfinder_panel()
+
+
+func _update_metal_detector_panel() -> void:
+	if _inst_target_id_label:
+		_inst_target_id_label.text = "TID: %02d" % _last_target_id
+		# Color code: low=ferrous(red), mid=gold, high=non-ferrous(green)
+		if _last_target_id < 20:
+			_inst_target_id_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2))
+		elif _last_target_id < 60:
+			_inst_target_id_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))
+		else:
+			_inst_target_id_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.4))
+
+	if _inst_depth_label:
+		var bars := 0
+		if _last_depth_estimate < 0.3:
+			bars = 3
+		elif _last_depth_estimate < 0.8:
+			bars = 2
+		elif _last_depth_estimate < 2.0:
+			bars = 1
+		var bar_str := "|".repeat(bars) + ".".repeat(3 - bars)
+		_inst_depth_label.text = "Depth: [%s] %.1fm" % [bar_str, _last_depth_estimate]
+
+	if _inst_ferrous_label:
+		if _last_ferrous_ratio > 0.7:
+			_inst_ferrous_label.text = "FERROUS"
+			_inst_ferrous_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.2))
+		elif _last_ferrous_ratio > 0.3:
+			_inst_ferrous_label.text = "MIXED"
+			_inst_ferrous_label.add_theme_color_override("font_color", Color(1.0, 0.8, 0.2))
+		else:
+			_inst_ferrous_label.text = "NON-FE"
+			_inst_ferrous_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.4))
+
+	if _inst_ground_mineral_bar:
+		_inst_ground_mineral_bar.value = _last_ground_mineral
+
+	if _inst_signal_label:
+		var signal_nT: float = abs(current_gradient * 1e9) if current_gradient != 0 else 0.0
+		_inst_signal_label.text = "Signal: %.1f nT" % signal_nT
+
+	if _inst_mode_label:
+		_inst_mode_label.text = "All Metal"
+
+
+func _update_pathfinder_panel() -> void:
+	# Per-channel bars
+	for i in range(mini(_inst_channel_labels.size(), 4)):
+		var lbl: Label = _inst_channel_labels[i]
+		if lbl and i < _last_per_channel.size():
+			var val: float = _last_per_channel[i] * 1e9
+			lbl.text = "CH%d: %+.1f nT/m" % [i + 1, val]
+			if abs(val) > 50.0:
+				lbl.add_theme_color_override("font_color", Color.RED)
+			elif abs(val) > 10.0:
+				lbl.add_theme_color_override("font_color", Color.YELLOW)
+			else:
+				lbl.add_theme_color_override("font_color", Color.GREEN)
+
+	if _inst_adc_label and _last_adc_counts.size() >= 4:
+		_inst_adc_label.text = "ADC: %d %d %d %d" % [
+			_last_adc_counts[0], _last_adc_counts[1],
+			_last_adc_counts[2], _last_adc_counts[3]]
+
+	if _inst_battery_label:
+		_inst_battery_label.text = "Batt: %.1fV" % _battery_voltage
+		if _battery_voltage < 7.5:
+			_inst_battery_label.add_theme_color_override("font_color", Color.RED)
+		elif _battery_voltage < 7.8:
+			_inst_battery_label.add_theme_color_override("font_color", Color.YELLOW)
+		else:
+			_inst_battery_label.add_theme_color_override("font_color", Color.GREEN)
+
+	if _inst_gps_label:
+		_inst_gps_label.text = "GPS: 3D Fix"
+		_inst_gps_label.add_theme_color_override("font_color", Color.GREEN)
+
+	if _inst_sample_counter:
+		_inst_sample_counter.text = "N=%d" % _reading_count
+
+	if _inst_status_led:
+		if DataRecorder.is_recording:
+			_inst_status_led.color = Color.GREEN
+		else:
+			_inst_status_led.color = Color(0.8, 0.6, 0.0)
+
+
+func _update_em_fdem_panel() -> void:
+	if _inst_em_inphase_label:
+		_inst_em_inphase_label.text = "In-Phase: %.1f ppm" % (_last_response_real * 1e6)
+	if _inst_em_quad_label:
+		_inst_em_quad_label.text = "Quad: %.1f ppm" % (_last_response_imag * 1e6)
+	if _inst_em_conductivity_label:
+		# McNeill approximation: σa from quadrature response
+		var sigma_ms: float = abs(_last_response_imag) * 1e3 * 1000.0
+		_inst_em_conductivity_label.text = "σa: %.1f mS/m" % sigma_ms
+	if _inst_em_freq_label:
+		_inst_em_freq_label.text = "Freq: %.1f kHz" % (_last_em_frequency / 1000.0)
+	if _inst_battery_label:
+		_inst_battery_label.text = "Batt: %.1fV" % _battery_voltage
+	if _inst_sample_counter:
+		_inst_sample_counter.text = "N=%d" % _reading_count
+	if _inst_status_led:
+		_inst_status_led.color = Color.GREEN if DataRecorder.is_recording else Color(0.8, 0.6, 0.0)
+
+
+func _update_ert_panel() -> void:
+	if _inst_ert_rho_label:
+		if _last_apparent_rho > 0:
+			_inst_ert_rho_label.text = "ρa: %.1f Ω·m" % _last_apparent_rho
+		else:
+			_inst_ert_rho_label.text = "ρa: -- Ω·m"
+	if _inst_ert_contact_label:
+		_inst_ert_contact_label.text = "Contact: Good"
+		_inst_ert_contact_label.add_theme_color_override("font_color", Color.GREEN)
+	if _inst_battery_label:
+		_inst_battery_label.text = "Batt: %.1fV" % _battery_voltage
+	if _inst_sample_counter:
+		_inst_sample_counter.text = "N=%d" % _reading_count
+	if _inst_status_led:
+		_inst_status_led.color = Color.GREEN if DataRecorder.is_recording else Color(0.8, 0.6, 0.0)
 
 
 ## Called by Main each frame with operator stats.
@@ -444,6 +704,8 @@ func _update_toggle_legend() -> void:
 				tool_vis = iv
 		entries.append(["T", "Tool", tool_vis])
 	entries.append(["H", "Targets", _targets_visible])
+	var disp_str := "Instrument" if _display_mode == DisplayMode.INSTRUMENT else "Scientific"
+	entries.append(["F", "Display", disp_str])
 
 	# Ensure correct number of child labels
 	while _toggle_legend.get_child_count() < entries.size():
@@ -475,16 +737,40 @@ func _update_toggle_legend() -> void:
 			lbl.add_theme_color_override("font_color", Color(0.6, 0.7, 0.8))
 
 
-func _gradient_color(value_nT: float) -> Color:
-	var abs_val: float = absf(value_nT)
-	if abs_val < 1.0:
-		return Color.WHITE
-	elif abs_val < 10.0:
-		return Color.YELLOW
-	elif abs_val < 100.0:
-		return Color.ORANGE_RED
-	else:
-		return Color.RED
+func _reading_color(display_value: float) -> Color:
+	var abs_val: float = absf(display_value)
+	match SurveyManager.current_instrument:
+		SurveyManager.Instrument.MAG_GRADIOMETER, SurveyManager.Instrument.METAL_DETECTOR:
+			# nT thresholds
+			if abs_val < 1.0:
+				return Color.WHITE
+			elif abs_val < 10.0:
+				return Color.YELLOW
+			elif abs_val < 100.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED
+		SurveyManager.Instrument.EM_FDEM:
+			# ppm thresholds
+			if abs_val < 10.0:
+				return Color.WHITE
+			elif abs_val < 100.0:
+				return Color.YELLOW
+			elif abs_val < 1000.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED
+		SurveyManager.Instrument.RESISTIVITY:
+			# Ohm-m: low = conductive anomaly (interesting), high = background
+			if abs_val > 80.0:
+				return Color.WHITE
+			elif abs_val > 30.0:
+				return Color.YELLOW
+			elif abs_val > 10.0:
+				return Color.ORANGE_RED
+			else:
+				return Color.RED
+	return Color.WHITE
 
 
 func _create_hud() -> void:
@@ -775,6 +1061,202 @@ func _create_hud() -> void:
 	_drone_battery_label.add_theme_color_override("font_color", Color.GREEN)
 	d_vbox.add_child(_drone_battery_label)
 
+
+	# ---- CENTER-LEFT: Instrument View Panel (hidden by default) ----
+	_instrument_panel = PanelContainer.new()
+	_instrument_panel.name = "InstrumentPanel"
+	_instrument_panel.set_anchors_preset(PRESET_CENTER_LEFT)
+	_instrument_panel.offset_left = 12
+	_instrument_panel.offset_top = -180
+	_instrument_panel.offset_right = 280
+	_instrument_panel.offset_bottom = 180
+	_instrument_panel.visible = false
+
+	var inst_style := StyleBoxFlat.new()
+	inst_style.bg_color = Color(0.02, 0.06, 0.02, 0.85)
+	inst_style.corner_radius_top_left = 4
+	inst_style.corner_radius_top_right = 4
+	inst_style.corner_radius_bottom_left = 4
+	inst_style.corner_radius_bottom_right = 4
+	inst_style.border_color = Color(0.15, 0.35, 0.15, 0.6)
+	inst_style.border_width_left = 2
+	inst_style.border_width_right = 2
+	inst_style.border_width_top = 2
+	inst_style.border_width_bottom = 2
+	inst_style.content_margin_left = 10
+	inst_style.content_margin_right = 10
+	inst_style.content_margin_top = 8
+	inst_style.content_margin_bottom = 8
+	_instrument_panel.add_theme_stylebox_override("panel", inst_style)
+	_instrument_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_instrument_panel)
+
+	var inst_vbox := VBoxContainer.new()
+	inst_vbox.add_theme_constant_override("separation", 3)
+	_instrument_panel.add_child(inst_vbox)
+
+	# Title row
+	var inst_title := Label.new()
+	inst_title.text = "INSTRUMENT"
+	inst_title.add_theme_font_size_override("font_size", 12)
+	inst_title.add_theme_color_override("font_color", Color(0.5, 0.8, 0.4))
+	inst_vbox.add_child(inst_title)
+
+	# --- Metal Detector Group ---
+	_inst_md_group = VBoxContainer.new()
+	_inst_md_group.add_theme_constant_override("separation", 2)
+	inst_vbox.add_child(_inst_md_group)
+
+	_inst_target_id_label = Label.new()
+	_inst_target_id_label.text = "TID: --"
+	_inst_target_id_label.add_theme_font_size_override("font_size", 22)
+	_inst_target_id_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+	_inst_md_group.add_child(_inst_target_id_label)
+
+	_inst_depth_label = Label.new()
+	_inst_depth_label.text = "Depth: [...]"
+	_inst_depth_label.add_theme_font_size_override("font_size", 14)
+	_inst_depth_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+	_inst_md_group.add_child(_inst_depth_label)
+
+	_inst_ferrous_label = Label.new()
+	_inst_ferrous_label.text = "--"
+	_inst_ferrous_label.add_theme_font_size_override("font_size", 14)
+	_inst_md_group.add_child(_inst_ferrous_label)
+
+	_inst_signal_label = Label.new()
+	_inst_signal_label.text = "Signal: -- nT"
+	_inst_signal_label.add_theme_font_size_override("font_size", 13)
+	_inst_signal_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+	_inst_md_group.add_child(_inst_signal_label)
+
+	_inst_mode_label = Label.new()
+	_inst_mode_label.text = "All Metal"
+	_inst_mode_label.add_theme_font_size_override("font_size", 11)
+	_inst_mode_label.add_theme_color_override("font_color", Color(0.4, 0.6, 0.3))
+	_inst_md_group.add_child(_inst_mode_label)
+
+	var mineral_row := HBoxContainer.new()
+	mineral_row.add_theme_constant_override("separation", 6)
+	_inst_md_group.add_child(mineral_row)
+	var mineral_label := Label.new()
+	mineral_label.text = "Ground:"
+	mineral_label.add_theme_font_size_override("font_size", 11)
+	mineral_label.add_theme_color_override("font_color", Color(0.4, 0.6, 0.3))
+	mineral_row.add_child(mineral_label)
+	_inst_ground_mineral_bar = ProgressBar.new()
+	_inst_ground_mineral_bar.min_value = 0
+	_inst_ground_mineral_bar.max_value = 100
+	_inst_ground_mineral_bar.value = 0
+	_inst_ground_mineral_bar.custom_minimum_size = Vector2(120, 12)
+	_inst_ground_mineral_bar.show_percentage = false
+	mineral_row.add_child(_inst_ground_mineral_bar)
+
+	# --- Pathfinder Group ---
+	_inst_pf_group = VBoxContainer.new()
+	_inst_pf_group.add_theme_constant_override("separation", 2)
+	_inst_pf_group.visible = false
+	inst_vbox.add_child(_inst_pf_group)
+
+	_inst_channel_labels.clear()
+	for i in range(4):
+		var ch_label := Label.new()
+		ch_label.text = "CH%d: -- nT/m" % [i + 1]
+		ch_label.add_theme_font_size_override("font_size", 12)
+		ch_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+		_inst_pf_group.add_child(ch_label)
+		_inst_channel_labels.append(ch_label)
+
+	_inst_adc_label = Label.new()
+	_inst_adc_label.text = "ADC: -- -- -- --"
+	_inst_adc_label.add_theme_font_size_override("font_size", 11)
+	_inst_adc_label.add_theme_color_override("font_color", Color(0.4, 0.6, 0.3))
+	_inst_pf_group.add_child(_inst_adc_label)
+
+	# --- EM FDEM Group ---
+	_inst_em_group = VBoxContainer.new()
+	_inst_em_group.add_theme_constant_override("separation", 2)
+	_inst_em_group.visible = false
+	inst_vbox.add_child(_inst_em_group)
+
+	_inst_em_inphase_label = Label.new()
+	_inst_em_inphase_label.text = "In-Phase: -- ppm"
+	_inst_em_inphase_label.add_theme_font_size_override("font_size", 16)
+	_inst_em_inphase_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+	_inst_em_group.add_child(_inst_em_inphase_label)
+
+	_inst_em_quad_label = Label.new()
+	_inst_em_quad_label.text = "Quadrature: -- ppm"
+	_inst_em_quad_label.add_theme_font_size_override("font_size", 16)
+	_inst_em_quad_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.3))
+	_inst_em_group.add_child(_inst_em_quad_label)
+
+	_inst_em_conductivity_label = Label.new()
+	_inst_em_conductivity_label.text = "σa: -- mS/m"
+	_inst_em_conductivity_label.add_theme_font_size_override("font_size", 14)
+	_inst_em_conductivity_label.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+	_inst_em_group.add_child(_inst_em_conductivity_label)
+
+	_inst_em_freq_label = Label.new()
+	_inst_em_freq_label.text = "Freq: 10.0 kHz"
+	_inst_em_freq_label.add_theme_font_size_override("font_size", 11)
+	_inst_em_freq_label.add_theme_color_override("font_color", Color(0.4, 0.6, 0.3))
+	_inst_em_group.add_child(_inst_em_freq_label)
+
+	# --- ERT Group ---
+	_inst_ert_group = VBoxContainer.new()
+	_inst_ert_group.add_theme_constant_override("separation", 2)
+	_inst_ert_group.visible = false
+	inst_vbox.add_child(_inst_ert_group)
+
+	_inst_ert_rho_label = Label.new()
+	_inst_ert_rho_label.text = "ρa: -- Ω·m"
+	_inst_ert_rho_label.add_theme_font_size_override("font_size", 22)
+	_inst_ert_rho_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.4))
+	_inst_ert_group.add_child(_inst_ert_rho_label)
+
+	_inst_ert_array_label = Label.new()
+	_inst_ert_array_label.text = "Array: Wenner"
+	_inst_ert_array_label.add_theme_font_size_override("font_size", 12)
+	_inst_ert_array_label.add_theme_color_override("font_color", Color(0.6, 0.7, 0.8))
+	_inst_ert_group.add_child(_inst_ert_array_label)
+
+	_inst_ert_contact_label = Label.new()
+	_inst_ert_contact_label.text = "Contact: Good"
+	_inst_ert_contact_label.add_theme_font_size_override("font_size", 12)
+	_inst_ert_contact_label.add_theme_color_override("font_color", Color.GREEN)
+	_inst_ert_group.add_child(_inst_ert_contact_label)
+
+	# --- Separator + Common Status ---
+	var sep := HSeparator.new()
+	inst_vbox.add_child(sep)
+
+	var status_row2 := HBoxContainer.new()
+	status_row2.add_theme_constant_override("separation", 8)
+	inst_vbox.add_child(status_row2)
+
+	_inst_battery_label = Label.new()
+	_inst_battery_label.text = "Batt: 8.2V"
+	_inst_battery_label.add_theme_font_size_override("font_size", 11)
+	_inst_battery_label.add_theme_color_override("font_color", Color.GREEN)
+	status_row2.add_child(_inst_battery_label)
+
+	_inst_gps_label = Label.new()
+	_inst_gps_label.text = "GPS: 3D"
+	_inst_gps_label.add_theme_font_size_override("font_size", 11)
+	_inst_gps_label.add_theme_color_override("font_color", Color.GREEN)
+	status_row2.add_child(_inst_gps_label)
+
+	_inst_sample_counter = Label.new()
+	_inst_sample_counter.text = "N=0"
+	_inst_sample_counter.add_theme_font_size_override("font_size", 11)
+	_inst_sample_counter.add_theme_color_override("font_color", Color(0.7, 1.0, 0.4))
+	status_row2.add_child(_inst_sample_counter)
+
+	_inst_status_led = ColorRect.new()
+	_inst_status_led.custom_minimum_size = Vector2(10, 10)
+	_inst_status_led.color = Color(0.8, 0.6, 0.0)
+	status_row2.add_child(_inst_status_led)
 
 	# ---- BOTTOM-LEFT: Toggle legend ----
 	_toggle_legend = VBoxContainer.new()

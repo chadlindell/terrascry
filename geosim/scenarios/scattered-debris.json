@@ -2,6 +2,11 @@
   "name": "Scattered Aircraft Debris",
   "description": "Multiple ferrous fragments at varying depths, simulating scattered aircraft wreckage. Tests multi-target discrimination.",
   "earth_field": [0.0, 20e-6, 45e-6],
+  "soil_environment": {
+    "temperature_c": 14.0,
+    "saturation": 0.6,
+    "pore_water_sigma": 0.05
+  },
   "terrain": {
     "x_extent": [0.0, 30.0],
     "y_extent": [0.0, 30.0],
@@ -13,7 +18,13 @@
         "z_bottom": -0.3,
         "conductivity": 0.05,
         "relative_permittivity": 15.0,
-        "color": "#4A3728"
+        "susceptibility": 0.0002,
+        "color": "#4A3728",
+        "porosity": 0.45,
+        "archie_a": 1.2,
+        "archie_m": 1.8,
+        "archie_n": 2.0,
+        "surface_conductivity": 0.03
       },
       {
         "name": "Clay loam",
@@ -21,7 +32,13 @@
         "z_bottom": -6.0,
         "conductivity": 0.1,
         "relative_permittivity": 20.0,
-        "color": "#6B5B4E"
+        "susceptibility": 0.0003,
+        "color": "#6B5B4E",
+        "porosity": 0.50,
+        "archie_a": 1.5,
+        "archie_m": 1.5,
+        "archie_n": 2.5,
+        "surface_conductivity": 0.15
       }
     ]
   },
@@ -91,8 +108,163 @@
           "intensity": 25.0
         }
       }
+    },
+    {
+      "name": "Dog tag",
+      "position": [14.0, 18.5, -0.12],
+      "type": "ferrous_sphere",
+      "radius": 0.008,
+      "susceptibility": 350.0,
+      "conductivity": 1.4e7,
+      "metadata": {"description": "Stainless steel ID tag, just below surface"}
+    },
+    {
+      "name": "Wristwatch case",
+      "position": [16.5, 11.5, -0.15],
+      "type": "ferrous_sphere",
+      "radius": 0.012,
+      "susceptibility": 150.0,
+      "conductivity": 1.0e7,
+      "metadata": {"description": "Steel watch case with brass back, shallow"}
+    },
+    {
+      "name": "Zipper and buckle",
+      "position": [20.0, 19.0, -0.10],
+      "type": "ferrous_sphere",
+      "radius": 0.010,
+      "susceptibility": 600.0,
+      "conductivity": 1e6,
+      "metadata": {"description": "Flight suit hardware, surface scatter"}
+    },
+    {
+      "name": "Spent cartridge cases",
+      "position": [10.5, 10.0, -0.08],
+      "type": "ferrous_sphere",
+      "radius": 0.007,
+      "susceptibility": 0.00002,
+      "conductivity": 2.6e7,
+      "metadata": {"description": "Brass .50 cal casings, non-magnetic but highly conductive"}
+    },
+    {
+      "name": "Aluminium skin fragment",
+      "position": [21.0, 14.0, -0.20],
+      "type": "ferrous_sphere",
+      "radius": 0.035,
+      "susceptibility": 0.00002,
+      "conductivity": 3.5e7,
+      "metadata": {"description": "Thin fuselage skin panel, weak mag but strong EM quadrature response"}
+    },
+    {
+      "name": "Boot heel plate",
+      "position": [13.0, 22.0, -0.18],
+      "type": "ferrous_sphere",
+      "radius": 0.011,
+      "susceptibility": 700.0,
+      "conductivity": 2e6,
+      "metadata": {"description": "Steel heel reinforcement from flying boot"}
+    },
+    {
+      "name": "Copper wire bundle",
+      "position": [17.0, 17.0, -0.25],
+      "type": "ferrous_sphere",
+      "radius": 0.015,
+      "susceptibility": -0.00001,
+      "conductivity": 5.8e7,
+      "metadata": {"description": "Avionics wiring harness, diamagnetic but very strong EM target"}
+    },
+    {
+      "name": "Hot rock A",
+      "position": [6.0, 14.0, -0.3],
+      "type": "natural_rock",
+      "radius": 0.06,
+      "susceptibility": 0.03,
+      "conductivity": 0.5,
+      "metadata": {"description": "Basalt cobble, strong mag false positive", "clutter": true}
+    },
+    {
+      "name": "Hot rock B",
+      "position": [24.0, 8.0, -0.5],
+      "type": "natural_rock",
+      "radius": 0.08,
+      "susceptibility": 0.04,
+      "conductivity": 0.8,
+      "metadata": {"description": "Large igneous cobble", "clutter": true}
+    },
+    {
+      "name": "Burnt soil patch A",
+      "position": [10.0, 16.0, -0.05],
+      "type": "burnt_soil",
+      "radius": 0.3,
+      "susceptibility": 0.004,
+      "conductivity": 0.09,
+      "metadata": {"description": "Fire-altered soil from impact", "clutter": true}
+    },
+    {
+      "name": "Burnt soil patch B",
+      "position": [19.0, 21.0, -0.08],
+      "type": "burnt_soil",
+      "radius": 0.25,
+      "susceptibility": 0.003,
+      "conductivity": 0.07,
+      "metadata": {"description": "Thermally altered ground", "clutter": true}
     }
   ],
+  "anomaly_zones": [
+    {
+      "name": "Impact scatter zone",
+      "center": [15.0, 15.0, -0.8],
+      "dimensions": {"length": 15.0, "width": 10.0, "depth": 1.5},
+      "shape": "box",
+      "conductivity": 0.12,
+      "resistivity": 8.3,
+      "relative_permittivity": 20.0,
+      "susceptibility": 0.001
+    },
+    {
+      "name": "Engine burial pit",
+      "center": [12.0, 15.0, -1.2],
+      "dimensions": {"radius": 1.5, "height": 2.0},
+      "shape": "cylinder",
+      "conductivity": 0.15,
+      "resistivity": 6.7,
+      "relative_permittivity": 22.0,
+      "susceptibility": 0.002
+    }
+  ],
+  "hirt_config": {
+    "probes": [
+      {
+        "position": [10.5, 15.0, 0.0],
+        "length": 3.0,
+        "orientation": "vertical",
+        "ring_depths": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+        "coil_depths": [0.30, 0.75, 1.20, 1.65, 2.10, 2.55],
+        "tilt_deg": 0.5,
+        "azimuth_deg": 0.0
+      },
+      {
+        "position": [13.5, 15.0, 0.0],
+        "length": 3.0,
+        "orientation": "vertical",
+        "ring_depths": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+        "coil_depths": [0.30, 0.75, 1.20, 1.65, 2.10, 2.55],
+        "tilt_deg": 1.0,
+        "azimuth_deg": -5.0
+      }
+    ],
+    "frequencies": [2000.0, 5000.0, 10000.0, 20000.0, 50000.0],
+    "injection_current": 0.001,
+    "array_type": "crosshole",
+    "section_id": "S01",
+    "zone_id": "ZA",
+    "mit_tx_current_mA": 10.0,
+    "ert_current_mA": 1.0,
+    "mit_settle_ms": 10,
+    "ert_settle_ms": 50,
+    "adc_averaging": 16,
+    "reciprocity_qc_pct": 5.0,
+    "include_intra_probe": false
+  },
   "metadata": {
     "author": "GeoSim",
     "category": "multi-target",

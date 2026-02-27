@@ -122,6 +122,78 @@ jobs:
             done
           done
 
+  # Diagram validation job - ensures all Python generators import and run
+  diagram-validation:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install matplotlib numpy pillow jupyter
+
+      - name: Validate diagram module imports
+        run: |
+          cd docs
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          errors = []
+
+          # Test top-level import
+          try:
+              import diagrams
+              print('OK: diagrams package imported')
+          except Exception as e:
+              errors.append(f'diagrams: {e}')
+
+          # Test each submodule
+          submodules = [
+              'subsurface', 'circuits', 'physics', 'mechanical',
+              'field_ops', 'flowcharts', 'executive_summary',
+              'architecture', 'testing', 'calibration',
+              'assembly_3d', 'sensor_modalities', 'uncertainty',
+          ]
+          for name in submodules:
+              try:
+                  mod = __import__(f'diagrams.{name}', fromlist=[name])
+                  print(f'OK: diagrams.{name}')
+              except Exception as e:
+                  errors.append(f'diagrams.{name}: {e}')
+
+          if errors:
+              print()
+              print('FAILED imports:')
+              for err in errors:
+                  print(f'  ::error::{err}')
+              sys.exit(1)
+          else:
+              print(f'All {len(submodules) + 1} diagram modules imported successfully.')
+          "
+
+      - name: Check for visual placeholders without implementations
+        run: |
+          cd docs
+          # Find .qmd files with visual-placeholder blocks
+          placeholder_count=0
+          for qmd in $(find . -name "*.qmd" -type f); do
+            count=$(grep -c 'visual-placeholder' "$qmd" 2>/dev/null || true)
+            if [ "$count" -gt 0 ]; then
+              echo "::notice file=${qmd}::${count} visual placeholder(s) remaining"
+              placeholder_count=$((placeholder_count + count))
+            fi
+          done
+          echo "Total visual placeholders remaining: $placeholder_count"
+
   # Deploy to GitHub Pages (only on push to main)
   deploy:
     environment:

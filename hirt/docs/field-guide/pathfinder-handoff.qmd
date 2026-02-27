@@ -1,0 +1,74 @@
+---
+title: "Pathfinder Integration"
+---
+
+## Two-Stage Workflow
+
+HIRT achieves its best results when deployed at locations pre-screened by a surface survey instrument. The Pathfinder handheld magnetic gradiometer fills this role: it walks over large areas at 1 m/s, covering thousands of square meters per hour, and flags magnetic anomalies with GPS-tagged positions. HIRT then deploys its crosshole probe array at the flagged locations for detailed 3D tomographic imaging.
+
+This two-stage approach converts HIRT from a "search the whole field" tool into a "characterize this specific anomaly" tool. The practical impact is significant---instead of speculatively deploying 25 probes across a 10x10 m section that may contain nothing, the team deploys with confidence that a real subsurface target exists at the chosen location.
+
+The complete handoff protocol, including step-by-step procedures, coordinate transformation methods, grid design guidelines, and troubleshooting, is maintained in the Pathfinder documentation:
+
+> **[Pathfinder-to-HIRT Handoff Protocol](../../../Pathfinder/docs/handoff-to-hirt.md)**
+
+The sections below provide a quick reference for HIRT operators who need the key information without reading the full protocol.
+
+## Quick Reference
+
+### Before Leaving for the Field
+
+1. Confirm the Pathfinder operator has provided a CSV data file and an anomaly summary with GPS coordinates and gradient strengths.
+2. Verify GeoSim is installed (`pip install -e /path/to/GeoSim`) for coordinate transformations.
+3. Review the anomaly classification table to confirm that the identified targets warrant HIRT deployment:
+   - **HIGH priority**: Strong (>200 nT), compact (<2 m) dipole anomalies
+   - **MEDIUM priority**: Broad (2-10 m), moderate (50-200 nT) diffuse anomalies
+   - **LOW priority**: Linear features or weak (<50 nT) isolated signals
+
+### At the Site
+
+1. Locate the grid origin stake placed during the Pathfinder survey. Verify its GPS coordinates match the recorded values.
+2. Design the HIRT probe grid centered on the strongest anomaly, extending 2-3 m beyond the anomaly boundary for inversion context.
+3. Account for GPS accuracy:
+   - Standard GPS (NEO-6M): expand grid by 3-5 m in every direction
+   - RTK GPS (ZED-F9P): direct placement on anomaly position is feasible
+4. Stake out probe positions using tape measure from the origin point. Standard spacings: 1.0 m, 1.5 m, or 2.0 m depending on estimated target depth.
+5. Proceed with HIRT deployment per @sec-field-overview.
+
+### After Data Collection
+
+1. Overlay Pathfinder anomaly positions (in grid coordinates) on the HIRT inversion result.
+2. Pathfinder gradient data provides spatial and depth priors that can seed the inversion initial model.
+3. Record all coordinate transformations in the survey metadata for reproducibility.
+
+## Coordinate Bridge
+
+Both Pathfinder and HIRT reference positions through a shared local grid origin---a physical stake on the ground with a recorded GPS position. Pathfinder records anomaly locations in WGS84 geographic coordinates (latitude, longitude); HIRT operates in a local Cartesian grid (meters, X=East, Y=North). The transformation between the two uses a flat-Earth approximation that introduces negligible error at survey scales:
+
+```python
+import numpy as np
+
+# Grid origin from the physical stake GPS reading
+origin_lat, origin_lon = 51.23462, 18.34571
+
+# Pathfinder anomaly GPS position
+anomaly_lat, anomaly_lon = 51.23475, 18.34595
+
+# Convert to local grid (meters)
+lat_scale = 111320.0
+lon_scale = 111320.0 * np.cos(np.radians(origin_lat))
+
+grid_x = (anomaly_lon - origin_lon) * lon_scale  # East
+grid_y = (anomaly_lat - origin_lat) * lat_scale   # North
+```
+
+GeoSim uses the same coordinate convention throughout all three projects: X=East, Y=North, Z=Up, with SI units (meters, Tesla, S/m). Positions computed via the transformation above plug directly into HIRT grid layouts and inversion geometry files.
+
+The positional accuracy depends on the GPS module:
+
+| GPS Module | Position Error | Impact on HIRT Grid |
+|------------|---------------|---------------------|
+| NEO-6M (standard) | +/-2-5 m | Expand grid 3-5 m beyond anomaly |
+| ZED-F9P (RTK) | +/-0.02 m | Direct placement on anomaly |
+
+For the full accuracy budget, coordinate transformation procedures, and worked examples, see the [Pathfinder-to-HIRT Handoff Protocol](../../../Pathfinder/docs/handoff-to-hirt.md).

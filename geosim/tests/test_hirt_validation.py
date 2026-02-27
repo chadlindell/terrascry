@@ -178,7 +178,7 @@ class TestScenario4SwampCrashSite:
         scenario = load_scenario(self.SCENARIO)
         hirt = scenario.hirt_config
         assert len(hirt.probes) == 2
-        assert len(hirt.frequencies) == 3
+        assert len(hirt.frequencies) == 5
         assert hirt.injection_current > 0
 
     def test_anomaly_zones_present(self):
@@ -233,7 +233,7 @@ class TestScenario4SwampCrashSite:
             coil_separation=0.3,
             backend='analytical',
         )
-        assert len(result['real']) == 3
+        assert len(result['real']) == len(scenario.hirt_config.frequencies)
         assert result['backend'] == 'analytical'
 
 

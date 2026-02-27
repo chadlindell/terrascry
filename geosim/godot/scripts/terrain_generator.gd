@@ -45,6 +45,8 @@ var _ridge_noise: FastNoiseLite
 var _rock_noise: FastNoiseLite
 var _center_x: float
 var _center_z: float
+var _crater_features: Array[Dictionary] = []
+var _shader_overrides: Dictionary = {}
 
 
 func _ready() -> void:
@@ -83,7 +85,39 @@ func _compute_height(world_x: float, world_z: float) -> float:
 			var rock_strength := (rock_val - (1.0 - rock_density * 10.0)) / (rock_density * 10.0)
 			h += rock_strength * rock_strength * lerpf(rock_height_min, rock_height_max, rock_val)
 
+	# Structured terrain features from scenario metadata (e.g., crater bowl + rim).
+	h += _compute_structured_features(world_x, world_z)
+
 	return h
+
+
+func _compute_structured_features(world_x: float, world_z: float) -> float:
+	if _crater_features.is_empty():
+		return 0.0
+
+	var feature_h := 0.0
+	var p := Vector2(world_x, world_z)
+	for crater in _crater_features:
+		var center: Vector2 = crater.get("center", Vector2.ZERO)
+		var radius: float = max(crater.get("radius", 1.0), 0.2)
+		var depth: float = max(crater.get("depth", 0.1), 0.0)
+		var rim_gain: float = crater.get("rim_gain", 0.18)
+
+		var dist := p.distance_to(center)
+		var n := dist / radius
+
+		# Crater bowl: smooth parabolic depression.
+		if n < 1.0:
+			var bowl := pow(1.0 - n * n, 2.0)
+			feature_h -= depth * bowl
+
+		# Raised rim around crater edge.
+		var rim_n := absf(n - 1.0)
+		if rim_n < 0.35:
+			var rim := exp(-pow(rim_n / 0.16, 2.0))
+			feature_h += depth * rim_gain * rim
+
+	return feature_h
 
 
 func _create_terrain() -> void:
@@ -191,6 +225,8 @@ func _create_terrain() -> void:
 	if shader:
 		var shader_mat := ShaderMaterial.new()
 		shader_mat.shader = shader
+		_apply_shader_overrides(shader_mat)
+		_apply_pbr_textures(shader_mat)
 		material_override = shader_mat
 	else:
 		# Fallback: plain green-brown material
@@ -308,4 +344,575 @@ func update_from_scenario(info: Dictionary) -> void:
 		y_extent = Vector2(terrain["y_extent"][0], terrain["y_extent"][1])
 	if terrain.has("surface_elevation"):
 		surface_elevation = terrain["surface_elevation"]
+
+	_apply_scenario_visual_profile(info, terrain)
 	_create_terrain()
+
+
+func _apply_scenario_visual_profile(info: Dictionary, terrain: Dictionary) -> void:
+	_crater_features.clear()
+	_shader_overrides.clear()
+
+	var name := str(info.get("name", "")).to_lower()
+	var desc := str(info.get("description", "")).to_lower()
+	var metadata: Dictionary = info.get("metadata", {})
+	var layers: Array = terrain.get("layers", [])
+	var env_profile: Dictionary = info.get("environment_profile", {})
+
+	# Wetness estimate from layer conductivity + optional water table metadata.
+	var mean_conductivity := 0.05
+	if not layers.is_empty():
+		var sum_cond := 0.0
+		for layer in layers:
+			sum_cond += float(layer.get("conductivity", 0.05))
+		mean_conductivity = sum_cond / float(layers.size())
+
+	var wetness := clampf(mean_conductivity / 0.25, 0.0, 1.0)
+	if metadata.has("water_table_depth"):
+		var wt_depth := float(metadata.get("water_table_depth", 2.0))
+		wetness = clampf(wetness + clampf((1.0 - wt_depth) / 1.0, 0.0, 0.6), 0.0, 1.0)
+	if name.contains("swamp") or name.contains("marsh") or desc.contains("waterlogged"):
+		wetness = clampf(wetness + 0.35, 0.0, 1.0)
+	if env_profile.has("wetness"):
+		wetness = clampf(float(env_profile.get("wetness", wetness)), 0.0, 1.0)
+
+	var is_crater := name.contains("crater") or desc.contains("crater")
+	var is_forensic := name.contains("burial") or desc.contains("grave") or str(metadata.get("category", "")).to_lower().contains("forensic")
+
+	# Terrain roughness and rockiness by environment type.
+	height_amplitude = lerpf(0.45, 0.18, wetness)
+	hill_amplitude = lerpf(0.30, 0.10, wetness)
+	ridge_amplitude = lerpf(0.16, 0.05, wetness)
+	rock_density = lerpf(0.028, 0.008, wetness)
+	noise_frequency = lerpf(0.17, 0.10, wetness)
+	hill_frequency = lerpf(0.05, 0.025, wetness)
+
+	if is_crater:
+		height_amplitude += 0.08
+		ridge_amplitude += 0.05
+		rock_density += 0.01
+	if is_forensic:
+		height_amplitude *= 0.75
+		ridge_amplitude *= 0.7
+		rock_density *= 0.7
+
+	# Add explicit crater from metadata when present.
+	if metadata.has("crater"):
+		var crater: Dictionary = metadata.get("crater", {})
+		var c_arr: Array = crater.get("center", [])
+		var cx := (x_extent.x + x_extent.y) * 0.5
+		var cz := (y_extent.x + y_extent.y) * 0.5
+		if c_arr.size() >= 2:
+			cx = float(c_arr[0])
+			cz = float(c_arr[1])
+		var diameter := float(crater.get("diameter", 6.0))
+		var depth := float(crater.get("depth", 1.2))
+		_crater_features.append({
+			"center": Vector2(cx, cz),
+			"radius": max(diameter * 0.5, 0.5),
+			"depth": clampf(depth * 0.35, 0.15, 2.0),
+			"rim_gain": 0.20,
+		})
+
+	# Secondary crater-like anomalies inferred from anomaly zones.
+	var anomalies: Array = info.get("anomaly_zones", [])
+	for az in anomalies:
+		var az_name := str(az.get("name", "")).to_lower()
+		if not az_name.contains("crater"):
+			continue
+		var center_arr: Array = az.get("center", [])
+		if center_arr.size() < 2:
+			continue
+		var dims: Dictionary = az.get("dimensions", {})
+		var length := float(dims.get("length", 4.0))
+		var width := float(dims.get("width", 4.0))
+		var depth := float(dims.get("depth", 1.0))
+		_crater_features.append({
+			"center": Vector2(float(center_arr[0]), float(center_arr[1])),
+			"radius": max(max(length, width) * 0.5, 0.4),
+			"depth": clampf(depth * 0.22, 0.08, 1.2),
+			"rim_gain": 0.16,
+		})
+
+	# Layer-driven color palette for terrain shader.
+	var top_color := Color(0.32, 0.44, 0.24)
+	var sub_color := Color(0.45, 0.36, 0.28)
+	if not layers.is_empty():
+		top_color = _color_from_hex(str(layers[0].get("color", "")), top_color)
+	if layers.size() > 1:
+		sub_color = _color_from_hex(str(layers[1].get("color", "")), sub_color)
+
+	var dirt_color := top_color.darkened(0.28).lerp(sub_color, 0.55)
+	var grass_a := top_color.lightened(0.07)
+	var grass_b := top_color.lightened(0.16)
+	var grass_c := top_color.darkened(0.1)
+	var grass_d := top_color.darkened(0.2)
+
+	# Compute extra material weights from scenario profile
+	var mud_w := 0.0
+	var gravel_w := 0.0
+	var sand_w := 0.0
+
+	# Swamp/marsh scenarios: heavy mud
+	if name.contains("swamp") or name.contains("marsh") or desc.contains("waterlogged"):
+		mud_w = clampf(0.5 + wetness * 0.3, 0.0, 0.85)
+	elif wetness > 0.5:
+		mud_w = clampf((wetness - 0.5) * 1.2, 0.0, 0.6)
+
+	# Crater/UXO scenarios: gravel and rock debris
+	if is_crater or name.contains("debris") or desc.contains("scattered"):
+		gravel_w = clampf(0.35 + 0.2 * (1.0 - wetness), 0.0, 0.6)
+	elif metadata.has("crater"):
+		gravel_w = clampf(0.25, 0.0, 0.5)
+
+	# Sandy/coastal scenarios
+	if name.contains("sand") or desc.contains("sandy") or desc.contains("beach"):
+		sand_w = clampf(0.5 + 0.2 * (1.0 - wetness), 0.0, 0.8)
+
+	# Explicit overrides from environment_profile
+	if env_profile.has("mud_weight"):
+		mud_w = clampf(float(env_profile.get("mud_weight", mud_w)), 0.0, 1.0)
+	if env_profile.has("gravel_weight"):
+		gravel_w = clampf(float(env_profile.get("gravel_weight", gravel_w)), 0.0, 1.0)
+	if env_profile.has("sand_weight"):
+		sand_w = clampf(float(env_profile.get("sand_weight", sand_w)), 0.0, 1.0)
+
+	_shader_overrides = {
+		"grass_color_1": grass_a,
+		"grass_color_2": grass_b,
+		"grass_color_3": grass_c,
+		"grass_color_4": grass_d,
+		"dirt_color": dirt_color,
+		"dirt_color_alt": dirt_color.darkened(0.12),
+		"dirt_color_tan": dirt_color.lightened(0.14),
+		"moisture_strength": clampf(0.25 + wetness * 0.6, 0.2, 0.9),
+		"moisture_height_bias": lerpf(0.7, -0.6, wetness),
+		"grass_coverage": lerpf(0.58, 0.42, wetness),
+		"noise_scale": lerpf(3.4, 2.1, wetness),
+		"mud_weight": mud_w,
+		"gravel_weight": gravel_w,
+		"sand_weight": sand_w,
+	}
+
+
+func _color_from_hex(hex: String, fallback: Color) -> Color:
+	if hex.is_empty():
+		return fallback
+	return Color.from_string(hex, fallback)
+
+
+func _apply_shader_overrides(shader_mat: ShaderMaterial) -> void:
+	for key in _shader_overrides.keys():
+		shader_mat.set_shader_parameter(str(key), _shader_overrides[key])
+
+
+func _create_white_texture() -> ImageTexture:
+	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	img.fill(Color.WHITE)
+	return ImageTexture.create_from_image(img)
+
+
+func _create_flat_normal_texture() -> ImageTexture:
+	var img := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.5, 0.5, 1.0, 1.0))  # Flat normal pointing up
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural grass albedo (256x256 green noise with color variation).
+func _create_procedural_grass_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.02
+	n.seed = 100
+	var detail := FastNoiseLite.new()
+	detail.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	detail.frequency = 0.08
+	detail.seed = 200
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var dv := detail.get_noise_2d(x, y) * 0.15
+			var g := 0.35 + nv * 0.25 + dv
+			var r := 0.18 + nv * 0.12 + dv * 0.5
+			var b := 0.08 + nv * 0.06
+			img.set_pixel(x, y, Color(clampf(r, 0, 1), clampf(g, 0, 1), clampf(b, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural grass normal map.
+func _create_procedural_grass_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.04
+	n.seed = 300
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 2.0
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 2.0
+			img.set_pixel(x, y, Color(0.5 + dx * 0.4, 0.5 + dy * 0.4, 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural dirt albedo (brown noise with gravel detail).
+func _create_procedural_dirt_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.03
+	n.seed = 400
+	var gravel := FastNoiseLite.new()
+	gravel.noise_type = FastNoiseLite.TYPE_CELLULAR
+	gravel.frequency = 0.1
+	gravel.seed = 500
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var gv := gravel.get_noise_2d(x, y) * 0.1
+			var r := 0.38 + nv * 0.18 + gv
+			var g := 0.30 + nv * 0.14 + gv
+			var b := 0.20 + nv * 0.08 + gv
+			img.set_pixel(x, y, Color(clampf(r, 0, 1), clampf(g, 0, 1), clampf(b, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural rock albedo (gray cellular noise with cracks).
+func _create_procedural_rock_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_CELLULAR
+	n.frequency = 0.03
+	n.seed = 600
+	var crack := FastNoiseLite.new()
+	crack.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	crack.frequency = 0.06
+	crack.seed = 700
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var cv := absf(crack.get_noise_2d(x, y))
+			var base := 0.42 + nv * 0.18
+			# Darken cracks
+			if cv < 0.1:
+				base *= 0.7
+			img.set_pixel(x, y, Color(base, base * 0.97, base * 0.92))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural rock normal map with strong detail.
+func _create_procedural_rock_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_CELLULAR
+	n.frequency = 0.04
+	n.seed = 800
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 3.0
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 3.0
+			img.set_pixel(x, y, Color(
+				clampf(0.5 + dx * 0.4, 0, 1),
+				clampf(0.5 + dy * 0.4, 0, 1), 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural AO texture (grayscale crevice darkening).
+func _create_procedural_ao(seed_val: int) -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.05
+	n.seed = seed_val
+	var detail := FastNoiseLite.new()
+	detail.noise_type = FastNoiseLite.TYPE_CELLULAR
+	detail.frequency = 0.08
+	detail.seed = seed_val + 50
+	for y in range(size):
+		for x in range(size):
+			# Base AO mostly white (lit) with darkened crevices
+			var nv := n.get_noise_2d(x, y) * 0.15
+			var dv := detail.get_noise_2d(x, y) * 0.1
+			var ao := clampf(0.85 + nv + dv, 0.4, 1.0)
+			img.set_pixel(x, y, Color(ao, ao, ao))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural height map (grayscale surface displacement).
+func _create_procedural_height(seed_val: int, variation: float = 0.5) -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.04
+	n.fractal_octaves = 3
+	n.seed = seed_val
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var h := clampf(0.5 + (nv - 0.5) * variation * 2.0, 0.0, 1.0)
+			img.set_pixel(x, y, Color(h, h, h))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural mud albedo (dark wet brown with organic debris).
+func _create_procedural_mud_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.025
+	n.seed = 1400
+	var detail := FastNoiseLite.new()
+	detail.noise_type = FastNoiseLite.TYPE_CELLULAR
+	detail.frequency = 0.06
+	detail.seed = 1500
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var dv := detail.get_noise_2d(x, y) * 0.08
+			var r := 0.26 + nv * 0.12 + dv
+			var g := 0.19 + nv * 0.08 + dv
+			var b := 0.12 + nv * 0.05 + dv
+			img.set_pixel(x, y, Color(clampf(r, 0, 1), clampf(g, 0, 1), clampf(b, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural mud normal map.
+func _create_procedural_mud_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.03
+	n.seed = 1600
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 1.5
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 1.5
+			img.set_pixel(x, y, Color(
+				clampf(0.5 + dx * 0.35, 0, 1),
+				clampf(0.5 + dy * 0.35, 0, 1), 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural gravel albedo (mixed pebble colors with cellular detail).
+func _create_procedural_gravel_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_CELLULAR
+	n.frequency = 0.06
+	n.seed = 1700
+	var color_noise := FastNoiseLite.new()
+	color_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	color_noise.frequency = 0.04
+	color_noise.seed = 1800
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var cv := color_noise.get_noise_2d(x, y) * 0.12
+			var base := 0.40 + nv * 0.16 + cv
+			# Slight warm tint
+			var r := base * 1.03
+			var g := base * 1.0
+			var b := base * 0.94
+			img.set_pixel(x, y, Color(clampf(r, 0, 1), clampf(g, 0, 1), clampf(b, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural gravel normal map (high-frequency pebble bumps).
+func _create_procedural_gravel_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_CELLULAR
+	n.frequency = 0.07
+	n.seed = 1900
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 3.5
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 3.5
+			img.set_pixel(x, y, Color(
+				clampf(0.5 + dx * 0.4, 0, 1),
+				clampf(0.5 + dy * 0.4, 0, 1), 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural sand albedo (warm beige with fine grain).
+func _create_procedural_sand_albedo() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.04
+	n.seed = 2000
+	var grain := FastNoiseLite.new()
+	grain.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	grain.frequency = 0.15
+	grain.seed = 2100
+	for y in range(size):
+		for x in range(size):
+			var nv := n.get_noise_2d(x, y) * 0.5 + 0.5
+			var gv := grain.get_noise_2d(x, y) * 0.06
+			var r := 0.68 + nv * 0.12 + gv
+			var g := 0.60 + nv * 0.10 + gv
+			var b := 0.44 + nv * 0.08 + gv
+			img.set_pixel(x, y, Color(clampf(r, 0, 1), clampf(g, 0, 1), clampf(b, 0, 1)))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural sand normal map (fine ripple pattern).
+func _create_procedural_sand_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.05
+	n.seed = 2200
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 1.2
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 1.2
+			img.set_pixel(x, y, Color(
+				clampf(0.5 + dx * 0.3, 0, 1),
+				clampf(0.5 + dy * 0.3, 0, 1), 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural detail normal map (high-frequency micro-surface).
+func _create_procedural_detail_normal() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.08
+	n.fractal_octaves = 3
+	n.seed = 5000
+	for y in range(size):
+		for x in range(size):
+			var dx := (n.get_noise_2d(x + 1, y) - n.get_noise_2d(x - 1, y)) * 1.5
+			var dy := (n.get_noise_2d(x, y + 1) - n.get_noise_2d(x, y - 1)) * 1.5
+			img.set_pixel(x, y, Color(
+				clampf(0.5 + dx * 0.4, 0, 1),
+				clampf(0.5 + dy * 0.4, 0, 1), 1.0))
+	return ImageTexture.create_from_image(img)
+
+
+## Generate procedural roughness texture.
+func _create_procedural_roughness(base: float, variation: float, seed_val: int) -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var n := FastNoiseLite.new()
+	n.noise_type = FastNoiseLite.TYPE_SIMPLEX
+	n.frequency = 0.04
+	n.seed = seed_val
+	for y in range(size):
+		for x in range(size):
+			var v := clampf(base + n.get_noise_2d(x, y) * variation, 0.0, 1.0)
+			img.set_pixel(x, y, Color(v, v, v))
+	return ImageTexture.create_from_image(img)
+
+
+func _apply_pbr_textures(shader_mat: ShaderMaterial) -> void:
+	# Set procedural fallback textures (noise-based, much better than plain white)
+	# --- Grass ---
+	shader_mat.set_shader_parameter("grass_albedo", _create_procedural_grass_albedo())
+	shader_mat.set_shader_parameter("grass_normal", _create_procedural_grass_normal())
+	shader_mat.set_shader_parameter("grass_roughness_tex", _create_procedural_roughness(0.8, 0.15, 901))
+	shader_mat.set_shader_parameter("grass_ao", _create_procedural_ao(1001))
+	shader_mat.set_shader_parameter("grass_height", _create_procedural_height(1101, 0.6))
+	shader_mat.set_shader_parameter("grass_displacement", _create_procedural_height(1151, 0.4))
+	# --- Dirt ---
+	shader_mat.set_shader_parameter("dirt_albedo", _create_procedural_dirt_albedo())
+	shader_mat.set_shader_parameter("dirt_normal", _create_procedural_grass_normal())
+	shader_mat.set_shader_parameter("dirt_roughness_tex", _create_procedural_roughness(0.9, 0.1, 902))
+	shader_mat.set_shader_parameter("dirt_ao", _create_procedural_ao(1002))
+	shader_mat.set_shader_parameter("dirt_height", _create_procedural_height(1102, 0.4))
+	shader_mat.set_shader_parameter("dirt_displacement", _create_procedural_height(1152, 0.3))
+	# --- Rock ---
+	shader_mat.set_shader_parameter("rock_albedo", _create_procedural_rock_albedo())
+	shader_mat.set_shader_parameter("rock_normal", _create_procedural_rock_normal())
+	shader_mat.set_shader_parameter("rock_roughness_tex", _create_procedural_roughness(0.7, 0.2, 903))
+	shader_mat.set_shader_parameter("rock_ao", _create_procedural_ao(1003))
+	shader_mat.set_shader_parameter("rock_height", _create_procedural_height(1103, 0.5))
+	# --- Mud ---
+	shader_mat.set_shader_parameter("mud_albedo", _create_procedural_mud_albedo())
+	shader_mat.set_shader_parameter("mud_normal", _create_procedural_mud_normal())
+	shader_mat.set_shader_parameter("mud_roughness_tex", _create_procedural_roughness(0.4, 0.2, 904))
+	shader_mat.set_shader_parameter("mud_ao", _create_procedural_ao(1004))
+	shader_mat.set_shader_parameter("mud_height", _create_procedural_height(1104, 0.3))
+	# --- Gravel ---
+	shader_mat.set_shader_parameter("gravel_albedo", _create_procedural_gravel_albedo())
+	shader_mat.set_shader_parameter("gravel_normal", _create_procedural_gravel_normal())
+	shader_mat.set_shader_parameter("gravel_roughness_tex", _create_procedural_roughness(0.85, 0.15, 905))
+	shader_mat.set_shader_parameter("gravel_ao", _create_procedural_ao(1005))
+	shader_mat.set_shader_parameter("gravel_height", _create_procedural_height(1105, 0.7))
+	# --- Sand ---
+	shader_mat.set_shader_parameter("sand_albedo", _create_procedural_sand_albedo())
+	shader_mat.set_shader_parameter("sand_normal", _create_procedural_sand_normal())
+	shader_mat.set_shader_parameter("sand_roughness_tex", _create_procedural_roughness(0.7, 0.1, 906))
+	shader_mat.set_shader_parameter("sand_ao", _create_procedural_ao(1006))
+	shader_mat.set_shader_parameter("sand_height", _create_procedural_height(1106, 0.3))
+	# --- Detail ---
+	shader_mat.set_shader_parameter("detail_normal", _create_procedural_detail_normal())
+
+	# Try loading real PBR textures (null-safe — fallbacks remain if missing)
+	var texture_paths := {
+		"grass_albedo": "res://assets/textures/terrain/grass/Color.jpg",
+		"grass_normal": "res://assets/textures/terrain/grass/NormalGL.jpg",
+		"grass_roughness_tex": "res://assets/textures/terrain/grass/Roughness.jpg",
+		"grass_ao": "res://assets/textures/terrain/grass/AmbientOcclusion.jpg",
+		"grass_height": "res://assets/textures/terrain/grass/Displacement.jpg",
+		"grass_displacement": "res://assets/textures/terrain/grass/Displacement.jpg",
+		"dirt_albedo": "res://assets/textures/terrain/dirt/Color.jpg",
+		"dirt_normal": "res://assets/textures/terrain/dirt/NormalGL.jpg",
+		"dirt_roughness_tex": "res://assets/textures/terrain/dirt/Roughness.jpg",
+		"dirt_ao": "res://assets/textures/terrain/dirt/AmbientOcclusion.jpg",
+		"dirt_height": "res://assets/textures/terrain/dirt/Displacement.jpg",
+		"dirt_displacement": "res://assets/textures/terrain/dirt/Displacement.jpg",
+		"rock_albedo": "res://assets/textures/terrain/rock/Color.jpg",
+		"rock_normal": "res://assets/textures/terrain/rock/NormalGL.jpg",
+		"rock_roughness_tex": "res://assets/textures/terrain/rock/Roughness.jpg",
+		"rock_ao": "res://assets/textures/terrain/rock/AmbientOcclusion.jpg",
+		"rock_height": "res://assets/textures/terrain/rock/Displacement.jpg",
+		"mud_albedo": "res://assets/textures/terrain/mud/Color.jpg",
+		"mud_normal": "res://assets/textures/terrain/mud/NormalGL.jpg",
+		"mud_roughness_tex": "res://assets/textures/terrain/mud/Roughness.jpg",
+		"mud_ao": "res://assets/textures/terrain/mud/AmbientOcclusion.jpg",
+		"mud_height": "res://assets/textures/terrain/mud/Displacement.jpg",
+		"gravel_albedo": "res://assets/textures/terrain/gravel/Color.jpg",
+		"gravel_normal": "res://assets/textures/terrain/gravel/NormalGL.jpg",
+		"gravel_roughness_tex": "res://assets/textures/terrain/gravel/Roughness.jpg",
+		"gravel_ao": "res://assets/textures/terrain/gravel/AmbientOcclusion.jpg",
+		"gravel_height": "res://assets/textures/terrain/gravel/Displacement.jpg",
+		"sand_albedo": "res://assets/textures/terrain/sand/Color.jpg",
+		"sand_normal": "res://assets/textures/terrain/sand/NormalGL.jpg",
+		"sand_roughness_tex": "res://assets/textures/terrain/sand/Roughness.jpg",
+		"sand_ao": "res://assets/textures/terrain/sand/AmbientOcclusion.jpg",
+		"sand_height": "res://assets/textures/terrain/sand/Displacement.jpg",
+		"detail_normal": "res://assets/textures/terrain/detail_normal.jpg",
+	}
+
+	# Also try .png variants for each texture
+	for param_name in texture_paths:
+		var path: String = texture_paths[param_name]
+		if ResourceLoader.exists(path):
+			var tex = load(path)
+			if tex:
+				shader_mat.set_shader_parameter(param_name, tex)
+		else:
+			# Try .png extension
+			var png_path := path.get_basename() + ".png"
+			if ResourceLoader.exists(png_path):
+				var tex = load(png_path)
+				if tex:
+					shader_mat.set_shader_parameter(param_name, tex)

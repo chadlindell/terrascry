@@ -66,6 +66,8 @@ func _on_scenario_loaded(info: Dictionary) -> void:
 	# Get terrain reference for height queries
 	_terrain = get_parent().get_node_or_null("Terrain")
 
+	# Defer so terrain has rebuilt with crater features first
+	await get_tree().process_frame
 	_setup_grid(surface_elev)
 
 

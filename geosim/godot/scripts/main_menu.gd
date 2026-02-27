@@ -51,7 +51,7 @@ func _create_ui() -> void:
 
 	# Title
 	_title_label = Label.new()
-	_title_label.text = "GeoSim"
+	_title_label.text = "GeoSim Beta"
 	_title_label.add_theme_font_size_override("font_size", 48)
 	_title_label.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -19,6 +19,15 @@ var _tie_spacing_label: Label
 var _info_label: Label
 var _scenario_label: Label
 
+## Environment controls
+var _temp_slider: HSlider
+var _temp_label: Label
+var _moisture_slider: HSlider
+var _moisture_label: Label
+var _season_option: OptionButton
+var _weather_option: OptionButton
+var _ground_option: OptionButton
+
 ## Planned survey lines (Godot coordinates)
 var _planned_lines: Array = []
 
@@ -35,6 +44,8 @@ func _on_state_changed(new_state: SurveyManager.State) -> void:
 	if visible:
 		_update_instrument_options()
 		_update_plan_preview()
+		if _season_option and _season_option.selected == 0:
+			_load_scenario_defaults()
 
 
 func _create_ui() -> void:
@@ -204,6 +215,93 @@ func _create_ui() -> void:
 	_speed_label.add_theme_font_size_override("font_size", 14)
 	speed_row.add_child(_speed_label)
 
+	# ---- Conditions Section ----
+	var cond_sep := HSeparator.new()
+	settings_vbox.add_child(cond_sep)
+
+	var cond_title := Label.new()
+	cond_title.text = "Conditions"
+	cond_title.add_theme_font_size_override("font_size", 16)
+	cond_title.add_theme_color_override("font_color", Color(0.7, 0.8, 0.9))
+	settings_vbox.add_child(cond_title)
+
+	# Season preset
+	_add_section_label(settings_vbox, "Season Preset")
+	_season_option = OptionButton.new()
+	_season_option.add_item("Scenario Default", 0)
+	_season_option.add_item("Spring (12°C / 70%)", 1)
+	_season_option.add_item("Summer (22°C / 40%)", 2)
+	_season_option.add_item("Autumn (10°C / 75%)", 3)
+	_season_option.add_item("Winter (3°C / 85%)", 4)
+	_season_option.add_theme_font_size_override("font_size", 14)
+	_season_option.item_selected.connect(_on_season_changed)
+	settings_vbox.add_child(_season_option)
+
+	# Temperature
+	_add_section_label(settings_vbox, "Temperature (°C)")
+	var temp_row := HBoxContainer.new()
+	temp_row.add_theme_constant_override("separation", 10)
+	settings_vbox.add_child(temp_row)
+
+	_temp_slider = HSlider.new()
+	_temp_slider.min_value = -10.0
+	_temp_slider.max_value = 40.0
+	_temp_slider.step = 0.5
+	_temp_slider.value = 15.0
+	_temp_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_temp_slider.value_changed.connect(func(v): _temp_label.text = "%.1f°C" % v)
+	temp_row.add_child(_temp_slider)
+
+	_temp_label = Label.new()
+	_temp_label.text = "15.0°C"
+	_temp_label.custom_minimum_size.x = 70
+	_temp_label.add_theme_font_size_override("font_size", 14)
+	temp_row.add_child(_temp_label)
+
+	# Soil Moisture
+	_add_section_label(settings_vbox, "Soil Moisture (%)")
+	var moist_row := HBoxContainer.new()
+	moist_row.add_theme_constant_override("separation", 10)
+	settings_vbox.add_child(moist_row)
+
+	_moisture_slider = HSlider.new()
+	_moisture_slider.min_value = 0.0
+	_moisture_slider.max_value = 100.0
+	_moisture_slider.step = 1.0
+	_moisture_slider.value = 60.0
+	_moisture_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_moisture_slider.value_changed.connect(func(v): _moisture_label.text = "%.0f%%" % v)
+	moist_row.add_child(_moisture_slider)
+
+	_moisture_label = Label.new()
+	_moisture_label.text = "60%"
+	_moisture_label.custom_minimum_size.x = 60
+	_moisture_label.add_theme_font_size_override("font_size", 14)
+	moist_row.add_child(_moisture_label)
+
+	# Weather preset
+	_add_section_label(settings_vbox, "Weather")
+	_weather_option = OptionButton.new()
+	_weather_option.add_item("Dry", 0)
+	_weather_option.add_item("Light Rain (+20% moisture)", 1)
+	_weather_option.add_item("Heavy Rain (+40% moisture)", 2)
+	_weather_option.add_item("Frost (frozen ground)", 3)
+	_weather_option.add_theme_font_size_override("font_size", 14)
+	_weather_option.item_selected.connect(_on_weather_changed)
+	settings_vbox.add_child(_weather_option)
+
+	# Ground type override
+	_add_section_label(settings_vbox, "Ground Type")
+	_ground_option = OptionButton.new()
+	_ground_option.add_item("Scenario Default", 0)
+	_ground_option.add_item("Sandy", 1)
+	_ground_option.add_item("Loam", 2)
+	_ground_option.add_item("Clay", 3)
+	_ground_option.add_item("Peat", 4)
+	_ground_option.add_item("Volcanic", 5)
+	_ground_option.add_theme_font_size_override("font_size", 14)
+	settings_vbox.add_child(_ground_option)
+
 	# Right column: Plan info / preview
 	var info_panel := PanelContainer.new()
 	info_panel.custom_minimum_size.x = 300
@@ -328,6 +426,14 @@ func _update_plan_preview() -> void:
 		text += "\nOperator: Drone"
 		text += "\nFlight altitude: 2.0 m AGL"
 
+	# Environment conditions
+	if _temp_slider:
+		text += "\n\nConditions:"
+		text += "\nTemp: %.1f°C" % _temp_slider.value
+		text += "\nMoisture: %.0f%%" % _moisture_slider.value
+		if _weather_option.selected == 3:
+			text += "\nFrost: Yes"
+
 	_info_label.text = text
 
 	# Draw lines on terrain in main scene
@@ -344,6 +450,56 @@ func _update_plan_preview() -> void:
 		main.draw_survey_lines(godot_lines, surface_elev)
 
 
+func _on_season_changed(idx: int) -> void:
+	match idx:
+		1:  # Spring
+			_temp_slider.value = 12.0
+			_moisture_slider.value = 70.0
+		2:  # Summer
+			_temp_slider.value = 22.0
+			_moisture_slider.value = 40.0
+		3:  # Autumn
+			_temp_slider.value = 10.0
+			_moisture_slider.value = 75.0
+		4:  # Winter
+			_temp_slider.value = 3.0
+			_moisture_slider.value = 85.0
+		_:  # Scenario Default
+			_load_scenario_defaults()
+
+
+func _on_weather_changed(idx: int) -> void:
+	var base_moisture := _moisture_slider.value
+	match idx:
+		1:  # Light rain
+			_moisture_slider.value = minf(base_moisture + 20.0, 100.0)
+		2:  # Heavy rain
+			_moisture_slider.value = minf(base_moisture + 40.0, 100.0)
+
+
+func _load_scenario_defaults() -> void:
+	var env: Dictionary = SurveyManager.scenario_info.get("soil_environment", {})
+	if not env.is_empty():
+		_temp_slider.value = env.get("temperature_c", 15.0)
+		_moisture_slider.value = env.get("saturation", 0.6) * 100.0
+	else:
+		_temp_slider.value = 15.0
+		_moisture_slider.value = 60.0
+
+
+func _send_environment() -> void:
+	var env := {
+		"temperature_c": _temp_slider.value,
+		"saturation": _moisture_slider.value / 100.0,
+		"frozen": _weather_option.selected == 3,
+	}
+	# Ground type override
+	var ground_names := ["", "sandy", "loam", "clay", "peat", "volcanic"]
+	if _ground_option.selected > 0 and _ground_option.selected < ground_names.size():
+		env["ground_type"] = ground_names[_ground_option.selected]
+	PhysicsClient.set_environment(env)
+
+
 func _on_begin_survey() -> void:
 	# Store survey plan in SurveyManager
 	var inst_idx := _instrument_option.get_selected_id()
@@ -354,6 +510,9 @@ func _on_begin_survey() -> void:
 		else SurveyManager.OperatorMode.DRONE
 	SurveyManager.switch_operator(op_mode)
 
+	# Send environment conditions to physics server
+	_send_environment()
+
 	SurveyManager.survey_plan = {
 		"pattern": _get_pattern_name(),
 		"spacing": _spacing_slider.value,
@@ -363,6 +522,9 @@ func _on_begin_survey() -> void:
 		"tie_spacing": _tie_spacing_slider.value if _tie_check.button_pressed else 0.0,
 		"line_count": _planned_lines.size(),
 		"lines": _planned_lines,
+		"temperature_c": _temp_slider.value,
+		"saturation": _moisture_slider.value / 100.0,
+		"frozen": _weather_option.selected == 3,
 	}
 
 	# Configure operator speed

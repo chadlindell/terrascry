@@ -20,8 +20,9 @@ var _vco_phase := 0.0
 var _vco_sample_rate := 44100.0
 var _vco_current_freq := 220.0
 var _vco_current_volume := 0.0
-var _vco_reference_scale := 1e-7  # Reading value for full-scale (T)
-var _vco_noise_floor := 1e-9  # Below this, VCO is silent (T)
+var _vco_reference_scale := 1e-7  # Reading value for full-scale (instrument-dependent)
+var _vco_noise_floor := 1e-9  # Below this, VCO is quiet baseline
+var _vco_baseline_value := 0.0  # Subtracted before scaling (e.g. earth field for total-field)
 
 ## Audio players (flat — for non-spatial sounds)
 var _ambient_wind: AudioStreamPlayer
@@ -46,12 +47,16 @@ var _bird_timer := 0.0
 var _bird_next_interval := 3.0
 var _bird_variants: Array[AudioStream] = []
 var _bird_rng := RandomNumberGenerator.new()
+var _bird_interval_min := 2.0
+var _bird_interval_max := 8.0
 
 ## Insect chirp scheduling
 var _insect_timer := 0.0
 var _insect_next_interval := 7.0
 var _insect_variants: Array[AudioStream] = []
 var _insect_rng := RandomNumberGenerator.new()
+var _insect_interval_min := 5.0
+var _insect_interval_max := 15.0
 
 ## Terrain bounds for spatial placement
 var _terrain_extent_x := Vector2(0, 20)
@@ -59,6 +64,7 @@ var _terrain_extent_y := Vector2(0, 20)
 
 ## Wind base volume (for speed modulation)
 var _wind_base_db := -17.0
+var _birds_base_offset_db := 8.0
 
 ## State
 var _ambient_active := false
@@ -75,7 +81,7 @@ func _ready() -> void:
 	_setup_audio_buses()
 
 	# Create flat audio players (ambient wind/birds stay flat — they're environmental)
-	_ambient_wind = _create_player("AmbientWind", -12.0, "Ambience")
+	_ambient_wind = _create_player("AmbientWind", -22.0, "Ambience")
 	_ambient_birds = _create_player("AmbientBirds", -15.0, "Ambience")
 	_beep_player = _create_player("Beep", -10.0, "SFX")
 	_alert_player = _create_player("Alert", -8.0, "SFX")
@@ -95,6 +101,8 @@ func _ready() -> void:
 	# Connect to state changes
 	SurveyManager.state_changed.connect(_on_state_changed)
 	SurveyManager.scenario_loaded.connect(_on_scenario_loaded)
+	SurveyManager.instrument_changed.connect(_on_instrument_changed)
+	_update_vco_scaling(SurveyManager.current_instrument)
 
 
 func _process(delta: float) -> void:
@@ -113,14 +121,14 @@ func _process(delta: float) -> void:
 	_bird_timer += delta
 	if _bird_timer >= _bird_next_interval:
 		_bird_timer = 0.0
-		_bird_next_interval = _bird_rng.randf_range(2.0, 8.0)
+		_bird_next_interval = _bird_rng.randf_range(_bird_interval_min, _bird_interval_max)
 		_play_bird_chirp()
 
 	# Schedule insect chirps at random intervals
 	_insect_timer += delta
 	if _insect_timer >= _insect_next_interval:
 		_insect_timer = 0.0
-		_insect_next_interval = _insect_rng.randf_range(5.0, 15.0)
+		_insect_next_interval = _insect_rng.randf_range(_insect_interval_min, _insect_interval_max)
 		_play_insect_chirp()
 
 	# Modulate wind volume by operator speed
@@ -133,7 +141,7 @@ func _process(delta: float) -> void:
 				ref_val = SurveyManager.active_operator.get("max_speed")
 			var ref_speed: float = ref_val if ref_val != null else 1.5
 			var speed_factor := clampf(speed / maxf(ref_speed, 0.1), 0.0, 1.0)
-			_ambient_wind.volume_db = lerpf(-20.0, -9.0, speed_factor)
+			_ambient_wind.volume_db = lerpf(-28.0, -18.0, speed_factor)
 
 	# Update dynamic footstep interval based on speed (ground mode only)
 	var is_drone: bool = (SurveyManager.current_operator_mode == SurveyManager.OperatorMode.DRONE)
@@ -202,6 +210,81 @@ func _on_scenario_loaded(info: Dictionary) -> void:
 	var y_ext: Array = terrain_data.get("y_extent", [0, 20])
 	_terrain_extent_x = Vector2(x_ext[0], x_ext[1])
 	_terrain_extent_y = Vector2(y_ext[0], y_ext[1])
+
+	var layers: Array = terrain_data.get("layers", [])
+	var metadata: Dictionary = info.get("metadata", {})
+	var env_profile: Dictionary = info.get("environment_profile", {})
+	var name := str(info.get("name", "")).to_lower()
+	var desc := str(info.get("description", "")).to_lower()
+	var category := str(metadata.get("category", "")).to_lower()
+
+	var mean_cond := 0.05
+	if not layers.is_empty():
+		var sum_cond := 0.0
+		for layer in layers:
+			sum_cond += float(layer.get("conductivity", 0.05))
+		mean_cond = sum_cond / float(layers.size())
+
+	var wetness := clampf(mean_cond / 0.25, 0.0, 1.0)
+	if metadata.has("water_table_depth"):
+		var wt_depth := float(metadata.get("water_table_depth", 2.0))
+		wetness = clampf(wetness + clampf((1.0 - wt_depth) / 1.0, 0.0, 0.6), 0.0, 1.0)
+	if name.contains("swamp") or name.contains("marsh") or desc.contains("waterlogged"):
+		wetness = clampf(wetness + 0.35, 0.0, 1.0)
+	if env_profile.has("wetness"):
+		wetness = clampf(float(env_profile.get("wetness", wetness)), 0.0, 1.0)
+	var wind_intensity := clampf(float(env_profile.get("wind_intensity", wetness)), 0.0, 1.0)
+
+	_wind_base_db = lerpf(-26.0, -19.0, wind_intensity)
+	_birds_base_offset_db = lerpf(7.0, 10.0, wetness)
+	_bird_interval_min = lerpf(2.2, 4.8, wetness)
+	_bird_interval_max = lerpf(7.0, 12.0, wetness)
+	_insect_interval_min = lerpf(6.0, 2.8, wetness)
+	_insect_interval_max = lerpf(14.0, 8.0, wetness)
+	if category.contains("uxo") or name.contains("crater"):
+		_bird_interval_min += 2.0
+		_bird_interval_max += 4.0
+		_insect_interval_min += 1.0
+		_insect_interval_max += 2.0
+
+	if _ambient_birds:
+		_ambient_birds.volume_db = linear_to_db(ambient_volume) - _birds_base_offset_db
+
+
+func _on_instrument_changed(instrument: SurveyManager.Instrument) -> void:
+	_update_vco_scaling(instrument)
+	# Metal detector: auto-enable VCO — audio IS the primary instrument output
+	if instrument == SurveyManager.Instrument.METAL_DETECTOR:
+		if _ambient_active and not vco_enabled:
+			set_vco_enabled(true)
+
+
+func _update_vco_scaling(instrument: SurveyManager.Instrument) -> void:
+	## Set VCO reference scale and noise floor appropriate to the current instrument.
+	## Each instrument produces readings in different units and magnitudes.
+	match instrument:
+		SurveyManager.Instrument.MAG_GRADIOMETER:
+			# Gradient in T/m: anomalies ~1e-9 to 1e-6 T/m
+			_vco_reference_scale = 5e-8
+			_vco_noise_floor = 5e-10
+			_vco_baseline_value = 0.0
+		SurveyManager.Instrument.METAL_DETECTOR:
+			# ΔT in T: ground-balanced anomaly, already zero-centered
+			# Typical anomalies: 1-1000 nT near targets
+			_vco_reference_scale = 1e-7  # 100 nT full scale
+			_vco_noise_floor = 1e-10  # sub-nT noise
+			_vco_baseline_value = 0.0  # ΔT is already zero-centered
+		SurveyManager.Instrument.EM_FDEM:
+			# EM response (real part): values ~1e-5 to 1e-3
+			_vco_reference_scale = 5e-4
+			_vco_noise_floor = 1e-5
+			_vco_baseline_value = 0.0
+		SurveyManager.Instrument.RESISTIVITY:
+			# Apparent resistivity in ohm-m: background ~100, anomaly drops to ~0-50
+			# Sonify deviation from background (100 - reading)
+			_vco_reference_scale = 50.0
+			_vco_noise_floor = 2.0
+			_vco_baseline_value = 0.0  # Special handling in update_vco_reading
 
 
 func _create_player(player_name: String, volume_db: float, bus_name: String = "Master") -> AudioStreamPlayer:
@@ -273,7 +356,7 @@ func start_ambient() -> void:
 		_ambient_wind.volume_db = _wind_base_db
 		_ambient_wind.play()
 	if _ambient_birds.stream:
-		_ambient_birds.volume_db = linear_to_db(ambient_volume) - 8.0
+		_ambient_birds.volume_db = linear_to_db(ambient_volume) - _birds_base_offset_db
 		_ambient_birds.play()
 
 
@@ -402,29 +485,45 @@ func set_vco_enabled(enabled: bool) -> void:
 		_vco_phase = 0.0
 
 
-## Update VCO frequency and volume from a reading value (in Tesla).
+## VCO modulation state for metal detector warble
+var _vco_warble_phase := 0.0
+var _vco_signal_level := 0.0  # 0-1 normalized signal strength
+
+
+## Update VCO frequency and volume from a sensor reading.
+## The reading is in instrument-native units; scaling is set by _update_vco_scaling().
 func update_vco_reading(reading: float) -> void:
 	if not vco_enabled:
 		return
 
-	var abs_reading := absf(reading)
+	# Subtract baseline (e.g. earth field for total-field metal detector)
+	var anomaly := absf(reading - _vco_baseline_value)
 
-	# Volume envelope: silent below noise floor, ramp up above
-	if abs_reading < _vco_noise_floor:
-		_vco_current_volume = -80.0
+	# For resistivity: sonify deviation from background (~100 ohm-m)
+	if SurveyManager.current_instrument == SurveyManager.Instrument.RESISTIVITY:
+		anomaly = absf(100.0 - reading)
+
+	_vco_signal_level = clampf(anomaly / _vco_reference_scale, 0.0, 1.0)
+
+	# Volume envelope: quiet baseline hum, ramps up with signal strength
+	if anomaly < _vco_noise_floor:
+		_vco_current_volume = -28.0  # Quiet baseline hum
 	else:
-		# Linear ramp from -30dB to -6dB
-		var level := clampf(abs_reading / _vco_reference_scale, 0.0, 1.0)
-		_vco_current_volume = lerpf(-30.0, -6.0, level)
+		_vco_current_volume = lerpf(-22.0, -6.0, _vco_signal_level)
 
-	# Frequency mapping: 3-octave logarithmic sweep (A3 220Hz to A6 1760Hz)
-	var normalized := clampf(abs_reading / _vco_reference_scale, 0.0, 1.0)
-	_vco_current_freq = 220.0 * pow(2.0, 3.0 * normalized)
+	# Metal detector: narrower range (80-440 Hz), other instruments use wider range
+	if SurveyManager.current_instrument == SurveyManager.Instrument.METAL_DETECTOR:
+		# 80 Hz baseline hum → 440 Hz near target (~2.5 octaves)
+		_vco_current_freq = 80.0 * pow(2.0, 2.46 * _vco_signal_level)
+	else:
+		# Other instruments: 2-octave range (150-600 Hz)
+		var normalized := clampf(anomaly / _vco_reference_scale, 0.0, 1.0)
+		_vco_current_freq = 150.0 * pow(2.0, 2.0 * normalized)
 
 	_vco_player.volume_db = _vco_current_volume
 
 
-## Fill the VCO audio buffer with a sine wave at current frequency.
+## Fill the VCO audio buffer with instrument-appropriate waveform.
 func _fill_vco_buffer() -> void:
 	if not _vco_playback:
 		return
@@ -434,17 +533,45 @@ func _fill_vco_buffer() -> void:
 		return
 
 	var increment := _vco_current_freq / _vco_sample_rate
+	var is_metal_det: bool = (SurveyManager.current_instrument == SurveyManager.Instrument.METAL_DETECTOR)
+
+	# Warble rate increases with signal: 3-12 Hz modulation
+	var warble_rate := lerpf(3.0, 12.0, _vco_signal_level)
+	var warble_inc := warble_rate / _vco_sample_rate
+	# Warble depth: subtle at low signal, pronounced near target
+	var warble_depth := lerpf(0.02, 0.15, _vco_signal_level)
 
 	for i in range(frames_available):
-		var sample := sin(_vco_phase * TAU) * 0.5
+		var sample: float
+		if is_metal_det:
+			# Metal detector: sawtooth-ish waveform (fundamental + harmonics)
+			# gives the characteristic "buzzy" tone of real VLF detectors
+			var phase_val := _vco_phase * TAU
+			# Fundamental + odd harmonics (band-limited to avoid aliasing)
+			sample = sin(phase_val) * 0.45
+			sample += sin(phase_val * 2.0) * 0.18  # 2nd harmonic
+			sample += sin(phase_val * 3.0) * 0.12  # 3rd harmonic
+			sample += sin(phase_val * 5.0) * 0.05  # 5th harmonic
+
+			# Amplitude warble (tremolo) — the characteristic "wah-wah"
+			var warble := 1.0 - warble_depth * (0.5 + 0.5 * sin(_vco_warble_phase * TAU))
+			sample *= warble
+		else:
+			# Other instruments: cleaner sine tone
+			sample = sin(_vco_phase * TAU) * 0.5
+
 		_vco_playback.push_frame(Vector2(sample, sample))
 		_vco_phase = fmod(_vco_phase + increment, 1.0)
+		_vco_warble_phase = fmod(_vco_warble_phase + warble_inc, 1.0)
 
 
 func _on_state_changed(new_state: SurveyManager.State) -> void:
 	match new_state:
 		SurveyManager.State.SURVEYING, SurveyManager.State.HIRT_SURVEY:
 			start_ambient()
+			# Auto-enable VCO for metal detector — audio IS the instrument
+			if SurveyManager.current_instrument == SurveyManager.Instrument.METAL_DETECTOR:
+				set_vco_enabled(true)
 		SurveyManager.State.PAUSED:
 			stop_ambient()
 			# Pause VCO but don't disable (resume will restart)
@@ -643,13 +770,12 @@ func _generate_wind_ambient() -> AudioStreamWAV:
 
 		var mid_gusts := mid_band * gust_env * 0.5
 
-		# === Band 3: High hiss (> 800 Hz, always present but subtle) ===
+		# === Band 3: High hiss (> 800 Hz, very subtle) ===
 		var white3 := wind_rng.randf() * 2.0 - 1.0
-		# Simple high-pass via differentiation
-		var high_hiss := white3 * 0.08
+		var high_hiss := white3 * 0.02  # Greatly reduced from 0.08
 
-		# Combined
-		var sample := (low_bed + mid_gusts + high_hiss) * 0.8
+		# Combined — lower overall gain
+		var sample := (low_bed + mid_gusts + high_hiss) * 0.45
 
 		var s16 := int(clampf(sample, -1.0, 1.0) * 32000.0)
 		data[i * 2] = s16 & 0xFF

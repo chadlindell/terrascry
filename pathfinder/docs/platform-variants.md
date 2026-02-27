@@ -237,12 +237,61 @@ The Pathfinder electronics board and 1-2 sensor pairs mounted below a multirotor
 
 **Critical differences from handheld**:
 
-1. **Magnetic interference**: Drone motors produce strong magnetic fields. Sensors must be towed on a 1-2 m cable/rod below the drone, or mounted on a rigid boom with magnetic compensation.
+1. **Magnetic interference**: Drone motors produce strong magnetic fields. Sensors must be towed on a 1-2 m cable/rod below the drone, or mounted on a rigid boom with magnetic compensation. See the **Drone Motor EMI Analysis** section below for quantitative justification of standoff distances.
 2. **Reduced detection depth**: Higher altitude (2-5 m AGL vs 0.15 m) means weaker gradient signal. Shallow targets (<30 cm) may be undetectable. Drone gradiometry is best for medium-large ferrous targets.
 3. **RTK GPS is essential**: At 3 m/s flight speed, 2-5 m GPS error makes data unmappable. ZED-F9P RTK (Tier 3-4) is required.
 4. **No pace beeper**: Disable in config. Drone follows pre-programmed flight path.
 5. **Higher sample rate**: At 3 m/s, 10 Hz gives 30 cm sample spacing. Consider `SAMPLE_RATE_HZ=20` or higher.
 6. **Weight budget**: Every gram matters. Remove buzzer, LED, harness. Use lighter battery or draw from drone BEC.
+
+#### Drone Motor EMI Analysis {#drone-emi-analysis}
+
+The 1-2 m standoff recommendation above requires physics justification. Brushless drone motors contain permanent magnets that produce static and rotating magnetic fields detectable by the fluxgate sensors. This analysis quantifies the interference at various standoff distances.
+
+**Brushless motor magnetic field at distance:**
+
+Each brushless motor contains a ring of permanent magnets with a net magnetic dipole moment. For typical drone motors (2212-2814 size class), the effective magnetic moment is approximately 0.1-0.5 A-m^2 **(Modeled)**. The field from a magnetic dipole decays as 1/r^3:
+
+| Standoff Distance | Single Motor Field | 4 Motors (worst case, coherent) |
+|-------------------|-------------------|-------------------------------|
+| 0.5 m | 80-400 nT | 320-1600 nT |
+| 1.0 m | 10-50 nT | 40-200 nT |
+| 1.5 m | 3-15 nT | 12-60 nT |
+| 2.0 m | 1-6 nT | 4-24 nT |
+| 3.0 m | 0.3-1.5 nT | 1.2-6 nT |
+
+All values **(Modeled)**, calculated from B = (mu_0 / 4*pi) * m / r^3 where m = 0.1-0.5 A-m^2. The 4-motor worst case assumes all motor fields add coherently (in phase), which overestimates the actual interference since motor orientations partially cancel.
+
+**Gradiometer gradient contribution:**
+
+For a gradiometer with 0.35 m vertical baseline at standoff distance d from the motors, the gradient contribution from motor interference is:
+
+- Field gradient from motors: dB/dz = 3m / (r^4) x (mu_0 / 4*pi), which simplifies to approximately 3 * B(r) / r
+- At 2.0 m standoff: gradient = ~1-4 nT over the 0.35 m baseline **(Modeled)**
+- At 3.0 m standoff: gradient = ~0.2-1 nT over the 0.35 m baseline **(Modeled)**
+
+**Comparison with noise floor and target signals:**
+
+| Metric | Value |
+|--------|-------|
+| Pathfinder gradient noise floor | ~0.5 nT (see [noise-analysis.md](noise-analysis.md)) |
+| Motor gradient at 1 m standoff | ~10-40 nT **(Modeled)** |
+| Motor gradient at 2 m standoff | ~1-4 nT **(Modeled)** |
+| Motor gradient at 3 m standoff | ~0.2-1 nT **(Modeled)** |
+| 500 lb bomb at 1.5 m depth (from 2 m AGL) | ~5-15 nT **(Modeled)** |
+| Small iron object at 1 m depth (from 2 m AGL) | ~2-8 nT **(Modeled)** |
+
+**Conclusions and recommendations:**
+
+- **1 m standoff is insufficient** for most survey work. Motor interference (10-40 nT gradient) exceeds most target signals and cannot be reliably separated from geological anomalies **(Modeled)**.
+- **2 m standoff reduces motor interference to ~1-4 nT gradient**, which is above the noise floor (~0.5 nT) but below most target signals from medium-large ferrous objects. Adequate for detecting large UXO and strong ferrous anomalies **(Modeled)**.
+- **3 m or greater standoff is recommended for detecting weak anomalies** such as small iron objects or fired clay features. At 3 m, motor interference drops to ~0.2-1 nT, approaching the noise floor **(Modeled)**.
+
+**ESC switching noise (additional concern):**
+
+Electronic speed controllers (ESCs) switch motor coils at 8-48 kHz with significant current spikes (10-30 A transients). This broadband electromagnetic noise is harder to characterize analytically than the static motor fields because it depends on ESC design, PWM frequency, motor inductance, and cable routing. The switching noise is periodic but not sinusoidal, producing harmonics across a wide frequency band.
+
+ESC noise is partially mitigated by the 1/r^3 distance decay and by the gradiometer's common-mode rejection (both sensors see similar ESC noise if the standoff is much larger than the baseline). However, **empirical testing with the specific drone platform is strongly recommended before operational deployment**. A simple bench test --- recording Pathfinder data with the drone motors running at survey throttle at various distances --- would quantify the actual interference and validate or refine the standoff recommendations above.
 
 **Build command**: `pio run -e nano_drone`
 

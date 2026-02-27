@@ -155,6 +155,24 @@ class TestRunScenarioSurvey:
         )
         assert len(data_zz["timestamp"]) > len(data_st["timestamp"])
 
+    def test_extended_artifacts_written(self, tmp_path):
+        """Telemetry CSV and survey summary JSON are exported by default."""
+        csv_path = tmp_path / "survey.csv"
+        data = run_scenario_survey(
+            SCENARIOS_DIR / "single-ferrous-target.json",
+            csv_path,
+            seed=42,
+        )
+        assert "telemetry_csv" in data
+        assert "summary_json" in data
+        assert "labels_csv" in data
+        assert "session_json" in data
+        assert Path(data["telemetry_csv"]).exists()
+        assert Path(data["summary_json"]).exists()
+        assert Path(data["labels_csv"]).exists()
+        assert Path(data["session_json"]).exists()
+        assert "anomaly_candidates" in data
+
 
 class TestScenarioSpecificSurveys:
     """Parametrized tests over all 4 scenario files."""
@@ -214,3 +232,70 @@ class TestScenarioSpecificSurveys:
             assert y_min <= obj.position[1] <= y_max, (
                 f"{obj.name}: y={obj.position[1]} outside [{y_min}, {y_max}]"
             )
+
+    def test_scenario_has_hirt_config(self, scenario_path):
+        """All scenarios have a HIRT configuration."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None, (
+            f"{scenario.name}: missing hirt_config"
+        )
+
+    def test_hirt_has_at_least_two_probes(self, scenario_path):
+        """HIRT config has at least 2 probes for crosshole measurement."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None
+        assert len(scenario.hirt_config.probes) >= 2, (
+            f"{scenario.name}: only {len(scenario.hirt_config.probes)} probes"
+        )
+
+    def test_hirt_probe_positions_within_terrain(self, scenario_path):
+        """HIRT probe positions are within terrain bounds."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None
+        x_min, x_max = scenario.terrain.x_extent
+        y_min, y_max = scenario.terrain.y_extent
+        for i, probe in enumerate(scenario.hirt_config.probes):
+            px, py = probe.position[0], probe.position[1]
+            assert x_min <= px <= x_max, (
+                f"{scenario.name} probe {i}: x={px} outside [{x_min}, {x_max}]"
+            )
+            assert y_min <= py <= y_max, (
+                f"{scenario.name} probe {i}: y={py} outside [{y_min}, {y_max}]"
+            )
+
+    def test_hirt_ring_depths_within_probe_length(self, scenario_path):
+        """Ring electrode depths don't exceed probe length."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None
+        for i, probe in enumerate(scenario.hirt_config.probes):
+            for depth in probe.ring_depths:
+                assert depth <= probe.length, (
+                    f"{scenario.name} probe {i}: ring depth {depth} > "
+                    f"probe length {probe.length}"
+                )
+
+    def test_hirt_coil_depths_within_probe_length(self, scenario_path):
+        """EM coil depths don't exceed probe length."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None
+        for i, probe in enumerate(scenario.hirt_config.probes):
+            for depth in probe.coil_depths:
+                assert depth <= probe.length, (
+                    f"{scenario.name} probe {i}: coil depth {depth} > "
+                    f"probe length {probe.length}"
+                )
+
+    def test_hirt_has_frequencies(self, scenario_path):
+        """HIRT config has at least one operating frequency."""
+        scenario = load_scenario(scenario_path)
+        assert scenario.hirt_config is not None
+        assert len(scenario.hirt_config.frequencies) >= 1, (
+            f"{scenario.name}: no HIRT frequencies defined"
+        )
+
+    def test_scenario_has_anomaly_zones(self, scenario_path):
+        """All scenarios have at least one anomaly zone."""
+        scenario = load_scenario(scenario_path)
+        assert len(scenario.anomaly_zones) >= 1, (
+            f"{scenario.name}: no anomaly zones defined"
+        )

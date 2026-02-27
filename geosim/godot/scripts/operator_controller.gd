@@ -24,13 +24,23 @@ extends CharacterBody3D
 @export var gravity := 9.8
 
 ## Acceleration ramp (simulates carrying heavy survey equipment)
-@export var accel_time := 0.3  # seconds to reach walk_speed
+@export var accel_time := 0.5  # seconds to reach walk_speed (heavy equipment)
 
-## Head bob parameters (gait noise)
+## Head bob parameters (footstep-responsive, not continuous sine)
 @export var head_bob_enabled := true
 @export var head_bob_frequency := 2.0  # Hz (step frequency)
-@export var head_bob_amplitude := 0.02  # meters
-@export var head_bob_lateral := 0.008  # meters (lateral sway amplitude)
+@export var head_bob_amplitude := 0.025  # meters
+@export var head_bob_lateral := 0.01  # meters (lateral sway amplitude)
+
+## Camera smoothing (less twitchy mouse feel)
+@export var view_smoothing := 0.15  # Lerp factor for view rotation
+
+## Idle sway (breathing-like micro-movement when stationary)
+@export var idle_sway_amplitude := 0.003  # meters
+@export var idle_sway_frequency := 0.3  # Hz
+
+## Terrain response
+@export var slope_speed_factor := 0.85  # Speed multiplier on slopes
 
 ## Current readings
 var current_gradient := 0.0
@@ -110,14 +120,34 @@ func _ready() -> void:
 	_dust_particles = _create_dust_particles()
 	add_child(_dust_particles)
 
-	# Build visible survey instrument
-	_build_pathfinder_model()
+	# Build visible survey instrument for current instrument
+	_switch_instrument_model(SurveyManager.current_instrument)
+	SurveyManager.instrument_changed.connect(_on_instrument_changed)
 
-	# Load survey lines from plan
+	# Load survey lines from plan (may be empty at _ready; reloaded on survey start)
+	_load_survey_plan()
+	SurveyManager.survey_started.connect(_on_survey_started)
+
+
+func _load_survey_plan() -> void:
 	if not SurveyManager.survey_plan.is_empty():
 		_survey_lines = SurveyManager.survey_plan.get("lines", [])
 		_target_speed = SurveyManager.survey_plan.get("speed_target", 1.5)
 		walk_speed = _target_speed
+		_current_line_index = 0
+
+
+func _on_instrument_changed(instrument: SurveyManager.Instrument) -> void:
+	_switch_instrument_model(instrument)
+
+
+func _on_survey_started() -> void:
+	_load_survey_plan()
+	survey_start_time = Time.get_ticks_msec() / 1000.0
+	var names := []
+	for inst in SurveyManager.available_instruments:
+		names.append(SurveyManager.Instrument.keys()[inst])
+	print("[Operator] Survey started. Available instruments: %s" % [names])
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -126,8 +156,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Mouse look (only when captured)
 	if event is InputEventMouseMotion and _mouse_captured:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		$Camera3D.rotate_x(-event.relative.y * mouse_sensitivity)
+		var yaw: float = -event.relative.x * mouse_sensitivity
+		var pitch: float = -event.relative.y * mouse_sensitivity
+		# Apply view smoothing for less twitchy camera
+		rotate_y(lerpf(0.0, yaw, 1.0 - view_smoothing))
+		$Camera3D.rotate_x(lerpf(0.0, pitch, 1.0 - view_smoothing))
 		$Camera3D.rotation.x = clamp($Camera3D.rotation.x, -PI / 4, PI / 4)
 
 	# Click recaptures mouse (after resume from pause)
@@ -184,6 +217,13 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0, accel_rate * 2.0 * delta)
 		velocity.z = move_toward(velocity.z, 0, accel_rate * 2.0 * delta)
 
+	# Terrain response: slow down on slopes
+	if is_on_floor():
+		var floor_normal := get_floor_normal()
+		var slope_factor := clampf(floor_normal.y, slope_speed_factor, 1.0)
+		velocity.x *= slope_factor
+		velocity.z *= slope_factor
+
 	move_and_slide()
 
 	# Clamp to terrain boundaries
@@ -218,8 +258,12 @@ func _physics_process(delta: float) -> void:
 				_dust_particles.emitting = true
 		_head_bob_prev_sign = current_sign
 	else:
-		$Camera3D.position.y = eye_height
-		$Camera3D.position.x = 0.0
+		# Idle sway: subtle breathing-like micro-movement when stationary
+		var idle_time := Time.get_ticks_msec() / 1000.0
+		var idle_y := sin(idle_time * idle_sway_frequency * TAU) * idle_sway_amplitude
+		var idle_x := sin(idle_time * idle_sway_frequency * TAU * 0.7) * idle_sway_amplitude * 0.5
+		$Camera3D.position.y = eye_height + idle_y
+		$Camera3D.position.x = idle_x
 		_head_bob_timer = 0.0
 
 	# Instrument sway (loose grip simulation)
@@ -269,7 +313,15 @@ func _query_physics() -> void:
 
 	# Convert to GeoSim coordinates
 	var gs := CoordUtil.to_geosim(sensor_world)
-	var sensor_pos := [gs.x, gs.y, surface_elevation + sensor_height]
+	# Sensor height depends on instrument: metal detector coil sweeps near ground,
+	# Pathfinder boom is higher, EM/ERT are at ground contact
+	var inst_height := sensor_height  # default (Pathfinder: 0.175m)
+	match SurveyManager.current_instrument:
+		SurveyManager.Instrument.METAL_DETECTOR:
+			inst_height = 0.04  # coil ~4cm above ground
+		SurveyManager.Instrument.RESISTIVITY:
+			inst_height = 0.0  # ground contact electrodes
+	var sensor_pos := [gs.x, gs.y, surface_elevation + inst_height]
 
 	var start_ms := Time.get_ticks_msec()
 	var result: Dictionary
@@ -278,10 +330,30 @@ func _query_physics() -> void:
 	match SurveyManager.current_instrument:
 		SurveyManager.Instrument.MAG_GRADIOMETER:
 			result = await PhysicsClient.query_gradient([sensor_pos])
+		SurveyManager.Instrument.METAL_DETECTOR:
+			# Ground-balanced differential total-field anomaly ΔT
+			result = await PhysicsClient.query_metal_detector([sensor_pos])
 		SurveyManager.Instrument.EM_FDEM:
-			result = await PhysicsClient.query_em_response([sensor_pos])
+			# Use middle frequency from scenario HIRT config if available
+			var freq := 10000.0
+			var hirt_cfg: Dictionary = SurveyManager.scenario_info.get("hirt_config", {})
+			if hirt_cfg is Dictionary:
+				var freqs: Array = hirt_cfg.get("frequencies", [])
+				if not freqs.is_empty():
+					freq = freqs[freqs.size() / 2]
+			result = await PhysicsClient.query_em_response([sensor_pos], freq)
 		SurveyManager.Instrument.RESISTIVITY:
-			result = await PhysicsClient.query_apparent_resistivity([sensor_pos], [[0, 1, 2, 3]])
+			# Wenner array: 4 electrodes in-line, spacing a=0.5m centered on sensor
+			var fwd := -transform.basis.z.normalized()
+			var gs_fwd := Vector3(fwd.x, fwd.z, 0.0).normalized()
+			var a := 0.5
+			var electrodes := [
+				[gs.x - 1.5 * a * gs_fwd.x, gs.y - 1.5 * a * gs_fwd.y, surface_elevation],
+				[gs.x - 0.5 * a * gs_fwd.x, gs.y - 0.5 * a * gs_fwd.y, surface_elevation],
+				[gs.x + 0.5 * a * gs_fwd.x, gs.y + 0.5 * a * gs_fwd.y, surface_elevation],
+				[gs.x + 1.5 * a * gs_fwd.x, gs.y + 1.5 * a * gs_fwd.y, surface_elevation],
+			]
+			result = await PhysicsClient.query_apparent_resistivity(electrodes, [[0, 1, 2, 3]])
 		_:
 			result = await PhysicsClient.query_gradient([sensor_pos])
 
@@ -296,6 +368,11 @@ func _query_physics() -> void:
 				var grad_data: Array = raw_data.get("gradient", [0.0])
 				if grad_data.size() > 0:
 					reading = grad_data[0]
+			SurveyManager.Instrument.METAL_DETECTOR:
+				# Ground-balanced ΔT from query_metal_detector
+				var delta_t: Array = raw_data.get("delta_t", [0.0])
+				if delta_t.size() > 0:
+					reading = delta_t[0]
 			SurveyManager.Instrument.EM_FDEM:
 				var resp_real: Array = raw_data.get("response_real", [0.0])
 				if resp_real.size() > 0:
@@ -304,6 +381,46 @@ func _query_physics() -> void:
 				var rho: Array = raw_data.get("apparent_resistivity", [0.0])
 				if rho.size() > 0:
 					reading = rho[0]
+
+		# Pass enriched instrument data to HUD
+		var hud_inst := _get_hud()
+		if hud_inst and hud_inst.has_method("update_instrument_data"):
+			var inst_data := {}
+			# Metal detector enriched fields
+			var tid_arr: Array = raw_data.get("target_id", [])
+			if tid_arr.size() > 0:
+				inst_data["target_id"] = tid_arr[0]
+			var depth_arr: Array = raw_data.get("depth_estimate", [])
+			if depth_arr.size() > 0:
+				inst_data["depth_estimate"] = depth_arr[0]
+			var gml_arr: Array = raw_data.get("ground_mineral_level", [])
+			if gml_arr.size() > 0:
+				inst_data["ground_mineral_level"] = gml_arr[0]
+			var fr_arr: Array = raw_data.get("ferrous_ratio", [])
+			if fr_arr.size() > 0:
+				inst_data["ferrous_ratio"] = fr_arr[0]
+			# Gradiometer per-channel data
+			var pc_arr: Array = raw_data.get("per_channel", [])
+			if pc_arr.size() > 0:
+				inst_data["per_channel"] = pc_arr[0]
+			var adc_arr: Array = raw_data.get("adc_counts", [])
+			if adc_arr.size() > 0:
+				inst_data["adc_counts"] = adc_arr[0]
+			# EM FDEM enriched fields
+			var re_arr: Array = raw_data.get("response_real", [])
+			if re_arr.size() > 0:
+				inst_data["response_real"] = re_arr[0]
+			var im_arr: Array = raw_data.get("response_imag", [])
+			if im_arr.size() > 0:
+				inst_data["response_imag"] = im_arr[0]
+			var em_freq = raw_data.get("frequency", 0.0)
+			if em_freq is float and em_freq > 0:
+				inst_data["em_frequency"] = em_freq
+			# ERT enriched fields
+			var rho_arr: Array = raw_data.get("apparent_resistivity", [])
+			if rho_arr.size() > 0:
+				inst_data["apparent_resistivity"] = rho_arr[0]
+			hud_inst.update_instrument_data(inst_data)
 
 		# Sensor latency buffer
 		_reading_buffer.append(reading)
@@ -354,12 +471,22 @@ func _query_physics() -> void:
 
 	# Update instrument display shader with per-sensor readings
 	if _display_shader_mat:
-		# Distribute reading across 4 sensor pairs with slight variation
-		var base_nT := current_gradient * 1e9
-		_display_readings[0] = clampf(abs(base_nT * 0.8) / 100.0, 0.0, 1.0)
-		_display_readings[1] = clampf(abs(base_nT * 1.1) / 100.0, 0.0, 1.0)
-		_display_readings[2] = clampf(abs(base_nT * 0.95) / 100.0, 0.0, 1.0)
-		_display_readings[3] = clampf(abs(base_nT * 1.05) / 100.0, 0.0, 1.0)
+		# Normalize reading to 0-1 range based on instrument
+		var normalized: float
+		match SurveyManager.current_instrument:
+			SurveyManager.Instrument.MAG_GRADIOMETER, SurveyManager.Instrument.METAL_DETECTOR:
+				normalized = abs(current_gradient * 1e9) / 100.0  # 100 nT = full scale
+			SurveyManager.Instrument.EM_FDEM:
+				normalized = abs(current_gradient * 1e6) / 1000.0  # 1000 ppm = full scale
+			SurveyManager.Instrument.RESISTIVITY:
+				normalized = abs(100.0 - current_gradient) / 100.0  # deviation from background
+			_:
+				normalized = abs(current_gradient * 1e9) / 100.0
+		# Distribute across 4 sensor pairs with slight variation
+		_display_readings[0] = clampf(normalized * 0.8, 0.0, 1.0)
+		_display_readings[1] = clampf(normalized * 1.1, 0.0, 1.0)
+		_display_readings[2] = clampf(normalized * 0.95, 0.0, 1.0)
+		_display_readings[3] = clampf(normalized * 1.05, 0.0, 1.0)
 		_display_shader_mat.set_shader_parameter("reading0", _display_readings[0])
 		_display_shader_mat.set_shader_parameter("reading1", _display_readings[1])
 		_display_shader_mat.set_shader_parameter("reading2", _display_readings[2])
@@ -520,6 +647,33 @@ func _create_dust_particles() -> GPUParticles3D:
 	return particles
 
 
+func _switch_instrument_model(instrument: SurveyManager.Instrument) -> void:
+	## Remove old instrument rig and build the correct one for the active instrument.
+	print("[Operator] Switching to instrument: %s" % SurveyManager.Instrument.keys()[instrument])
+
+	if _instrument_rig:
+		_instrument_rig.queue_free()
+		_instrument_rig = null
+	_display_node = null
+	_display_shader_mat = null
+	_led_recording = null
+
+	match instrument:
+		SurveyManager.Instrument.MAG_GRADIOMETER:
+			_build_pathfinder_model()
+		SurveyManager.Instrument.METAL_DETECTOR:
+			_build_metal_detector_model()
+		SurveyManager.Instrument.EM_FDEM:
+			_build_em_fdem_model()
+		SurveyManager.Instrument.RESISTIVITY:
+			_build_ert_model()
+		_:
+			_build_pathfinder_model()
+
+	if _instrument_rig:
+		_instrument_rig.visible = _instrument_visible
+
+
 func _build_pathfinder_model() -> void:
 	## Procedurally build an accurate Pathfinder gradiometer model.
 	## Real instrument: 2m vertical boom, 1.5m horizontal cross-arm with
@@ -527,8 +681,8 @@ func _build_pathfinder_model() -> void:
 	## baseline per pair. Bottom sensors at 0.175m from ground.
 	_instrument_rig = Node3D.new()
 	_instrument_rig.name = "InstrumentRig"
-	# Position: slightly right of center (right-handed carry), forward
-	_instrument_rig.position = Vector3(0.15, 0, -0.3)
+	# Position: right-handed carry, pushed forward from camera
+	_instrument_rig.position = Vector3(0.25, 0, -0.6)
 	add_child(_instrument_rig)
 
 	# --- Realistic PBR materials ---
@@ -781,6 +935,411 @@ void fragment() {
 	_led_recording = led_amber
 	led_amber.material_override = led_amber_mat
 	_instrument_rig.add_child(led_amber)
+
+
+func _build_metal_detector_model() -> void:
+	## Procedural metal detector: S-shaped shaft from armrest down to flat search
+	## coil near ground. Control box with display behind coil. Minelab Equinox style.
+	_instrument_rig = Node3D.new()
+	_instrument_rig.name = "InstrumentRig"
+	_instrument_rig.position = Vector3(0.35, 0, -0.55)
+	add_child(_instrument_rig)
+
+	var shaft_mat := StandardMaterial3D.new()
+	shaft_mat.albedo_color = Color(0.15, 0.15, 0.17)
+	shaft_mat.roughness = 0.3
+	shaft_mat.metallic = 0.2
+
+	var coil_mat := StandardMaterial3D.new()
+	coil_mat.albedo_color = Color(0.12, 0.12, 0.14)
+	coil_mat.roughness = 0.5
+	coil_mat.metallic = 0.08
+
+	var housing_mat := StandardMaterial3D.new()
+	housing_mat.albedo_color = Color(0.08, 0.08, 0.10)
+	housing_mat.roughness = 0.5
+	housing_mat.metallic = 0.05
+
+	var accent_mat := StandardMaterial3D.new()
+	accent_mat.albedo_color = Color(0.75, 0.5, 0.0)
+	accent_mat.roughness = 0.35
+	accent_mat.metallic = 0.25
+
+	var rubber_mat := StandardMaterial3D.new()
+	rubber_mat.albedo_color = Color(0.18, 0.16, 0.14)
+	rubber_mat.roughness = 0.85
+
+	# Upper shaft — from grip area down at an angle
+	var upper_shaft := MeshInstance3D.new()
+	var upper_shaft_mesh := CylinderMesh.new()
+	upper_shaft_mesh.top_radius = 0.013
+	upper_shaft_mesh.bottom_radius = 0.013
+	upper_shaft_mesh.height = 0.55
+	upper_shaft.mesh = upper_shaft_mesh
+	upper_shaft.position = Vector3(0, 0.78, -0.08)
+	upper_shaft.rotation.x = deg_to_rad(8)
+	upper_shaft.material_override = shaft_mat
+	_instrument_rig.add_child(upper_shaft)
+
+	# Lower shaft — steeper angle reaching to the coil
+	var lower_shaft := MeshInstance3D.new()
+	var lower_shaft_mesh := CylinderMesh.new()
+	lower_shaft_mesh.top_radius = 0.013
+	lower_shaft_mesh.bottom_radius = 0.012
+	lower_shaft_mesh.height = 0.60
+	lower_shaft.mesh = lower_shaft_mesh
+	lower_shaft.position = Vector3(0, 0.30, -0.35)
+	lower_shaft.rotation.x = deg_to_rad(35)
+	lower_shaft.material_override = shaft_mat
+	_instrument_rig.add_child(lower_shaft)
+
+	# Search coil — flat disc (the key shape for a metal detector)
+	var coil_disc := MeshInstance3D.new()
+	var disc_mesh := CylinderMesh.new()
+	disc_mesh.top_radius = 0.14
+	disc_mesh.bottom_radius = 0.14
+	disc_mesh.height = 0.018
+	disc_mesh.radial_segments = 24
+	coil_disc.mesh = disc_mesh
+	coil_disc.position = Vector3(0, 0.04, -0.62)
+	coil_disc.material_override = coil_mat
+	_instrument_rig.add_child(coil_disc)
+
+	# Coil rim — raised edge ring around the disc
+	var coil_rim := MeshInstance3D.new()
+	var rim_mesh := CylinderMesh.new()
+	rim_mesh.top_radius = 0.15
+	rim_mesh.bottom_radius = 0.15
+	rim_mesh.height = 0.022
+	rim_mesh.radial_segments = 24
+	coil_rim.mesh = rim_mesh
+	coil_rim.position = Vector3(0, 0.04, -0.62)
+	coil_rim.material_override = housing_mat
+	_instrument_rig.add_child(coil_rim)
+
+	# Coil centre hub — connects shaft to coil
+	var hub := MeshInstance3D.new()
+	var hub_mesh := CylinderMesh.new()
+	hub_mesh.top_radius = 0.025
+	hub_mesh.bottom_radius = 0.018
+	hub_mesh.height = 0.04
+	hub.mesh = hub_mesh
+	hub.position = Vector3(0, 0.065, -0.62)
+	hub.material_override = shaft_mat
+	_instrument_rig.add_child(hub)
+
+	# Skid plate — thin protective base under coil
+	var skid := MeshInstance3D.new()
+	var skid_mesh := CylinderMesh.new()
+	skid_mesh.top_radius = 0.135
+	skid_mesh.bottom_radius = 0.135
+	skid_mesh.height = 0.004
+	skid_mesh.radial_segments = 24
+	skid.mesh = skid_mesh
+	skid.position = Vector3(0, 0.027, -0.62)
+	var skid_mat := StandardMaterial3D.new()
+	skid_mat.albedo_color = Color(0.2, 0.2, 0.2)
+	skid_mat.roughness = 0.7
+	skid.material_override = skid_mat
+	_instrument_rig.add_child(skid)
+
+	# Control box — behind the shaft joint (pod style)
+	var control_box := MeshInstance3D.new()
+	var box_mesh := BoxMesh.new()
+	box_mesh.size = Vector3(0.07, 0.055, 0.04)
+	control_box.mesh = box_mesh
+	control_box.position = Vector3(0, 0.95, 0.025)
+	control_box.material_override = housing_mat
+	_instrument_rig.add_child(control_box)
+
+	# Display screen on control box
+	_display_node = MeshInstance3D.new()
+	_display_node.name = "Display"
+	var disp_mesh := BoxMesh.new()
+	disp_mesh.size = Vector3(0.045, 0.022, 0.003)
+	_display_node.mesh = disp_mesh
+	_display_node.position = Vector3(0, 0.975, 0.048)
+	var disp_mat := StandardMaterial3D.new()
+	disp_mat.albedo_color = Color(0.1, 0.25, 0.1)
+	disp_mat.emission_enabled = true
+	disp_mat.emission = Color(0.15, 0.4, 0.15)
+	disp_mat.emission_energy_multiplier = 1.5
+	_display_node.material_override = disp_mat
+	_instrument_rig.add_child(_display_node)
+
+	# Armrest cuff
+	var armrest := MeshInstance3D.new()
+	var arm_mesh := BoxMesh.new()
+	arm_mesh.size = Vector3(0.06, 0.08, 0.04)
+	armrest.mesh = arm_mesh
+	armrest.position = Vector3(0, 1.08, 0.03)
+	armrest.material_override = accent_mat
+	_instrument_rig.add_child(armrest)
+
+	# Armrest pad (rubber)
+	var arm_pad := MeshInstance3D.new()
+	var pad_mesh := BoxMesh.new()
+	pad_mesh.size = Vector3(0.055, 0.075, 0.008)
+	arm_pad.mesh = pad_mesh
+	arm_pad.position = Vector3(0, 1.08, 0.052)
+	arm_pad.material_override = rubber_mat
+	_instrument_rig.add_child(arm_pad)
+
+	# Grip section (rubber-wrapped)
+	var grip := MeshInstance3D.new()
+	var grip_mesh := CylinderMesh.new()
+	grip_mesh.top_radius = 0.017
+	grip_mesh.bottom_radius = 0.017
+	grip_mesh.height = 0.10
+	grip.mesh = grip_mesh
+	grip.position = Vector3(0, 0.95, 0)
+	grip.material_override = rubber_mat
+	_instrument_rig.add_child(grip)
+
+
+func _build_em_fdem_model() -> void:
+	## Procedural EM (FDEM) instrument: handheld unit with Tx/Rx coil booms,
+	## similar to GEM-2 or EM31. Horizontal boom with two coils on ends,
+	## hip-mounted data logger.
+	_instrument_rig = Node3D.new()
+	_instrument_rig.name = "InstrumentRig"
+	_instrument_rig.position = Vector3(0.25, 0, -0.55)
+	add_child(_instrument_rig)
+
+	var boom_mat := StandardMaterial3D.new()
+	boom_mat.albedo_color = Color(0.85, 0.82, 0.65)
+	boom_mat.roughness = 0.4
+	boom_mat.metallic = 0.05
+
+	var coil_mat := StandardMaterial3D.new()
+	coil_mat.albedo_color = Color(0.2, 0.2, 0.25)
+	coil_mat.roughness = 0.35
+	coil_mat.metallic = 0.15
+
+	var logger_mat := StandardMaterial3D.new()
+	logger_mat.albedo_color = Color(0.1, 0.1, 0.12)
+	logger_mat.roughness = 0.5
+	logger_mat.metallic = 0.05
+
+	var cable_mat := StandardMaterial3D.new()
+	cable_mat.albedo_color = Color(0.06, 0.06, 0.08)
+	cable_mat.roughness = 0.6
+
+	# Horizontal boom (1.8m long, carried at hip)
+	var boom := MeshInstance3D.new()
+	var boom_mesh := CylinderMesh.new()
+	boom_mesh.top_radius = 0.016
+	boom_mesh.bottom_radius = 0.016
+	boom_mesh.height = 1.8
+	boom.mesh = boom_mesh
+	boom.rotation.z = deg_to_rad(90)
+	boom.position = Vector3(0, 0.85, 0)
+	boom.material_override = boom_mat
+	_instrument_rig.add_child(boom)
+
+	# Transmitter coil (front end)
+	var tx_coil := MeshInstance3D.new()
+	var tx_mesh := TorusMesh.new()
+	tx_mesh.inner_radius = 0.06
+	tx_mesh.outer_radius = 0.10
+	tx_coil.mesh = tx_mesh
+	tx_coil.position = Vector3(-0.9, 0.85, 0)
+	tx_coil.rotation.z = deg_to_rad(90)
+	tx_coil.material_override = coil_mat
+	_instrument_rig.add_child(tx_coil)
+
+	# Tx label disc
+	var tx_cap := MeshInstance3D.new()
+	var tx_cap_mesh := CylinderMesh.new()
+	tx_cap_mesh.top_radius = 0.055
+	tx_cap_mesh.bottom_radius = 0.055
+	tx_cap_mesh.height = 0.005
+	tx_cap.mesh = tx_cap_mesh
+	tx_cap.position = Vector3(-0.9, 0.85, 0)
+	tx_cap.material_override = logger_mat
+	_instrument_rig.add_child(tx_cap)
+
+	# Receiver coil (back end)
+	var rx_coil := MeshInstance3D.new()
+	var rx_mesh := TorusMesh.new()
+	rx_mesh.inner_radius = 0.06
+	rx_mesh.outer_radius = 0.10
+	rx_coil.mesh = rx_mesh
+	rx_coil.position = Vector3(0.9, 0.85, 0)
+	rx_coil.rotation.z = deg_to_rad(90)
+	rx_coil.material_override = coil_mat
+	_instrument_rig.add_child(rx_coil)
+
+	# Rx cap
+	var rx_cap := MeshInstance3D.new()
+	var rx_cap_mesh := CylinderMesh.new()
+	rx_cap_mesh.top_radius = 0.055
+	rx_cap_mesh.bottom_radius = 0.055
+	rx_cap_mesh.height = 0.005
+	rx_cap.mesh = rx_cap_mesh
+	rx_cap.position = Vector3(0.9, 0.85, 0)
+	rx_cap.material_override = logger_mat
+	_instrument_rig.add_child(rx_cap)
+
+	# Grip handle (center)
+	var grip := MeshInstance3D.new()
+	var grip_mesh := CylinderMesh.new()
+	grip_mesh.top_radius = 0.020
+	grip_mesh.bottom_radius = 0.020
+	grip_mesh.height = 0.15
+	grip.mesh = grip_mesh
+	grip.position = Vector3(0, 0.85, 0)
+	var grip_mat := StandardMaterial3D.new()
+	grip_mat.albedo_color = Color(0.18, 0.16, 0.14)
+	grip_mat.roughness = 0.85
+	grip.material_override = grip_mat
+	_instrument_rig.add_child(grip)
+
+	# Carry strap hook
+	var strap := MeshInstance3D.new()
+	var strap_mesh := TorusMesh.new()
+	strap_mesh.inner_radius = 0.008
+	strap_mesh.outer_radius = 0.016
+	strap.mesh = strap_mesh
+	strap.position = Vector3(0, 0.94, 0)
+	strap.material_override = coil_mat
+	_instrument_rig.add_child(strap)
+
+	# Data logger box (hip-mounted)
+	var logger := MeshInstance3D.new()
+	var logger_mesh := BoxMesh.new()
+	logger_mesh.size = Vector3(0.12, 0.08, 0.04)
+	logger.mesh = logger_mesh
+	logger.position = Vector3(0.3, 0.95, 0.06)
+	logger.material_override = logger_mat
+	_instrument_rig.add_child(logger)
+
+	# Logger display
+	_display_node = MeshInstance3D.new()
+	_display_node.name = "Display"
+	var disp_mesh := BoxMesh.new()
+	disp_mesh.size = Vector3(0.07, 0.04, 0.003)
+	_display_node.mesh = disp_mesh
+	_display_node.position = Vector3(0.3, 0.97, 0.082)
+	var disp_mat := StandardMaterial3D.new()
+	disp_mat.albedo_color = Color(0.1, 0.2, 0.3)
+	disp_mat.emission_enabled = true
+	disp_mat.emission = Color(0.1, 0.3, 0.5)
+	disp_mat.emission_energy_multiplier = 1.5
+	_display_node.material_override = disp_mat
+	_instrument_rig.add_child(_display_node)
+
+	# Cable from boom to logger
+	var cable := MeshInstance3D.new()
+	var cable_mesh := CylinderMesh.new()
+	cable_mesh.top_radius = 0.003
+	cable_mesh.bottom_radius = 0.003
+	cable_mesh.height = 0.35
+	cable.mesh = cable_mesh
+	cable.position = Vector3(0.15, 0.90, 0.03)
+	cable.rotation.z = deg_to_rad(60)
+	cable.material_override = cable_mat
+	_instrument_rig.add_child(cable)
+
+
+func _build_ert_model() -> void:
+	## Procedural ERT instrument: rugged yellow field unit carried at waist,
+	## simple and clean. Simulates a Syscal Kid or similar resistivity meter.
+	_instrument_rig = Node3D.new()
+	_instrument_rig.name = "InstrumentRig"
+	_instrument_rig.position = Vector3(0.30, 0, -0.50)
+	add_child(_instrument_rig)
+
+	var box_mat := StandardMaterial3D.new()
+	box_mat.albedo_color = Color(0.85, 0.65, 0.08)
+	box_mat.roughness = 0.5
+	box_mat.metallic = 0.1
+
+	var metal_mat := StandardMaterial3D.new()
+	metal_mat.albedo_color = Color(0.5, 0.5, 0.52)
+	metal_mat.roughness = 0.3
+	metal_mat.metallic = 0.6
+
+	var rubber_mat := StandardMaterial3D.new()
+	rubber_mat.albedo_color = Color(0.12, 0.12, 0.12)
+	rubber_mat.roughness = 0.8
+
+	# Main control unit box
+	var main_box := MeshInstance3D.new()
+	var main_mesh := BoxMesh.new()
+	main_mesh.size = Vector3(0.22, 0.14, 0.08)
+	main_box.mesh = main_mesh
+	main_box.position = Vector3(0, 0.9, 0)
+	main_box.material_override = box_mat
+	_instrument_rig.add_child(main_box)
+
+	# Rubber corner bumpers (just top and bottom edges)
+	for y_off in [-0.07, 0.07]:
+		var bumper := MeshInstance3D.new()
+		var b_mesh := BoxMesh.new()
+		b_mesh.size = Vector3(0.23, 0.012, 0.09)
+		bumper.mesh = b_mesh
+		bumper.position = Vector3(0, 0.9 + y_off, 0)
+		bumper.material_override = rubber_mat
+		_instrument_rig.add_child(bumper)
+
+	# Display panel on front
+	_display_node = MeshInstance3D.new()
+	_display_node.name = "Display"
+	var disp_mesh := BoxMesh.new()
+	disp_mesh.size = Vector3(0.10, 0.05, 0.003)
+	_display_node.mesh = disp_mesh
+	_display_node.position = Vector3(0, 0.93, 0.042)
+	var disp_mat := StandardMaterial3D.new()
+	disp_mat.albedo_color = Color(0.08, 0.12, 0.22)
+	disp_mat.emission_enabled = true
+	disp_mat.emission = Color(0.1, 0.2, 0.4)
+	disp_mat.emission_energy_multiplier = 1.5
+	_display_node.material_override = disp_mat
+	_instrument_rig.add_child(_display_node)
+
+	# Carry handle
+	var handle := MeshInstance3D.new()
+	var handle_mesh := CylinderMesh.new()
+	handle_mesh.top_radius = 0.008
+	handle_mesh.bottom_radius = 0.008
+	handle_mesh.height = 0.14
+	handle.mesh = handle_mesh
+	handle.rotation.z = deg_to_rad(90)
+	handle.position = Vector3(0, 0.99, 0)
+	handle.material_override = rubber_mat
+	_instrument_rig.add_child(handle)
+
+	# 4 colored banana-plug terminals on front face
+	var terminal_colors := [Color(1.0, 0.1, 0.1), Color(0.9, 0.9, 0.1),
+		Color(0.1, 0.6, 1.0), Color(0.1, 0.8, 0.1)]
+	for i in range(4):
+		var terminal := MeshInstance3D.new()
+		var term_mesh := CylinderMesh.new()
+		term_mesh.top_radius = 0.005
+		term_mesh.bottom_radius = 0.005
+		term_mesh.height = 0.010
+		terminal.mesh = term_mesh
+		terminal.position = Vector3(-0.06 + float(i) * 0.04, 0.86, 0.042)
+		terminal.rotation.x = deg_to_rad(90)
+		var t_mat := StandardMaterial3D.new()
+		t_mat.albedo_color = terminal_colors[i]
+		t_mat.roughness = 0.3
+		t_mat.metallic = 0.4
+		terminal.material_override = t_mat
+		_instrument_rig.add_child(terminal)
+
+	# Rotary dial
+	var knob := MeshInstance3D.new()
+	var knob_mesh := CylinderMesh.new()
+	knob_mesh.top_radius = 0.010
+	knob_mesh.bottom_radius = 0.011
+	knob_mesh.height = 0.006
+	knob.mesh = knob_mesh
+	knob.rotation.x = deg_to_rad(90)
+	knob.position = Vector3(-0.08, 0.93, 0.042)
+	knob.material_override = metal_mat
+	_instrument_rig.add_child(knob)
 
 
 ## Reset all survey recording state.

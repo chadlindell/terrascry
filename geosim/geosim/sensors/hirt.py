@@ -19,7 +19,9 @@ Coordinate convention:
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +34,7 @@ from geosim.em.fdem import (
 from geosim.em.skin_depth import skin_depth
 from geosim.resistivity.electrodes import ElectrodeArray, hirt_default_electrodes
 from geosim.resistivity.ert import ert_forward
-from geosim.scenarios.loader import ProbeConfig
+from geosim.scenarios.loader import AnomalyZone, ProbeConfig
 
 # ---------------------------------------------------------------------------
 # Dataclasses
@@ -134,6 +136,12 @@ class HIRTSurveyConfig:
     ert_noise_floor: float = 0.02
     enable_fdem: bool = True
     enable_ert: bool = True
+    mit_tx_current_mA: float = 10.0
+    ert_current_mA: float = 1.0
+    mit_settle_ms: int = 10
+    ert_settle_ms: int = 50
+    adc_averaging: int = 16
+    reciprocity_target_pct: float = 5.0
 
     def __post_init__(self):
         if self.coil_set is None:
@@ -168,14 +176,29 @@ def probe_to_global(
     pos = np.asarray(probe_config.position, dtype=np.float64)
     local_z = np.asarray(probe_local_z, dtype=np.float64)
 
+    tilt_deg = float(getattr(probe_config, "tilt_deg", 0.0) or 0.0)
+    azimuth_deg = float(getattr(probe_config, "azimuth_deg", 0.0) or 0.0)
+    is_angled = str(getattr(probe_config, "orientation", "vertical")).lower() == "angled"
+    if is_angled or abs(tilt_deg) > 1e-9:
+        tilt = np.deg2rad(tilt_deg)
+        az = np.deg2rad(azimuth_deg)
+        # Depth direction vector, tilt measured from vertical, azimuth clockwise from North.
+        depth_dir = np.array([
+            np.sin(tilt) * np.sin(az),  # +X east
+            np.sin(tilt) * np.cos(az),  # +Y north
+            -np.cos(tilt),              # +depth is downward in global Z
+        ], dtype=np.float64)
+    else:
+        depth_dir = np.array([0.0, 0.0, -1.0], dtype=np.float64)
+
     if local_z.ndim == 0:
-        return np.array([pos[0], pos[1], pos[2] - float(local_z)])
+        return pos + depth_dir * float(local_z)
 
     n = len(local_z)
     result = np.empty((n, 3))
-    result[:, 0] = pos[0]
-    result[:, 1] = pos[1]
-    result[:, 2] = pos[2] - local_z
+    result[:, 0] = pos[0] + depth_dir[0] * local_z
+    result[:, 1] = pos[1] + depth_dir[1] * local_z
+    result[:, 2] = pos[2] + depth_dir[2] * local_z
     return result
 
 
@@ -187,6 +210,7 @@ def generate_fdem_measurements(
     probe_configs: list[ProbeConfig],
     coil_set: ProbeCoilSet,
     frequencies: list[float],
+    include_intra_probe: bool = True,
 ) -> list[FDEMMeasurement]:
     """Build ordered FDEM measurement sequence.
 
@@ -206,6 +230,8 @@ def generate_fdem_measurements(
         Coil geometry (TX/RX definitions with positions from probe bottom).
     frequencies : list[float]
         Operating frequencies in Hz.
+    include_intra_probe : bool
+        Include TX/RX combinations within the same probe (legacy mode).
 
     Returns
     -------
@@ -216,28 +242,55 @@ def generate_fdem_measurements(
     receivers = coil_set.receivers
     measurements: list[FDEMMeasurement] = []
 
-    def _coil_global(coil, probe):
+    # Optional per-probe depth overrides from scenario hirt_config.probes[*].coil_depths.
+    # Depth values are expected relative to probe top, matching ProbeConfig semantics.
+    probe_depth_overrides: dict[int, dict[int, float]] = {}
+    n_coils = len(coil_set.coils)
+    for probe_idx, probe in enumerate(probe_configs):
+        if not probe.coil_depths:
+            continue
+        if len(probe.coil_depths) != n_coils:
+            raise ValueError(
+                f"Probe {probe_idx} has {len(probe.coil_depths)} coil_depths, "
+                f"but coil_set defines {n_coils} coils."
+            )
+        override: dict[int, float] = {}
+        for coil_idx, depth_from_top in enumerate(probe.coil_depths):
+            d = float(depth_from_top)
+            if d < 0 or d > probe.length:
+                raise ValueError(
+                    f"Probe {probe_idx} coil depth {d}m is outside probe length {probe.length}m."
+                )
+            override[coil_idx] = d
+        probe_depth_overrides[probe_idx] = override
+
+    def _coil_global(coil, probe_idx: int, probe):
         """Convert coil position (from probe bottom) to global coords."""
-        depth_from_top = probe.length - coil.position
+        coil_idx = coil_set.coils.index(coil)
+        if probe_idx in probe_depth_overrides:
+            depth_from_top = probe_depth_overrides[probe_idx][coil_idx]
+        else:
+            depth_from_top = probe.length - coil.position
         return probe_to_global(depth_from_top, probe)
 
-    # Intra-probe: TX and RX in the same probe
-    for probe_idx, probe in enumerate(probe_configs):
-        for tx in transmitters:
-            tx_pos = _coil_global(tx, probe)
-            for rx in receivers:
-                rx_pos = _coil_global(rx, probe)
-                separation = float(np.linalg.norm(tx_pos - rx_pos))
-                for freq in frequencies:
-                    measurements.append(FDEMMeasurement(
-                        tx_index=coil_set.coils.index(tx),
-                        rx_index=coil_set.coils.index(rx),
-                        probe_pair=(probe_idx, probe_idx),
-                        frequency=freq,
-                        tx_position=tx_pos.copy(),
-                        rx_position=rx_pos.copy(),
-                        coil_separation=separation,
-                    ))
+    # Intra-probe: TX and RX in the same probe (legacy mode).
+    if include_intra_probe:
+        for probe_idx, probe in enumerate(probe_configs):
+            for tx in transmitters:
+                tx_pos = _coil_global(tx, probe_idx, probe)
+                for rx in receivers:
+                    rx_pos = _coil_global(rx, probe_idx, probe)
+                    separation = float(np.linalg.norm(tx_pos - rx_pos))
+                    for freq in frequencies:
+                        measurements.append(FDEMMeasurement(
+                            tx_index=coil_set.coils.index(tx),
+                            rx_index=coil_set.coils.index(rx),
+                            probe_pair=(probe_idx, probe_idx),
+                            frequency=freq,
+                            tx_position=tx_pos.copy(),
+                            rx_position=rx_pos.copy(),
+                            coil_separation=separation,
+                        ))
 
     # Cross-probe: TX in one probe, RX in another
     n_probes = len(probe_configs)
@@ -248,9 +301,9 @@ def generate_fdem_measurements(
             probe_tx = probe_configs[pi]
             probe_rx = probe_configs[pj]
             for tx in transmitters:
-                tx_pos = _coil_global(tx, probe_tx)
+                tx_pos = _coil_global(tx, pi, probe_tx)
                 for rx in receivers:
-                    rx_pos = _coil_global(rx, probe_rx)
+                    rx_pos = _coil_global(rx, pj, probe_rx)
                     separation = float(np.linalg.norm(tx_pos - rx_pos))
                     for freq in frequencies:
                         measurements.append(FDEMMeasurement(
@@ -316,24 +369,54 @@ def generate_ert_measurements(
 
     measurements: list[ERTMeasurement] = []
 
-    if array_type == "crosshole" and len(probe_configs) >= 2:
-        for probe_idx in range(2):
-            elecs = electrodes_by_probe[probe_idx]
-            other_idx = 1 - probe_idx
-            other_elecs = electrodes_by_probe[other_idx]
+    if array_type == "crosshole":
+        if len(probe_configs) < 2:
+            return measurements
 
-            # Adjacent pairs in each borehole
-            c_pairs = [
-                (elecs[i], elecs[i + 1])
-                for i in range(len(elecs) - 1)
-            ]
-            p_pairs = [
-                (other_elecs[i], other_elecs[i + 1])
-                for i in range(len(other_elecs) - 1)
-            ]
+        # Ordered probe pairs implement the TX/RX style matrix: i -> j for i != j.
+        for c_probe_idx, elecs in electrodes_by_probe.items():
+            c_pairs = [(elecs[i], elecs[i + 1]) for i in range(len(elecs) - 1)]
+            if not c_pairs:
+                continue
 
-            for c1, c2 in c_pairs:
-                for p1, p2 in p_pairs:
+            for p_probe_idx, other_elecs in electrodes_by_probe.items():
+                if p_probe_idx == c_probe_idx:
+                    continue
+                p_pairs = [
+                    (other_elecs[i], other_elecs[i + 1])
+                    for i in range(len(other_elecs) - 1)
+                ]
+                if not p_pairs:
+                    continue
+
+                for c1, c2 in c_pairs:
+                    for p1, p2 in p_pairs:
+                        measurements.append(ERTMeasurement(
+                            c1_index=c1['global_index'],
+                            c2_index=c2['global_index'],
+                            p1_index=p1['global_index'],
+                            p2_index=p2['global_index'],
+                            c1_position=c1['position'].copy(),
+                            c2_position=c2['position'].copy(),
+                            p1_position=p1['position'].copy(),
+                            p2_position=p2['position'].copy(),
+                            c1_label=c1['label'],
+                            c2_label=c2['label'],
+                            p1_label=p1['label'],
+                            p2_label=p2['label'],
+                        ))
+    elif array_type == "wenner":
+        # Local single-borehole Wenner quadruples:
+        # C1 - P1 - P2 - C2 with equal spacing a.
+        for elecs in electrodes_by_probe.values():
+            n = len(elecs)
+            for a in range(1, max(1, n // 3 + 1)):
+                max_start = n - 3 * a
+                for i in range(max_start):
+                    c1 = elecs[i]
+                    p1 = elecs[i + a]
+                    p2 = elecs[i + 2 * a]
+                    c2 = elecs[i + 3 * a]
                     measurements.append(ERTMeasurement(
                         c1_index=c1['global_index'],
                         c2_index=c2['global_index'],
@@ -348,6 +431,38 @@ def generate_ert_measurements(
                         p1_label=p1['label'],
                         p2_label=p2['label'],
                     ))
+    elif array_type == "dipole-dipole":
+        # Local single-borehole dipole-dipole:
+        # C1-C2 is one dipole (length a), P1-P2 is a second dipole with separation n*a.
+        for elecs in electrodes_by_probe.values():
+            n = len(elecs)
+            for a in range(1, max(1, n // 4 + 1)):
+                for n_sep in range(1, 4):
+                    max_start = n - (n_sep + 2) * a
+                    for i in range(max_start):
+                        c1 = elecs[i]
+                        c2 = elecs[i + a]
+                        p1 = elecs[i + (n_sep + 1) * a]
+                        p2 = elecs[i + (n_sep + 2) * a]
+                        measurements.append(ERTMeasurement(
+                            c1_index=c1['global_index'],
+                            c2_index=c2['global_index'],
+                            p1_index=p1['global_index'],
+                            p2_index=p2['global_index'],
+                            c1_position=c1['position'].copy(),
+                            c2_position=c2['position'].copy(),
+                            p1_position=p1['position'].copy(),
+                            p2_position=p2['position'].copy(),
+                            c1_label=c1['label'],
+                            c2_label=c2['label'],
+                            p1_label=p1['label'],
+                            p2_label=p2['label'],
+                        ))
+    else:
+        raise ValueError(
+            f"Unsupported ERT array_type '{array_type}'. "
+            "Supported: crosshole, wenner, dipole-dipole."
+        )
 
     return measurements
 
@@ -360,6 +475,7 @@ def simulate_fdem(
     measurements: list[FDEMMeasurement],
     conductivity_model: dict,
     em_sources: list[dict],
+    anomaly_zones: list[AnomalyZone] | None,
     config: HIRTSurveyConfig,
     rng: np.random.Generator | None = None,
     add_noise: bool = True,
@@ -414,6 +530,23 @@ def simulate_fdem(
         'skin_depth': [],
     }
 
+    zones = anomaly_zones or []
+
+    def _zone_effective_radius(zone: AnomalyZone) -> float:
+        dims = zone.dimensions or {}
+        if zone.shape == "sphere":
+            return float(dims.get("radius", 0.5))
+        if zone.shape == "cylinder":
+            r = float(dims.get("radius", 0.5))
+            h = float(dims.get("height", 1.0))
+            return float((r * r * h) ** (1.0 / 3.0))
+        if zone.shape == "box":
+            l = float(dims.get("length", 1.0))
+            w = float(dims.get("width", 1.0))
+            d = float(dims.get("depth", 1.0))
+            return float((l * w * d / (4.0 / 3.0 * np.pi)) ** (1.0 / 3.0))
+        return 0.5
+
     for i, meas in enumerate(measurements):
         # 1D layered-earth background
         response = fdem_response_1d(
@@ -432,6 +565,21 @@ def simulate_fdem(
                     radius, src['conductivity'], meas.frequency, r_obs,
                 )
                 response += sphere_resp
+
+        # Add conductive anomaly zones as effective bodies.
+        for zone in zones:
+            sigma_zone = float(zone.conductivity)
+            if sigma_zone <= 0:
+                continue
+            center = np.asarray(zone.center, dtype=np.float64)
+            radius = max(_zone_effective_radius(zone), 0.05)
+            r_obs = float(np.linalg.norm(center - midpoint))
+            if r_obs <= radius:
+                r_obs = radius * 1.01
+            zone_resp = secondary_field_conductive_sphere(
+                radius, sigma_zone, meas.frequency, r_obs
+            )
+            response += zone_resp
 
         # Skin depth at this frequency
         sd = float(skin_depth(meas.frequency, avg_sigma))
@@ -467,6 +615,7 @@ def simulate_fdem(
 def simulate_ert(
     measurements: list[ERTMeasurement],
     resistivity_model: dict,
+    anomaly_zones: list[AnomalyZone] | None,
     config: HIRTSurveyConfig,
     rng: np.random.Generator | None = None,
     add_noise: bool = True,
@@ -532,6 +681,52 @@ def simulate_ert(
     if add_noise:
         rho_a *= 1.0 + config.ert_noise_floor * rng.standard_normal(len(rho_a))
 
+    # Approximate 3D anomaly influence by perturbing 1D rho_a with distance-
+    # weighted contrast terms. This preserves analytical speed while making
+    # anomaly_zones materially affect synthetic data.
+    zones = anomaly_zones or []
+    if zones:
+        background_rho = float(np.median(resistivities)) if resistivities else 100.0
+        for i, meas in enumerate(measurements):
+            midpoint = (
+                np.asarray(meas.c1_position)
+                + np.asarray(meas.c2_position)
+                + np.asarray(meas.p1_position)
+                + np.asarray(meas.p2_position)
+            ) / 4.0
+
+            perturb = 0.0
+            for zone in zones:
+                center = np.asarray(zone.center, dtype=np.float64)
+                dist = float(np.linalg.norm(midpoint - center))
+
+                dims = zone.dimensions or {}
+                if zone.shape == "sphere":
+                    radius = float(dims.get("radius", 0.6))
+                elif zone.shape == "cylinder":
+                    r = float(dims.get("radius", 0.6))
+                    h = float(dims.get("height", 1.2))
+                    radius = float((r * r * h) ** (1.0 / 3.0))
+                else:
+                    l = float(dims.get("length", 1.2))
+                    w = float(dims.get("width", 1.2))
+                    d = float(dims.get("depth", 1.2))
+                    radius = float((l * w * d / (4.0 / 3.0 * np.pi)) ** (1.0 / 3.0))
+                radius = max(radius, 0.1)
+
+                if zone.resistivity > 0:
+                    zone_rho = float(zone.resistivity)
+                elif zone.conductivity > 0:
+                    zone_rho = 1.0 / float(zone.conductivity)
+                else:
+                    continue
+
+                contrast = (zone_rho - background_rho) / max(background_rho, 1e-6)
+                influence = np.exp(-((dist / radius) ** 2))
+                perturb += 0.35 * contrast * influence
+
+            rho_a[i] *= max(0.05, 1.0 + perturb)
+
     data = {
         'measurement_id': list(range(len(measurements))),
         'c1_electrode': [m.c1_label for m in measurements],
@@ -559,6 +754,16 @@ ERT_COLUMNS = [
     'measurement_id', 'c1_electrode', 'c2_electrode',
     'p1_electrode', 'p2_electrode', 'geometric_factor',
     'apparent_resistivity',
+]
+
+HIRT_MIT_COLUMNS = [
+    'timestamp', 'section_id', 'zone_id', 'tx_probe_id', 'rx_probe_id',
+    'freq_hz', 'amp', 'phase_deg', 'tx_current_mA',
+]
+
+HIRT_ERT_COLUMNS = [
+    'timestamp', 'section_id', 'zone_id', 'inject_pos_id', 'inject_neg_id',
+    'sense_id', 'volt_mV', 'current_mA', 'polarity', 'notes',
 ]
 
 
@@ -618,6 +823,292 @@ def export_ert_csv(data: dict, path: str | Path) -> None:
             writer.writerow(row)
 
 
+def export_hirt_mit_csv(
+    data: dict,
+    path: str | Path,
+    section_id: str = "S01",
+    zone_id: str = "ZA",
+    start_time: datetime | None = None,
+    tx_current_mA: float = 10.0,
+    measurement_interval_s: float = 1.0,
+) -> None:
+    """Write MIT records in HIRT data-format style."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if start_time is None:
+        start_time = datetime.now(timezone.utc)
+
+    n_rows = len(data['measurement_id'])
+    with open(path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(HIRT_MIT_COLUMNS)
+        for i in range(n_rows):
+            timestamp = (start_time + timedelta(seconds=i * measurement_interval_s)).isoformat()
+            probe_pair = str(data['probe_pair'][i]).split("-")
+            tx_probe = f"P{int(probe_pair[0]) + 1:02d}" if len(probe_pair) >= 1 else "P01"
+            rx_probe = f"P{int(probe_pair[1]) + 1:02d}" if len(probe_pair) >= 2 else "P02"
+            real = float(data['response_real'][i])
+            imag = float(data['response_imag'][i])
+            amp = float(np.hypot(real, imag))
+            phase_deg = float(np.degrees(np.arctan2(imag, real)))
+            writer.writerow([
+                timestamp,
+                section_id,
+                zone_id,
+                tx_probe,
+                rx_probe,
+                float(data['frequency'][i]),
+                f"{amp:.8e}",
+                f"{phase_deg:.6f}",
+                f"{tx_current_mA:.3f}",
+            ])
+
+
+def export_hirt_ert_csv(
+    data: dict,
+    path: str | Path,
+    section_id: str = "S01",
+    zone_id: str = "ZA",
+    start_time: datetime | None = None,
+    current_mA: float = 1.0,
+    measurement_interval_s: float = 1.0,
+    include_polarity_reversal: bool = True,
+) -> None:
+    """Write ERT records in HIRT data-format style."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if start_time is None:
+        start_time = datetime.now(timezone.utc)
+
+    n_rows = len(data['measurement_id'])
+    with open(path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(HIRT_ERT_COLUMNS)
+        row_idx = 0
+        for i in range(n_rows):
+            timestamp = (start_time + timedelta(seconds=row_idx * measurement_interval_s)).isoformat()
+            rho_a = float(data['apparent_resistivity'][i])
+            k = float(data['geometric_factor'][i])
+            current_a = max(current_mA / 1000.0, 1e-9)
+            volt_mV = (rho_a / max(k, 1e-9)) * current_a * 1000.0
+            writer.writerow([
+                timestamp,
+                section_id,
+                zone_id,
+                data['c1_electrode'][i],
+                data['c2_electrode'][i],
+                data['p1_electrode'][i],
+                f"{volt_mV:.6f}",
+                f"{current_mA:.3f}",
+                1,
+                "",
+            ])
+            row_idx += 1
+
+            if include_polarity_reversal:
+                timestamp = (
+                    start_time + timedelta(seconds=row_idx * measurement_interval_s)
+                ).isoformat()
+                writer.writerow([
+                    timestamp,
+                    section_id,
+                    zone_id,
+                    data['c1_electrode'][i],
+                    data['c2_electrode'][i],
+                    data['p1_electrode'][i],
+                    f"{-volt_mV:.6f}",
+                    f"{current_mA:.3f}",
+                    -1,
+                    "reversed polarity",
+                ])
+                row_idx += 1
+
+
+# ---------------------------------------------------------------------------
+# QC and sidecar exports
+# ---------------------------------------------------------------------------
+
+def _measurement_interval_s(config: HIRTSurveyConfig, mode: str) -> float:
+    """Estimate acquisition interval from settle times and averaging settings."""
+    avg = max(int(config.adc_averaging), 1)
+    if mode == "mit":
+        return max(0.02, (float(config.mit_settle_ms) + 4.0 * avg) / 1000.0)
+    return max(0.03, (float(config.ert_settle_ms) + 6.0 * avg) / 1000.0)
+
+
+def _fdem_reciprocity_errors_pct(data: dict) -> list[float]:
+    """Compute reciprocity errors (%) from reciprocal probe-pair measurements."""
+    by_key: dict[tuple, list[float]] = {}
+    n_rows = len(data.get("measurement_id", []))
+    for i in range(n_rows):
+        pair_raw = str(data["probe_pair"][i]).split("-")
+        if len(pair_raw) != 2:
+            continue
+        a = int(pair_raw[0])
+        b = int(pair_raw[1])
+        if a == b:
+            continue
+        freq = round(float(data["frequency"][i]), 3)
+        tx_depth = round(float(data["tx_depth"][i]), 3)
+        rx_depth = round(float(data["rx_depth"][i]), 3)
+        depth_key = (min(tx_depth, rx_depth), max(tx_depth, rx_depth))
+        pair_key = (min(a, b), max(a, b))
+        key = (pair_key, depth_key, freq)
+        amp = float(np.hypot(float(data["response_real"][i]), float(data["response_imag"][i])))
+        by_key.setdefault(key, []).append(amp)
+
+    errors: list[float] = []
+    for vals in by_key.values():
+        if len(vals) < 2:
+            continue
+        m1 = float(vals[0])
+        m2 = float(vals[1])
+        denom = max((abs(m1) + abs(m2)) * 0.5, 1e-12)
+        errors.append(abs(m1 - m2) / denom * 100.0)
+    return errors
+
+
+def _ert_reciprocity_errors_pct(data: dict) -> list[float]:
+    """Compute reciprocity errors (%) from reciprocal ERT quadrupoles."""
+    by_key: dict[tuple, list[float]] = {}
+    n_rows = len(data.get("measurement_id", []))
+    for i in range(n_rows):
+        c_pair = tuple(sorted((str(data["c1_electrode"][i]), str(data["c2_electrode"][i]))))
+        p_pair = tuple(sorted((str(data["p1_electrode"][i]), str(data["p2_electrode"][i]))))
+        key = tuple(sorted((c_pair, p_pair)))
+        by_key.setdefault(key, []).append(float(data["apparent_resistivity"][i]))
+
+    errors: list[float] = []
+    for vals in by_key.values():
+        if len(vals) < 2:
+            continue
+        r1 = float(vals[0])
+        r2 = float(vals[1])
+        denom = max((abs(r1) + abs(r2)) * 0.5, 1e-12)
+        errors.append(abs(r1 - r2) / denom * 100.0)
+    return errors
+
+
+def build_hirt_qc_summary(
+    fdem_data: dict | None,
+    ert_data: dict | None,
+    config: HIRTSurveyConfig,
+) -> dict:
+    """Build survey-level QC summary for inversion and ML pipelines."""
+    summary: dict = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "targets": {
+            "reciprocity_pct": float(config.reciprocity_target_pct),
+        },
+    }
+
+    if fdem_data is not None:
+        errs = _fdem_reciprocity_errors_pct(fdem_data)
+        amp = np.hypot(
+            np.asarray(fdem_data.get("response_real", []), dtype=np.float64),
+            np.asarray(fdem_data.get("response_imag", []), dtype=np.float64),
+        )
+        summary["mit"] = {
+            "measurement_count": int(len(fdem_data.get("measurement_id", []))),
+            "mean_amplitude": float(np.mean(amp)) if amp.size else 0.0,
+            "p95_amplitude": float(np.percentile(amp, 95)) if amp.size else 0.0,
+            "reciprocity": {
+                "paired_count": int(len(errs)),
+                "mean_error_pct": float(np.mean(errs)) if errs else 0.0,
+                "max_error_pct": float(np.max(errs)) if errs else 0.0,
+                "pass_rate": float(np.mean(np.array(errs) <= config.reciprocity_target_pct)) if errs else 1.0,
+            },
+        }
+
+    if ert_data is not None:
+        errs = _ert_reciprocity_errors_pct(ert_data)
+        rho = np.asarray(ert_data.get("apparent_resistivity", []), dtype=np.float64)
+        summary["ert"] = {
+            "measurement_count": int(len(ert_data.get("measurement_id", []))),
+            "mean_rho_a_ohm_m": float(np.mean(rho)) if rho.size else 0.0,
+            "p95_rho_a_ohm_m": float(np.percentile(rho, 95)) if rho.size else 0.0,
+            "reciprocity": {
+                "paired_count": int(len(errs)),
+                "mean_error_pct": float(np.mean(errs)) if errs else 0.0,
+                "max_error_pct": float(np.max(errs)) if errs else 0.0,
+                "pass_rate": float(np.mean(np.array(errs) <= config.reciprocity_target_pct)) if errs else 1.0,
+            },
+        }
+
+    return summary
+
+
+def export_probe_registry_csv(
+    probe_configs: list[ProbeConfig],
+    path: str | Path,
+    firmware_rev: str = "v1.0-sim",
+    calibration_date: str | None = None,
+) -> None:
+    """Export HIRT-style probe registry CSV."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if calibration_date is None:
+        calibration_date = datetime.now(timezone.utc).date().isoformat()
+
+    columns = [
+        "probe_id", "coil_L_mH", "coil_Q", "rx_gain_dB", "ring_depths_m",
+        "firmware_rev", "calibration_date", "notes",
+    ]
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(columns)
+        for i, probe in enumerate(probe_configs):
+            probe_id = f"P{i + 1:02d}"
+            coil_l = 1.45 + 0.03 * (i % 3)
+            coil_q = 28 + (i % 4)
+            rx_gain = 40.0
+            ring_depths = ";".join(f"{float(d):.2f}" for d in probe.ring_depths)
+            notes = "tilted" if abs(float(getattr(probe, "tilt_deg", 0.0) or 0.0)) > 0.1 else ""
+            writer.writerow([
+                probe_id,
+                f"{coil_l:.3f}",
+                f"{coil_q:.1f}",
+                f"{rx_gain:.1f}",
+                ring_depths,
+                firmware_rev,
+                calibration_date,
+                notes,
+            ])
+
+
+def export_survey_geometry_csv(
+    probe_configs: list[ProbeConfig],
+    path: str | Path,
+) -> None:
+    """Export HIRT survey geometry CSV."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    columns = [
+        "probe_id", "x_m", "y_m", "z_surface_m", "z_tip_m", "status", "notes",
+    ]
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(columns)
+        for i, probe in enumerate(probe_configs):
+            pos = np.asarray(probe.position, dtype=np.float64)
+            tip = probe_to_global(float(probe.length), probe)
+            status = "ACTIVE"
+            notes = ""
+            tilt = float(getattr(probe, "tilt_deg", 0.0) or 0.0)
+            if abs(tilt) > 0.1:
+                notes = f"tilt={tilt:.1f}deg"
+            writer.writerow([
+                f"P{i + 1:02d}",
+                f"{float(pos[0]):.3f}",
+                f"{float(pos[1]):.3f}",
+                f"{float(pos[2]):.3f}",
+                f"{float(tip[2]):.3f}",
+                status,
+                notes,
+            ])
+
+
 # ---------------------------------------------------------------------------
 # Top-level entry point
 # ---------------------------------------------------------------------------
@@ -671,7 +1162,15 @@ def run_hirt_survey(
 
     hirt = scenario.hirt_config
     rng = np.random.default_rng(seed)
-    config = HIRTSurveyConfig(frequencies=hirt.frequencies)
+    config = HIRTSurveyConfig(
+        frequencies=hirt.frequencies,
+        mit_tx_current_mA=float(hirt.mit_tx_current_mA),
+        ert_current_mA=float(hirt.ert_current_mA),
+        mit_settle_ms=int(hirt.mit_settle_ms),
+        ert_settle_ms=int(hirt.ert_settle_ms),
+        adc_averaging=int(hirt.adc_averaging),
+        reciprocity_target_pct=float(hirt.reciprocity_qc_pct),
+    )
 
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -680,6 +1179,7 @@ def run_hirt_survey(
     if fdem_enabled:
         fdem_meas = generate_fdem_measurements(
             hirt.probes, config.coil_set, config.frequencies,
+            include_intra_probe=bool(hirt.include_intra_probe),
         )
 
         # Build 1D conductivity model from terrain layers
@@ -701,13 +1201,22 @@ def run_hirt_survey(
 
         fdem_data = simulate_fdem(
             fdem_meas, cond_model, scenario.em_sources,
-            config, rng, add_noise,
+            scenario.anomaly_zones, config, rng, add_noise,
         )
 
         fdem_path = output_dir / 'hirt_fdem.csv'
         export_fdem_csv(fdem_data, fdem_path)
+        export_hirt_mit_csv(
+            fdem_data,
+            output_dir / 'hirt_mit_records.csv',
+            section_id=hirt.section_id,
+            zone_id=hirt.zone_id,
+            tx_current_mA=config.mit_tx_current_mA,
+            measurement_interval_s=_measurement_interval_s(config, "mit"),
+        )
         result['fdem'] = fdem_data
         result['fdem_csv'] = str(fdem_path)
+        result['mit_records_csv'] = str(output_dir / 'hirt_mit_records.csv')
 
     if ert_enabled:
         ert_meas = generate_ert_measurements(
@@ -716,12 +1225,38 @@ def run_hirt_survey(
 
         ert_data = simulate_ert(
             ert_meas, scenario.resistivity_model,
-            config, rng, add_noise,
+            scenario.anomaly_zones, config, rng, add_noise,
         )
 
         ert_path = output_dir / 'hirt_ert.csv'
         export_ert_csv(ert_data, ert_path)
+        export_hirt_ert_csv(
+            ert_data,
+            output_dir / 'hirt_ert_records.csv',
+            section_id=hirt.section_id,
+            zone_id=hirt.zone_id,
+            current_mA=config.ert_current_mA,
+            measurement_interval_s=_measurement_interval_s(config, "ert"),
+        )
         result['ert'] = ert_data
         result['ert_csv'] = str(ert_path)
+        result['ert_records_csv'] = str(output_dir / 'hirt_ert_records.csv')
+
+    # Sidecar exports for downstream reconstruction/analytics pipelines.
+    export_survey_geometry_csv(hirt.probes, output_dir / "survey_geometry.csv")
+    export_probe_registry_csv(
+        hirt.probes,
+        output_dir / "probe_registry.csv",
+        firmware_rev=str(scenario.metadata.get("hirt_firmware_rev", "v1.0-sim")),
+        calibration_date=str(
+            scenario.metadata.get("calibration_date", datetime.now(timezone.utc).date().isoformat())
+        ),
+    )
+    qc = build_hirt_qc_summary(result.get("fdem"), result.get("ert"), config)
+    with open(output_dir / "hirt_qc_summary.json", "w") as f:
+        json.dump(qc, f, indent=2)
+    result["survey_geometry_csv"] = str(output_dir / "survey_geometry.csv")
+    result["probe_registry_csv"] = str(output_dir / "probe_registry.csv")
+    result["qc_summary_json"] = str(output_dir / "hirt_qc_summary.json")
 
     return result

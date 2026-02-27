@@ -13,11 +13,13 @@ import numpy as np
 import pytest
 
 from geosim.em.coil import hirt_default_coils
-from geosim.scenarios.loader import ProbeConfig, load_scenario
+from geosim.scenarios.loader import AnomalyZone, ProbeConfig, load_scenario
 from geosim.sensors.hirt import (
     HIRTSurveyConfig,
     export_ert_csv,
     export_fdem_csv,
+    export_hirt_ert_csv,
+    export_hirt_mit_csv,
     generate_ert_measurements,
     generate_fdem_measurements,
     probe_to_global,
@@ -138,6 +140,19 @@ class TestProbeToGlobal:
         result = probe_to_global(0.0, probe)
         np.testing.assert_array_almost_equal(result, [5.0, 3.0, 0.0])
 
+    def test_angled_probe_has_lateral_offset(self):
+        """Angled probe maps deeper points with lateral displacement."""
+        probe = ProbeConfig(
+            position=[0.0, 0.0, 0.0],
+            length=3.0,
+            orientation="angled",
+            tilt_deg=10.0,
+            azimuth_deg=90.0,  # East
+        )
+        result = probe_to_global(2.0, probe)
+        assert result[0] > 0.0
+        assert result[2] < 0.0
+
 
 # ===========================================================================
 # TestFDEMMeasurementGeneration
@@ -215,6 +230,31 @@ class TestERTMeasurementGeneration:
             assert key not in seen, f"Duplicate quadrupole: {key}"
             seen.add(key)
 
+    def test_crosshole_supports_three_probes(self):
+        """Cross-hole generation includes all probes (A/B/C), not only A/B."""
+        probes = [
+            ProbeConfig(position=[0.0, 0.0, 0.0], length=1.0, ring_depths=[0.1, 0.2, 0.3]),
+            ProbeConfig(position=[1.0, 0.0, 0.0], length=1.0, ring_depths=[0.1, 0.2, 0.3]),
+            ProbeConfig(position=[2.0, 0.0, 0.0], length=1.0, ring_depths=[0.1, 0.2, 0.3]),
+        ]
+        meas = generate_ert_measurements(probes, array_type="crosshole")
+        letters = {m.c1_label[0] for m in meas} | {m.p1_label[0] for m in meas}
+        assert letters == {"A", "B", "C"}
+
+    def test_wenner_generation(self, two_probes):
+        """Wenner array_type produces local-borehole measurements."""
+        meas = generate_ert_measurements(two_probes, array_type="wenner")
+        assert len(meas) > 0
+        for m in meas:
+            assert m.c1_label[0] == m.c2_label[0] == m.p1_label[0] == m.p2_label[0]
+
+    def test_dipole_dipole_generation(self, two_probes):
+        """Dipole-dipole array_type produces local-borehole measurements."""
+        meas = generate_ert_measurements(two_probes, array_type="dipole-dipole")
+        assert len(meas) > 0
+        for m in meas:
+            assert m.c1_label[0] == m.c2_label[0] == m.p1_label[0] == m.p2_label[0]
+
 
 # ===========================================================================
 # TestSimulateFDEM
@@ -231,7 +271,7 @@ class TestSimulateFDEM:
         config = HIRTSurveyConfig(frequencies=DEFAULT_FREQUENCIES)
         rng = np.random.default_rng(seed)
         return simulate_fdem(
-            meas, cond_model, em_sources or [], config, rng, add_noise,
+            meas, cond_model, em_sources or [], [], config, rng, add_noise,
         )
 
     def test_homogeneous_response(self, two_probes, simple_cond_model):
@@ -337,6 +377,42 @@ class TestSimulateFDEM:
             data1['response_real'], data2['response_real'],
         )
 
+    def test_coil_depth_overrides_affect_positions(self):
+        """Probe-specific coil_depths alter generated FDEM geometry."""
+        probes_a = [
+            ProbeConfig(position=[0.0, 0.0, 0.0], length=1.0, coil_depths=[0.1, 0.25, 0.4, 0.55, 0.7, 0.85]),
+            ProbeConfig(position=[1.0, 0.0, 0.0], length=1.0, coil_depths=[0.1, 0.25, 0.4, 0.55, 0.7, 0.85]),
+        ]
+        probes_b = [
+            ProbeConfig(position=[0.0, 0.0, 0.0], length=1.0, coil_depths=[0.2, 0.35, 0.5, 0.65, 0.8, 0.95]),
+            ProbeConfig(position=[1.0, 0.0, 0.0], length=1.0, coil_depths=[0.2, 0.35, 0.5, 0.65, 0.8, 0.95]),
+        ]
+        m_a = generate_fdem_measurements(probes_a, DEFAULT_COILS, [1000.0])
+        m_b = generate_fdem_measurements(probes_b, DEFAULT_COILS, [1000.0])
+        assert not np.allclose(m_a[0].tx_position, m_b[0].tx_position)
+
+    def test_anomaly_zone_changes_fdem_response(self, two_probes, simple_cond_model):
+        """Conductive anomaly zones perturb FDEM outputs."""
+        meas = generate_fdem_measurements(two_probes, DEFAULT_COILS, DEFAULT_FREQUENCIES)
+        cfg = HIRTSurveyConfig(frequencies=DEFAULT_FREQUENCIES)
+        clean = simulate_fdem(
+            meas, simple_cond_model, [], [], cfg, np.random.default_rng(42), False
+        )
+        zones = [
+            AnomalyZone(
+                name="zone",
+                center=[12.5, 12.5, -0.6],
+                dimensions={"radius": 1.0},
+                shape="sphere",
+                conductivity=0.8,
+                resistivity=1.25,
+            )
+        ]
+        pert = simulate_fdem(
+            meas, simple_cond_model, [], zones, cfg, np.random.default_rng(42), False
+        )
+        assert not np.allclose(clean["response_real"], pert["response_real"])
+
 
 # ===========================================================================
 # TestSimulateERT
@@ -349,7 +425,7 @@ class TestSimulateERT:
         meas = generate_ert_measurements(two_probes)
         config = HIRTSurveyConfig()
         rng = np.random.default_rng(seed)
-        return simulate_ert(meas, res_model, config, rng, add_noise)
+        return simulate_ert(meas, res_model, [], config, rng, add_noise)
 
     def test_halfspace_returns_true_rho(self, two_probes):
         """Homogeneous half-space: ρ_a ≈ ρ_true."""
@@ -398,6 +474,30 @@ class TestSimulateERT:
         data = self._run_ert(two_probes, simple_resistivity_model)
         for label in data['c1_electrode'] + data['p1_electrode']:
             assert label[0] in ('A', 'B')
+
+    def test_anomaly_zone_changes_ert_response(self, two_probes, simple_resistivity_model):
+        """Anomaly zones perturb apparent resistivity."""
+        meas = generate_ert_measurements(two_probes)
+        cfg = HIRTSurveyConfig()
+        clean = simulate_ert(
+            meas, simple_resistivity_model, [], cfg, np.random.default_rng(7), False
+        )
+        zones = [
+            AnomalyZone(
+                name="wet_fill",
+                center=[12.5, 12.5, -0.5],
+                dimensions={"length": 2.0, "width": 2.0, "depth": 1.0},
+                shape="box",
+                conductivity=1.0,
+                resistivity=1.0,
+            )
+        ]
+        pert = simulate_ert(
+            meas, simple_resistivity_model, zones, cfg, np.random.default_rng(7), False
+        )
+        assert not np.allclose(
+            clean["apparent_resistivity"], pert["apparent_resistivity"]
+        )
 
 
 # ===========================================================================
@@ -481,6 +581,28 @@ class TestExportCSV:
         df_ert = pd.read_csv(ert_path)
         assert len(df_ert) == n
 
+    def test_hirt_record_exports(self, tmp_path):
+        """HIRT docs-compatible MIT/ERT exports are created."""
+        mit_path = tmp_path / "mit_records.csv"
+        ert_path = tmp_path / "ert_records.csv"
+        export_hirt_mit_csv(self._make_fdem_data(), mit_path)
+        export_hirt_ert_csv(self._make_ert_data(), ert_path)
+        assert mit_path.exists()
+        assert ert_path.exists()
+        with open(mit_path) as f:
+            assert f.readline().strip().startswith("timestamp,section_id,zone_id")
+        with open(ert_path) as f:
+            assert f.readline().strip().startswith("timestamp,section_id,zone_id")
+
+    def test_ert_record_export_includes_polarity_reversal_rows(self, tmp_path):
+        """ERT record export writes + and - polarity rows by default."""
+        ert_path = tmp_path / "ert_records.csv"
+        export_hirt_ert_csv(self._make_ert_data(n=3), ert_path)
+        with open(ert_path) as f:
+            rows = f.readlines()
+        # header + 2 rows per measurement
+        assert len(rows) == 1 + 3 * 2
+
 
 # ===========================================================================
 # TestRunHIRTSurvey
@@ -513,8 +635,26 @@ class TestRunHIRTSurvey:
 
     def test_raises_without_hirt_config(self, tmp_path):
         """Scenario without hirt_config raises ValueError."""
+        import json
+        # Create a minimal scenario with no hirt_config
+        no_hirt = {
+            "name": "No HIRT",
+            "description": "Test scenario without hirt_config",
+            "earth_field": [0.0, 20e-6, 45e-6],
+            "terrain": {
+                "x_extent": [0, 10], "y_extent": [0, 10],
+                "surface_elevation": 0.0,
+                "layers": [{"name": "Soil", "z_top": 0, "z_bottom": -2,
+                            "conductivity": 0.05}],
+            },
+            "objects": [{"name": "Sphere", "position": [5, 5, -1],
+                         "type": "ferrous_sphere", "radius": 0.05,
+                         "susceptibility": 1000, "conductivity": 1e6}],
+        }
+        no_hirt_path = tmp_path / "no_hirt.json"
+        no_hirt_path.write_text(json.dumps(no_hirt))
         with pytest.raises(ValueError, match="hirt_config"):
-            run_hirt_survey(SINGLE_TARGET, tmp_path, seed=42)
+            run_hirt_survey(no_hirt_path, tmp_path / "out", seed=42)
 
     def test_seed_reproducibility(self, tmp_path):
         """Same seed → identical results."""
@@ -538,5 +678,17 @@ class TestRunHIRTSurvey:
         assert 'ert' in result
         assert 'fdem_csv' in result
         assert 'ert_csv' in result
+        assert 'mit_records_csv' in result
+        assert 'ert_records_csv' in result
         assert len(result['fdem']['measurement_id']) > 0
         assert len(result['ert']['measurement_id']) > 0
+
+    def test_sidecar_exports_present(self, tmp_path):
+        """Survey sidecar exports (geometry, registry, QC) are produced."""
+        result = run_hirt_survey(SWAMP_SCENARIO, tmp_path, seed=42)
+        assert 'survey_geometry_csv' in result
+        assert 'probe_registry_csv' in result
+        assert 'qc_summary_json' in result
+        assert Path(result['survey_geometry_csv']).exists()
+        assert Path(result['probe_registry_csv']).exists()
+        assert Path(result['qc_summary_json']).exists()

@@ -33,6 +33,10 @@
 #include <avr/wdt.h>
 #endif
 
+#if ENABLE_RTC
+#include <RTClib.h>
+#endif
+
 // ============================================================================
 // GLOBAL OBJECTS
 // ============================================================================
@@ -51,12 +55,21 @@ TinyGPSPlus gps;
 SdFat sd;
 SdFile logFile;
 
+#if ENABLE_RTC
+// Real-time clock (DS3231)
+RTC_DS3231 rtc;
+bool rtcReady = false;
+#endif
+
 // ============================================================================
 // GLOBAL STATE
 // ============================================================================
 
 struct GradiometerReading {
     uint32_t timestamp_ms;
+#if ENABLE_RTC
+    char timestamp_iso[24];  // "2026-02-18T14:23:45Z" format
+#endif
     double latitude;
     double longitude;
     int16_t top[NUM_SENSOR_PAIRS];
@@ -96,6 +109,9 @@ void setupPins();
 void setupADCs();
 void setupGPS();
 void setupSD();
+#if ENABLE_RTC
+void setupRTC();
+#endif
 void createLogFile();
 void writeCSVHeader();
 void readGradiometers(GradiometerReading &reading);
@@ -150,6 +166,9 @@ void setup() {
     setupADCs();
     setupGPS();
     setupSD();
+    #if ENABLE_RTC
+    setupRTC();
+    #endif
     createLogFile();
 
     #if SERIAL_DEBUG
@@ -166,6 +185,10 @@ void setup() {
     #if NEEDS_ADC2
     Serial.print(F("ADC2: "));
     Serial.println(adc2Ready ? F("OK") : F("FAILED"));
+    #endif
+    #if ENABLE_RTC
+    Serial.print(F("RTC: "));
+    Serial.println(rtcReady ? F("OK") : F("FAILED"));
     #endif
     #endif
 
@@ -323,9 +346,40 @@ void setupSD() {
     #endif
 }
 
+#if ENABLE_RTC
+void setupRTC() {
+    if (rtc.begin()) {
+        if (rtc.lostPower()) {
+            #if SERIAL_DEBUG
+            Serial.println(F("WARNING: RTC lost power, time may be invalid"));
+            #endif
+        }
+        rtcReady = true;
+        #if SERIAL_DEBUG
+        DateTime now = rtc.now();
+        Serial.print(F("RTC OK: "));
+        char buf[24];
+        snprintf(buf, sizeof(buf), "%04d-%02d-%02dT%02d:%02d:%02dZ",
+                 now.year(), now.month(), now.day(),
+                 now.hour(), now.minute(), now.second());
+        Serial.println(buf);
+        #endif
+    } else {
+        rtcReady = false;
+        #if SERIAL_DEBUG
+        Serial.println(F("WARNING: DS3231 RTC not found, falling back to millis()"));
+        #endif
+    }
+}
+#endif
+
 void writeCSVHeader() {
     // Build header dynamically based on NUM_SENSOR_PAIRS and GPS_LOG_QUALITY
+    #if ENABLE_RTC
+    logFile.print(F("timestamp_utc,lat,lon"));
+    #else
     logFile.print(F("timestamp,lat,lon"));
+    #endif
 
     #if GPS_LOG_QUALITY
     logFile.print(F(",fix_quality,hdop,altitude"));
@@ -356,6 +410,12 @@ void createLogFile() {
                 logFile.print(F("# Pathfinder v" FIRMWARE_VERSION
                                 " (" FIRMWARE_DATE ") pairs="));
                 logFile.println(NUM_SENSOR_PAIRS);
+                // Epoch offset metadata
+                #if ENABLE_RTC
+                logFile.println(F("# epoch_offset=absolute (ISO 8601 UTC timestamps)"));
+                #else
+                logFile.println(F("# epoch_offset=0 (relative ms, no RTC)"));
+                #endif
                 // CSV header
                 writeCSVHeader();
                 logFile.flush();
@@ -394,6 +454,18 @@ void checkSaturation(int16_t value) {
 
 void readGradiometers(GradiometerReading &reading) {
     reading.timestamp_ms = millis();
+
+    #if ENABLE_RTC
+    if (rtcReady) {
+        DateTime now = rtc.now();
+        snprintf(reading.timestamp_iso, sizeof(reading.timestamp_iso),
+                 "%04d-%02d-%02dT%02d:%02d:%02dZ",
+                 now.year(), now.month(), now.day(),
+                 now.hour(), now.minute(), now.second());
+    } else {
+        reading.timestamp_iso[0] = '\0';
+    }
+    #endif
 
     for (uint8_t i = 0; i < NUM_SENSOR_PAIRS; i++) {
         // Determine which ADC and whether it's ready
@@ -446,7 +518,15 @@ void reopenLogFile() {
 void logReading(const GradiometerReading &reading) {
     if (!sdCardReady) return;
 
+    #if ENABLE_RTC
+    if (rtcReady && reading.timestamp_iso[0] != '\0') {
+        logFile.print(reading.timestamp_iso);
+    } else {
+        logFile.print(reading.timestamp_ms);
+    }
+    #else
     logFile.print(reading.timestamp_ms);
+    #endif
     logFile.print(',');
     logFile.print(reading.latitude, 7);
     logFile.print(',');
