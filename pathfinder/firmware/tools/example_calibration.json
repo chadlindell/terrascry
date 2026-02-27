@@ -1,0 +1,13 @@
+{
+    "_comment": "Pathfinder calibration file. Correction: corrected = (raw - offset) / gain. Start with these defaults (no correction) and adjust per sensor after bench testing.",
+    "channels": {
+        "g1_top": { "offset": 0, "gain": 1.0 },
+        "g1_bot": { "offset": 0, "gain": 1.0 },
+        "g2_top": { "offset": 0, "gain": 1.0 },
+        "g2_bot": { "offset": 0, "gain": 1.0 },
+        "g3_top": { "offset": 0, "gain": 1.0 },
+        "g3_bot": { "offset": 0, "gain": 1.0 },
+        "g4_top": { "offset": 0, "gain": 1.0 },
+        "g4_bot": { "offset": 0, "gain": 1.0 }
+    }
+}
