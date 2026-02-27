@@ -1,0 +1,49 @@
+{
+  "name": "Single Ferrous Target",
+  "description": "A single ferrous sphere buried 1m below surface. Basic validation scenario for dipole model and Pathfinder detection.",
+  "earth_field": [0.0, 20e-6, 45e-6],
+  "terrain": {
+    "x_extent": [0.0, 20.0],
+    "y_extent": [0.0, 20.0],
+    "surface_elevation": 0.0,
+    "layers": [
+      {
+        "name": "Topsoil",
+        "z_top": 0.0,
+        "z_bottom": -0.3,
+        "conductivity": 0.05,
+        "relative_permittivity": 15.0,
+        "color": "#4A3728"
+      },
+      {
+        "name": "Sandy loam",
+        "z_top": -0.3,
+        "z_bottom": -5.0,
+        "conductivity": 0.02,
+        "relative_permittivity": 10.0,
+        "color": "#8B7355"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "name": "Steel sphere (medium ferrous target)",
+      "position": [10.0, 10.0, -1.0],
+      "type": "ferrous_sphere",
+      "radius": 0.05,
+      "susceptibility": 1000.0,
+      "conductivity": 1e6,
+      "metadata": {
+        "description": "50mm radius mild steel sphere at 1m depth",
+        "expected_detection": "Visible to Pathfinder at 1m depth",
+        "reference": "Pathfinder design-concept.md detection table"
+      }
+    }
+  ],
+  "metadata": {
+    "author": "GeoSim",
+    "category": "validation",
+    "difficulty": "basic",
+    "notes": "Use for dipole model validation and basic Pathfinder detection testing."
+  }
+}

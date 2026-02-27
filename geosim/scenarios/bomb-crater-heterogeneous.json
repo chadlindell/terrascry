@@ -1,0 +1,110 @@
+{
+  "name": "Bomb Crater with Heterogeneous Fill",
+  "description": "8m diameter, 5m deep bomb crater with mixed fill material and unexploded ordnance. Based on HIRT's primary validation scenario from Blechhammer/Blachownia sites.",
+  "earth_field": [0.0, 20e-6, 45e-6],
+  "terrain": {
+    "x_extent": [0.0, 25.0],
+    "y_extent": [0.0, 25.0],
+    "surface_elevation": 0.0,
+    "layers": [
+      {
+        "name": "Topsoil (undisturbed)",
+        "z_top": 0.0,
+        "z_bottom": -0.3,
+        "conductivity": 0.05,
+        "relative_permittivity": 15.0,
+        "color": "#4A3728"
+      },
+      {
+        "name": "Sandy loam (native)",
+        "z_top": -0.3,
+        "z_bottom": -8.0,
+        "conductivity": 0.02,
+        "relative_permittivity": 10.0,
+        "color": "#8B7355"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "name": "UXB (unexploded bomb)",
+      "position": [12.5, 12.5, -3.5],
+      "type": "ferrous_sphere",
+      "radius": 0.15,
+      "susceptibility": 2000.0,
+      "conductivity": 5e6,
+      "metadata": {
+        "description": "500 lb GP bomb, steel casing, intact at 3.5m depth",
+        "reference": "HIRT roadmap - aluminum bomb at 3m (adapted to steel)",
+        "hazard": "UXO - do not approach in real scenario",
+        "remanent_moment": [0.5, 0.0, 0.2]
+      }
+    },
+    {
+      "name": "Bomb fragment cluster A",
+      "position": [10.0, 14.0, -1.5],
+      "type": "ferrous_sphere",
+      "radius": 0.08,
+      "susceptibility": 500.0,
+      "conductivity": 3e6,
+      "metadata": {"description": "Cluster of casing fragments from previous detonation"}
+    },
+    {
+      "name": "Bomb fragment cluster B",
+      "position": [14.5, 11.0, -2.0],
+      "type": "ferrous_sphere",
+      "radius": 0.06,
+      "susceptibility": 500.0,
+      "conductivity": 3e6,
+      "metadata": {"description": "Secondary fragment concentration"}
+    },
+    {
+      "name": "Metal pipe (wartime infrastructure)",
+      "position": [8.0, 12.5, -1.0],
+      "type": "ferrous_sphere",
+      "radius": 0.04,
+      "susceptibility": 300.0,
+      "conductivity": 2e6,
+      "metadata": {"description": "Disrupted utility pipe section"}
+    },
+    {
+      "name": "Small ordnance (submunition)",
+      "position": [15.0, 15.0, -0.8],
+      "type": "ferrous_sphere",
+      "radius": 0.03,
+      "susceptibility": 1500.0,
+      "conductivity": 5e6,
+      "metadata": {
+        "description": "Small submunition near surface",
+        "remanence": {
+          "direction": [0.0, 1.0, 0.3],
+          "intensity": 50.0
+        }
+      }
+    },
+    {
+      "name": "Rebar from destroyed structure",
+      "position": [11.0, 9.0, -0.5],
+      "type": "ferrous_sphere",
+      "radius": 0.03,
+      "susceptibility": 600.0,
+      "conductivity": 5e6,
+      "metadata": {"description": "Construction debris mixed into crater fill"}
+    }
+  ],
+  "metadata": {
+    "author": "GeoSim",
+    "category": "uxo",
+    "difficulty": "advanced",
+    "reference": "HIRT roadmap.qmd - bomb crater 8m diameter, 5m deep",
+    "crater": {
+      "center": [12.5, 12.5],
+      "diameter": 8.0,
+      "depth": 5.0,
+      "fill_conductivity_range": [0.03, 0.15],
+      "notes": "Heterogeneous fill: mixed rubble, soil, water-saturated zones"
+    },
+    "historical_context": "Based on Blechhammer synthetic fuel plant bombing campaigns, 1944-45",
+    "notes": "Primary UXB at 3.5m depth is the main target. Fragment clusters and debris create interference that complicates detection. This is the most challenging Pathfinder scenario."
+  }
+}
