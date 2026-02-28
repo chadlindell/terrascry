@@ -122,3 +122,50 @@ async def test_meta_files_excluded(client):
     resp = await client.get("/api/scenarios")
     file_names = [s["file_name"] for s in resp.json()]
     assert "test-scenario-a_meta" not in file_names
+
+
+# --- Upload tests ---
+
+
+async def test_upload_scenario(client):
+    body = {
+        "name": "New Scenario",
+        "description": "Uploaded via API.",
+        "terrain": {
+            "x_extent": [0.0, 10.0],
+            "y_extent": [0.0, 10.0],
+            "surface_elevation": 0.0,
+        },
+        "objects": [
+            {
+                "name": "Target",
+                "position": [5.0, 5.0, -1.0],
+                "type": "ferrous_sphere",
+                "radius": 0.05,
+            }
+        ],
+    }
+    resp = await client.post("/api/scenarios", json=body)
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["name"] == "New Scenario"
+    assert data["file_name"] == "new-scenario"
+    assert data["object_count"] == 1
+
+
+async def test_upload_scenario_appears_in_list(client):
+    body = {"name": "Listed Scenario"}
+    resp = await client.post("/api/scenarios", json=body)
+    assert resp.status_code == 201
+    list_resp = await client.get("/api/scenarios")
+    file_names = [s["file_name"] for s in list_resp.json()]
+    assert "listed-scenario" in file_names
+
+
+async def test_upload_scenario_duplicate(client):
+    body = {"name": "Duplicate"}
+    resp1 = await client.post("/api/scenarios", json=body)
+    assert resp1.status_code == 201
+    resp2 = await client.post("/api/scenarios", json=body)
+    assert resp2.status_code == 409
+    assert "already exists" in resp2.json()["detail"]

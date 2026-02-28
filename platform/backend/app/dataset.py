@@ -23,6 +23,23 @@ class GridData(BaseModel):
     where row 0 is y_min, col 0 is x_min.
     """
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "rows": 3,
+                    "cols": 3,
+                    "x_min": 0.0,
+                    "y_min": 0.0,
+                    "dx": 1.0,
+                    "dy": 1.0,
+                    "values": [0.1, 0.3, 0.2, 0.5, 12.4, 0.6, 0.2, 0.4, 0.1],
+                    "unit": "nT",
+                }
+            ]
+        }
+    }
+
     rows: int
     cols: int
     x_min: float
@@ -36,6 +53,12 @@ class GridData(BaseModel):
 class SurveyPoint(BaseModel):
     """A single survey reading along the walk path."""
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{"x": 5.0, "y": 5.0, "gradient_nt": 12.4}]
+        }
+    }
+
     x: float  # meters
     y: float  # meters
     gradient_nt: float  # B_bottom - B_top, in nanoTesla
@@ -43,6 +66,19 @@ class SurveyPoint(BaseModel):
 
 class DatasetMetadata(BaseModel):
     """Metadata for a simulation dataset."""
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "scenario_name": "single-ferrous-target",
+                    "created_at": "2026-01-15T12:00:00Z",
+                    "params": {"resolution": 0.5, "line_spacing": 1.0},
+                }
+            ]
+        }
+    }
 
     id: UUID = Field(default_factory=uuid4)
     scenario_name: str

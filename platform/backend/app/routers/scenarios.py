@@ -1,9 +1,11 @@
-"""Scenarios router — list and retrieve TERRASCRY scenario files."""
+"""Scenarios router — list, retrieve, and upload TERRASCRY scenario files."""
 
 import json
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
 from app.api_models import (
     ObjectSummary,
@@ -84,3 +86,28 @@ async def get_scenario(name: str) -> ScenarioDetail:
         raise HTTPException(status_code=404, detail=f"Scenario '{name}' not found")
     data = _read_scenario(path)
     return _to_detail(name, data)
+
+
+class ScenarioUpload(BaseModel):
+    """Request body for uploading a new scenario."""
+
+    name: str
+    description: str = ""
+    terrain: dict[str, Any] = {}
+    objects: list[dict[str, Any]] = []
+    earth_field: list[float] = [0.0, 20e-6, 45e-6]
+    metadata: dict[str, Any] = {}
+
+
+@router.post("", response_model=ScenarioDetail, status_code=201)
+async def upload_scenario(body: ScenarioUpload) -> ScenarioDetail:
+    # Derive file name from scenario name
+    file_name = body.name.lower().replace(" ", "-")
+    path = settings.scenarios_dir / f"{file_name}.json"
+    if path.is_file():
+        raise HTTPException(status_code=409, detail=f"Scenario '{file_name}' already exists")
+
+    data: dict[str, Any] = body.model_dump()
+    settings.scenarios_dir.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2))
+    return _to_detail(file_name, data)

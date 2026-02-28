@@ -11,6 +11,7 @@ interface ColorScaleState {
   setRange: (min: number, max: number) => void
 }
 
+/** Zustand store for color scale settings shared between 2D and 3D views. */
 export const useColorScaleStore = create<ColorScaleState>((set) => ({
   colormap: 'viridis',
   rangeMin: 0,

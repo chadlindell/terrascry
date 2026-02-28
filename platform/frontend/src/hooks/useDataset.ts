@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
 import type { Dataset } from '../api'
 
+/** Hook providing the active dataset and its derived fields (gridData, surveyPoints, metadata). */
 export function useDataset() {
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
   const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)

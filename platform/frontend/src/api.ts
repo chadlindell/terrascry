@@ -1,13 +1,19 @@
-/** Typed API client for the TERRASCRY backend. */
+/** Typed API client for the TERRASCRY backend.
+ *
+ * All interfaces mirror the backend Pydantic models exactly.
+ * API functions return typed promises and throw {@link ApiError} on failure.
+ */
 
 // --- Scenario types (mirrors backend api_models.py) ---
 
+/** Terrain extents and elevation for a scenario. */
 export interface TerrainSummary {
   x_extent: number[]
   y_extent: number[]
   surface_elevation: number
 }
 
+/** Summary of a buried object (name, type, position, radius). */
 export interface ObjectSummary {
   name: string
   object_type: string
@@ -15,6 +21,7 @@ export interface ObjectSummary {
   radius: number
 }
 
+/** Compact scenario representation returned by the list endpoint. */
 export interface ScenarioSummary {
   name: string
   file_name: string
@@ -23,6 +30,7 @@ export interface ScenarioSummary {
   terrain: TerrainSummary
 }
 
+/** Full scenario with objects, earth field, and raw JSON. */
 export interface ScenarioDetail extends ScenarioSummary {
   objects: ObjectSummary[]
   earth_field: number[]
@@ -32,6 +40,7 @@ export interface ScenarioDetail extends ScenarioSummary {
 
 // --- Dataset types (mirrors backend dataset.py) ---
 
+/** Regular grid of gradient values (flat row-major) for 2D heatmap rendering. */
 export interface GridData {
   rows: number
   cols: number
@@ -43,12 +52,14 @@ export interface GridData {
   unit: string
 }
 
+/** Single survey reading: position and vertical gradient in nanoTesla. */
 export interface SurveyPoint {
   x: number
   y: number
   gradient_nt: number
 }
 
+/** Metadata for a stored simulation dataset. */
 export interface DatasetMetadata {
   id: string
   scenario_name: string
@@ -56,12 +67,14 @@ export interface DatasetMetadata {
   params: Record<string, unknown>
 }
 
+/** Complete simulation output: metadata + grid + survey points. */
 export interface Dataset {
   metadata: DatasetMetadata
   grid_data: GridData
   survey_points: SurveyPoint[]
 }
 
+/** Request parameters for triggering a survey simulation. */
 export interface SimulateRequest {
   scenario_name: string
   line_spacing?: number
@@ -89,16 +102,19 @@ async function handleResponse<T>(res: Response): Promise<T> {
   return res.json()
 }
 
+/** Fetch all scenarios from the backend. */
 export async function fetchScenarios(): Promise<ScenarioSummary[]> {
   const res = await fetch('/api/scenarios')
   return handleResponse(res)
 }
 
+/** Fetch full detail for a single scenario by file name. */
 export async function fetchScenario(name: string): Promise<ScenarioDetail> {
   const res = await fetch(`/api/scenarios/${encodeURIComponent(name)}`)
   return handleResponse(res)
 }
 
+/** Trigger a survey simulation and return the resulting dataset. */
 export async function simulateSurvey(request: SimulateRequest): Promise<Dataset> {
   const res = await fetch('/api/surveys/simulate', {
     method: 'POST',
