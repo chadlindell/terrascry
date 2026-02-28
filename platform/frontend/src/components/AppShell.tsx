@@ -2,7 +2,7 @@ import { useAppStore } from '../stores/appStore'
 import { ScenarioSelector } from './ScenarioSelector'
 import { RunSurveyButton } from './RunSurveyButton'
 import { ColorScaleControl } from './ColorScaleControl'
-import { MapView } from './MapView'
+import { SplitWorkspace } from './SplitWorkspace'
 
 export function AppShell() {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
@@ -64,7 +64,7 @@ export function AppShell() {
             </svg>
           </button>
         )}
-        <MapView />
+        <SplitWorkspace />
       </main>
     </div>
   )
