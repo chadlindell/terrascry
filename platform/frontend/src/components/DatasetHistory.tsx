@@ -1,13 +1,16 @@
-/** Scrollable list of past simulation datasets with selection, delete, and virtual scrolling. */
+/** Scrollable list of past simulation datasets with selection, delete, compare, and virtual scrolling. */
 
 import { useRef } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useAppStore } from '../stores/appStore'
+import { useComparisonStore } from '../stores/comparisonStore'
 import { useDatasets, useDeleteDataset } from '../hooks/useDatasets'
 
 export function DatasetHistory() {
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
   const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)
+  const setViewMode = useAppStore((s) => s.setViewMode)
+  const setComparisonDatasetId = useComparisonStore((s) => s.setComparisonDatasetId)
   const { data: datasets, isLoading } = useDatasets()
   const { mutate: deleteMutation } = useDeleteDataset()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -25,6 +28,12 @@ export function DatasetHistory() {
     if (activeDatasetId === id) {
       setActiveDatasetId(null)
     }
+  }
+
+  const handleCompare = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    setComparisonDatasetId(id)
+    setViewMode('comparison')
   }
 
   if (isLoading) {
@@ -100,15 +109,27 @@ export function DatasetHistory() {
                       {date} {time}
                     </p>
                   </div>
-                  <button
-                    onClick={(e) => handleDelete(e, meta.id)}
-                    className="shrink-0 p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-zinc-700/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label={`Delete ${meta.scenario_name}`}
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  <div className="shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => handleCompare(e, meta.id)}
+                      className="p-1 rounded text-zinc-600 hover:text-blue-400 hover:bg-zinc-700/50"
+                      aria-label={`Compare ${meta.scenario_name}`}
+                      title="Compare"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM21 16c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={(e) => handleDelete(e, meta.id)}
+                      className="p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-zinc-700/50"
+                      aria-label={`Delete ${meta.scenario_name}`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </button>
               </div>
             )

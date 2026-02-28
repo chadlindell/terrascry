@@ -6,7 +6,12 @@ const SHORTCUTS = [
   { key: '1', description: '2D view' },
   { key: '2', description: 'Split view' },
   { key: '3', description: '3D view' },
+  { key: '4', description: 'Comparison view' },
   { key: '[', description: 'Toggle sidebar' },
+  { key: 'L', description: 'Toggle live stream' },
+  { key: 'A', description: 'Toggle anomalies' },
+  { key: 'X', description: 'Cross-section mode' },
+  { key: 'Esc', description: 'Cancel drawing' },
   { key: '?', description: 'Toggle this legend' },
 ]
 

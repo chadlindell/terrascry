@@ -41,11 +41,33 @@ for (let i = 0; i < 256; i++) {
   INFERNO.push([r, g, b])
 }
 
+// Blue-White-Red diverging colormap for difference maps
+const DIVERGING: [number, number, number][] = []
+for (let i = 0; i < 256; i++) {
+  const t = i / 255
+  if (t < 0.5) {
+    // Blue → White
+    const s = t * 2
+    const r = Math.round(255 * s)
+    const g = Math.round(255 * s)
+    const b = 255
+    DIVERGING.push([r, g, b])
+  } else {
+    // White → Red
+    const s = (t - 0.5) * 2
+    const r = 255
+    const g = Math.round(255 * (1 - s))
+    const b = Math.round(255 * (1 - s))
+    DIVERGING.push([r, g, b])
+  }
+}
+
 /** Available colormap lookup tables, each with 256 RGB entries. */
 export const COLORMAPS = {
   viridis: VIRIDIS,
   plasma: PLASMA,
   inferno: INFERNO,
+  diverging: DIVERGING,
 } as const
 
 /** Union type of available colormap names: 'viridis' | 'plasma' | 'inferno'. */

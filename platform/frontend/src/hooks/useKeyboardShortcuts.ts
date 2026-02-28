@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react'
 import { useAppStore } from '../stores/appStore'
+import { useStreamStore } from '../stores/streamStore'
+import { useCrossSectionStore } from '../stores/crossSectionStore'
 
 /** Registers global keydown listeners. Call once at app root. */
 export function useKeyboardShortcuts() {
@@ -24,11 +26,36 @@ export function useKeyboardShortcuts() {
         case '3':
           setViewMode('3d')
           break
+        case '4':
+          setViewMode('comparison')
+          break
         case '[':
           toggleSidebar()
           break
         case '?':
           useAppStore.setState((s) => ({ shortcutLegendOpen: !s.shortcutLegendOpen }))
+          break
+        case 'l':
+        case 'L':
+          useStreamStore.getState().toggleStream()
+          break
+        case 'a':
+        case 'A':
+          useAppStore.setState((s) => ({ showAnomalies: !s.showAnomalies }))
+          break
+        case 'x':
+        case 'X': {
+          const cs = useCrossSectionStore.getState()
+          if (cs.isDrawing) {
+            cs.setIsDrawing(false)
+          } else {
+            cs.reset()
+            cs.setIsDrawing(true)
+          }
+          break
+        }
+        case 'Escape':
+          useCrossSectionStore.getState().setIsDrawing(false)
           break
       }
     }

@@ -14,5 +14,10 @@ class Settings(BaseSettings):
     data_dir: Path = Path.home() / ".terrascry" / "datasets"
     cors_origins: list[str] = ["http://localhost:5173"]
 
+    # MQTT streaming (empty host = simulation mode)
+    mqtt_broker_host: str = ""
+    mqtt_broker_port: int = 1883
+    stream_rate_hz: float = 10.0
+
 
 settings = Settings()

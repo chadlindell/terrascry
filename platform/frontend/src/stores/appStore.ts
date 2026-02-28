@@ -3,7 +3,7 @@
 import { create } from 'zustand'
 
 /** Active view layout mode. */
-export type ViewMode = 'split' | '2d' | '3d'
+export type ViewMode = 'split' | '2d' | '3d' | 'comparison'
 
 interface AppState {
   selectedScenario: string | null
@@ -11,6 +11,7 @@ interface AppState {
   sidebarOpen: boolean
   viewMode: ViewMode
   shortcutLegendOpen: boolean
+  showAnomalies: boolean
   setSelectedScenario: (name: string | null) => void
   setActiveDatasetId: (id: string | null) => void
   toggleSidebar: () => void
@@ -24,6 +25,7 @@ export const useAppStore = create<AppState>((set) => ({
   sidebarOpen: true,
   viewMode: 'split',
   shortcutLegendOpen: false,
+  showAnomalies: false,
   setSelectedScenario: (name) => set({ selectedScenario: name }),
   setActiveDatasetId: (id) => set({ activeDatasetId: id }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
