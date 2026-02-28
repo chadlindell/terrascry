@@ -4,8 +4,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import scenarios
 
 app = FastAPI(title="TERRASCRY Platform", version="0.1.0")
+app.include_router(scenarios.router)
 
 app.add_middleware(
     CORSMiddleware,
