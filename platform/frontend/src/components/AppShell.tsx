@@ -1,4 +1,6 @@
 import { useAppStore } from '../stores/appStore'
+import { ScenarioSelector } from './ScenarioSelector'
+import { RunSurveyButton } from './RunSurveyButton'
 
 export function AppShell() {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
@@ -35,14 +37,13 @@ export function AppShell() {
         </div>
 
         {/* Scrollable content area */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
-          <p className="text-sm text-zinc-500">
-            Select a scenario to begin.
-          </p>
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          <ScenarioSelector />
         </div>
 
         {/* Controls — pinned at bottom */}
-        <div className="px-4 py-3 border-t border-zinc-700/50">
+        <div className="px-4 py-3 border-t border-zinc-700/50 space-y-2">
+          <RunSurveyButton />
           <p className="text-xs text-zinc-500">v0.1.0</p>
         </div>
       </aside>
