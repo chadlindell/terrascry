@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Project Documentation
+    url: https://github.com/chadlindell/terrascry/wiki
+    about: Check the wiki for architecture docs and design decisions
