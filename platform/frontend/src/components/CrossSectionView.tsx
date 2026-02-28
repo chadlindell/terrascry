@@ -47,20 +47,20 @@ export function CrossSectionView() {
   if (profileData.length === 0) return null
 
   return (
-    <div className="flex flex-col h-full bg-zinc-900 border-t border-zinc-700/50">
+    <div className="flex flex-col h-full bg-white border-t border-zinc-300/50">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-700/50">
-        <span className="text-xs font-medium text-zinc-400">Cross-Section Profile</span>
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-zinc-300/50">
+        <span className="text-xs font-medium text-zinc-500">Cross-Section Profile</span>
         <div className="flex gap-2">
           <button
             onClick={handleExport}
-            className="px-2 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="px-2 py-0.5 rounded text-[10px] bg-zinc-100 text-zinc-500 hover:text-zinc-800 transition-colors"
           >
             Export CSV
           </button>
           <button
             onClick={reset}
-            className="px-2 py-0.5 rounded text-[10px] bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="px-2 py-0.5 rounded text-[10px] bg-zinc-100 text-zinc-500 hover:text-zinc-800 transition-colors"
           >
             Close
           </button>
@@ -75,23 +75,23 @@ export function CrossSectionView() {
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#d4d4d8" />
             <XAxis
               dataKey="distance"
-              tick={{ fill: '#a1a1aa', fontSize: 10 }}
+              tick={{ fill: '#71717a', fontSize: 10 }}
               tickFormatter={(v: number) => `${v.toFixed(1)}m`}
-              stroke="#52525b"
+              stroke="#a1a1aa"
             />
             <YAxis
-              tick={{ fill: '#a1a1aa', fontSize: 10 }}
+              tick={{ fill: '#71717a', fontSize: 10 }}
               tickFormatter={(v: number) => `${v.toFixed(1)}`}
-              stroke="#52525b"
+              stroke="#a1a1aa"
               label={{ value: 'nT', angle: -90, position: 'insideLeft', fill: '#71717a', fontSize: 10 }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#27272a',
-                border: '1px solid #3f3f46',
+                backgroundColor: '#ffffff',
+                border: '1px solid #d4d4d8',
                 borderRadius: '4px',
                 fontSize: '11px',
               }}
@@ -106,7 +106,7 @@ export function CrossSectionView() {
               strokeWidth={1.5}
             />
             {cursorPosition !== null && (
-              <ReferenceLine x={cursorPosition} stroke="#fbbf24" strokeDasharray="3 3" />
+              <ReferenceLine x={cursorPosition} stroke="#f59e0b" strokeDasharray="3 3" />
             )}
           </LineChart>
         </ResponsiveContainer>

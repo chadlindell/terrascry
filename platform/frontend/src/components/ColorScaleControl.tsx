@@ -14,17 +14,17 @@ export function ColorScaleControl() {
 
   return (
     <div className="space-y-2">
-      <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+      <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
         Color Scale
       </span>
 
       {/* Colormap selector */}
       <div>
-        <label className="text-xs text-zinc-500 block mb-1">Palette</label>
+        <label className="text-xs text-zinc-400 block mb-1">Palette</label>
         <select
           value={colormap}
           onChange={(e) => setColormap(e.target.value as ColormapName)}
-          className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1.5 border border-zinc-700 focus:border-emerald-500 focus:outline-none"
+          className="w-full bg-white text-zinc-800 text-xs rounded px-2 py-1.5 border border-zinc-300 focus:border-emerald-500 focus:outline-none"
         >
           {COLORMAP_OPTIONS.map((name) => (
             <option key={name} value={name}>
@@ -37,21 +37,21 @@ export function ColorScaleControl() {
       {/* Range inputs */}
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-xs text-zinc-500 block mb-1">Min (nT)</label>
+          <label className="text-xs text-zinc-400 block mb-1">Min (nT)</label>
           <input
             type="number"
             value={rangeMin.toFixed(1)}
             onChange={(e) => setRange(parseFloat(e.target.value) || 0, rangeMax)}
-            className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1.5 border border-zinc-700 focus:border-emerald-500 focus:outline-none"
+            className="w-full bg-white text-zinc-800 text-xs rounded px-2 py-1.5 border border-zinc-300 focus:border-emerald-500 focus:outline-none"
           />
         </div>
         <div>
-          <label className="text-xs text-zinc-500 block mb-1">Max (nT)</label>
+          <label className="text-xs text-zinc-400 block mb-1">Max (nT)</label>
           <input
             type="number"
             value={rangeMax.toFixed(1)}
             onChange={(e) => setRange(rangeMin, parseFloat(e.target.value) || 0)}
-            className="w-full bg-zinc-800 text-zinc-200 text-xs rounded px-2 py-1.5 border border-zinc-700 focus:border-emerald-500 focus:outline-none"
+            className="w-full bg-white text-zinc-800 text-xs rounded px-2 py-1.5 border border-zinc-300 focus:border-emerald-500 focus:outline-none"
           />
         </div>
       </div>

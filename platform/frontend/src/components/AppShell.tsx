@@ -18,7 +18,7 @@ export function AppShell() {
 
   return (
     <div
-      className="h-screen overflow-hidden bg-zinc-950 text-zinc-100"
+      className="h-screen overflow-hidden bg-white text-zinc-900"
       style={{
         display: 'grid',
         gridTemplateColumns: sidebarOpen ? '320px 1fr' : '0px 1fr',
@@ -26,18 +26,18 @@ export function AppShell() {
     >
       {/* Sidebar */}
       <aside
-        className={`flex flex-col bg-zinc-900 border-r border-zinc-700/50 overflow-hidden transition-all ${
+        className={`flex flex-col bg-zinc-50 border-r border-zinc-300/50 overflow-hidden transition-all ${
           sidebarOpen ? 'w-full' : 'w-0'
         }`}
       >
         {/* Header — pinned */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-700/50">
-          <h1 className="text-lg font-semibold tracking-tight text-zinc-100">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-300/50">
+          <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
             TERRASCRY
           </h1>
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+            className="p-1 rounded text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 transition-colors"
             aria-label="Close sidebar"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -55,21 +55,21 @@ export function AppShell() {
         </div>
 
         {/* Controls — pinned at bottom */}
-        <div className="px-4 py-3 border-t border-zinc-700/50 space-y-3">
+        <div className="px-4 py-3 border-t border-zinc-300/50 space-y-3">
           <ColorScaleControl />
           <SimulationParams />
           <RunSurveyButton />
           <ExportButton />
-          <p className="text-xs text-zinc-500">v0.1.0</p>
+          <p className="text-xs text-zinc-400">v0.1.0</p>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="relative bg-zinc-950 overflow-hidden">
+      <main className="relative bg-zinc-100 overflow-hidden">
         {!sidebarOpen && (
           <button
             onClick={toggleSidebar}
-            className="absolute top-3 left-3 p-1.5 rounded bg-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-700 transition-colors z-10"
+            className="absolute top-3 left-3 p-1.5 rounded bg-white text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 transition-colors z-10 shadow-sm"
             aria-label="Open sidebar"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

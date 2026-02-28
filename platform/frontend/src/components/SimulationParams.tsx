@@ -15,8 +15,8 @@ function ParamSlider({ label, value, min, max, step, onChange }: ParamSliderProp
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <label className="text-xs text-zinc-400">{label}</label>
-        <span className="text-xs font-mono text-zinc-300">{value.toFixed(1)}m</span>
+        <label className="text-xs text-zinc-500">{label}</label>
+        <span className="text-xs font-mono text-zinc-700">{value.toFixed(1)}m</span>
       </div>
       <input
         type="range"
@@ -25,7 +25,7 @@ function ParamSlider({ label, value, min, max, step, onChange }: ParamSliderProp
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
       />
     </div>
   )
@@ -41,7 +41,7 @@ export function SimulationParams() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
         Parameters
       </h3>
       <ParamSlider

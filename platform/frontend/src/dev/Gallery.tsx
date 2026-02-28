@@ -14,9 +14,9 @@ const galleryQueryClient = new QueryClient({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-zinc-700 rounded-lg overflow-hidden">
-      <div className="bg-zinc-800 px-4 py-2 border-b border-zinc-700">
-        <h2 className="text-sm font-semibold text-zinc-200">{title}</h2>
+    <div className="border border-zinc-300 rounded-lg overflow-hidden">
+      <div className="bg-zinc-100 px-4 py-2 border-b border-zinc-300">
+        <h2 className="text-sm font-semibold text-zinc-800">{title}</h2>
       </div>
       <div className="p-4">{children}</div>
     </div>
@@ -25,16 +25,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function GalleryContent() {
   return (
-    <div className="min-h-screen bg-zinc-900 text-zinc-100 p-8">
+    <div className="min-h-screen bg-white text-zinc-900 p-8">
       <h1 className="text-2xl font-bold mb-2">TERRASCRY Component Gallery</h1>
-      <p className="text-sm text-zinc-400 mb-8">
+      <p className="text-sm text-zinc-500 mb-8">
         Dev-only page for visual testing. Only available when{' '}
-        <code className="bg-zinc-800 px-1 rounded">import.meta.env.DEV</code> is true.
+        <code className="bg-zinc-100 px-1 rounded">import.meta.env.DEV</code> is true.
       </p>
 
       <div className="grid gap-6 max-w-2xl">
         <Section title="ScenarioSelector">
-          <div className="w-80 bg-zinc-900 border border-zinc-700 rounded">
+          <div className="w-80 bg-white border border-zinc-300 rounded">
             <ScenarioSelector />
           </div>
         </Section>

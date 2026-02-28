@@ -11,6 +11,7 @@ import { useStreamStore } from '../stores/streamStore'
 import { useCrossSectionStore } from '../stores/crossSectionStore'
 import { gridToImageData, getValueRange, COLORMAPS } from '../colormap'
 import { computeProfile } from '../utils/profile'
+import { useAnomalies } from '../hooks/useAnomalies'
 import type { Dataset, AnomalyCell } from '../api'
 import type { StreamPoint } from '../types/streaming'
 
@@ -40,8 +41,10 @@ export function MapView() {
   const csSetProfile = useCrossSectionStore((s) => s.setProfileData)
 
   // Anomaly data from REST endpoint
-  const anomalyCells: AnomalyCell[] =
-    queryClient.getQueryData<AnomalyCell[]>(['anomalies', activeDatasetId]) ?? []
+  const { data: fetchedAnomalies } = useAnomalies(
+    showAnomalies ? activeDatasetId : null
+  )
+  const anomalyCells: AnomalyCell[] = fetchedAnomalies ?? []
 
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
   const [deck, setDeck] = useState<Deck | null>(null)
@@ -131,6 +134,7 @@ export function MapView() {
         },
         controller: true,
         style: { position: 'absolute', inset: '0' },
+        parameters: { clearColor: [0.95, 0.95, 0.96, 1] },
         layers: [],
         onClick: (info: { coordinate?: number[] }) => {
           // Delegate to current handler via ref
@@ -151,12 +155,13 @@ export function MapView() {
           return {
             text: `X: ${coordinate[0].toFixed(1)}m  Y: ${coordinate[1].toFixed(1)}m\n${val.toFixed(1)} nT`,
             style: {
-              backgroundColor: '#27272a',
-              color: '#e4e4e7',
+              backgroundColor: '#ffffff',
+              color: '#3f3f46',
               fontSize: '12px',
               padding: '6px 10px',
               borderRadius: '4px',
-              border: '1px solid #3f3f46',
+              border: '1px solid #d4d4d8',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             },
           }
         },
@@ -194,7 +199,7 @@ export function MapView() {
           id: 'survey-track',
           data: [{ path: surveyPath }],
           getPath: (d: { path: [number, number][] }) => d.path,
-          getColor: [255, 255, 255, 160],
+          getColor: [80, 80, 80, 160],
           getWidth: 0.05,
           widthUnits: 'meters' as const,
           pickable: false,

@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
+import { useAnomalies } from '../hooks/useAnomalies'
 import { useColorScaleStore } from '../stores/colorScaleStore'
 import { useScenarioDetail } from '../hooks/useScenarios'
 import { TerrainMesh } from './TerrainMesh'
@@ -40,8 +41,10 @@ export function SceneView() {
     ? queryClient.getQueryData<Dataset>(['dataset', activeDatasetId])
     : null
 
-  const anomalyCells: AnomalyCell[] =
-    queryClient.getQueryData<AnomalyCell[]>(['anomalies', activeDatasetId]) ?? []
+  const { data: fetchedAnomalies } = useAnomalies(
+    showAnomalies ? activeDatasetId : null
+  )
+  const anomalyCells: AnomalyCell[] = fetchedAnomalies ?? []
 
   // Compute camera target from scenario terrain
   const cameraTarget = useMemo(() => {
@@ -82,7 +85,7 @@ export function SceneView() {
         far: 500,
       }}
       frameloop="demand"
-      style={{ background: '#09090b' }}
+      style={{ background: '#f4f4f5' }}
     >
       {/* Lighting */}
       <ambientLight intensity={0.4} />

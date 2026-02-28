@@ -56,14 +56,14 @@ export function StreamControl() {
 
   return (
     <div className="px-4 py-3">
-      <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
+      <h2 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
         Live Stream
       </h2>
 
       {/* Status row */}
       <div className="flex items-center gap-2 mb-2">
         <span className={`w-2 h-2 rounded-full ${STATUS_COLORS[status]}`} />
-        <span className="text-xs text-zinc-300 capitalize">{status}</span>
+        <span className="text-xs text-zinc-700 capitalize">{status}</span>
         {status === 'connected' && (
           <span className="text-xs text-zinc-500 ml-auto">{messageRate} msg/s</span>
         )}
@@ -74,10 +74,10 @@ export function StreamControl() {
         value={selectedScenario}
         onChange={(e) => setSelectedScenario(e.target.value)}
         disabled={backendRunning}
-        className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-xs text-zinc-300 disabled:opacity-50"
+        className="w-full mb-2 px-2 py-1 rounded bg-white border border-zinc-300 text-xs text-zinc-700 disabled:opacity-50"
       >
         {scenarios?.map((s) => (
-          <option key={s.name} value={s.name}>
+          <option key={s.file_name} value={s.file_name}>
             {s.name}
           </option>
         )) ?? <option value={selectedScenario}>{selectedScenario}</option>}
@@ -106,15 +106,15 @@ export function StreamControl() {
           onClick={toggleStream}
           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
             streamEnabled
-              ? 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
-              : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700'
+              ? 'bg-zinc-200 text-zinc-700 hover:bg-zinc-300'
+              : 'bg-zinc-100 text-zinc-500 hover:bg-zinc-200'
           }`}
         >
           {streamEnabled ? 'WS On' : 'WS Off'}
         </button>
         <button
           onClick={clearPoints}
-          className="px-2 py-1 rounded bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs transition-colors"
+          className="px-2 py-1 rounded bg-zinc-100 text-zinc-500 hover:text-zinc-700 text-xs transition-colors"
         >
           Clear
         </button>

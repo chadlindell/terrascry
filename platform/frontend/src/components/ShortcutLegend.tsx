@@ -21,17 +21,17 @@ export function ShortcutLegend() {
   if (!open) return null
 
   return (
-    <div className="absolute bottom-3 right-3 z-20 rounded bg-zinc-800/95 backdrop-blur-sm border border-zinc-700/50 p-3 shadow-lg">
-      <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
+    <div className="absolute bottom-3 right-3 z-20 rounded bg-white/95 backdrop-blur-sm border border-zinc-300/50 p-3 shadow-lg">
+      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
         Shortcuts
       </h3>
       <div className="space-y-1">
         {SHORTCUTS.map(({ key, description }) => (
           <div key={key} className="flex items-center gap-3 text-xs">
-            <kbd className="inline-flex items-center justify-center w-6 h-5 rounded bg-zinc-700 text-zinc-300 font-mono text-[10px]">
+            <kbd className="inline-flex items-center justify-center w-6 h-5 rounded bg-zinc-200 text-zinc-700 font-mono text-[10px]">
               {key}
             </kbd>
-            <span className="text-zinc-400">{description}</span>
+            <span className="text-zinc-500">{description}</span>
           </div>
         ))}
       </div>

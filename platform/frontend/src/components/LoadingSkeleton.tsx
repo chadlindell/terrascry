@@ -2,8 +2,8 @@
 
 export function LoadingSkeleton() {
   return (
-    <div className="flex items-center justify-center h-full bg-zinc-800 animate-pulse rounded">
-      <p className="text-sm text-zinc-500">Loading...</p>
+    <div className="flex items-center justify-center h-full bg-zinc-100 animate-pulse rounded">
+      <p className="text-sm text-zinc-400">Loading...</p>
     </div>
   )
 }

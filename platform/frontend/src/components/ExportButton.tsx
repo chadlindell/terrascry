@@ -37,7 +37,7 @@ export function ExportButton() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors bg-zinc-700 hover:bg-zinc-600 text-zinc-200"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors bg-zinc-200 hover:bg-zinc-300 text-zinc-700"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -46,12 +46,12 @@ export function ExportButton() {
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-1 rounded bg-zinc-800 border border-zinc-700 shadow-lg overflow-hidden z-20">
+        <div className="absolute bottom-full left-0 right-0 mb-1 rounded bg-white border border-zinc-300 shadow-lg overflow-hidden z-20">
           {FORMATS.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => handleExport(value)}
-              className="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100 transition-colors"
             >
               {label}
             </button>

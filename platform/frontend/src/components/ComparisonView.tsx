@@ -42,7 +42,7 @@ function DifferenceView() {
   if (!datasetA || !datasetB || !diffImageData) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-zinc-500 text-sm">
+        <p className="text-zinc-400 text-sm">
           Select two datasets to compare (active + comparison).
         </p>
       </div>
@@ -54,9 +54,9 @@ function DifferenceView() {
 
   return (
     <div className="relative w-full h-full">
-      <div className="absolute top-3 left-3 z-10 bg-zinc-800/80 backdrop-blur-sm border border-zinc-700/50 rounded p-2 text-xs text-zinc-300">
+      <div className="absolute top-3 left-3 z-10 bg-white/80 backdrop-blur-sm border border-zinc-300/50 rounded p-2 text-xs text-zinc-700 shadow-sm">
         <p>Difference: {datasetA.metadata.scenario_name} − {datasetB.metadata.scenario_name}</p>
-        <p className="text-zinc-500">Range: {rMin.toFixed(1)} to {rMax.toFixed(1)} nT</p>
+        <p className="text-zinc-400">Range: {rMin.toFixed(1)} to {rMax.toFixed(1)} nT</p>
       </div>
       {/* Render difference as a simple canvas */}
       <DiffCanvas imageData={diffImageData.imageData} cols={g.cols} rows={g.rows} />
@@ -92,11 +92,11 @@ function ComparisonControls() {
   const { data: datasets } = useDatasets()
 
   return (
-    <div className="absolute bottom-3 left-3 z-10 bg-zinc-800/90 backdrop-blur-sm border border-zinc-700/50 rounded p-2 flex items-center gap-3">
+    <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur-sm border border-zinc-300/50 rounded p-2 flex items-center gap-3 shadow-sm">
       <select
         value={comparisonDatasetId ?? ''}
         onChange={(e) => setComparisonDatasetId(e.target.value || null)}
-        className="px-2 py-1 rounded bg-zinc-700 border border-zinc-600 text-xs text-zinc-300"
+        className="px-2 py-1 rounded bg-zinc-100 border border-zinc-300 text-xs text-zinc-700"
       >
         <option value="">Compare with...</option>
         {datasets?.map((d) => (
@@ -109,7 +109,7 @@ function ComparisonControls() {
         <button
           onClick={() => setMode('side-by-side')}
           className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-            mode === 'side-by-side' ? 'bg-emerald-600 text-white' : 'bg-zinc-700 text-zinc-400'
+            mode === 'side-by-side' ? 'bg-emerald-600 text-white' : 'bg-zinc-200 text-zinc-500'
           }`}
         >
           Side-by-Side
@@ -117,7 +117,7 @@ function ComparisonControls() {
         <button
           onClick={() => setMode('difference')}
           className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-            mode === 'difference' ? 'bg-emerald-600 text-white' : 'bg-zinc-700 text-zinc-400'
+            mode === 'difference' ? 'bg-emerald-600 text-white' : 'bg-zinc-200 text-zinc-500'
           }`}
         >
           Difference
@@ -137,7 +137,7 @@ export function ComparisonView() {
 
       {!comparisonDatasetId ? (
         <div className="flex items-center justify-center h-full">
-          <p className="text-zinc-500 text-sm">
+          <p className="text-zinc-400 text-sm">
             Select a comparison dataset below.
           </p>
         </div>
@@ -152,10 +152,10 @@ export function ComparisonView() {
               </ErrorBoundary>
             </div>
           </Panel>
-          <Separator className="w-1 bg-zinc-700 hover:bg-emerald-500 transition-colors cursor-col-resize" />
+          <Separator className="w-1 bg-zinc-300 hover:bg-emerald-500 transition-colors cursor-col-resize" />
           <Panel defaultSize={50} minSize={20}>
             <div className="h-full relative">
-              <div className="absolute top-3 left-3 z-10 bg-zinc-800/80 backdrop-blur-sm border border-zinc-700/50 rounded px-2 py-1 text-xs text-zinc-400">
+              <div className="absolute top-3 left-3 z-10 bg-white/80 backdrop-blur-sm border border-zinc-300/50 rounded px-2 py-1 text-xs text-zinc-500 shadow-sm">
                 Comparison dataset
               </div>
               <ErrorBoundary>
