@@ -82,6 +82,11 @@ describe('RunSurveyButton', () => {
     await user.click(screen.getByRole('button', { name: /run survey/i }))
 
     expect(mockReset).toHaveBeenCalled()
-    expect(mockMutate).toHaveBeenCalledWith({ scenario_name: 'my-scenario' })
+    expect(mockMutate).toHaveBeenCalledWith({
+      scenario_name: 'my-scenario',
+      line_spacing: 1,
+      sample_spacing: 0.5,
+      resolution: 0.5,
+    })
   })
 })

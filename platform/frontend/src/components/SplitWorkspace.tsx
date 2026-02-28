@@ -1,9 +1,13 @@
 /** Split view layout: 2D heatmap left, 3D scene right, with resizable divider. */
 
+import { lazy, Suspense } from 'react'
 import { Panel, Group, Separator } from 'react-resizable-panels'
 import { useAppStore, type ViewMode } from '../stores/appStore'
-import { MapView } from './MapView'
-import { SceneView } from './SceneView'
+import { ErrorBoundary } from './ErrorBoundary'
+import { LoadingSkeleton } from './LoadingSkeleton'
+
+const MapView = lazy(() => import('./MapView'))
+const SceneView = lazy(() => import('./SceneView'))
 
 const VIEW_MODES: { mode: ViewMode; label: string }[] = [
   { mode: '2d', label: '2D' },
@@ -45,7 +49,11 @@ export function SplitWorkspace() {
         <Group direction="horizontal" className="h-full">
           <Panel defaultSize={50} minSize={20}>
             <div className="h-full">
-              <MapView />
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingSkeleton />}>
+                  <MapView />
+                </Suspense>
+              </ErrorBoundary>
             </div>
           </Panel>
 
@@ -53,14 +61,26 @@ export function SplitWorkspace() {
 
           <Panel defaultSize={50} minSize={20}>
             <div className="h-full">
-              <SceneView />
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingSkeleton />}>
+                  <SceneView />
+                </Suspense>
+              </ErrorBoundary>
             </div>
           </Panel>
         </Group>
       ) : viewMode === '2d' ? (
-        <MapView />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSkeleton />}>
+            <MapView />
+          </Suspense>
+        </ErrorBoundary>
       ) : (
-        <SceneView />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingSkeleton />}>
+            <SceneView />
+          </Suspense>
+        </ErrorBoundary>
       )}
     </div>
   )

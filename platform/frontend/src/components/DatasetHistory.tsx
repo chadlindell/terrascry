@@ -1,0 +1,120 @@
+/** Scrollable list of past simulation datasets with selection, delete, and virtual scrolling. */
+
+import { useRef } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { useAppStore } from '../stores/appStore'
+import { useDatasets, useDeleteDataset } from '../hooks/useDatasets'
+
+export function DatasetHistory() {
+  const activeDatasetId = useAppStore((s) => s.activeDatasetId)
+  const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)
+  const { data: datasets, isLoading } = useDatasets()
+  const { mutate: deleteMutation } = useDeleteDataset()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const rowVirtualizer = useVirtualizer({
+    count: datasets?.length ?? 0,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 56,
+    overscan: 5,
+  })
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    deleteMutation(id)
+    if (activeDatasetId === id) {
+      setActiveDatasetId(null)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="px-4 py-3">
+        <p className="text-xs text-zinc-500">Loading datasets...</p>
+      </div>
+    )
+  }
+
+  if (!datasets || datasets.length === 0) {
+    return (
+      <div className="px-4 py-3">
+        <p className="text-xs text-zinc-500">
+          No datasets yet. Run a survey or import data to get started.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="px-4 py-3">
+      <h2 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">
+        History
+      </h2>
+      <div
+        ref={scrollRef}
+        className="overflow-y-auto"
+        style={{ maxHeight: 300 }}
+      >
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const meta = datasets[virtualRow.index]
+            const isActive = meta.id === activeDatasetId
+            const time = new Date(meta.created_at).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+            const date = new Date(meta.created_at).toLocaleDateString([], {
+              month: 'short',
+              day: 'numeric',
+            })
+
+            return (
+              <div
+                key={meta.id}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${virtualRow.size}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <button
+                  onClick={() => setActiveDatasetId(meta.id)}
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded text-left text-sm transition-colors group ${
+                    isActive
+                      ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-600/30'
+                      : 'text-zinc-300 hover:bg-zinc-800 border border-transparent'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{meta.scenario_name}</p>
+                    <p className="text-xs text-zinc-500">
+                      {date} {time}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => handleDelete(e, meta.id)}
+                    className="shrink-0 p-1 rounded text-zinc-600 hover:text-red-400 hover:bg-zinc-700/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label={`Delete ${meta.scenario_name}`}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}

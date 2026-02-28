@@ -1,6 +1,6 @@
 /** 2D heatmap view using deck.gl with OrthographicView. */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Deck } from '@deck.gl/core'
 import { BitmapLayer, PathLayer } from '@deck.gl/layers'
 import { OrthographicView } from '@deck.gl/core'
@@ -25,6 +25,10 @@ export function MapView() {
   const dataset = activeDatasetId
     ? queryClient.getQueryData<Dataset>(['dataset', activeDatasetId])
     : null
+
+  // Ref for tooltip callback (avoids stale closure)
+  const dataRef = useRef<Dataset | null>(null)
+  dataRef.current = dataset
 
   // Auto-set range when new dataset arrives
   useEffect(() => {
@@ -75,6 +79,25 @@ export function MapView() {
         controller: true,
         style: { position: 'absolute', inset: '0' },
         layers: [],
+        getTooltip: ({ coordinate }: { coordinate?: number[] }) => {
+          if (!coordinate || !dataRef.current) return null
+          const g = dataRef.current.grid_data
+          const col = Math.floor((coordinate[0] - g.x_min) / g.dx)
+          const row = Math.floor((coordinate[1] - g.y_min) / g.dy)
+          if (row < 0 || row >= g.rows || col < 0 || col >= g.cols) return null
+          const val = g.values[row * g.cols + col]
+          return {
+            text: `X: ${coordinate[0].toFixed(1)}m  Y: ${coordinate[1].toFixed(1)}m\n${val.toFixed(1)} nT`,
+            style: {
+              backgroundColor: '#27272a',
+              color: '#e4e4e7',
+              fontSize: '12px',
+              padding: '6px 10px',
+              borderRadius: '4px',
+              border: '1px solid #3f3f46',
+            },
+          }
+        },
       })
       setDeck(newDeck)
     },
@@ -94,7 +117,7 @@ export function MapView() {
           id: 'heatmap',
           image: imageData,
           bounds,
-          pickable: false,
+          pickable: true,
         }),
       )
     }
@@ -157,3 +180,5 @@ export function MapView() {
 
   return <div ref={initDeck} className="relative w-full h-full" />
 }
+
+export default MapView

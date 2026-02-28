@@ -5,6 +5,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
+import { useColorScaleStore } from '../stores/colorScaleStore'
 import { useScenarioDetail } from '../hooks/useScenarios'
 import { TerrainMesh } from './TerrainMesh'
 import { BuriedObjects } from './BuriedObjects'
@@ -15,6 +16,9 @@ export function SceneView() {
   const selectedScenario = useAppStore((s) => s.selectedScenario)
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
   const queryClient = useQueryClient()
+  const colormap = useColorScaleStore((s) => s.colormap)
+  const rangeMin = useColorScaleStore((s) => s.rangeMin)
+  const rangeMax = useColorScaleStore((s) => s.rangeMax)
 
   const { data: scenario } = useScenarioDetail(selectedScenario)
 
@@ -71,7 +75,12 @@ export function SceneView() {
       <OrbitControls target={cameraTarget} makeDefault />
 
       {/* Terrain */}
-      <TerrainMesh scenario={scenario} />
+      <TerrainMesh
+        scenario={scenario}
+        dataset={dataset ?? undefined}
+        colormap={colormap}
+        range={[rangeMin, rangeMax]}
+      />
 
       {/* Buried objects */}
       {scenario.objects.length > 0 && (
@@ -85,3 +94,5 @@ export function SceneView() {
     </Canvas>
   )
 }
+
+export default SceneView

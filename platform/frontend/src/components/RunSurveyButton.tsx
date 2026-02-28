@@ -1,6 +1,7 @@
 /** Run Survey button with loading spinner and inline error display. */
 
 import { useAppStore } from '../stores/appStore'
+import { useSimulationParamsStore } from '../stores/simulationParamsStore'
 import { useSimulate } from '../hooks/useSimulate'
 
 function Spinner() {
@@ -29,13 +30,21 @@ function Spinner() {
 
 export function RunSurveyButton() {
   const selectedScenario = useAppStore((s) => s.selectedScenario)
+  const lineSpacing = useSimulationParamsStore((s) => s.lineSpacing)
+  const sampleSpacing = useSimulationParamsStore((s) => s.sampleSpacing)
+  const resolution = useSimulationParamsStore((s) => s.resolution)
   const { mutate, isPending, error, reset } = useSimulate()
 
   if (!selectedScenario) return null
 
   const handleClick = () => {
     reset()
-    mutate({ scenario_name: selectedScenario })
+    mutate({
+      scenario_name: selectedScenario,
+      line_spacing: lineSpacing,
+      sample_spacing: sampleSpacing,
+      resolution,
+    })
   }
 
   return (

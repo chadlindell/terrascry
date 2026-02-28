@@ -10,6 +10,7 @@ interface AppState {
   activeDatasetId: string | null
   sidebarOpen: boolean
   viewMode: ViewMode
+  shortcutLegendOpen: boolean
   setSelectedScenario: (name: string | null) => void
   setActiveDatasetId: (id: string | null) => void
   toggleSidebar: () => void
@@ -22,6 +23,7 @@ export const useAppStore = create<AppState>((set) => ({
   activeDatasetId: null,
   sidebarOpen: true,
   viewMode: 'split',
+  shortcutLegendOpen: false,
   setSelectedScenario: (name) => set({ selectedScenario: name }),
   setActiveDatasetId: (id) => set({ activeDatasetId: id }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),

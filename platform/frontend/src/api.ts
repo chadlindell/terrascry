@@ -123,3 +123,29 @@ export async function simulateSurvey(request: SimulateRequest): Promise<Dataset>
   })
   return handleResponse(res)
 }
+
+/** Fetch metadata for all stored datasets, newest first. */
+export async function fetchDatasets(): Promise<DatasetMetadata[]> {
+  const res = await fetch('/api/datasets')
+  return handleResponse(res)
+}
+
+/** Delete a dataset by ID. */
+export async function deleteDataset(id: string): Promise<void> {
+  const res = await fetch(`/api/datasets/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new ApiError(res.status, body.detail ?? res.statusText)
+  }
+}
+
+/** Upload a CSV file and return the created dataset. */
+export async function uploadDataset(file: File): Promise<Dataset> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await fetch('/api/imports/upload', {
+    method: 'POST',
+    body: formData,
+  })
+  return handleResponse(res)
+}

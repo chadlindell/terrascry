@@ -1,12 +1,19 @@
 import { useAppStore } from '../stores/appStore'
 import { ScenarioSelector } from './ScenarioSelector'
+import { DatasetHistory } from './DatasetHistory'
+import { ImportPanel } from './ImportPanel'
+import { SimulationParams } from './SimulationParams'
 import { RunSurveyButton } from './RunSurveyButton'
+import { ExportButton } from './ExportButton'
 import { ColorScaleControl } from './ColorScaleControl'
+import { ShortcutLegend } from './ShortcutLegend'
 import { SplitWorkspace } from './SplitWorkspace'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 export function AppShell() {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
+  useKeyboardShortcuts()
 
   return (
     <div
@@ -41,12 +48,16 @@ export function AppShell() {
         {/* Scrollable content area */}
         <div className="flex-1 min-h-0 overflow-y-auto">
           <ScenarioSelector />
+          <DatasetHistory />
+          <ImportPanel />
         </div>
 
         {/* Controls — pinned at bottom */}
         <div className="px-4 py-3 border-t border-zinc-700/50 space-y-3">
           <ColorScaleControl />
+          <SimulationParams />
           <RunSurveyButton />
+          <ExportButton />
           <p className="text-xs text-zinc-500">v0.1.0</p>
         </div>
       </aside>
@@ -65,6 +76,7 @@ export function AppShell() {
           </button>
         )}
         <SplitWorkspace />
+        <ShortcutLegend />
       </main>
     </div>
   )
