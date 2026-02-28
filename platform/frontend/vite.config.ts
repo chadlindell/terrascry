@@ -16,4 +16,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'deckgl-vendor': ['@deck.gl/core', '@deck.gl/layers', '@deck.gl/react'],
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          'query-vendor': ['@tanstack/react-query', 'zustand'],
+        },
+      },
+    },
+  },
 })

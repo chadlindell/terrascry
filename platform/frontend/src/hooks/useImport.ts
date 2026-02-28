@@ -1,22 +1,18 @@
-/** Mutation hook for triggering survey simulation. */
+/** Mutation hook for CSV file upload. */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { simulateSurvey, type Dataset } from '../api'
+import { uploadDataset, type Dataset } from '../api'
 import { useAppStore } from '../stores/appStore'
 
-/** Mutation hook that triggers a survey simulation, caches the result, and updates the active dataset ID. */
-export function useSimulate() {
+export function useImport() {
   const queryClient = useQueryClient()
   const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)
 
   return useMutation({
-    mutationFn: simulateSurvey,
+    mutationFn: uploadDataset,
     onSuccess: (dataset: Dataset) => {
-      // Seed TanStack Query cache with the dataset (avoids storing large arrays in Zustand)
       queryClient.setQueryData(['dataset', dataset.metadata.id], dataset)
-      // Refresh the dataset history list
       queryClient.invalidateQueries({ queryKey: ['datasets'] })
-      // Store only the ID in Zustand for UI selection
       setActiveDatasetId(dataset.metadata.id)
     },
   })
