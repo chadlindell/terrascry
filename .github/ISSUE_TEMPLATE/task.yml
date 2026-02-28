@@ -1,0 +1,55 @@
+name: Task
+description: A development task or work item
+title: "[Task]: "
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Define a specific task to be completed.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How do we know this task is complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+  - type: dropdown
+    id: epic
+    attributes:
+      label: Related Epic
+      options:
+        - "1: Backend Skeleton"
+        - "2: Scenarios API"
+        - "3: Physics Service & Survey Simulation"
+        - "4: Dataset Storage"
+        - "5: Frontend Skeleton"
+        - "6: Scenario UI & Simulation Trigger"
+        - "7: 2D Heatmap View"
+        - "8: 3D Scene View"
+        - "9: Split View & Polish"
+        - None
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Backend
+        - Frontend
+        - Physics Engine
+        - Infrastructure
+        - Other
+    validations:
+      required: true

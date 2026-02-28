@@ -1,0 +1,48 @@
+name: Platform CI
+
+on:
+  push:
+    paths:
+      - 'platform/**'
+      - 'shared/**'
+    branches: [main, develop]
+  pull_request:
+    paths:
+      - 'platform/**'
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install physics engine
+        run: cd geosim && pip install -e .
+
+      - name: Install platform backend
+        run: cd platform/backend && pip install -e ".[dev]"
+
+      - name: Run tests
+        run: cd platform/backend && pytest tests/ -v --tb=short
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint
+        run: cd platform/backend && ruff check app/

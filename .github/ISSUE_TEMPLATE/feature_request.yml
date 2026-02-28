@@ -1,0 +1,50 @@
+name: Feature Request
+description: Propose a new feature or enhancement
+title: "[Feature]: "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the feature you'd like to see in TERRASCRY.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of the feature.
+      placeholder: What do you want to add or change?
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this feature needed? What problem does it solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: How would you implement this?
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other approaches you've thought about.
+    validations:
+      required: false
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Backend
+        - Frontend
+        - Physics Engine
+        - Infrastructure
+        - Other
+    validations:
+      required: true
