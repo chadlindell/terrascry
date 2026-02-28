@@ -4,11 +4,13 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from app.dataset import Dataset
+from app.services.dataset_store import DatasetStore
 from app.services.physics import PhysicsEngine
 
 router = APIRouter(prefix="/api/surveys", tags=["surveys"])
 
 engine = PhysicsEngine()
+store = DatasetStore()
 
 
 class SimulateRequest(BaseModel):
@@ -23,7 +25,7 @@ class SimulateRequest(BaseModel):
 @router.post("/simulate", response_model=Dataset)
 async def simulate_survey(request: SimulateRequest) -> Dataset:
     try:
-        return engine.simulate(
+        dataset = engine.simulate(
             scenario_name=request.scenario_name,
             line_spacing=request.line_spacing,
             sample_spacing=request.sample_spacing,
@@ -31,3 +33,5 @@ async def simulate_survey(request: SimulateRequest) -> Dataset:
         )
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Scenario '{request.scenario_name}' not found")
+    store.save(dataset)
+    return dataset

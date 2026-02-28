@@ -4,11 +4,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import scenarios, surveys
+from app.routers import datasets, scenarios, surveys
 
 app = FastAPI(title="TERRASCRY Platform", version="0.1.0")
 app.include_router(scenarios.router)
 app.include_router(surveys.router)
+app.include_router(datasets.router)
 
 app.add_middleware(
     CORSMiddleware,
