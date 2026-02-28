@@ -12,10 +12,12 @@ dev: ## Start backend and frontend dev servers
 test: ## Run all tests
 	cd backend && pytest tests/ -v --tb=short
 	cd frontend && npx tsc --noEmit
+	cd frontend && npm test
 
 lint: ## Lint backend and frontend
 	cd backend && ruff check app/
 	cd frontend && npx tsc --noEmit
+	cd frontend && npm run lint
 
 build: ## Production build
 	cd frontend && npm run build

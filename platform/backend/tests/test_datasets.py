@@ -111,6 +111,28 @@ class TestDatasetStore:
         assert raw["grid_data"]["rows"] == 2
         assert len(raw["survey_points"]) == 2
 
+    def test_delete_existing(self, store, data_dir):
+        dataset = _make_dataset()
+        store.save(dataset)
+        assert store.delete(dataset.metadata.id) is True
+        assert not (data_dir / f"{dataset.metadata.id}.json").is_file()
+        assert store.get(dataset.metadata.id) is None
+
+    def test_delete_not_found(self, store):
+        from uuid import uuid4
+
+        assert store.delete(uuid4()) is False
+
+    def test_delete_removes_from_list(self, store):
+        d1 = _make_dataset("keep")
+        d2 = _make_dataset("remove")
+        store.save(d1)
+        store.save(d2)
+        store.delete(d2.metadata.id)
+        metadata_list = store.list()
+        assert len(metadata_list) == 1
+        assert metadata_list[0].scenario_name == "keep"
+
 
 # --- API endpoint tests ---
 
@@ -145,6 +167,23 @@ async def test_get_dataset_not_found(client):
     from uuid import uuid4
 
     resp = await client.get(f"/api/datasets/{uuid4()}")
+    assert resp.status_code == 404
+
+
+async def test_delete_dataset(client, store):
+    dataset = _make_dataset()
+    store.save(dataset)
+    resp = await client.delete(f"/api/datasets/{dataset.metadata.id}")
+    assert resp.status_code == 204
+    # Verify it's gone
+    resp2 = await client.get(f"/api/datasets/{dataset.metadata.id}")
+    assert resp2.status_code == 404
+
+
+async def test_delete_dataset_not_found(client):
+    from uuid import uuid4
+
+    resp = await client.delete(f"/api/datasets/{uuid4()}")
     assert resp.status_code == 404
 
 

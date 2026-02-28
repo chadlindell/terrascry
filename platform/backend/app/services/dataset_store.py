@@ -38,3 +38,11 @@ class DatasetStore:
         if not path.is_file():
             return None
         return Dataset.model_validate_json(path.read_text())
+
+    def delete(self, dataset_id: UUID) -> bool:
+        """Delete a dataset by ID. Returns True if deleted, False if not found."""
+        path = self._dir / f"{dataset_id}.json"
+        if not path.is_file():
+            return False
+        path.unlink()
+        return True

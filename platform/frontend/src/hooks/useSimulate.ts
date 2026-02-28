@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { simulateSurvey, type Dataset } from '../api'
 import { useAppStore } from '../stores/appStore'
 
+/** Mutation hook that triggers a survey simulation, caches the result, and updates the active dataset ID. */
 export function useSimulate() {
   const queryClient = useQueryClient()
   const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)

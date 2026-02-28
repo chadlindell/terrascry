@@ -1,5 +1,8 @@
+/** Global application state — selection, sidebar, and view mode. */
+
 import { create } from 'zustand'
 
+/** Active view layout mode. */
 export type ViewMode = 'split' | '2d' | '3d'
 
 interface AppState {
@@ -13,6 +16,7 @@ interface AppState {
   setViewMode: (mode: ViewMode) => void
 }
 
+/** Zustand store for global app state (scenario selection, dataset ID, sidebar, view mode). */
 export const useAppStore = create<AppState>((set) => ({
   selectedScenario: null,
   activeDatasetId: null,

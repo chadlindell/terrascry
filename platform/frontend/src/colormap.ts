@@ -41,12 +41,14 @@ for (let i = 0; i < 256; i++) {
   INFERNO.push([r, g, b])
 }
 
+/** Available colormap lookup tables, each with 256 RGB entries. */
 export const COLORMAPS = {
   viridis: VIRIDIS,
   plasma: PLASMA,
   inferno: INFERNO,
 } as const
 
+/** Union type of available colormap names: 'viridis' | 'plasma' | 'inferno'. */
 export type ColormapName = keyof typeof COLORMAPS
 
 /** Compute min and max from grid values. */

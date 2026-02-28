@@ -182,3 +182,51 @@ async def test_simulate_endpoint_invalid_params(client):
         json={"scenario_name": "test-target", "line_spacing": -1},
     )
     assert resp.status_code == 422
+
+
+# --- Batch simulation tests ---
+
+
+@pytest.fixture
+def data_dir(tmp_path, monkeypatch):
+    monkeypatch.setattr(settings, "data_dir", tmp_path / "datasets")
+    return tmp_path / "datasets"
+
+
+async def test_batch_simulate(client, data_dir):
+    resp = await client.post(
+        "/api/surveys/batch",
+        json=[
+            {"scenario_name": "test-target", "resolution": 2.0, "line_spacing": 2.0},
+            {"scenario_name": "empty", "resolution": 2.0, "line_spacing": 2.0},
+        ],
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data) == 2
+    assert data[0]["scenario_name"] == "test-target"
+    assert data[1]["scenario_name"] == "empty"
+    # Each result should have an id
+    assert "id" in data[0]
+    assert "id" in data[1]
+
+
+async def test_batch_simulate_max_limit(client):
+    requests = [{"scenario_name": "test-target"}] * 11
+    resp = await client.post("/api/surveys/batch", json=requests)
+    assert resp.status_code == 422
+    assert "Maximum 10" in resp.json()["detail"]
+
+
+async def test_batch_simulate_empty(client):
+    resp = await client.post("/api/surveys/batch", json=[])
+    assert resp.status_code == 200
+    assert resp.json() == []
+
+
+async def test_batch_simulate_not_found(client):
+    resp = await client.post(
+        "/api/surveys/batch",
+        json=[{"scenario_name": "nonexistent"}],
+    )
+    assert resp.status_code == 404
