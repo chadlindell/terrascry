@@ -10,11 +10,25 @@ import { useScenarioDetail } from '../hooks/useScenarios'
 import { TerrainMesh } from './TerrainMesh'
 import { BuriedObjects } from './BuriedObjects'
 import { SurveyPath3D } from './SurveyPath3D'
-import type { Dataset } from '../api'
+import type { Dataset, AnomalyCell } from '../api'
+
+function AnomalyMarkers3D({ anomalies }: { anomalies: AnomalyCell[] }) {
+  return (
+    <>
+      {anomalies.map((a, i) => (
+        <mesh key={i} position={[a.x, a.y, 0.1]}>
+          <sphereGeometry args={[0.3, 16, 16]} />
+          <meshStandardMaterial color="#ff3c3c" transparent opacity={0.4} depthWrite={false} />
+        </mesh>
+      ))}
+    </>
+  )
+}
 
 export function SceneView() {
   const selectedScenario = useAppStore((s) => s.selectedScenario)
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
+  const showAnomalies = useAppStore((s) => s.showAnomalies)
   const queryClient = useQueryClient()
   const colormap = useColorScaleStore((s) => s.colormap)
   const rangeMin = useColorScaleStore((s) => s.rangeMin)
@@ -25,6 +39,9 @@ export function SceneView() {
   const dataset = activeDatasetId
     ? queryClient.getQueryData<Dataset>(['dataset', activeDatasetId])
     : null
+
+  const anomalyCells: AnomalyCell[] =
+    queryClient.getQueryData<AnomalyCell[]>(['anomalies', activeDatasetId]) ?? []
 
   // Compute camera target from scenario terrain
   const cameraTarget = useMemo(() => {
@@ -90,6 +107,11 @@ export function SceneView() {
       {/* Survey path */}
       {dataset && dataset.survey_points.length > 1 && (
         <SurveyPath3D points={dataset.survey_points} />
+      )}
+
+      {/* Anomaly markers */}
+      {showAnomalies && anomalyCells.length > 0 && (
+        <AnomalyMarkers3D anomalies={anomalyCells} />
       )}
     </Canvas>
   )

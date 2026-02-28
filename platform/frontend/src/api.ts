@@ -149,3 +149,73 @@ export async function uploadDataset(file: File): Promise<Dataset> {
   })
   return handleResponse(res)
 }
+
+// --- Streaming API ---
+
+/** Start streaming data (simulation or MQTT mode). */
+export async function startStream(scenarioName: string): Promise<void> {
+  const res = await fetch('/api/streaming/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scenario_name: scenarioName }),
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new ApiError(res.status, body.detail ?? res.statusText)
+  }
+}
+
+/** Stop streaming. */
+export async function stopStream(): Promise<void> {
+  const res = await fetch('/api/streaming/stop', { method: 'POST' })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new ApiError(res.status, body.detail ?? res.statusText)
+  }
+}
+
+// --- Anomaly API ---
+
+/** Anomaly cell returned by the anomaly detection endpoint. */
+export interface AnomalyCell {
+  x: number
+  y: number
+  gradient_nt: number
+  residual_nt: number
+  sigma: number
+}
+
+/** Fetch detected anomalies for a dataset. */
+export async function fetchAnomalies(
+  id: string,
+  thresholdSigma: number = 3.0,
+): Promise<AnomalyCell[]> {
+  const res = await fetch(
+    `/api/datasets/${id}/anomalies?threshold_sigma=${thresholdSigma}`,
+  )
+  return handleResponse(res)
+}
+
+// --- Binary grid transfer ---
+
+/** Fetch grid data as binary Float32Array for faster transfer. */
+export async function fetchDatasetBinary(id: string): Promise<GridData> {
+  const res = await fetch(`/api/datasets/${id}/binary`)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new ApiError(res.status, body.detail ?? res.statusText)
+  }
+
+  const rows = parseInt(res.headers.get('X-Grid-Rows') ?? '0', 10)
+  const cols = parseInt(res.headers.get('X-Grid-Cols') ?? '0', 10)
+  const x_min = parseFloat(res.headers.get('X-Grid-Xmin') ?? '0')
+  const y_min = parseFloat(res.headers.get('X-Grid-Ymin') ?? '0')
+  const dx = parseFloat(res.headers.get('X-Grid-Dx') ?? '0')
+  const dy = parseFloat(res.headers.get('X-Grid-Dy') ?? '0')
+  const unit = res.headers.get('X-Grid-Unit') ?? 'nT'
+
+  const buffer = await res.arrayBuffer()
+  const values = Array.from(new Float32Array(buffer))
+
+  return { rows, cols, x_min, y_min, dx, dy, values, unit }
+}

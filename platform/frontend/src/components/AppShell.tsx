@@ -2,6 +2,7 @@ import { useAppStore } from '../stores/appStore'
 import { ScenarioSelector } from './ScenarioSelector'
 import { DatasetHistory } from './DatasetHistory'
 import { ImportPanel } from './ImportPanel'
+import { StreamControl } from './StreamControl'
 import { SimulationParams } from './SimulationParams'
 import { RunSurveyButton } from './RunSurveyButton'
 import { ExportButton } from './ExportButton'
@@ -50,6 +51,7 @@ export function AppShell() {
           <ScenarioSelector />
           <DatasetHistory />
           <ImportPanel />
+          <StreamControl />
         </div>
 
         {/* Controls — pinned at bottom */}
