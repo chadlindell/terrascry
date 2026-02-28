@@ -1,7 +1,9 @@
-"""PhysicsEngine service — wraps GeoSim for survey simulation.
+"""PhysicsEngine service — TERRASCRY survey simulation.
+
+Uses the geosim physics engine internally for dipole field calculations.
 
 Design decisions (consensus-validated):
-- Direct Python import of GeoSim (no ZMQ) — same process, lower complexity.
+- Direct Python import of the physics engine (no ZMQ) — same process, lower complexity.
 - Single centered gradiometer for both grid and path (v1 MVP).
 - Snake/zigzag path generation with configurable spacing.
 """
@@ -21,7 +23,7 @@ SENSOR_HEIGHT = 0.175  # meters, bottom sensor above ground
 
 
 class PhysicsEngine:
-    """Wraps GeoSim physics for web platform consumption."""
+    """TERRASCRY physics engine interface for web platform simulation."""
 
     def load_scenario(self, name: str) -> Scenario:
         """Load a scenario by name from the configured scenarios directory."""

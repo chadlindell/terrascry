@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install GeoSim
+      - name: Install physics engine
         run: cd geosim && pip install -e .
 
       - name: Install platform backend

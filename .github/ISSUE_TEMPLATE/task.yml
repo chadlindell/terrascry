@@ -48,7 +48,7 @@ body:
       options:
         - Backend
         - Frontend
-        - GeoSim Integration
+        - Physics Engine
         - Infrastructure
         - Other
     validations:

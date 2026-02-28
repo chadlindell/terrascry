@@ -1,4 +1,4 @@
-"""Scenarios router — list and retrieve GeoSim scenario files."""
+"""Scenarios router — list and retrieve TERRASCRY scenario files."""
 
 import json
 from pathlib import Path
