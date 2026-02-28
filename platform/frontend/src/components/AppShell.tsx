@@ -1,6 +1,8 @@
 import { useAppStore } from '../stores/appStore'
 import { ScenarioSelector } from './ScenarioSelector'
 import { RunSurveyButton } from './RunSurveyButton'
+import { ColorScaleControl } from './ColorScaleControl'
+import { MapView } from './MapView'
 
 export function AppShell() {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
@@ -42,14 +44,15 @@ export function AppShell() {
         </div>
 
         {/* Controls — pinned at bottom */}
-        <div className="px-4 py-3 border-t border-zinc-700/50 space-y-2">
+        <div className="px-4 py-3 border-t border-zinc-700/50 space-y-3">
+          <ColorScaleControl />
           <RunSurveyButton />
           <p className="text-xs text-zinc-500">v0.1.0</p>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="relative flex items-center justify-center bg-zinc-950 overflow-hidden">
+      <main className="relative bg-zinc-950 overflow-hidden">
         {!sidebarOpen && (
           <button
             onClick={toggleSidebar}
@@ -61,11 +64,7 @@ export function AppShell() {
             </svg>
           </button>
         )}
-        <div className="text-center">
-          <p className="text-zinc-500 text-sm">
-            Visualization area — select a scenario and run a survey.
-          </p>
-        </div>
+        <MapView />
       </main>
     </div>
   )
