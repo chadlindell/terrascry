@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/command'
 import {
   Map, Play, Upload, Eye, EyeOff,
-  Layers, Radio, RadioOff, Trash2, GitCompare,
+  Layers, Radio, WifiOff, Trash2, GitCompare,
   Palette, Keyboard, LayoutGrid, Columns2, Box, BarChart3,
 } from 'lucide-react'
 import { useAppStore, type ViewMode } from '../stores/appStore'
@@ -192,7 +192,7 @@ function CommandPaletteInner({ open, setOpen }: { open: boolean; setOpen: (open:
             value="toggle stream"
             onSelect={() => run(() => useStreamStore.getState().toggleStream())}
           >
-            {streamEnabled ? <RadioOff className="mr-2 h-4 w-4" /> : <Radio className="mr-2 h-4 w-4" />}
+            {streamEnabled ? <WifiOff className="mr-2 h-4 w-4" /> : <Radio className="mr-2 h-4 w-4" />}
             {streamEnabled ? 'Stop' : 'Start'} live stream
             <CommandShortcut>L</CommandShortcut>
           </CommandItem>

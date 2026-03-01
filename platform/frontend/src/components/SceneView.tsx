@@ -3,7 +3,8 @@
 import { useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
-import { EffectComposer, SSAO, Bloom, Vignette } from '@react-three/postprocessing'
+// Note: @react-three/postprocessing EffectComposer crashes with frameloop="demand"
+// due to null WebGL context on addPass. Post-processing disabled until upstream fix.
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
 import { useAnomalies } from '../hooks/useAnomalies'
@@ -169,12 +170,7 @@ export function SceneView() {
       {/* Axis widget in corner */}
       <AxisWidget />
 
-      {/* Post-processing effects */}
-      <EffectComposer>
-        <SSAO radius={0.4} intensity={30} luminanceInfluence={0.6} />
-        <Bloom luminanceThreshold={0.9} intensity={0.3} mipmapBlur />
-        <Vignette offset={0.2} darkness={0.3} />
-      </EffectComposer>
+      {/* Post-processing disabled: EffectComposer incompatible with frameloop="demand" */}
     </Canvas>
   )
 }
