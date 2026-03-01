@@ -49,7 +49,10 @@ export function MapView() {
   const { data: fetchedAnomalies } = useAnomalies(
     showAnomalies ? activeDatasetId : null
   )
-  const anomalyCells: AnomalyCell[] = fetchedAnomalies ?? []
+  const anomalyCells = useMemo<AnomalyCell[]>(
+    () => fetchedAnomalies ?? [],
+    [fetchedAnomalies],
+  )
 
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
   const [deck, setDeck] = useState<Deck | null>(null)

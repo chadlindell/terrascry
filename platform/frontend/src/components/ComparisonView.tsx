@@ -1,11 +1,10 @@
 /** Dataset comparison view — side-by-side or difference mode with contour overlay. */
 
-import { useMemo, lazy, Suspense, useCallback, useRef, useEffect } from 'react'
+import { useMemo, lazy, Suspense, useCallback, useRef } from 'react'
 import { Panel, Group, Separator } from 'react-resizable-panels'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
 import { useComparisonStore } from '../stores/comparisonStore'
-import { useColorScaleStore } from '../stores/colorScaleStore'
 import { useDatasets } from '../hooks/useDatasets'
 import { computeDifference } from '../utils/gridDiff'
 import { gridToImageData, getValueRange } from '../colormap'

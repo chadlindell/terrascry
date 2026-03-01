@@ -1,10 +1,10 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach, vi } from 'vitest'
+import * as React from 'react'
 
 // Stub framer-motion to avoid animation complexity in tests
 vi.mock('framer-motion', () => {
-  const React = require('react')
   return {
     motion: new Proxy({}, {
       get: (_: unknown, tag: string) =>
