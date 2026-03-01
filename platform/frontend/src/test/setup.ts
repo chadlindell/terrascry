@@ -1,6 +1,27 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { afterEach, vi } from 'vitest'
+
+// Stub framer-motion to avoid animation complexity in tests
+vi.mock('framer-motion', () => {
+  const React = require('react')
+  return {
+    motion: new Proxy({}, {
+      get: (_: unknown, tag: string) =>
+        React.forwardRef((props: Record<string, unknown>, ref: unknown) => {
+          // Strip framer-motion-specific props to avoid React DOM warnings
+          const filtered = { ...props, ref }
+          for (const key of ['layoutId', 'initial', 'animate', 'exit', 'transition', 'variants', 'whileHover', 'whileTap', 'whileInView', 'layout']) {
+            delete filtered[key]
+          }
+          return React.createElement(tag, filtered)
+        }),
+    }),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+    useAnimation: () => ({ start: () => Promise.resolve(), stop: () => {} }),
+    useMotionValue: (v: number) => ({ get: () => v, set: () => {} }),
+  }
+})
 
 afterEach(() => {
   cleanup()

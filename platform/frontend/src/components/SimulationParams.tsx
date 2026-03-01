@@ -25,7 +25,7 @@ function ParamSlider({ label, value, min, max, step, onChange }: ParamSliderProp
         step={step}
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+        className="w-full"
       />
     </div>
   )
@@ -41,7 +41,7 @@ export function SimulationParams() {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+      <h3 className="text-[11px] font-semibold text-zinc-400 uppercase tracking-[0.08em]">
         Parameters
       </h3>
       <ParamSlider

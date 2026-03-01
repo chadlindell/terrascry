@@ -1,8 +1,8 @@
-/** 2D heatmap view using deck.gl with OrthographicView. */
+/** 2D heatmap view using deck.gl with OrthographicView + publication-grade overlays. */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Deck } from '@deck.gl/core'
-import { BitmapLayer, PathLayer, ScatterplotLayer } from '@deck.gl/layers'
+import { BitmapLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers'
 import { OrthographicView } from '@deck.gl/core'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
@@ -12,12 +12,17 @@ import { useCrossSectionStore } from '../stores/crossSectionStore'
 import { gridToImageData, getValueRange, COLORMAPS } from '../colormap'
 import { computeProfile } from '../utils/profile'
 import { useAnomalies } from '../hooks/useAnomalies'
+import { generateContours } from '../utils/contours'
+import { MapColorbar } from './overlays/MapColorbar'
+import { MapScaleBar } from './overlays/MapScaleBar'
+import { NorthArrow } from './overlays/NorthArrow'
 import type { Dataset, AnomalyCell } from '../api'
 import type { StreamPoint } from '../types/streaming'
 
 export function MapView() {
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
   const showAnomalies = useAppStore((s) => s.showAnomalies)
+  const showContours = useAppStore((s) => s.showContours)
   const queryClient = useQueryClient()
   const colormap = useColorScaleStore((s) => s.colormap)
   const rangeMin = useColorScaleStore((s) => s.rangeMin)
@@ -49,6 +54,7 @@ export function MapView() {
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
   const [deck, setDeck] = useState<Deck | null>(null)
   const [mousePos, setMousePos] = useState<[number, number] | null>(null)
+  const [currentZoom, setCurrentZoom] = useState(4)
 
   // Get dataset from TanStack Query cache
   const dataset = activeDatasetId
@@ -96,6 +102,12 @@ export function MapView() {
     return dataset.survey_points.map((p) => [p.x, p.y] as [number, number])
   }, [dataset])
 
+  // Contour lines from grid data
+  const contourPaths = useMemo(() => {
+    if (!dataset) return []
+    return generateContours(dataset.grid_data, 12)
+  }, [dataset])
+
   // Color function for stream points
   const lut = COLORMAPS[colormap]
   const span = rangeMax - rangeMin || 1
@@ -136,8 +148,13 @@ export function MapView() {
         style: { position: 'absolute', inset: '0' },
         parameters: { clearColor: [0.95, 0.95, 0.96, 1] },
         layers: [],
+        onViewStateChange: ({ viewState }: { viewState: { zoom?: number } }) => {
+          if (viewState.zoom !== undefined) {
+            setCurrentZoom(viewState.zoom)
+          }
+          return viewState
+        },
         onClick: (info: { coordinate?: number[] }) => {
-          // Delegate to current handler via ref
           clickRef.current?.(info)
         },
         onHover: (info: { coordinate?: number[] }) => {
@@ -155,13 +172,16 @@ export function MapView() {
           return {
             text: `X: ${coordinate[0].toFixed(1)}m  Y: ${coordinate[1].toFixed(1)}m\n${val.toFixed(1)} nT`,
             style: {
-              backgroundColor: '#ffffff',
+              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
               color: '#3f3f46',
-              fontSize: '12px',
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: '11px',
               padding: '6px 10px',
-              borderRadius: '4px',
-              border: '1px solid #d4d4d8',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              boxShadow: '0 4px 12px -2px rgba(0,0,0,0.08)',
             },
           }
         },
@@ -193,18 +213,82 @@ export function MapView() {
       )
     }
 
+    // Survey path — dashed line for directional cue
     if (surveyPath && surveyPath.length > 1) {
       layers.push(
         new PathLayer({
           id: 'survey-track',
           data: [{ path: surveyPath }],
           getPath: (d: { path: [number, number][] }) => d.path,
-          getColor: [80, 80, 80, 160],
-          getWidth: 0.05,
+          getColor: [60, 60, 60, 180],
+          getWidth: 0.04,
           widthUnits: 'meters' as const,
+          getDashArray: [0.3, 0.05],
           pickable: false,
         }),
       )
+    }
+
+    // Contour overlay with index contours (every 5th thicker)
+    if (showContours && contourPaths.length > 0) {
+      const contourData = contourPaths.flatMap((cp, cpIdx) =>
+        cp.coordinates.map((ring) => ({
+          path: ring,
+          isIndex: cpIdx % 5 === 0,
+        }))
+      )
+      if (contourData.length > 0) {
+        layers.push(
+          new PathLayer({
+            id: 'contours',
+            data: contourData,
+            getPath: (d: { path: [number, number][] }) => d.path,
+            getColor: (d: { isIndex: boolean }) =>
+              d.isIndex ? [30, 30, 30, 120] : [40, 40, 40, 70],
+            getWidth: (d: { isIndex: boolean }) =>
+              d.isIndex ? 0.04 : 0.015,
+            widthUnits: 'meters' as const,
+            pickable: false,
+            updateTriggers: {
+              getColor: [],
+              getWidth: [],
+            },
+          }),
+        )
+      }
+
+      // Contour labels using TextLayer
+      const labelData = contourPaths
+        .filter((_, i) => i % 3 === 0) // Label every 3rd contour to avoid clutter
+        .filter((cp) => cp.labelPosition[0] !== 0 || cp.labelPosition[1] !== 0)
+        .map((cp) => ({
+          position: cp.labelPosition,
+          text: cp.value.toFixed(1),
+          angle: cp.labelAngle,
+        }))
+
+      if (labelData.length > 0) {
+        layers.push(
+          new TextLayer({
+            id: 'contour-labels',
+            data: labelData,
+            getPosition: (d: { position: [number, number] }) => d.position,
+            getText: (d: { text: string }) => d.text,
+            getAngle: (d: { angle: number }) => -d.angle,
+            getSize: 10,
+            getColor: [50, 50, 50, 200],
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'center',
+            fontFamily: "'Geist Mono', monospace",
+            fontWeight: '500',
+            background: true,
+            getBackgroundColor: [255, 255, 255, 200],
+            backgroundPadding: [2, 1],
+            pickable: false,
+            sizeUnits: 'pixels' as const,
+          }),
+        )
+      }
     }
 
     // Live stream points overlay
@@ -228,27 +312,56 @@ export function MapView() {
       )
     }
 
-    // Anomaly overlay (static from REST + live from stream)
+    // Anomaly overlay with strength encoding (size + color)
     if (showAnomalies) {
-      const allAnomalies: { x: number; y: number; strength: number }[] = []
+      const allAnomalies: { x: number; y: number; strength: number; sigma: number }[] = []
 
       for (const a of anomalyCells) {
-        allAnomalies.push({ x: a.x, y: a.y, strength: Math.abs(a.residual_nt) })
+        allAnomalies.push({
+          x: a.x, y: a.y,
+          strength: Math.abs(a.residual_nt),
+          sigma: a.sigma,
+        })
       }
       for (const a of streamAnomalies) {
-        allAnomalies.push({ x: a.x, y: a.y, strength: Math.abs(a.anomaly_strength_nt) })
+        allAnomalies.push({
+          x: a.x, y: a.y,
+          strength: Math.abs(a.anomaly_strength_nt),
+          sigma: 0,
+        })
       }
 
       if (allAnomalies.length > 0) {
+        // Compute strength range for normalization
+        const maxStrength = Math.max(...allAnomalies.map((a) => a.strength), 1)
+
         layers.push(
           new ScatterplotLayer({
             id: 'anomalies',
             data: allAnomalies,
             getPosition: (d: { x: number; y: number }) => [d.x, d.y],
-            getFillColor: [255, 60, 60, 140],
-            getRadius: 0.3,
+            getFillColor: (d: { strength: number }) => {
+              const t = Math.min(1, d.strength / maxStrength)
+              // Orange (weak) -> deep red (strong)
+              const r = Math.round(255)
+              const g = Math.round(160 * (1 - t) + 30 * t)
+              const b = Math.round(30)
+              return [r, g, b, 160] as [number, number, number, number]
+            },
+            getRadius: (d: { strength: number }) => {
+              const t = Math.min(1, d.strength / maxStrength)
+              return 0.15 + t * 0.35 // 0.15m to 0.5m
+            },
+            getLineColor: [180, 40, 40, 200],
+            getLineWidth: 0.02,
+            stroked: true,
             radiusUnits: 'meters' as const,
+            lineWidthUnits: 'meters' as const,
             pickable: true,
+            updateTriggers: {
+              getFillColor: [allAnomalies.length],
+              getRadius: [allAnomalies.length],
+            },
           }),
         )
       }
@@ -322,6 +435,7 @@ export function MapView() {
     }
   }, [
     deck, imageData, bounds, surveyPath,
+    showContours, contourPaths,
     streamEnabled, streamPoints, rangeMin, rangeMax, colormap, lut, span,
     showAnomalies, anomalyCells, streamAnomalies,
     csIsDrawing, csStartPoint, csEndPoint, csProfileData, csCursorPosition, mousePos,
@@ -348,15 +462,29 @@ export function MapView() {
 
   if (!dataset && streamPoints.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-zinc-500 text-sm">
-          Select a scenario and run a survey to view results.
-        </p>
+      <div className="flex flex-col items-center justify-center h-full gap-3">
+        <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center">
+          <svg className="w-6 h-6 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+          </svg>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-medium text-zinc-500">No survey data</p>
+          <p className="text-xs text-zinc-400 mt-0.5">Select a scenario and run a survey to view results</p>
+        </div>
       </div>
     )
   }
 
-  return <div ref={initDeck} className="relative w-full h-full" />
+  return (
+    <div className="relative w-full h-full">
+      <div ref={initDeck} className="absolute inset-0" />
+      {/* Publication-grade overlays */}
+      <NorthArrow />
+      <MapScaleBar zoom={currentZoom} />
+      <MapColorbar />
+    </div>
+  )
 }
 
 export default MapView

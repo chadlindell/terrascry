@@ -1,85 +1,29 @@
-import { useAppStore } from '../stores/appStore'
-import { ScenarioSelector } from './ScenarioSelector'
-import { DatasetHistory } from './DatasetHistory'
-import { ImportPanel } from './ImportPanel'
-import { StreamControl } from './StreamControl'
-import { SimulationParams } from './SimulationParams'
-import { RunSurveyButton } from './RunSurveyButton'
-import { ExportButton } from './ExportButton'
-import { ColorScaleControl } from './ColorScaleControl'
-import { ShortcutLegend } from './ShortcutLegend'
+/** Root layout — top toolbar + full-height content area. */
+
+import { Toolbar } from './toolbar/Toolbar'
+import { CommandPalette } from './CommandPalette'
+import { SettingsSheet } from './panels/SettingsSheet'
+import { DataSheet } from './panels/DataSheet'
 import { SplitWorkspace } from './SplitWorkspace'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 export function AppShell() {
-  const sidebarOpen = useAppStore((s) => s.sidebarOpen)
-  const toggleSidebar = useAppStore((s) => s.toggleSidebar)
   useKeyboardShortcuts()
 
   return (
-    <div
-      className="h-screen overflow-hidden bg-white text-zinc-900"
-      style={{
-        display: 'grid',
-        gridTemplateColumns: sidebarOpen ? '320px 1fr' : '0px 1fr',
-      }}
-    >
-      {/* Sidebar */}
-      <aside
-        className={`flex flex-col bg-zinc-50 border-r border-zinc-300/50 overflow-hidden transition-all ${
-          sidebarOpen ? 'w-full' : 'w-0'
-        }`}
-      >
-        {/* Header — pinned */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-300/50">
-          <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
-            TERRASCRY
-          </h1>
-          <button
-            onClick={toggleSidebar}
-            className="p-1 rounded text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 transition-colors"
-            aria-label="Close sidebar"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </button>
-        </div>
+    <TooltipProvider>
+      <div className="flex flex-col h-screen overflow-hidden bg-white text-zinc-900 font-sans antialiased">
+        <Toolbar />
+        <main className="relative flex-1 min-h-0 bg-zinc-100 overflow-hidden">
+          <SplitWorkspace />
+        </main>
 
-        {/* Scrollable content area */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
-          <ScenarioSelector />
-          <DatasetHistory />
-          <ImportPanel />
-          <StreamControl />
-        </div>
-
-        {/* Controls — pinned at bottom */}
-        <div className="px-4 py-3 border-t border-zinc-300/50 space-y-3">
-          <ColorScaleControl />
-          <SimulationParams />
-          <RunSurveyButton />
-          <ExportButton />
-          <p className="text-xs text-zinc-400">v0.1.0</p>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="relative bg-zinc-100 overflow-hidden">
-        {!sidebarOpen && (
-          <button
-            onClick={toggleSidebar}
-            className="absolute top-3 left-3 p-1.5 rounded bg-white text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200 transition-colors z-10 shadow-sm"
-            aria-label="Open sidebar"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
-        )}
-        <SplitWorkspace />
-        <ShortcutLegend />
-      </main>
-    </div>
+        {/* Overlays — command palette and slide-out sheets */}
+        <CommandPalette />
+        <SettingsSheet />
+        <DataSheet />
+      </div>
+    </TooltipProvider>
   )
 }

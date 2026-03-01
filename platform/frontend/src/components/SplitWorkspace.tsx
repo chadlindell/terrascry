@@ -1,8 +1,9 @@
 /** Split view layout: 2D heatmap left, 3D scene right, with resizable divider. */
 
 import { lazy, Suspense } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Panel, Group, Separator } from 'react-resizable-panels'
-import { useAppStore, type ViewMode } from '../stores/appStore'
+import { useAppStore } from '../stores/appStore'
 import { useCrossSectionStore } from '../stores/crossSectionStore'
 import { ErrorBoundary } from './ErrorBoundary'
 import { LoadingSkeleton } from './LoadingSkeleton'
@@ -11,36 +12,6 @@ import { CrossSectionView } from './CrossSectionView'
 const MapView = lazy(() => import('./MapView'))
 const SceneView = lazy(() => import('./SceneView'))
 const ComparisonView = lazy(() => import('./ComparisonView'))
-
-const VIEW_MODES: { mode: ViewMode; label: string }[] = [
-  { mode: '2d', label: '2D' },
-  { mode: 'split', label: 'Split' },
-  { mode: '3d', label: '3D' },
-  { mode: 'comparison', label: 'Compare' },
-]
-
-function ViewModeControl() {
-  const viewMode = useAppStore((s) => s.viewMode)
-  const setViewMode = useAppStore((s) => s.setViewMode)
-
-  return (
-    <div className="absolute top-3 right-3 z-10 flex rounded-md bg-white/80 backdrop-blur-sm border border-zinc-300/50 overflow-hidden shadow-sm">
-      {VIEW_MODES.map(({ mode, label }) => (
-        <button
-          key={mode}
-          onClick={() => setViewMode(mode)}
-          className={`px-3 py-1 text-xs font-medium transition-colors ${
-            viewMode === mode
-              ? 'bg-emerald-600 text-white'
-              : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50'
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-  )
-}
 
 function MapPanel() {
   return (
@@ -74,7 +45,13 @@ function WithCrossSection({ children }: { children: React.ReactNode }) {
       <Panel defaultSize={70} minSize={30}>
         <div className="h-full">{children}</div>
       </Panel>
-      <Separator className="h-1 bg-zinc-300 hover:bg-emerald-500 transition-colors cursor-row-resize" />
+      <Separator className="group relative h-1 bg-zinc-300 hover:bg-emerald-500 transition-colors cursor-row-resize">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="w-1 h-1 rounded-full bg-white" />
+          <span className="w-1 h-1 rounded-full bg-white" />
+          <span className="w-1 h-1 rounded-full bg-white" />
+        </div>
+      </Separator>
       <Panel defaultSize={30} minSize={15}>
         <CrossSectionView />
       </Panel>
@@ -82,44 +59,64 @@ function WithCrossSection({ children }: { children: React.ReactNode }) {
   )
 }
 
+const panelVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+}
+
 export function SplitWorkspace() {
   const viewMode = useAppStore((s) => s.viewMode)
 
   return (
     <div className="relative w-full h-full">
-      <ViewModeControl />
+      <AnimatePresence mode="wait">
+        {viewMode === 'comparison' ? (
+          <motion.div key="comparison" className="w-full h-full" variants={panelVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSkeleton />}>
+                <ComparisonView />
+              </Suspense>
+            </ErrorBoundary>
+          </motion.div>
+        ) : viewMode === 'split' ? (
+          <motion.div key="split" className="w-full h-full" variants={panelVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
+            <WithCrossSection>
+              <Group direction="horizontal" className="h-full">
+                <Panel defaultSize={50} minSize={20}>
+                  <div className="h-full">
+                    <MapPanel />
+                  </div>
+                </Panel>
 
-      {viewMode === 'comparison' ? (
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingSkeleton />}>
-            <ComparisonView />
-          </Suspense>
-        </ErrorBoundary>
-      ) : viewMode === 'split' ? (
-        <WithCrossSection>
-          <Group direction="horizontal" className="h-full">
-            <Panel defaultSize={50} minSize={20}>
-              <div className="h-full">
-                <MapPanel />
-              </div>
-            </Panel>
+                <Separator className="group relative w-1 bg-zinc-300 hover:bg-emerald-500 transition-colors cursor-col-resize">
+                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="w-1 h-1 rounded-full bg-white" />
+                    <span className="w-1 h-1 rounded-full bg-white" />
+                    <span className="w-1 h-1 rounded-full bg-white" />
+                  </div>
+                </Separator>
 
-            <Separator className="w-1 bg-zinc-300 hover:bg-emerald-500 transition-colors cursor-col-resize" />
-
-            <Panel defaultSize={50} minSize={20}>
-              <div className="h-full">
-                <ScenePanel />
-              </div>
-            </Panel>
-          </Group>
-        </WithCrossSection>
-      ) : viewMode === '2d' ? (
-        <WithCrossSection>
-          <MapPanel />
-        </WithCrossSection>
-      ) : (
-        <ScenePanel />
-      )}
+                <Panel defaultSize={50} minSize={20}>
+                  <div className="h-full">
+                    <ScenePanel />
+                  </div>
+                </Panel>
+              </Group>
+            </WithCrossSection>
+          </motion.div>
+        ) : viewMode === '2d' ? (
+          <motion.div key="2d" className="w-full h-full" variants={panelVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
+            <WithCrossSection>
+              <MapPanel />
+            </WithCrossSection>
+          </motion.div>
+        ) : (
+          <motion.div key="3d" className="w-full h-full" variants={panelVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.2 }}>
+            <ScenePanel />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

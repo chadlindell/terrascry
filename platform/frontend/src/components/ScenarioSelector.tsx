@@ -1,5 +1,6 @@
 /** Sidebar panel: scenario list + detail section below. */
 
+import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from '../stores/appStore'
 import { useScenarios, useScenarioDetail } from '../hooks/useScenarios'
 import type { ScenarioSummary } from '../api'
@@ -25,12 +26,19 @@ function ScenarioRow({
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left px-3 py-2.5 rounded transition-colors ${
+      className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors relative ${
         selected
-          ? 'bg-white border-l-2 border-emerald-500 shadow-sm'
+          ? 'bg-white shadow-card ring-1 ring-zinc-100'
           : 'hover:bg-white/60 border-l-2 border-transparent'
       }`}
     >
+      {selected && (
+        <motion.div
+          layoutId="scenario-indicator"
+          className="absolute left-0 top-2 bottom-2 w-0.5 bg-emerald-500 rounded-full"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        />
+      )}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-medium text-zinc-900 truncate">
           {scenario.name}
@@ -73,41 +81,49 @@ function ScenarioDetailPanel({ name }: { name: string }) {
   if (!detail) return null
 
   return (
-    <div className="px-3 py-3 space-y-3">
-      <h3 className="text-sm font-semibold text-zinc-900">{detail.name}</h3>
-      {detail.description && (
-        <p className="text-xs text-zinc-500">{detail.description}</p>
-      )}
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: 'auto', opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.25, ease: 'easeInOut' }}
+      className="overflow-hidden"
+    >
+      <div className="px-3 py-3 space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-900">{detail.name}</h3>
+        {detail.description && (
+          <p className="text-xs text-zinc-500">{detail.description}</p>
+        )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="bg-white rounded p-2 shadow-sm">
-          <span className="text-zinc-400 block">Terrain</span>
-          <span className="text-zinc-700">
-            {detail.terrain.x_extent[1] - detail.terrain.x_extent[0]}m &times;{' '}
-            {detail.terrain.y_extent[1] - detail.terrain.y_extent[0]}m
-          </span>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="bg-white rounded-lg p-2.5 shadow-panel ring-1 ring-zinc-100">
+            <span className="text-zinc-400 block">Terrain</span>
+            <span className="text-zinc-700">
+              {detail.terrain.x_extent[1] - detail.terrain.x_extent[0]}m &times;{' '}
+              {detail.terrain.y_extent[1] - detail.terrain.y_extent[0]}m
+            </span>
+          </div>
+          <div className="bg-white rounded-lg p-2.5 shadow-panel ring-1 ring-zinc-100">
+            <span className="text-zinc-400 block">Objects</span>
+            <span className="text-zinc-700">{detail.objects.length}</span>
+          </div>
         </div>
-        <div className="bg-white rounded p-2 shadow-sm">
-          <span className="text-zinc-400 block">Objects</span>
-          <span className="text-zinc-700">{detail.objects.length}</span>
-        </div>
+
+        {detail.objects.length > 0 && (
+          <div className="space-y-1">
+            <span className="text-xs text-zinc-400 font-medium">Buried objects</span>
+            {detail.objects.map((obj) => (
+              <div
+                key={obj.name}
+                className="flex items-center justify-between text-xs bg-white rounded-lg px-2 py-1.5 shadow-panel ring-1 ring-zinc-100"
+              >
+                <span className="text-zinc-700">{obj.name}</span>
+                <span className="text-zinc-400">{obj.object_type}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {detail.objects.length > 0 && (
-        <div className="space-y-1">
-          <span className="text-xs text-zinc-400 font-medium">Buried objects</span>
-          {detail.objects.map((obj) => (
-            <div
-              key={obj.name}
-              className="flex items-center justify-between text-xs bg-white rounded px-2 py-1.5 shadow-sm"
-            >
-              <span className="text-zinc-700">{obj.name}</span>
-              <span className="text-zinc-400">{obj.object_type}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </motion.div>
   )
 }
 
@@ -120,7 +136,7 @@ export function ScenarioSelector() {
     <div className="flex flex-col min-h-0">
       {/* Section header */}
       <div className="px-3 py-2 border-b border-zinc-300/50">
-        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-[0.08em]">
           Scenarios
         </span>
       </div>
@@ -162,11 +178,13 @@ export function ScenarioSelector() {
       </div>
 
       {/* Detail section */}
-      {selectedScenario && (
-        <div className="border-t border-zinc-300/50 overflow-y-auto max-h-[40%]">
-          <ScenarioDetailPanel name={selectedScenario} />
-        </div>
-      )}
+      <AnimatePresence>
+        {selectedScenario && (
+          <div className="border-t border-zinc-300/50 overflow-y-auto max-h-[40%]">
+            <ScenarioDetailPanel name={selectedScenario} />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

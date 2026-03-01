@@ -46,7 +46,7 @@ export function ExportButton() {
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-0 right-0 mb-1 rounded bg-white border border-zinc-300 shadow-lg overflow-hidden z-20">
+        <div className="absolute bottom-full left-0 right-0 mb-1 rounded-lg glass-panel-strong shadow-overlay overflow-hidden z-20">
           {FORMATS.map(({ value, label }) => (
             <button
               key={value}

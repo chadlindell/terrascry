@@ -10,6 +10,7 @@ const SHORTCUTS = [
   { key: '[', description: 'Toggle sidebar' },
   { key: 'L', description: 'Toggle live stream' },
   { key: 'A', description: 'Toggle anomalies' },
+  { key: 'C', description: 'Toggle contours' },
   { key: 'X', description: 'Cross-section mode' },
   { key: 'Esc', description: 'Cancel drawing' },
   { key: '?', description: 'Toggle this legend' },
@@ -21,7 +22,7 @@ export function ShortcutLegend() {
   if (!open) return null
 
   return (
-    <div className="absolute bottom-3 right-3 z-20 rounded bg-white/95 backdrop-blur-sm border border-zinc-300/50 p-3 shadow-lg">
+    <div className="absolute bottom-3 right-3 z-20 rounded-lg glass-panel-strong shadow-overlay p-3">
       <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
         Shortcuts
       </h3>
