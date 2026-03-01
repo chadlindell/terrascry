@@ -3,6 +3,12 @@
 import { Text, Line, Hud, OrthographicCamera } from '@react-three/drei'
 import * as THREE from 'three'
 
+// Pre-allocated vectors to avoid per-render allocations
+const AXIS_X = new THREE.Vector3(1, 0, 0)
+const AXIS_Y = new THREE.Vector3(0, 1, 0)
+const AXIS_Z = new THREE.Vector3(0, 0, 1)
+const ORIGIN = new THREE.Vector3(0, 0, 0)
+
 /** Small XYZ axis widget in the corner of the 3D view. */
 export function AxisWidget() {
   const length = 1
@@ -15,19 +21,19 @@ export function AxisWidget() {
       <ambientLight intensity={1} />
       <group position={[-3.2, -2.5, 0]}>
         {/* X axis (East) — red */}
-        <arrowHelper args={[new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), length, 0xef4444, headLength, headWidth]} />
+        <arrowHelper args={[AXIS_X, ORIGIN, length, 0xef4444, headLength, headWidth]} />
         <Text position={[length + 0.2, 0, 0]} fontSize={0.25} color="#ef4444" anchorX="center" anchorY="middle" font={undefined}>
           E
         </Text>
 
         {/* Y axis (North) — green */}
-        <arrowHelper args={[new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), length, 0x22c55e, headLength, headWidth]} />
+        <arrowHelper args={[AXIS_Y, ORIGIN, length, 0x22c55e, headLength, headWidth]} />
         <Text position={[0, length + 0.2, 0]} fontSize={0.25} color="#22c55e" anchorX="center" anchorY="middle" font={undefined}>
           N
         </Text>
 
         {/* Z axis (Up) — blue */}
-        <arrowHelper args={[new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, 0), length, 0x3b82f6, headLength, headWidth]} />
+        <arrowHelper args={[AXIS_Z, ORIGIN, length, 0x3b82f6, headLength, headWidth]} />
         <Text position={[0, 0, length + 0.2]} fontSize={0.25} color="#3b82f6" anchorX="center" anchorY="middle" font={undefined}>
           Z
         </Text>

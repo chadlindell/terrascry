@@ -1,12 +1,18 @@
 /** Vertical colorbar overlay for the 2D map view. */
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useColorScaleStore } from '../../stores/colorScaleStore'
 import { COLORMAPS } from '../../colormap'
 
 const BAR_WIDTH = 20
 const BAR_HEIGHT = 200
 const TICK_COUNT = 6
+
+function formatTick(v: number) {
+  if (Math.abs(v) >= 100) return v.toFixed(0)
+  if (Math.abs(v) >= 1) return v.toFixed(1)
+  return v.toFixed(2)
+}
 
 export function MapColorbar() {
   const colormap = useColorScaleStore((s) => s.colormap)
@@ -37,21 +43,17 @@ export function MapColorbar() {
   }, [colormap])
 
   // Generate tick values
-  const ticks: { value: number; y: number }[] = []
-  const span = rangeMax - rangeMin
-  for (let i = 0; i < TICK_COUNT; i++) {
-    const frac = i / (TICK_COUNT - 1)
-    const value = rangeMax - frac * span // top = max
-    const y = frac * BAR_HEIGHT
-    ticks.push({ value, y })
-  }
-
-  // Format tick label
-  const formatTick = (v: number) => {
-    if (Math.abs(v) >= 100) return v.toFixed(0)
-    if (Math.abs(v) >= 1) return v.toFixed(1)
-    return v.toFixed(2)
-  }
+  const ticks = useMemo(() => {
+    const result: { value: number; y: number }[] = []
+    const span = rangeMax - rangeMin
+    for (let i = 0; i < TICK_COUNT; i++) {
+      const frac = i / (TICK_COUNT - 1)
+      const value = rangeMax - frac * span // top = max
+      const y = frac * BAR_HEIGHT
+      result.push({ value, y })
+    }
+    return result
+  }, [rangeMin, rangeMax])
 
   return (
     <div className="absolute bottom-4 right-4 z-10 glass-panel rounded-lg p-2 shadow-overlay">

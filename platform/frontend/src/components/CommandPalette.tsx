@@ -11,7 +11,7 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import {
-  Map, Play, Upload, Download, Eye, EyeOff,
+  Map, Play, Upload, Eye, EyeOff,
   Layers, Radio, RadioOff, Trash2, GitCompare,
   Palette, Keyboard, LayoutGrid, Columns2, Box, BarChart3,
 } from 'lucide-react'
@@ -23,16 +23,29 @@ import { useScenarios } from '../hooks/useScenarios'
 import { useSimulate } from '../hooks/useSimulate'
 import { useSimulationParamsStore } from '../stores/simulationParamsStore'
 import { useQueryClient } from '@tanstack/react-query'
+import { COLORMAPS } from '../colormap'
 import type { DatasetMetadata } from '../api'
+
+const COLORMAP_NAMES = Object.keys(COLORMAPS) as (keyof typeof COLORMAPS)[]
 
 function useDatasetList() {
   const queryClient = useQueryClient()
   return queryClient.getQueryData<DatasetMetadata[]>(['datasets']) ?? []
 }
 
+/** Wrapper that only mounts the palette internals when open. */
 export function CommandPalette() {
   const open = useAppStore((s) => s.commandPaletteOpen)
   const setOpen = useAppStore((s) => s.setCommandPaletteOpen)
+
+  if (!open) {
+    return <CommandDialog open={false} onOpenChange={setOpen}><CommandList /></CommandDialog>
+  }
+
+  return <CommandPaletteInner open={open} setOpen={setOpen} />
+}
+
+function CommandPaletteInner({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const setViewMode = useAppStore((s) => s.setViewMode)
   const setSelectedScenario = useAppStore((s) => s.setSelectedScenario)
   const setActiveDatasetId = useAppStore((s) => s.setActiveDatasetId)
@@ -125,22 +138,11 @@ export function CommandPalette() {
             value="import data"
             onSelect={() => {
               setOpen(false)
-              // Trigger import dialog through DOM - user can use the toolbar Import button
               document.querySelector<HTMLButtonElement>('[data-import-trigger]')?.click()
             }}
           >
             <Upload className="mr-2 h-4 w-4" />
             Import data
-          </CommandItem>
-          <CommandItem
-            value="export csv"
-            onSelect={() => {
-              setOpen(false)
-              document.querySelector<HTMLButtonElement>('[data-export-trigger]')?.click()
-            }}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Export data
           </CommandItem>
         </CommandGroup>
 
@@ -231,7 +233,7 @@ export function CommandPalette() {
 
         {/* Display */}
         <CommandGroup heading="Display">
-          {(['viridis', 'plasma', 'inferno', 'diverging'] as const).map((cm) => (
+          {COLORMAP_NAMES.map((cm) => (
             <CommandItem
               key={cm}
               value={`colormap ${cm}`}

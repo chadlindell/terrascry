@@ -19,7 +19,7 @@ export function ImportDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1.5">
+        <Button variant="ghost" size="sm" className="gap-1.5" data-import-trigger>
           <Upload className="h-3.5 w-3.5" />
           Import
         </Button>

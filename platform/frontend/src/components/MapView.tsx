@@ -61,9 +61,11 @@ export function MapView() {
     ? queryClient.getQueryData<Dataset>(['dataset', activeDatasetId])
     : null
 
-  // Ref for tooltip callback (avoids stale closure)
+  // Refs for callbacks (avoids stale closures in deck.gl handlers)
   const dataRef = useRef<Dataset | null>(null)
   dataRef.current = dataset
+  const csIsDrawingRef = useRef(csIsDrawing)
+  csIsDrawingRef.current = csIsDrawing
 
   // Auto-set range when new dataset arrives
   useEffect(() => {
@@ -102,11 +104,11 @@ export function MapView() {
     return dataset.survey_points.map((p) => [p.x, p.y] as [number, number])
   }, [dataset])
 
-  // Contour lines from grid data
+  // Contour lines from grid data (skip computation when contours are off)
   const contourPaths = useMemo(() => {
-    if (!dataset) return []
+    if (!dataset || !showContours) return []
     return generateContours(dataset.grid_data, 12)
-  }, [dataset])
+  }, [dataset, showContours])
 
   // Color function for stream points
   const lut = COLORMAPS[colormap]
@@ -158,7 +160,7 @@ export function MapView() {
           clickRef.current?.(info)
         },
         onHover: (info: { coordinate?: number[] }) => {
-          if (info.coordinate) {
+          if (info.coordinate && csIsDrawingRef.current) {
             setMousePos([info.coordinate[0], info.coordinate[1]])
           }
         },

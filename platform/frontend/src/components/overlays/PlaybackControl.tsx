@@ -58,8 +58,6 @@ export function PlaybackControl() {
 
   if (totalPoints === 0) return null
 
-  const progress = totalPoints > 0 ? (currentIndex / (totalPoints - 1)) * 100 : 0
-
   return (
     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 glass-panel-strong shadow-overlay rounded-lg px-3 py-2 flex items-center gap-2">
       {/* Transport controls */}

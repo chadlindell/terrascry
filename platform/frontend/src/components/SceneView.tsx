@@ -112,7 +112,7 @@ export function SceneView() {
         near: 0.1,
         far: 500,
       }}
-      frameloop="always"
+      frameloop="demand"
       shadows
     >
       {/* Background + atmospheric fog */}
