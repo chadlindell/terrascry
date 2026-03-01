@@ -84,6 +84,29 @@ describe('appStore', () => {
     expect(useAppStore.getState().commandPaletteOpen).toBe(false)
   })
 
+  it('toggleCommandPalette flips commandPaletteOpen', () => {
+    expect(useAppStore.getState().commandPaletteOpen).toBe(false)
+    useAppStore.getState().toggleCommandPalette()
+    expect(useAppStore.getState().commandPaletteOpen).toBe(true)
+    useAppStore.getState().toggleCommandPalette()
+    expect(useAppStore.getState().commandPaletteOpen).toBe(false)
+  })
+
+  it('setShortcutLegendOpen controls shortcut legend', () => {
+    useAppStore.getState().setShortcutLegendOpen(true)
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(true)
+    useAppStore.getState().setShortcutLegendOpen(false)
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+  })
+
+  it('toggleShortcutLegend flips shortcutLegendOpen', () => {
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+    useAppStore.getState().toggleShortcutLegend()
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(true)
+    useAppStore.getState().toggleShortcutLegend()
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+  })
+
   it('setSettingsSheetOpen controls settings sheet', () => {
     useAppStore.getState().setSettingsSheetOpen(true)
     expect(useAppStore.getState().settingsSheetOpen).toBe(true)

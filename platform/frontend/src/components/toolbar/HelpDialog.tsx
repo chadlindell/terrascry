@@ -32,7 +32,7 @@ export function HelpDialog() {
   return (
     <Dialog
       open={shortcutLegendOpen}
-      onOpenChange={(open) => useAppStore.setState({ shortcutLegendOpen: open })}
+      onOpenChange={(open) => useAppStore.getState().setShortcutLegendOpen(open)}
     >
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8">

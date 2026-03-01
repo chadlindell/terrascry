@@ -14,7 +14,7 @@ export function useKeyboardShortcuts() {
       // Cmd+K / Ctrl+K — command palette (works even in inputs)
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
-        useAppStore.setState((s) => ({ commandPaletteOpen: !s.commandPaletteOpen }))
+        useAppStore.getState().toggleCommandPalette()
         return
       }
 
@@ -36,7 +36,7 @@ export function useKeyboardShortcuts() {
           setViewMode('comparison')
           break
         case '?':
-          useAppStore.setState((s) => ({ shortcutLegendOpen: !s.shortcutLegendOpen }))
+          useAppStore.getState().toggleShortcutLegend()
           break
         case 'l':
         case 'L':
@@ -63,7 +63,7 @@ export function useKeyboardShortcuts() {
         }
         case 'Escape':
           useCrossSectionStore.getState().setIsDrawing(false)
-          useAppStore.setState({ commandPaletteOpen: false })
+          useAppStore.getState().setCommandPaletteOpen(false)
           break
       }
     }

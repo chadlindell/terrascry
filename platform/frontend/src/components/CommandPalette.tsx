@@ -252,7 +252,7 @@ function CommandPaletteInner({ open, setOpen }: { open: boolean; setOpen: (open:
           <CommandItem
             value="keyboard shortcuts"
             onSelect={() =>
-              run(() => useAppStore.setState({ shortcutLegendOpen: true }))
+              run(() => useAppStore.getState().setShortcutLegendOpen(true))
             }
           >
             <Keyboard className="mr-2 h-4 w-4" />
