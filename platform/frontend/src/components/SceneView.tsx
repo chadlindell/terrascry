@@ -1,10 +1,8 @@
-/** 3D scene view using React Three Fiber with post-processing, annotations, and environment. */
+/** 3D scene view using React Three Fiber. */
 
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment } from '@react-three/drei'
-// Note: @react-three/postprocessing EffectComposer crashes with frameloop="demand"
-// due to null WebGL context on addPass. Post-processing disabled until upstream fix.
+import { OrbitControls } from '@react-three/drei'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAppStore } from '../stores/appStore'
 import { useAnomalies } from '../hooks/useAnomalies'
@@ -13,7 +11,6 @@ import { useScenarioDetail } from '../hooks/useScenarios'
 import { TerrainMesh } from './TerrainMesh'
 import { BuriedObjects } from './BuriedObjects'
 import { SurveyPath3D } from './SurveyPath3D'
-import { AxisWidget, ScaleMarkers3D } from './SceneAnnotations'
 import type { Dataset, AnomalyCell } from '../api'
 
 function AnomalyMarkers3D({ anomalies }: { anomalies: AnomalyCell[] }) {
@@ -36,6 +33,42 @@ function AnomalyMarkers3D({ anomalies }: { anomalies: AnomalyCell[] }) {
   )
 }
 
+/** Scale markers rendered as simple Three.js line segments (no drei Text/Line to reduce GPU load). */
+function SimpleScaleMarkers({ xMin, yMin, xMax, yMax, z }: {
+  xMin: number; yMin: number; xMax: number; yMax: number; z: number
+}) {
+  const xRange = xMax - xMin
+  const tickSpacing = xRange > 30 ? 10 : xRange > 10 ? 5 : xRange > 5 ? 2 : 1
+  const offset = 0.3
+
+  const positions = useMemo(() => {
+    const pts: number[] = []
+    // X-axis ticks along bottom edge
+    const xStart = Math.ceil(xMin / tickSpacing) * tickSpacing
+    for (let x = xStart; x <= xMax; x += tickSpacing) {
+      pts.push(x, yMin - offset, z, x, yMin - offset - 0.3, z)
+    }
+    // Y-axis ticks along left edge
+    const yStart = Math.ceil(yMin / tickSpacing) * tickSpacing
+    for (let y = yStart; y <= yMax; y += tickSpacing) {
+      pts.push(xMin - offset, y, z, xMin - offset - 0.3, y, z)
+    }
+    // Baselines
+    pts.push(xMin, yMin - offset, z, xMax, yMin - offset, z)
+    pts.push(xMin - offset, yMin, z, xMin - offset, yMax, z)
+    return new Float32Array(pts)
+  }, [xMin, yMin, xMax, yMax, z, tickSpacing, offset])
+
+  return (
+    <lineSegments>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <lineBasicMaterial color="#71717a" />
+    </lineSegments>
+  )
+}
+
 export function SceneView() {
   const selectedScenario = useAppStore((s) => s.selectedScenario)
   const activeDatasetId = useAppStore((s) => s.activeDatasetId)
@@ -55,6 +88,26 @@ export function SceneView() {
     showAnomalies ? activeDatasetId : null
   )
   const anomalyCells: AnomalyCell[] = fetchedAnomalies ?? []
+
+  // Track WebGL context loss and recover
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [contextLost, setContextLost] = useState(false)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const onLost = (e: Event) => {
+      e.preventDefault()
+      setContextLost(true)
+    }
+    const onRestored = () => setContextLost(false)
+    canvas.addEventListener('webglcontextlost', onLost)
+    canvas.addEventListener('webglcontextrestored', onRestored)
+    return () => {
+      canvas.removeEventListener('webglcontextlost', onLost)
+      canvas.removeEventListener('webglcontextrestored', onRestored)
+    }
+  }, [])
 
   // Compute camera target from scenario terrain
   const cameraTarget = useMemo(() => {
@@ -104,6 +157,20 @@ export function SceneView() {
     )
   }
 
+  if (contextLost) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-3">
+        <p className="text-sm font-medium text-zinc-500">WebGL context lost</p>
+        <button
+          className="text-xs text-emerald-600 underline"
+          onClick={() => { setContextLost(false); window.location.reload() }}
+        >
+          Reload page
+        </button>
+      </div>
+    )
+  }
+
   return (
     <Canvas
       camera={{
@@ -113,27 +180,19 @@ export function SceneView() {
         near: 0.1,
         far: 500,
       }}
-      frameloop="demand"
-      shadows
+      frameloop="always"
+      gl={{ antialias: true, powerPreference: 'default' }}
+      onCreated={({ gl }) => { canvasRef.current = gl.domElement }}
     >
       {/* Background + atmospheric fog */}
       <color attach="background" args={['#eef2f7']} />
       <fog attach="fog" args={['#eef2f7', 80, 150]} />
 
-      {/* PBR environment for subtle reflections */}
-      <Environment preset="city" />
-
-      {/* Rich lighting rig */}
-      <ambientLight intensity={0.25} />
-      <directionalLight
-        position={[20, 20, 30]}
-        intensity={0.8}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-      />
-      <directionalLight position={[-15, -10, 20]} intensity={0.15} color="#a1c4fd" />
-      <hemisphereLight args={['#87ceeb', '#4a7c59', 0.2]} />
+      {/* Lightweight lighting (no Environment HDR or shadow maps) */}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[20, 20, 30]} intensity={1.0} />
+      <directionalLight position={[-15, -10, 20]} intensity={0.3} color="#a1c4fd" />
+      <hemisphereLight args={['#87ceeb', '#4a7c59', 0.3]} />
 
       {/* Controls */}
       <OrbitControls target={cameraTarget} makeDefault />
@@ -164,13 +223,8 @@ export function SceneView() {
 
       {/* Scale markers along terrain edges */}
       {terrainBounds && (
-        <ScaleMarkers3D {...terrainBounds} />
+        <SimpleScaleMarkers {...terrainBounds} />
       )}
-
-      {/* Axis widget in corner */}
-      <AxisWidget />
-
-      {/* Post-processing disabled: EffectComposer incompatible with frameloop="demand" */}
     </Canvas>
   )
 }

@@ -30,10 +30,10 @@ platform/
 │       │   ├── SplitWorkspace.tsx # Resizable 2D/3D split view
 │       │   ├── CommandPalette.tsx # Cmd+K fuzzy command search (cmdk)
 │       │   ├── MapView.tsx        # deck.gl 2D heatmap with overlays
-│       │   ├── SceneView.tsx      # R3F 3D scene with post-processing
+│       │   ├── SceneView.tsx      # R3F 3D scene (lightweight lighting)
 │       │   ├── TerrainMesh.tsx    # Vertex-displaced terrain geometry
 │       │   ├── BuriedObjects.tsx  # 3D objects with Html labels
-│       │   ├── SceneAnnotations.tsx # Axis widget + scale markers
+│       │   ├── SceneAnnotations.tsx # Scale markers (available for future use)
 │       │   ├── toolbar/          # Toolbar components (9 files)
 │       │   ├── panels/           # Sheet panels (Settings, Data)
 │       │   ├── overlays/         # Map overlays (colorbar, scale bar, north arrow, playback)
@@ -93,7 +93,7 @@ cd platform && make build   # Production build
 - **Zustand** — Lightweight state (selection, view mode, panel open/close)
 - **TanStack Query** — Server state, caching, mutations
 - **deck.gl** — 2D heatmap (BitmapLayer, TextLayer, PathLayer + OrthographicView)
-- **React Three Fiber + drei** — 3D scene with post-processing (SSAO, Bloom)
+- **React Three Fiber + drei** — 3D scene with vertex-displaced terrain
 - **recharts** — Cross-section profile charts
 - **react-resizable-panels** — Split view layout
 - **framer-motion** — View transitions and animations
@@ -106,7 +106,7 @@ cd platform && make build   # Production build
 - **BitmapLayer** for heatmap (not HeatmapLayer) — pre-gridded data should not be re-processed with KDE
 - **OrthographicView** for 2D — local meter coordinates, not lat/lon
 - **camera.up = [0,0,1]** for 3D — matches Z-up coordinate convention
-- **frameloop="demand"** for 3D Canvas — only renders when scene changes (not continuous)
+- **frameloop="always"** for 3D Canvas — continuous rendering avoids WebGL context loss from invalidation timing issues. Environment HDR, shadow maps, and Hud removed to keep GPU context lightweight
 - **shadcn/ui components** in `src/components/ui/` are standard library code — excluded from eslint
 - **Vite proxy** routes `/api` to backend at localhost:8000
 
