@@ -8,10 +8,16 @@ import { useCrossSectionStore } from '../stores/crossSectionStore'
 /** Registers global keydown listeners. Call once at app root. */
 export function useKeyboardShortcuts() {
   const setViewMode = useAppStore((s) => s.setViewMode)
-  const toggleSidebar = useAppStore((s) => s.toggleSidebar)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Cmd+K / Ctrl+K — command palette (works even in inputs)
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        useAppStore.setState((s) => ({ commandPaletteOpen: !s.commandPaletteOpen }))
+        return
+      }
+
       // Skip if focus is in an interactive element
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
@@ -29,9 +35,6 @@ export function useKeyboardShortcuts() {
         case '4':
           setViewMode('comparison')
           break
-        case '[':
-          toggleSidebar()
-          break
         case '?':
           useAppStore.setState((s) => ({ shortcutLegendOpen: !s.shortcutLegendOpen }))
           break
@@ -42,6 +45,10 @@ export function useKeyboardShortcuts() {
         case 'a':
         case 'A':
           useAppStore.setState((s) => ({ showAnomalies: !s.showAnomalies }))
+          break
+        case 'c':
+        case 'C':
+          useAppStore.getState().toggleContours()
           break
         case 'x':
         case 'X': {
@@ -56,11 +63,12 @@ export function useKeyboardShortcuts() {
         }
         case 'Escape':
           useCrossSectionStore.getState().setIsDrawing(false)
+          useAppStore.setState({ commandPaletteOpen: false })
           break
       }
     }
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [setViewMode, toggleSidebar])
+  }, [setViewMode])
 }

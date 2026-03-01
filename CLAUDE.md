@@ -141,9 +141,36 @@ SI units throughout. Right-handed coordinate system: X=East, Y=North, Z=Up. Posi
 Active voice, first person plural for design decisions ("We selected..." not "It was decided...").
 
 ### Consensus Validation
-Critical design decisions are validated using multi-model consensus:
-- **Standard tier:** GPT-5.2 + Gemini 3 Pro Preview via PAL consensus tool
-- **Critical tier** (math/physics): GPT-5.2-Pro + Gemini 3 Pro Preview
+Critical design decisions are validated using multi-model consensus via PAL MCP `consensus` tool:
+- **Models:** `google/gemini-3.1-pro-preview` + `openai/gpt-5.3-codex` (OpenRouter namespace format, neutral stance)
+- Issues labeled `needs-planning` require consensus validation before implementation
+
+## Workflow
+
+This project follows the Universal Project Primer (personal variant).
+
+### Key Rules
+- Gitflow branching: `main` → `develop` → `feature/*`. Never commit directly to `main` or `develop`.
+- Issues labeled `needs-planning` require PAL MCP consensus before implementation.
+- PAL consensus models: `google/gemini-3.1-pro-preview` + `openai/gpt-5.3-codex` (neutral stance, via `mcp__pal__consensus`)
+- Run tests after every edit (PostToolUse hook on Edit|Write).
+- One commit per epic, referencing closed issues (`closes #N`).
+- Push to `develop` only. PRs for merging to `main`.
+
+### Autopilot
+- Do autonomously: ceremony, boilerplate, tests, lint, config, git ops, straightforward issues
+- Ask the user: epic-level planning approval, architecture decisions, scope changes, new service adoption
+- Never ask: style, commit messages, branch names, formatting choices
+
+### Testing
+- TDD: write failing tests first, then implement
+- Unit tests on every commit, integration on PR, E2E on merge to develop
+- Meaningful coverage of business logic, not vanity metrics
+
+### AI Review
+- Self-review diffs before committing
+- PAL consensus for non-trivial PRs
+- Subagents for parallel review passes (correctness, performance, security)
 
 ## Licenses
 - **Software/Firmware:** MIT License (`LICENSE-SOFTWARE.md`)

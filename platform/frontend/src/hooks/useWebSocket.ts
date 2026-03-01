@@ -17,6 +17,7 @@ export function useWebSocket(channel: string, options: UseWebSocketOptions = {})
   const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const msgCountRef = useRef(0)
   const rateTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const connectRef = useRef<() => void>(() => {})
 
   const setStatus = useStreamStore((s) => s.setStatus)
   const addPoint = useStreamStore((s) => s.addPoint)
@@ -105,9 +106,14 @@ export function useWebSocket(channel: string, options: UseWebSocketOptions = {})
       setStatus('disconnected')
       const delay = backoffRef.current
       backoffRef.current = Math.min(backoffRef.current * 2, 30000)
-      reconnectTimerRef.current = setTimeout(connect, delay)
+      reconnectTimerRef.current = setTimeout(() => connectRef.current(), delay)
     }
   }, [channel, setStatus, addPoint, addAnomaly, updateRate, cleanup])
+
+  // Keep connectRef in sync so the onclose callback can call the latest version
+  useEffect(() => {
+    connectRef.current = connect
+  }, [connect])
 
   useEffect(() => {
     if (enabled) {

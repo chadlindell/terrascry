@@ -25,7 +25,7 @@ export default function App() {
 
   if (isGallery && Gallery) {
     return (
-      <Suspense fallback={<div className="p-8 text-zinc-400">Loading gallery...</div>}>
+      <Suspense fallback={<div className="p-8 text-zinc-500">Loading gallery...</div>}>
         <Gallery />
       </Suspense>
     )

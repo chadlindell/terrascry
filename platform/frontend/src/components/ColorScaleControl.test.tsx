@@ -59,4 +59,12 @@ describe('ColorScaleControl', () => {
 
     expect(useColorScaleStore.getState().rangeMax).toBe(200)
   })
+
+  it('renders gradient bar canvas', () => {
+    const { container } = render(<ColorScaleControl />)
+    const canvas = container.querySelector('canvas')
+    expect(canvas).toBeInTheDocument()
+    expect(canvas).toHaveAttribute('width', '200')
+    expect(canvas).toHaveAttribute('height', '12')
+  })
 })
