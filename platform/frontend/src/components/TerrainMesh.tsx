@@ -1,7 +1,6 @@
 /** Terrain mesh with heatmap texture and optional elevation relief from gradient values. */
 
 import { useEffect, useMemo, useRef } from 'react'
-import { Grid } from '@react-three/drei'
 import * as THREE from 'three'
 import type { ScenarioDetail, Dataset } from '../api'
 import type { ColormapName } from '../colormap'
@@ -113,41 +112,26 @@ export function TerrainMesh({ scenario, dataset, colormap, range, verticalExagge
   }, [])
 
   return (
-    <group>
-      {/* Ground plane with vertex displacement */}
-      <mesh position={position} receiveShadow>
-        <planeGeometry
-          ref={geometryRef}
-          args={[xSize, ySize, segments.xSegs, segments.ySegs]}
-        />
-        {texture ? (
-          <meshStandardMaterial
-            map={texture}
-            roughness={0.7}
-            metalness={0.02}
-          />
-        ) : (
-          <meshStandardMaterial
-            color="#3f3f46"
-            transparent
-            opacity={0.4}
-            roughness={0.7}
-            metalness={0.02}
-          />
-        )}
-      </mesh>
-
-      {/* Grid helper */}
-      <Grid
-        position={[cx, cy, z + 0.001]}
-        args={[xSize, ySize]}
-        cellSize={1}
-        cellColor="#a1a1aa"
-        sectionSize={5}
-        sectionColor="#d4d4d8"
-        fadeDistance={50}
-        infiniteGrid={false}
+    <mesh position={position}>
+      <planeGeometry
+        ref={geometryRef}
+        args={[xSize, ySize, segments.xSegs, segments.ySegs]}
       />
-    </group>
+      {texture ? (
+        <meshStandardMaterial
+          map={texture}
+          roughness={0.8}
+          metalness={0}
+          side={THREE.DoubleSide}
+        />
+      ) : (
+        <meshStandardMaterial
+          color="#a1a1aa"
+          roughness={0.8}
+          metalness={0}
+          side={THREE.DoubleSide}
+        />
+      )}
+    </mesh>
   )
 }
