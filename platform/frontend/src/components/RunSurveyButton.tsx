@@ -1,5 +1,6 @@
 /** Run Survey button with loading spinner and inline error display. */
 
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAppStore } from '../stores/appStore'
 import { useSimulationParamsStore } from '../stores/simulationParamsStore'
 import { useSimulate } from '../hooks/useSimulate'
@@ -52,20 +53,37 @@ export function RunSurveyButton() {
       <button
         onClick={handleClick}
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-emerald-600 hover:bg-emerald-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isPending ? (
-          <>
-            <Spinner />
-            Simulating...
-          </>
-        ) : (
-          'Run Survey'
-        )}
+        <AnimatePresence mode="wait">
+          {isPending ? (
+            <motion.span
+              key="loading"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center gap-2"
+            >
+              <Spinner />
+              Simulating...
+            </motion.span>
+          ) : (
+            <motion.span
+              key="idle"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15 }}
+            >
+              Run Survey
+            </motion.span>
+          )}
+        </AnimatePresence>
       </button>
 
       {error && (
-        <p className="text-xs text-red-400 px-1">
+        <p className="text-xs text-red-600 px-1">
           {(error as Error).message}
         </p>
       )}

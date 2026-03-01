@@ -23,25 +23,31 @@ platform/
 ├── frontend/          # Vite + React + TypeScript
 │   └── src/
 │       ├── api.ts            # Typed fetch wrappers
-│       ├── colormap.ts       # Viridis/plasma/inferno colormaps
+│       ├── colormap.ts       # Viridis/plasma/inferno/diverging colormaps + LUTs
+│       ├── lib/utils.ts      # cn() helper (clsx + tailwind-merge)
 │       ├── components/
-│       │   ├── AppShell.tsx       # CSS Grid layout (320px sidebar + main)
+│       │   ├── AppShell.tsx       # Top toolbar + full-height content layout
 │       │   ├── SplitWorkspace.tsx # Resizable 2D/3D split view
-│       │   ├── ScenarioSelector.tsx
-│       │   ├── RunSurveyButton.tsx
-│       │   ├── ColorScaleControl.tsx
-│       │   ├── MapView.tsx        # deck.gl 2D heatmap
-│       │   ├── SceneView.tsx      # R3F 3D scene
-│       │   ├── TerrainMesh.tsx
-│       │   ├── BuriedObjects.tsx
-│       │   └── SurveyPath3D.tsx
+│       │   ├── CommandPalette.tsx # Cmd+K fuzzy command search (cmdk)
+│       │   ├── MapView.tsx        # deck.gl 2D heatmap with overlays
+│       │   ├── SceneView.tsx      # R3F 3D scene with post-processing
+│       │   ├── TerrainMesh.tsx    # Vertex-displaced terrain geometry
+│       │   ├── BuriedObjects.tsx  # 3D objects with Html labels
+│       │   ├── SceneAnnotations.tsx # Axis widget + scale markers
+│       │   ├── toolbar/          # Toolbar components (9 files)
+│       │   ├── panels/           # Sheet panels (Settings, Data)
+│       │   ├── overlays/         # Map overlays (colorbar, scale bar, north arrow, playback)
+│       │   └── ui/               # shadcn/ui primitives (Radix-based)
 │       ├── hooks/
 │       │   ├── useScenarios.ts    # TanStack Query hooks
 │       │   ├── useSimulate.ts     # Mutation hook
 │       │   └── useDataset.ts      # Active dataset management
-│       └── stores/
-│           ├── appStore.ts        # Selection, sidebar, view mode
-│           └── colorScaleStore.ts # Colormap, range (shared between views)
+│       ├── stores/
+│       │   ├── appStore.ts        # Selection, view mode, panel open/close
+│       │   ├── colorScaleStore.ts # Colormap, range (shared between views)
+│       │   └── playbackStore.ts   # Animated survey playback state
+│       └── utils/
+│           └── contours.ts        # d3-contour wrapper with label placement
 └── Makefile
 ```
 
@@ -81,20 +87,27 @@ cd platform && make build   # Production build
 
 ### Frontend
 - **Vite + React 19 + TypeScript** — Build toolchain
-- **Tailwind CSS v4** — Utility-first styling, zinc dark theme
-- **Zustand** — Lightweight state (selection, view mode)
+- **Tailwind CSS v4** — Utility-first styling, light zinc theme
+- **shadcn/ui** — Radix-based UI primitives (Dialog, Command, Sheet, Popover, etc.)
+- **cmdk** — Command palette (⌘K) for fuzzy-search commands
+- **Zustand** — Lightweight state (selection, view mode, panel open/close)
 - **TanStack Query** — Server state, caching, mutations
-- **deck.gl** — 2D heatmap (BitmapLayer + OrthographicView)
-- **React Three Fiber + drei** — 3D scene visualization
+- **deck.gl** — 2D heatmap (BitmapLayer, TextLayer, PathLayer + OrthographicView)
+- **React Three Fiber + drei** — 3D scene with post-processing (SSAO, Bloom)
+- **recharts** — Cross-section profile charts
 - **react-resizable-panels** — Split view layout
+- **framer-motion** — View transitions and animations
 
 ## Architecture Decisions
 
+- **Toolbar + Command Palette** instead of sidebar — 48px top toolbar with Cmd+K palette for all actions; panels open as Sheets/Dialogs
 - **GridData** uses flat row-major `values[]` in nanoTesla for direct WebGL TypedArray mapping
 - **Dataset payloads** stored in TanStack Query cache, not Zustand (avoids React state overhead with large arrays)
 - **BitmapLayer** for heatmap (not HeatmapLayer) — pre-gridded data should not be re-processed with KDE
 - **OrthographicView** for 2D — local meter coordinates, not lat/lon
 - **camera.up = [0,0,1]** for 3D — matches Z-up coordinate convention
+- **frameloop="demand"** for 3D Canvas — only renders when scene changes (not continuous)
+- **shadcn/ui components** in `src/components/ui/` are standard library code — excluded from eslint
 - **Vite proxy** routes `/api` to backend at localhost:8000
 
 ## Conventions

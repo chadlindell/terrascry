@@ -6,8 +6,13 @@ describe('appStore', () => {
     useAppStore.setState({
       selectedScenario: null,
       activeDatasetId: null,
-      sidebarOpen: true,
       viewMode: 'split',
+      showContours: true,
+      showAnomalies: false,
+      shortcutLegendOpen: false,
+      commandPaletteOpen: false,
+      settingsSheetOpen: false,
+      dataSheetOpen: false,
     })
   })
 
@@ -15,8 +20,10 @@ describe('appStore', () => {
     const state = useAppStore.getState()
     expect(state.selectedScenario).toBeNull()
     expect(state.activeDatasetId).toBeNull()
-    expect(state.sidebarOpen).toBe(true)
     expect(state.viewMode).toBe('split')
+    expect(state.commandPaletteOpen).toBe(false)
+    expect(state.settingsSheetOpen).toBe(false)
+    expect(state.dataSheetOpen).toBe(false)
   })
 
   it('setSelectedScenario updates selected scenario', () => {
@@ -41,14 +48,6 @@ describe('appStore', () => {
     expect(useAppStore.getState().activeDatasetId).toBeNull()
   })
 
-  it('toggleSidebar flips sidebarOpen', () => {
-    expect(useAppStore.getState().sidebarOpen).toBe(true)
-    useAppStore.getState().toggleSidebar()
-    expect(useAppStore.getState().sidebarOpen).toBe(false)
-    useAppStore.getState().toggleSidebar()
-    expect(useAppStore.getState().sidebarOpen).toBe(true)
-  })
-
   it('setViewMode updates viewMode', () => {
     useAppStore.getState().setViewMode('2d')
     expect(useAppStore.getState().viewMode).toBe('2d')
@@ -56,5 +55,69 @@ describe('appStore', () => {
     expect(useAppStore.getState().viewMode).toBe('3d')
     useAppStore.getState().setViewMode('split')
     expect(useAppStore.getState().viewMode).toBe('split')
+  })
+
+  it('showContours defaults to true', () => {
+    expect(useAppStore.getState().showContours).toBe(true)
+  })
+
+  it('toggleContours flips showContours', () => {
+    expect(useAppStore.getState().showContours).toBe(true)
+    useAppStore.getState().toggleContours()
+    expect(useAppStore.getState().showContours).toBe(false)
+    useAppStore.getState().toggleContours()
+    expect(useAppStore.getState().showContours).toBe(true)
+  })
+
+  it('toggleAnomalies flips showAnomalies', () => {
+    expect(useAppStore.getState().showAnomalies).toBe(false)
+    useAppStore.getState().toggleAnomalies()
+    expect(useAppStore.getState().showAnomalies).toBe(true)
+    useAppStore.getState().toggleAnomalies()
+    expect(useAppStore.getState().showAnomalies).toBe(false)
+  })
+
+  it('setCommandPaletteOpen controls command palette', () => {
+    useAppStore.getState().setCommandPaletteOpen(true)
+    expect(useAppStore.getState().commandPaletteOpen).toBe(true)
+    useAppStore.getState().setCommandPaletteOpen(false)
+    expect(useAppStore.getState().commandPaletteOpen).toBe(false)
+  })
+
+  it('toggleCommandPalette flips commandPaletteOpen', () => {
+    expect(useAppStore.getState().commandPaletteOpen).toBe(false)
+    useAppStore.getState().toggleCommandPalette()
+    expect(useAppStore.getState().commandPaletteOpen).toBe(true)
+    useAppStore.getState().toggleCommandPalette()
+    expect(useAppStore.getState().commandPaletteOpen).toBe(false)
+  })
+
+  it('setShortcutLegendOpen controls shortcut legend', () => {
+    useAppStore.getState().setShortcutLegendOpen(true)
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(true)
+    useAppStore.getState().setShortcutLegendOpen(false)
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+  })
+
+  it('toggleShortcutLegend flips shortcutLegendOpen', () => {
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+    useAppStore.getState().toggleShortcutLegend()
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(true)
+    useAppStore.getState().toggleShortcutLegend()
+    expect(useAppStore.getState().shortcutLegendOpen).toBe(false)
+  })
+
+  it('setSettingsSheetOpen controls settings sheet', () => {
+    useAppStore.getState().setSettingsSheetOpen(true)
+    expect(useAppStore.getState().settingsSheetOpen).toBe(true)
+    useAppStore.getState().setSettingsSheetOpen(false)
+    expect(useAppStore.getState().settingsSheetOpen).toBe(false)
+  })
+
+  it('setDataSheetOpen controls data sheet', () => {
+    useAppStore.getState().setDataSheetOpen(true)
+    expect(useAppStore.getState().dataSheetOpen).toBe(true)
+    useAppStore.getState().setDataSheetOpen(false)
+    expect(useAppStore.getState().dataSheetOpen).toBe(false)
   })
 })
