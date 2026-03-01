@@ -69,6 +69,14 @@ describe('appStore', () => {
     expect(useAppStore.getState().showContours).toBe(true)
   })
 
+  it('toggleAnomalies flips showAnomalies', () => {
+    expect(useAppStore.getState().showAnomalies).toBe(false)
+    useAppStore.getState().toggleAnomalies()
+    expect(useAppStore.getState().showAnomalies).toBe(true)
+    useAppStore.getState().toggleAnomalies()
+    expect(useAppStore.getState().showAnomalies).toBe(false)
+  })
+
   it('setCommandPaletteOpen controls command palette', () => {
     useAppStore.getState().setCommandPaletteOpen(true)
     expect(useAppStore.getState().commandPaletteOpen).toBe(true)

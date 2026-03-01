@@ -44,7 +44,7 @@ export function useKeyboardShortcuts() {
           break
         case 'a':
         case 'A':
-          useAppStore.setState((s) => ({ showAnomalies: !s.showAnomalies }))
+          useAppStore.getState().toggleAnomalies()
           break
         case 'c':
         case 'C':

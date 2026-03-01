@@ -161,7 +161,7 @@ function CommandPaletteInner({ open, setOpen }: { open: boolean; setOpen: (open:
           <CommandItem
             value="toggle anomalies"
             onSelect={() =>
-              run(() => useAppStore.setState((s) => ({ showAnomalies: !s.showAnomalies })))
+              run(() => useAppStore.getState().toggleAnomalies())
             }
           >
             {showAnomalies ? <EyeOff className="mr-2 h-4 w-4" /> : <Eye className="mr-2 h-4 w-4" />}

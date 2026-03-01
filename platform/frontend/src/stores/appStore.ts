@@ -22,6 +22,7 @@ interface AppState {
   setActiveDatasetId: (id: string | null) => void
   setViewMode: (mode: ViewMode) => void
   toggleContours: () => void
+  toggleAnomalies: () => void
   setCommandPaletteOpen: (open: boolean) => void
   setSettingsSheetOpen: (open: boolean) => void
   setDataSheetOpen: (open: boolean) => void
@@ -44,6 +45,7 @@ export const useAppStore = create<AppState>((set) => ({
   setActiveDatasetId: (id) => set({ activeDatasetId: id }),
   setViewMode: (mode) => set({ viewMode: mode }),
   toggleContours: () => set((s) => ({ showContours: !s.showContours })),
+  toggleAnomalies: () => set((s) => ({ showAnomalies: !s.showAnomalies })),
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
   setSettingsSheetOpen: (open) => set({ settingsSheetOpen: open }),
   setDataSheetOpen: (open) => set({ dataSheetOpen: open }),

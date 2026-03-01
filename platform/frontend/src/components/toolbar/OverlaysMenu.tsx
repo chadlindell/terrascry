@@ -37,7 +37,7 @@ export function OverlaysMenu() {
         <DropdownMenuCheckboxItem
           checked={showAnomalies}
           onCheckedChange={() =>
-            useAppStore.setState((s) => ({ showAnomalies: !s.showAnomalies }))
+            useAppStore.getState().toggleAnomalies()
           }
         >
           Anomalies
